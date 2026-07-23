@@ -1,0 +1,28 @@
+# ----- node/typescript artifacts -----
+node_modules/
+dist/
+build/
+coverage/
+*.tsbuildinfo
+.turbo/
+.vite/
+
+
+# ----- python -----
+__pycache__/
+*.pyc
+.venv/
+
+
+# ----- os/editor artifacts -----
+*.log
+.DS_Store
+
+
+# ----- local stuff -----
+.env
+.env.*
+*.pem
+scripts/
+.pre-commit-config.yaml
+tools/data-extract/reference/
