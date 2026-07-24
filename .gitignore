@@ -8,7 +8,7 @@ coverage/
 .vite/
 
 
-# ----- python -----
+# ----- python artifacts -----
 __pycache__/
 *.pyc
 .venv/
