@@ -1,0 +1,28 @@
+{
+  "name": "@repo/root",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Boon build planner and tracker for Hades and Hades II.",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:core": "vitest run packages/core",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "depcruise packages apps"
+  },
+  "devDependencies": {
+    "dependency-cruiser": "^18.1.0",
+    "fast-check": "^4.9.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  }
+}
