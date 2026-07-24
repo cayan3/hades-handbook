@@ -1,0 +1,59 @@
+name: quality
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Required check (set in branch protection). Typecheck, the import-boundary
+  # rule that keeps the package layout honest, and the test suite, which carries
+  # the domain engine's property tests.
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm test
+
+  # Python tool (data-extract). Runs the synthetic fixtures — the only extractor
+  # coverage that can run here, since the real dump is not in the repo.
+  extractor-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: run extractor fixtures
+        run: |
+          if [ ! -d tools/data-extract ]; then
+            echo "tools/data-extract is not in the tree yet; nothing to run"
+            exit 0
+          fi
+          pip install pytest
+          set +e
+          pytest tools/data-extract/
+          code=$?
+          set -e
+          # Exit 5 is "no tests collected". The fixtures are not written yet, so
+          # an empty run is expected rather than a failure.
+          if [ "$code" -eq 5 ]; then
+            echo "no extractor tests collected yet"
+            exit 0
+          fi
+          exit $code
