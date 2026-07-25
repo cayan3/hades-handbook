@@ -5,14 +5,41 @@ on:
   pull_request:
 
 jobs:
+  # Secret scanning. This walks the entire history on every run rather than the
+  # commits a given push happened to carry. The vendor's action does the latter,
+  # deriving its range from the push payload as
+  # `<first pushed commit>^..<last pushed commit>` — which git cannot resolve
+  # whenever a push begins at a root commit, i.e. the first push of a repository
+  # or any force-push of rewritten history, because a root commit has no parent.
+  # A full scan depends on nothing but the checkout, so no event shape can
+  # malform it, and it cannot quietly skip commits that fall outside a range.
+  # The trade is that a secret reaching history keeps this red until the history
+  # is rewritten, which is the intended behaviour: the leak is real until then.
   secrets:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        # Every commit, not a diff — the scan below needs the full history.
         with: { fetch-depth: 0 }
-      - uses: gitleaks/gitleaks-action@v2
+      - name: scan history for secrets
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Pinned so an upstream rule change cannot turn an untouched branch
+          # red on its own. Bump in step with the local pre-commit hook, so a
+          # commit that passes locally is judged by the same ruleset here.
+          GITLEAKS_VERSION: 8.30.1
+        run: |
+          set -euo pipefail
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          cd "$RUNNER_TEMP"
+          curl -sSfL "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt" -o checksums.txt
+          curl -sSfL "$base/$tarball" -o "$tarball"
+          # Pinning a version only means something if we check we got that
+          # version; a scanner is a poor thing to fetch on trust.
+          grep " $tarball\$" checksums.txt | sha256sum -c -
+          tar -xzf "$tarball" gitleaks
+          cd "$GITHUB_WORKSPACE"
+          "$RUNNER_TEMP/gitleaks" git . --redact --no-banner --exit-code 1
 
   # Required check (set in branch protection). Typecheck, the import-boundary
   # rule that keeps the package layout honest, and the test suite, which carries
