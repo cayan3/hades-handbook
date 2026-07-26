@@ -1,17 +1,19 @@
 /**
  * The pure domain package.
  *
- * Given everything true about a run and a requirement, return what is still
- * needed, that it is met, or that it is impossible this run. Everything the
- * product shows is a view over that answer.
+ * Given everything true abt a run & a requirement, return: what's still
+ * needed, that it's already met, or that it's impossible this run.
+ * What's displayed by the UI is just a player-digestible view over that answer.
  *
- * This package is pure: no IO, no rendering, no clock, no game branching. It
- * imports nothing else in the repo, which the import-boundary lint rule
- * enforces — npm's flat node_modules would otherwise let it drift.
+ * This package is pure (yippee), i.e. no IO, no rendering, no clock,
+ * no game branching, no imports from anywhere in the repo. The "no imports from
+ * anything else in the repo" characteristic is enforced by the import-boundary
+ * lint rule enforces (w/o it, it would go unenforced since npm's flat
+ * node_modules wouldn't catch it).
  *
- * The two things it cannot answer alone — what a game's pool rules are, and who
- * belongs to a named set — arrive as interfaces declared here and implemented
- * further out.
+ * There are two things that this package can't answer alone: 1) what a game's
+ * pool rules are, and 2) which traits belong to a named set. Both things arrive as
+ * interfaces declared here & are actually implemented further out.
  */
 
 export type {
@@ -33,3 +35,5 @@ export type { Reason, Status } from "./status.js";
 export type { GameRules } from "./game-rules.js";
 export type { CatalogLookups } from "./catalog-lookups.js";
 export { evaluate } from "./evaluate.js";
+export { anyLeafStarted, boonState } from "./boon-state.js";
+export type { BoonState } from "./boon-state.js";
