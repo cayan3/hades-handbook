@@ -442,3 +442,33 @@ describe("P8 — whether a requirement is met does not depend on feasibility", (
     );
   });
 });
+
+describe("P9 — an acquisition that lands proves the requirement was reachable", () => {
+  it("was never impossible, and its residual asked for no more than landed", () => {
+    fc.assert(
+      fc.property(worldArb, ({ req, facts, rules, lookups, delta }) => {
+        fc.pre(evaluate(req, applyAcquisition(facts, delta), rules, lookups).kind === "satisfied");
+        const before = evaluate(req, facts, rules, lookups);
+
+        // Nothing an acquisition can satisfy was ever impossible. This is the
+        // direction the engine must not get wrong: a false "unreachable" writes
+        // off a run that was still winnable, where a false "not yet" costs only
+        // a hint. Every other invariant here bounds impossible from below.
+        expect(before.kind).not.toBe("unsatisfiable");
+
+        // And the residual asked for no MORE than this acquisition supplied.
+        // The acquisition is drawn by the generator rather than derived from the
+        // residual, so it is an independent witness: a residual inflated past
+        // the shortfall fails here while still passing soundness, which only
+        // ever asks whether the residual is enough.
+        if (before.kind === "pending") {
+          expect(
+            evaluate(before.residual, applyAcquisition(zeroBaseline(facts), delta), rules, lookups)
+              .kind,
+          ).toBe("satisfied");
+        }
+      }),
+      RUNS,
+    );
+  });
+});

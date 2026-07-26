@@ -331,6 +331,19 @@ describe("anyOf", () => {
     expect(residualOf(twoOfThree, facts)).toEqual({ kind: "anyOf", min: 1, of: [b, c] });
   });
 
+  it("is still pending when exactly as many branches remain as are needed", () => {
+    // The boundary the shortfall check sits on: two needed, two still open, no
+    // slack at all. A group is not impossible until it is genuinely a branch
+    // short, and reporting one that is merely tight as impossible would write
+    // off a run that can still be completed by taking every branch left.
+    const rules = stubRules({ blocked: new Map([["C", { kind: "banned", trait: "C" }]]) });
+    expect(residualOf(twoOfThree, makeFacts(), rules)).toEqual({
+      kind: "anyOf",
+      min: 2,
+      of: [a, b],
+    });
+  });
+
   it("keeps the shortfall context when too few branches remain", () => {
     const rules = stubRules({
       blocked: new Map<string, Reason>([
