@@ -9,8 +9,9 @@
  * imports nothing else in the repo, which the import-boundary lint rule
  * enforces — npm's flat node_modules would otherwise let it drift.
  *
- * The evaluator and its property suite are not implemented yet; this is the
- * shape they are written against.
+ * The two things it cannot answer alone — what a game's pool rules are, and who
+ * belongs to a named set — arrive as interfaces declared here and implemented
+ * further out.
  */
 
 export type {
@@ -30,3 +31,5 @@ export type { Requirement } from "./requirement.js";
 export type { HeldTrait, RunFacts, RunIntent, RunState } from "./run-state.js";
 export type { Reason, Status } from "./status.js";
 export type { GameRules } from "./game-rules.js";
+export type { CatalogLookups } from "./catalog-lookups.js";
+export { evaluate } from "./evaluate.js";
