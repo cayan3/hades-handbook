@@ -273,13 +273,22 @@ function takeMembers(
 }
 
 /**
- * A size for "a pending residual only shrinks".
+ * A size for "a pending residual only shrinks": what the cheapest way of
+ * satisfying it still costs.
  *
  * Counts what is outstanding rather than nodes: how many more of a set, how many
  * more of an element, how many branches of an any-of still have to land. A
  * requirement that keeps its shape but drops a count has genuinely got smaller.
+ *
+ * An any-of is charged for only the `min` cheapest of its branches, because only
+ * that many ever have to be taken. Charging for all of them would read a branch
+ * turning impossible as *progress*: the dead branch leaves the residual while
+ * `min` stays where it was, so the total would fall at the exact moment the
+ * requirement got harder. That transition needs feasibility to move, so nothing
+ * here can currently produce it — but the measure is what a widened monotonicity
+ * claim would rest on, and it should not be the thing that gives way.
  */
-export function residualSize(req: Requirement): number {
+export function residualCost(req: Requirement): number {
   switch (req.kind) {
     case "hasTrait":
     case "godInPool":
@@ -291,9 +300,11 @@ export function residualSize(req: Requirement): number {
     case "hasElement":
       return req.count;
     case "all":
-      return req.of.reduce((total, child) => total + residualSize(child), 0);
-    case "anyOf":
-      return req.min + req.of.reduce((total, child) => total + residualSize(child), 0);
+      return req.of.reduce((total, child) => total + residualCost(child), 0);
+    case "anyOf": {
+      const costs = req.of.map(residualCost).sort((a, b) => a - b);
+      return costs.slice(0, req.min).reduce((total, cost) => total + cost, 0);
+    }
   }
 }
 

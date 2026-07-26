@@ -6,24 +6,31 @@ import {
   applyAcquisition,
   held,
   makeFacts,
+  residualCost,
   stubLookups,
   stubRules,
   zeroBaseline,
 } from "./test-support.js";
 
 /**
- * The acquisition oracle, under test in its own right.
+ * What the property suite measures against.
  *
- * `acquisitionFor` is what the residual properties measure a residual against,
- * so an error in it does not fail loudly — it quietly weakens whatever consumes
- * it. The cases below are the ones where it previously disagreed with what
- * evaluation actually does.
+ * Has its own tests here since measuring the property suite against untested
+ * standards would be yk bad (like "moving goalposts" but instead of good
+ * goalposts "simply moving", they're literally just bad goalposts in the first
+ * place rip).
+ *
+ * A residual is judged by two things the suite supplies instead of derives: the
+ * acquisition that should satisfy it, and the size it should shrink. An
+ * error in either of these doesn't fail loudly, instead just quietly weakening
+ * anything that consumes it. The cases below are the ones where each
+ * previously disagreed w/ what evaluation actually does.
  */
 
 const rules = stubRules();
 
 describe("acquisitionFor", () => {
-  it("L1: a failed branch contributes nothing", () => {
+  it("keeps a failed branch out of the list", () => {
     const req: Requirement = {
       kind: "anyOf",
       min: 1,
@@ -42,7 +49,7 @@ describe("acquisitionFor", () => {
     expect([...(delta?.held.keys() ?? [])]).toEqual(["t2"]);
   });
 
-  it("L2: two sets sharing a member are closed by acquiring it once", () => {
+  it("closes two sets that share a member by acquiring it once", () => {
     const shared = stubLookups({ s1: ["m1"], s2: ["m1"] });
     const req: Requirement = {
       kind: "all",
@@ -59,7 +66,7 @@ describe("acquisitionFor", () => {
     expect(evaluate(req, applyAcquisition(facts, delta), rules, shared).kind).toBe("satisfied");
   });
 
-  it("M2: a level upgrade is expressible, and satisfies both P4 halves", () => {
+  it("expresses a level upgrade rather than refusing it", () => {
     const facts = makeFacts({ held: held(["t1", 1]) });
     const req: Requirement = { kind: "hasTrait", trait: "t1", minLevel: 3 };
     const status = evaluate(req, facts, rules, stubLookups());
@@ -95,11 +102,50 @@ describe("acquisitionFor", () => {
     const delta = acquisitionFor(status.residual, facts, rules, lookups);
     expect(delta).not.toBeNull();
     if (delta === null) return;
-    // must acquire a NEW member, not count the held one
+    // must acquire a genuinely new member, not just count the one already held
     expect(delta.held.size).toBe(1);
     expect(
       evaluate(status.residual, applyAcquisition(zeroBaseline(facts), delta), rules, lookups).kind,
     ).toBe("satisfied");
     expect(evaluate(req, applyAcquisition(facts, delta), rules, lookups).kind).toBe("satisfied");
+  });
+});
+
+describe("residualCost", () => {
+  const lookups = stubLookups({ s1: ["m1", "m2", "m3"] });
+  const req: Requirement = {
+    kind: "anyOf",
+    min: 1,
+    of: [
+      { kind: "hasTrait", trait: "t1" },
+      { kind: "hasSet", set: "s1", count: 3 },
+    ],
+  };
+
+  /**
+   * Situation: one branch of two dies. In this case, the residual keeps
+   * the same `min` and loses the cheap branch, so the run is strictly worse
+   * off (rip). The measure itself has to literally say so; otherwise, a
+   * widened/strengthened monotonicity claim would just pass straight through this.
+  */
+  it("does not read a branch going impossible as progress", () => {
+    const open = evaluate(req, makeFacts(), rules, lookups);
+    const narrowed = evaluate(
+      req,
+      makeFacts(),
+      stubRules({ blocked: new Map([["t1", { kind: "banned", trait: "t1" }]]) }),
+      lookups,
+    );
+    if (open.kind !== "pending" || narrowed.kind !== "pending") throw new Error("setup");
+
+    expect(residualCost(open.residual)).toBe(1);
+    expect(residualCost(narrowed.residual)).toBe(3);
+  });
+
+  it("falls as a count is paid down", () => {
+    const facts = makeFacts({ held: held("m1") });
+    const status = evaluate({ kind: "hasSet", set: "s1", count: 3 }, facts, rules, lookups);
+    if (status.kind !== "pending") throw new Error("setup");
+    expect(residualCost(status.residual)).toBe(2);
   });
 });

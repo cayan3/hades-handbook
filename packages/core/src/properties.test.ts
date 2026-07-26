@@ -18,7 +18,7 @@ import {
   held,
   makeFacts,
   rank,
-  residualSize,
+  residualCost,
   stubLookups,
   stubRules,
   zeroBaseline,
@@ -283,7 +283,7 @@ describe("P2 — monotonicity under acquisition, feasibility held fixed", () => 
 
         expect(rank(after.kind)).toBeGreaterThanOrEqual(rank(before.kind));
         if (before.kind === "pending" && after.kind === "pending") {
-          expect(residualSize(after.residual)).toBeLessThanOrEqual(residualSize(before.residual));
+          expect(residualCost(after.residual)).toBeLessThanOrEqual(residualCost(before.residual));
         }
       }),
       RUNS,
