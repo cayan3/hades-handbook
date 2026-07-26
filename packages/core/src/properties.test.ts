@@ -129,20 +129,31 @@ function rulesFor(feasibility: Feasibility): GameRules {
 }
 
 /**
- * A run and a further acquisition, both drawn so the feasibility layer permits
- * them: nothing banned is held, no god that cannot enter the pool is in it, and
- * no element count exceeds what the run can reach.
+ * A run and a further acquisition.
  *
- * That coherence is load-bearing rather than tidiness. A generator free to
- * "acquire" a banned trait, or to hold two Water in a run whose Water ceiling is
- * zero, describes a run the rules themselves say cannot exist — and in such a
- * run a requirement can climb back out of impossible, which makes a residual
- * grow. The very first version of this suite failed on exactly that, roughly one
- * run in three: an element ceiling below the element count already held. The
- * evaluator was right and the scenario was nonsense.
+ * **The acquisition is drawn so the feasibility layer permits it**: nothing
+ * banned is acquired, no god that cannot enter the pool is added to it, and no
+ * element is gained past its ceiling. That much is load-bearing rather than
+ * tidiness. A generator free to "acquire" a banned trait, or to gain a second
+ * Water in a run whose Water ceiling is one, describes a step the rules say
+ * cannot be taken, and after such a step an impossible branch climbs back to
+ * pending: the dead branch rejoins an any-of residual and the residual *grows*.
+ * The very first version of this suite failed on exactly that, roughly one run
+ * in three. The evaluator was right and the scenario was nonsense.
  *
- * (Hand-edited facts *can* be incoherent once overrides exist further out. That
- * is why monotonicity is a claim about evaluation under acquisition and never a
+ * **What the run already holds is deliberately not constrained that way.** It
+ * may hold a trait the feasibility layer now blocks, have a god pooled that
+ * could not enter the pool today, or hold more of an element than its ceiling
+ * would now allow. Those states are reachable in production — evaluation runs on
+ * effective facts, and the override layer can set one without the other — and
+ * they are the only states that tell "satisfaction is checked before
+ * feasibility" apart from the reverse ordering. Ruling them out costs the suite
+ * precisely that distinction and buys nothing back: what an impossible answer
+ * turns on never depends on the holding, only on the ceiling, so monotonicity,
+ * the residual fixpoint, residual soundness and satisfied-stability were each
+ * measured to hold without it.
+ *
+ * (Monotonicity remains a claim about evaluation under acquisition, never a
  * promise about the sequence of states a player sees.)
  */
 const worldArb = feasibilityArb.chain((feasibility) => {
@@ -155,13 +166,19 @@ const worldArb = feasibilityArb.chain((feasibility) => {
       .tuple(...traits.map(() => fc.integer({ min: 1, max: 3 })))
       .map((levels) => traits.map((trait, i) => [trait, levels[i] ?? 1] as const));
 
-  // Have and gain are drawn together per element so their sum stays under the
-  // ceiling; a run cannot acquire past what it can reach.
+  // What the run already holds is drawn freely, including above the ceiling;
+  // what it can still gain is not. The gain is clamped into [0, ceiling - have],
+  // which is empty once the run is at or above the ceiling — a run cannot
+  // acquire past what it can reach, and clamping at zero keeps an acquisition
+  // from quietly becoming a loss.
   const elementPlan = fc.tuple(
     ...ELEMENTS.map((element) =>
       fc
-        .tuple(fc.integer({ min: 0, max: ceiling(element) }), fc.nat({ max: 3 }))
-        .map(([have, gain]) => [element, have, Math.min(gain, ceiling(element) - have)] as const),
+        .tuple(fc.nat({ max: 3 }), fc.nat({ max: 3 }))
+        .map(
+          ([have, gain]) =>
+            [element, have, Math.max(0, Math.min(gain, ceiling(element) - have))] as const,
+        ),
     ),
   );
 
@@ -169,8 +186,8 @@ const worldArb = feasibilityArb.chain((feasibility) => {
     .tuple(
       requirementArb,
       lookupsArb,
-      fc.subarray(obtainable).chain(levelled),
-      fc.subarray(reachable),
+      fc.subarray([...TRAITS]).chain(levelled),
+      fc.subarray([...GODS]),
       elementPlan,
       fc.option(fc.constantFrom(...KEEPSAKES), { nil: undefined }),
       fc.option(fc.constantFrom(...ASPECTS), { nil: undefined }),
@@ -401,6 +418,25 @@ describe("P7 — what the player intends changes nothing", () => {
         expect(evaluate(req, a.facts, rules, lookups)).toEqual(
           evaluate(req, b.facts, rules, lookups),
         );
+      }),
+      RUNS,
+    );
+  });
+});
+
+describe("P8 — whether a requirement is met does not depend on feasibility", () => {
+  it("answers satisfied under any feasibility layer or none", () => {
+    fc.assert(
+      fc.property(worldArb, ({ req, facts, rules, lookups }) => {
+        // Satisfaction is read before feasibility in every rule, so whether a
+        // requirement is *met* is a question about the facts alone. A run that
+        // holds a trait the layer now blocks, or has a god pooled that could not
+        // enter the pool today, still meets a requirement naming them — and it
+        // is only in such a run that the two orderings give different answers,
+        // which is why the generator is free to produce one.
+        const answered = evaluate(req, facts, rules, lookups).kind === "satisfied";
+        const permissive = evaluate(req, facts, stubRules(), lookups).kind === "satisfied";
+        expect(permissive).toBe(answered);
       }),
       RUNS,
     );
