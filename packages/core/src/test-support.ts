@@ -139,17 +139,27 @@ export function applyAcquisition(facts: RunFacts, delta: Acquisition): RunFacts 
  *
  * Returns null where no such acquisition exists, and the caller skips the case:
  *
- *  - **A trait already held.** Only an upgrade would satisfy it, and re-acquiring
- *    something already held is not a growth of the run — it is also the one case
- *    where the residual is absolute (a level threshold) rather than a delta.
  *  - **A keepsake or an aspect.** Equipping is a swap, not a gain, so it is
  *    outside what "acquire this" can mean; an aspect cannot even be changed
  *    mid-run.
  *  - **A set with too few unheld members to close the gap**, which a real
  *    residual will not contain but a generated one can.
  *
+ * A trait held below the level asked for is deliberately *not* one of those
+ * cases. Its residual is a threshold rather than a count of steps, and merging
+ * an acquisition takes the higher of the two levels, so "hold it at three" is
+ * expressible whether or not it is already held at one. Treating it as
+ * unacquirable dropped every level upgrade out of the properties that consume
+ * this.
+ *
  * Nothing the feasibility layer refuses is ever put in the list: a run cannot
  * acquire a banned trait or pool a god that cannot enter it.
+ *
+ * Each requirement is threaded through the list built so far and hands back a
+ * new one, so a branch that turns out not to work contributes nothing. An
+ * earlier version accumulated in place, which left the successful half of a
+ * failed branch behind and quietly made the list larger than the residual
+ * actually asked for.
  */
 export function acquisitionFor(
   req: Requirement,
@@ -157,8 +167,15 @@ export function acquisitionFor(
   rules: GameRules,
   lookups: CatalogLookups,
 ): Acquisition | null {
-  const delta = emptyAcquisition();
-  return collect(req, facts, rules, lookups, delta) ? delta : null;
+  return collect(req, facts, rules, lookups, emptyAcquisition());
+}
+
+function clone(acquisition: Acquisition): Acquisition {
+  return {
+    held: new Map(acquisition.held),
+    godPool: new Set(acquisition.godPool),
+    elements: new Map(acquisition.elements),
+  };
 }
 
 function collect(
@@ -166,40 +183,63 @@ function collect(
   facts: RunFacts,
   rules: GameRules,
   lookups: CatalogLookups,
-  into: Acquisition,
-): boolean {
+  sofar: Acquisition,
+): Acquisition | null {
   switch (req.kind) {
     case "hasTrait": {
-      if (facts.held.has(req.trait) || rules.isBlocked(req.trait, facts) !== null) return false;
-      into.held.set(req.trait, Math.max(into.held.get(req.trait) ?? 0, req.minLevel ?? 1));
-      return true;
+      const wanted = req.minLevel ?? 1;
+      // Held high enough already, so there is nothing to go and get. Read before
+      // feasibility, exactly as evaluation reads it.
+      if ((facts.held.get(req.trait)?.level ?? 0) >= wanted) return sofar;
+      if (rules.isBlocked(req.trait, facts) !== null) return null;
+      const next = clone(sofar);
+      next.held.set(req.trait, Math.max(next.held.get(req.trait) ?? 0, wanted));
+      return next;
     }
     case "hasSet":
-      return takeMembers(lookups.setMembers(req.set), req.count, facts, rules, into);
+      return takeMembers(lookups.setMembers(req.set), req.count, facts, rules, sofar);
     case "hasBoonFrom":
-      return takeMembers(lookups.boonsOfGod(req.god), req.count, facts, rules, into);
+      return takeMembers(lookups.boonsOfGod(req.god), req.count, facts, rules, sofar);
     case "hasElement": {
       // The maximum, not the sum: two thresholds on one element are satisfied by
       // meeting the larger, and the count adds to whatever the run already has.
-      into.elements.set(req.element, Math.max(into.elements.get(req.element) ?? 0, req.count));
-      return true;
+      const next = clone(sofar);
+      next.elements.set(req.element, Math.max(next.elements.get(req.element) ?? 0, req.count));
+      return next;
     }
-    case "godInPool":
-      if (!rules.canGodEnterPool(req.god, facts)) return false;
-      into.godPool.add(req.god);
-      return true;
+    case "godInPool": {
+      if (facts.godPool.has(req.god)) return sofar;
+      if (!rules.canGodEnterPool(req.god, facts)) return null;
+      const next = clone(sofar);
+      next.godPool.add(req.god);
+      return next;
+    }
     case "hasKeepsake":
     case "aspectIn":
-      return false;
-    case "all":
-      return req.of.every((child) => collect(child, facts, rules, lookups, into));
+      return null;
+    case "all": {
+      let acc = sofar;
+      for (const child of req.of) {
+        const next = collect(child, facts, rules, lookups, acc);
+        if (next === null) return null;
+        acc = next;
+      }
+      return acc;
+    }
     case "anyOf": {
+      let acc = sofar;
       let taken = 0;
       for (const child of req.of) {
         if (taken >= req.min) break;
-        if (collect(child, facts, rules, lookups, into)) taken += 1;
+        const next = collect(child, facts, rules, lookups, acc);
+        // A branch that fails simply does not advance the list, which is what
+        // keeps its half-finished work out of the result.
+        if (next !== null) {
+          acc = next;
+          taken += 1;
+        }
       }
-      return taken >= req.min;
+      return taken >= req.min ? acc : null;
     }
   }
 }
@@ -209,19 +249,27 @@ function takeMembers(
   count: number,
   facts: RunFacts,
   rules: GameRules,
-  into: Acquisition,
-): boolean {
+  sofar: Acquisition,
+): Acquisition | null {
+  const next = clone(sofar);
   let taken = 0;
   for (const member of members) {
     if (taken >= count) break;
-    // Only members the run does not already hold: acquiring one it holds would
-    // not raise the tally, which is what makes the shortfall arithmetic sound.
-    if (facts.held.has(member) || into.held.has(member)) continue;
+    // A member the run already holds is not counted: the residual's count is
+    // what remains after those, so counting them again would under-acquire.
+    if (facts.held.has(member)) continue;
+    // One the list already asks for is different — it will be held once this is
+    // applied, so it counts towards this set without being asked for twice.
+    // Two sets sharing a member are closed by acquiring it once.
+    if (next.held.has(member)) {
+      taken += 1;
+      continue;
+    }
     if (rules.isBlocked(member, facts) !== null) continue;
-    into.held.set(member, 1);
+    next.held.set(member, 1);
     taken += 1;
   }
-  return taken >= count;
+  return taken >= count ? next : null;
 }
 
 /**
