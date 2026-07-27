@@ -13,11 +13,12 @@ import type {
 /**
  * Everything true about the current run, split by provenance.
  *
- * One flat shape for both games. The split is not organisational: it *is* the
- * conflict policy for external run-state sources. A source writes `facts` and
- * never touches `intent`, and evaluation reads `facts` only — which makes
- * "what the user plans cannot change what is satisfiable" a type guarantee
- * rather than a convention.
+ * Both games share one flat shape. "Provenance" here means the Facts vs Intent
+ * split, and is also abt where the data came from: a sync source writes (& may
+ * overwrite anything in) `facts` and never touches anything in `intent`, while
+ * evaluation only ever reads `facts`. That's what makes the conflict policy
+ * here (i.e. "what the user plans can't change what is satisfiable") an actual
+ * type guarantee instead of a just convention.
  */
 export interface RunState {
   facts: RunFacts;
@@ -32,34 +33,54 @@ export interface RunFacts {
 
   held: Map<TraitId, HeldTrait>;
   /**
-   * Gods the run has actually taken a reward from. Stored, not derived from
-   * `held`: a keepsake-forced or offered-but-declined god has no held boon, and
-   * purging a god's only boon does not free the slot — the game records the
-   * pickup and never undoes it.
+   * Gods the player has actually taken a reward from this run. These are
+   * stored (i.e. not derived from `held`) bc even purging all boons from a
+   * certain god doesn't "remove" them from the god pool. After the player picks
+   * up a boon from a god, that "pickup" is never "undone" (there is no ctrl-z lol rip).
    */
   godPool: Set<GodId>;
-  /** Empty for hades1. */
+  /** Empty for hades1 ofc. */
   elements: Map<Element, number>;
   slots: Map<SlotId, TraitId | null>;
-  loadout: { weapon?: string; aspect?: AspectId; keepsake?: KeepsakeId };
+  /** The equipped kit. (Not the Loadout panel, which displays obtained boons). */
+  equipped: { weapon?: string; aspect?: AspectId; keepsake?: KeepsakeId };
   resources: Map<ResourceId, number>;
-  /** Modelled and honoured by evaluation; never populated in v1. */
+  /**
+   * Not populated in v1. (This is primarily for Hades II's Vow of Denial.)
+   * Evaluation doesn't read this field anyway; a ban reaches it as as
+   * `isBlocked` which means `banned` (i.e. as a feasibility verdict abt one
+   * trait, which is the same way every other block arrives), so there's
+   * exactly one path in (i.e. as input to a `GameRules` implementation).
+   */
   bans: Set<TraitId>;
   /**
-   * How far into the run we are, as 1-based counters — ordering is all that
-   * matters, so never region *names*, which differ per game and would make this
-   * type game-aware. Absent when the source cannot supply it.
+   * How far into the run the player is. 1-indexed counters (i.e. instead of
+   * 0-indexed (for once lol)), and w/o any actual region names since ordering is
+   * all that matters & region names differ per game (or even type of run in
+   * Hades II). Absent when the source can't supply it.
    *
-   * The god-pool cap is soft: an absent god's keepsake pulls that god in past
-   * it, and keepsakes are swappable each region, so how many keepsake
-   * opportunities remain is what decides whether a god is genuinely
-   * unreachable. With no progress, treat a god as still reachable — wrongly
-   * declaring one unreachable is the most damaging error this engine can make.
+   * Important (at least) bc the god pool cap is soft, i.e. even if the player
+   * already has four distinct gods in their pool, equipping a fifth god's
+   * keepsake "forces" that god into the god pool. Since keepsakes are swappable
+   * each region, the number of remaining keepsake-equipping opportunities
+   * determines whether or not a god is genuinely unreachable. If run progress
+   * isn't tracked, the default is to treat a god as still reachable (bc it's
+   * more damaging to mistakenly display a reachable god (even if they're only
+   * reachable-via-keepsake) as unreachable; also, "this god is technically
+   * reachable but you'll need to equip their keepsake to get them in your god
+   * pool" is actually yk actionable whereas the dead end of "unreachable."
+   * is.. much less so (not to mention maybe a bit ermmm idk ouch-ful ig
+   * :pensive: :pensive:)).
    */
   progress?: { region: number; chamber: number };
 }
 
-/** `level` 1 = base. Rarity is state, not drop probability. */
+/**
+ * `rarity` is abt the boon state (i.e. `HeldTrait.rarity`) (it's not abt boon
+ *  drop probability or whatnot). `level` is abt Pom of Power levels/ranks, and
+ *  is 1-index (for once (again) lolol). The `req.minLevel ?? 1` in `evaluate.ts`
+ *  defaults to "--", which is what makes `hasTrait{minLevel:1}` mean "held at all".
+ */
 export interface HeldTrait {
   rarity: Rarity;
   level: number;
@@ -67,7 +88,8 @@ export interface HeldTrait {
 
 /** User-authored state. Never written by an external run-state source. */
 export interface RunIntent {
-  /** Pinned targets. A pinned target *is* its progress-tracking entry. */
+  /** Pinned targets (i.e. goals, forget-me-not's (FMN's for short)).
+   * A pinned target serves as its own progress-tracking entry. */
   pins: Set<TraitId>;
   planned: Map<TraitId, "tentative" | "planned">;
   notes: Map<TraitId, string>;

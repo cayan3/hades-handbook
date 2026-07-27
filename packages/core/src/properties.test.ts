@@ -27,13 +27,14 @@ import {
 /**
  * The invariants, over generated runs.
  *
- * A failing property here is a design error until proven otherwise: the fix is
- * to correct the model, not to loosen the assertion.
+ * A failing property here is a design error until proven otherwise; i.e. the
+ * fix is to correct the model, not to like cheat it by loosening the assertion.
  *
- * Everything is generated from one small pool of ids so that requirements and
- * facts actually overlap. Drawing free-form strings would make almost every
- * requirement reference something the run has never heard of, and the suite
- * would pass by never testing anything interesting.
+ * Everything is generated from one small pool of ids so requirements and facts
+ * actually overlap. Using like free-form strings or something would make almost
+ * every requirement reference something the run has erm never heard of (lol),
+ * which means the suite would pass... but only bc it erm never actually tested
+ * anything interesting o_0.
  */
 
 const TRAITS = ["t1", "t2", "t3", "t4", "t5"] as const;
@@ -66,24 +67,26 @@ const leafArb: fc.Arbitrary<Requirement> = fc.oneof(
     keepsake: fc.constantFrom(...KEEPSAKES),
   }),
   fc.record({
-    kind: fc.constant("aspectIn" as const),
+    kind: fc.constant("hasAspect" as const),
     aspects: fc.uniqueArray(fc.constantFrom(...ASPECTS), { minLength: 1 }),
   }),
 );
 
 /**
- * An any-of asks for no more branches than it has.
+ * An any-of asks for no more branches than it has (he does not in fact need two apples ^.^).
  *
  * Drawing `min` independently of the branch list made roughly half of every run
- * a requirement no run could ever meet — `min: 3` over an empty `of` and its
- * neighbours — and an unsatisfiable world is one the residual properties skip
- * entirely, so the suite was spending most of its budget proving nothing. It is
- * also not a shape the data can take: an arity past the branch count is an
- * authoring error the catalog build rejects, so a generator that produces it by
- * accident is testing input the engine will never be handed.
+ * a requirement no run could ever meet (`min: 3` over an empty `of` & its
+ * neighbours o_0) and an unsatisfiable world is one the residual properties
+ * like just skip entirely, which meant the suite was spending most of its
+ * time proving.. literally nothing (:smile: :smile:). It's also not a shape
+ * the data can take since an arity past the branch count is erm an authoring
+ * error (:no_mouth: :no_mouth:) that the catalog build rejects, so a generator
+ * that produces it by accident is uhhh doing (unpaid) overtime (rip) by testing
+ * input the engine will never actually be handed (:skull: :skull:).
  *
- * `evaluate` must still answer for it, which is a claim about totality rather
- * than about residuals — P1 makes it separately against `malformedArb`.
+ * `evaluate` must still answer for it, which is a claim about totality instead
+ * of about residuals (P1 makes it separately against `malformedArb`).
  */
 const anyOfArb = (branch: fc.Arbitrary<Requirement>): fc.Arbitrary<Requirement> =>
   fc
@@ -108,7 +111,8 @@ const requirementArb: fc.Arbitrary<Requirement> = fc.letrec<{ requirement: Requi
 
 /**
  * The shapes the catalog build rejects, kept only so totality is still asserted
- * over them: an any-of wanting more branches than exist, including none at all.
+ * over them: an any-of wanting more branches than exist (greedy!), including
+ * literally none at all.
  */
 const malformedArb: fc.Arbitrary<Requirement> = fc
   .tuple(fc.array(leafArb, { maxLength: 2 }), fc.integer({ min: 1, max: 4 }))
@@ -124,7 +128,7 @@ const lookupsArb: fc.Arbitrary<CatalogLookups> = fc
   )
   .map(([s1, s2, g1, g2, g3]) => stubLookups({ s1, s2 }, { g1, g2, g3 }));
 
-/** What the feasibility layer refuses, drawn before anything that must respect it. */
+/** What the feasibility layer refuses, drawn before anything that must yk respect it. */
 interface Feasibility {
   blocked: readonly string[];
   unreachable: readonly string[];
@@ -159,29 +163,28 @@ function rulesFor(feasibility: Feasibility): GameRules {
  * A run and a further acquisition.
  *
  * **The acquisition is drawn so the feasibility layer permits it**: nothing
- * banned is acquired, no god that cannot enter the pool is added to it, and no
- * element is gained past its ceiling. That much is load-bearing rather than
- * tidiness. A generator free to "acquire" a banned trait, or to gain a second
- * Water in a run whose Water ceiling is one, describes a step the rules say
- * cannot be taken, and after such a step an impossible branch climbs back to
- * pending: the dead branch rejoins an any-of residual and the residual *grows*.
- * The very first version of this suite failed on exactly that, roughly one run
- * in three. The evaluator was right and the scenario was nonsense.
+ * banned is acquired, no god that can't enter the pool is added to it, and no
+ * element is gained past its respective `maxAttainableElement`. Without that,
+ * the property is simply well false. A generator free to "acquire" a banned
+ * trait or to like gain a second Water in a run w/ a Water ceiling of 1,
+ * describes a step the rules say literally can't be taken, and after such a
+ * step an impossible branch erm well climbs back to pending (the dead branch
+ * rejoins an any-of residual & the residual ermmm grows o_0).
  *
- * **What the run already holds is deliberately not constrained that way.** It
+ * **What the run already holds is deliberately not constrained that way.** Run
  * may hold a trait the feasibility layer now blocks, have a god pooled that
- * could not enter the pool today, or hold more of an element than its ceiling
- * would now allow. Those states are reachable in production — evaluation runs on
- * effective facts, and the override layer can set one without the other — and
- * they are the only states that tell "satisfaction is checked before
- * feasibility" apart from the reverse ordering. Ruling them out costs the suite
- * precisely that distinction and buys nothing back: what an impossible answer
- * turns on never depends on the holding, only on the ceiling, so monotonicity,
- * the residual fixpoint, residual soundness and satisfied-stability were each
- * measured to hold without it.
+ * couldn't currently enter the pool, or hold more of an element than its ceiling
+ * would now allow. Those states are in fact reachable in prod (evaluation runs
+ * on effective facts, & the override layer can set one w/o the other) and
+ * they're the only states that distinguish "satisfaction is checked before
+ * feasibility" from the reverse ordering. Ruling them out costs the suite
+ * precisely that distinction, and also gets literally nothing back since what
+ * an impossible answer "turns on" never depends on the holding (& only depends on the
+ * ceiling), so monotonicity, the residual fixpoint, residual soundness, &
+ * satisfied-stability were each measured to hold w/o it.
  *
- * (Monotonicity remains a claim about evaluation under acquisition, never a
- * promise about the sequence of states a player sees.)
+ * (Monotonicity is still a claim about evaluation under acquisition, never like
+ * a promise about the sequence of states a player sees.)
  */
 const worldArb = feasibilityArb.chain((feasibility) => {
   const obtainable = TRAITS.filter((trait) => !feasibility.blocked.includes(trait));
@@ -193,11 +196,12 @@ const worldArb = feasibilityArb.chain((feasibility) => {
       .tuple(...traits.map(() => fc.integer({ min: 1, max: 3 })))
       .map((levels) => traits.map((trait, i) => [trait, levels[i] ?? 1] as const));
 
-  // What the run already holds is drawn freely, including above the ceiling;
-  // what it can still gain is not. The gain is clamped into [0, ceiling - have],
-  // which is empty once the run is at or above the ceiling — a run cannot
-  // acquire past what it can reach, and clamping at zero keeps an acquisition
-  // from quietly becoming a loss.
+  // What the run already holds is drawn freely (including above the ceiling),
+  // but what the run can still gain is not. The gain is restricted to
+  // [0, ceiling - have], which is empty once the run is at or above the ceiling;
+  // i.e. a run can't acquire anything past what it can actually reach, and
+  // clamping at zero prevents an acquisition from just likee quietly becoming
+  // a loss ig.
   const elementPlan = fc.tuple(
     ...ELEMENTS.map((element) =>
       fc
@@ -241,15 +245,15 @@ const worldArb = feasibilityArb.chain((feasibility) => {
         gainedTraits,
         gainedGods,
       ]) => {
-        const loadout: RunFacts["loadout"] = {};
-        if (keepsake !== undefined) loadout.keepsake = keepsake;
-        if (aspect !== undefined) loadout.aspect = aspect;
+        const equipped: RunFacts["equipped"] = {};
+        if (keepsake !== undefined) equipped.keepsake = keepsake;
+        if (aspect !== undefined) equipped.aspect = aspect;
 
         const base = makeFacts({
           held: held(...heldEntries),
           godPool: new Set(pool),
           elements: new Map<Element, number>(elements.map(([element, have]) => [element, have])),
-          loadout,
+          equipped,
         });
 
         const delta: Acquisition = {
@@ -258,12 +262,13 @@ const worldArb = feasibilityArb.chain((feasibility) => {
           elements: new Map<Element, number>(elements.map(([element, , gain]) => [element, gain])),
         };
 
-        // Soundness needs a delta that acquires only what the run does not
+        // Soundness needs a delta that acquires only what the run doesn't
         // already hold. Re-acquiring a held trait is a level upgrade, and the
-        // two set-shaped atoms count *members*: such an upgrade closes one of
-        // the residual's counts against a baseline holding nothing, while
-        // adding no new member to the facts the residual came from. Every other
-        // property is indifferent to the overlap and keeps the free `delta`.
+        // two set-shaped atoms count *members*, so that kind of upgrade closes
+        // one of the residual's counts against a baseline holding literally
+        // nothing, while adding no new member to the facts that the residual
+        // came from. Every other property is indifferent to the overlap (lol)
+        // and just well keeps the free `delta` ig.
         const strictDelta: Acquisition = {
           held: new Map([...delta.held].filter(([trait]) => !base.held.has(trait))),
           godPool: delta.godPool,
@@ -283,26 +288,30 @@ const worldArb = feasibilityArb.chain((feasibility) => {
 });
 
 /**
- * Ten times the default, because the interesting cases are a minority of what
- * gets generated. Measured over 20000 scenarios: 27% come out pending, and of
- * those about half describe an acquisition that can actually be made — so the
- * properties that only bite on a pending status would otherwise see a couple of
- * dozen real cases per run.
+ * Set to be ten times the default (:cowboy: :cowboy:), mostly bc the
+ * interesting cases are yk a minority of what actually gets generated (lol).
+ * When measuring over 20000 scenarios, 27% came out pending, and about half of
+ * that 27% described an acquisition that can actually be made (so the
+ * properties that may seem angelic bc they cause problems on a pending status
+ * would otherwise see a couple dozen "real" cases per run :no_mouth: :no_mouth:).
  */
 const RUNS = { numRuns: 1000 };
 
 /**
  * For the two properties whose precondition is selective enough that `RUNS`
- * leaves them thin. Both bite only on a world that is pending *and* whose
- * generated acquisition happens to answer it, which measurement puts at ~7% of
- * worlds — about seventy real samples per thousand runs.
+ * still leaves them thin (:pensive: :pensive:). Both of those properties "bite"
+ * only on a world that's both pending and whose generated acquisition just
+ * happens to answer it (which measurement puts at roughly 7% of worlds, i.e.
+ * about seventy "real" samples for every thousand runs :skull: :skull:).
  *
- * That is too few for what these two carry. P9's first clause is the only thing
- * in the suite bounding `unsatisfiable` from above, which is the axis a previous
- * round of mutations survived on, and P4's universal form is the half that does
- * not build its own witness. Raising the count rather than steering the
- * generator towards the requirement's own ids is deliberate: the independence of
- * the witness is exactly what gives both their power.
+ * That is.. unfortunately too few for the value these two lil guys carry
+ * (:pensive: :pensive:). In particular, P9's first clause is the only thing
+ * in the suite bounding `unsatisfiable` from above, which is ermmm the very
+ * axis a previous round of mutations survived on (oops), and P4's universal
+ * form is the half that does *not* build its own witness. Raising the count
+ * instead of like steering the generator towards the requirement's own ids is
+ * deliberate bc the independence of the witness itself is exactly what gives
+ * both their power/credibility.
  */
 const DEEP_RUNS = { numRuns: 6000 };
 
@@ -320,9 +329,9 @@ describe("P1 — determinism and totality", () => {
   });
 
   it("still answers for an any-of asking for more branches than it has", () => {
-    // Totality is a contract about any input, not only well-formed input. The
+    // Totality is a contract about any input, not only well-formed inputs. The
     // catalog build rejects this shape, so the other properties no longer draw
-    // it; the engine must nonetheless answer rather than throw.
+    // it at all; still, the engine needs to answer instead of just like throw (..lol).
     fc.assert(
       fc.property(worldArb, malformedArb, ({ facts, rules, lookups }, req) => {
         expect(["satisfied", "pending", "unsatisfiable"]).toContain(
@@ -336,12 +345,16 @@ describe("P1 — determinism and totality", () => {
 
 describe("P2 — monotonicity under acquisition, feasibility held fixed", () => {
   /**
-   * The generated rules answer from the trait, god or element asked about and
-   * never from the facts, which is what "feasibility held fixed" means. With
-   * facts-driven feasibility the claim is simply false, and on purpose: taking a
-   * blocker makes a trait impossible, taking an exclusive-group member makes its
-   * siblings impossible, and filling the pool can close it. Those three are
-   * asserted as worked examples instead.
+   * The generated rules answer from the trait, god, or element asked about, and
+   * never from the facts, which is what "feasibility held fixed" means (yay).
+   * With facts-driven feasibility, the claim is just well false; this is
+   * deliberate bc taking a blocker makes a trait impossible, taking an
+   * exclusive-group member makes its siblings impossible, and filling the pool
+   * can close it.
+   *
+   * Each of those three is asserted as a worked example whose rules *do*
+   * actually read the facts; otherwise, excluding them here would mean nothing
+   * checks them at all (:sparkles: :sparkles:).
    */
   it("never lowers a status, and only shrinks a residual", () => {
     fc.assert(
@@ -367,9 +380,9 @@ describe("P3 — a residual restates itself", () => {
         fc.pre(status.kind === "pending");
         if (status.kind !== "pending") return;
 
-        // Against the facts it came from it would double-count what is already
-        // held — "two more Water" re-read as "two Water" when one is in hand.
-        // The baseline is the run with nothing acquired.
+        // Against the facts it came from it would double-count what's already
+        // held (e.g. "two more Water" re-read as "two Water" when one is
+        // literally in hand). (The baseline here is the run w/ nothing acquired.)
         expect(evaluate(status.residual, zeroBaseline(facts), rules, lookups)).toEqual(status);
       }),
       RUNS,
@@ -385,15 +398,16 @@ describe("P4 — a residual is a sound shopping list", () => {
         fc.pre(status.kind === "pending");
         if (status.kind !== "pending") return;
 
-        // Skipped where no acquisition can satisfy the residual: equipping a
-        // keepsake or an aspect, neither of which is a gain the run can simply
-        // add, and a set with too few unheld members left to close its gap.
+        // Skipped where no acquisition can actually satisfy the residual:
+        // equipping a keepsake or weapon aspect (neither of which is a gain
+        // the run can just yk add), and a set with too few unheld members left
+        // to actually close its gap (:pensive: :pensive:).
         const delta = acquisitionFor(status.residual, facts, rules, lookups);
         fc.pre(delta !== null);
         if (delta === null) return;
 
-        // Both halves matter. The first proves the list really does answer the
-        // residual, so the second cannot pass by asking for nothing.
+        // Both halves matter here: the first proves the list really does answer
+        // the residual, so the second can't just pass by asking for nothing.
         expect(
           evaluate(status.residual, applyAcquisition(zeroBaseline(facts), delta), rules, lookups)
             .kind,
@@ -406,14 +420,15 @@ describe("P4 — a residual is a sound shopping list", () => {
 
   it("holds for any strict growth that answers it, not only the derived one", () => {
     // The clause above builds its own witness, and the builder reads the same
-    // rules `evaluate` does — held before feasibility, nothing banned acquired —
-    // so a shared misreading would pass both. This states the invariant as a
-    // universal instead: whatever the generator hands over, if it answers the
-    // residual then it answers the requirement. That is where the property's
-    // power to catch an under-stated residual actually lives.
+    // rules `evaluate` does (i.e. held before feasibility, nothing banned
+    // acquired) so any shared misreading would pass both (:pensive: :pensive:).
+    // This states the invariant as a universal instead; whatever the
+    // generator hands over, if it answers the residual then it answers the
+    // requirement. This is where the property's ability to catch an
+    // under-stated residual actually shows itself (:triumph: :triumph:).
     //
-    // The growth is strict: a delta re-naming a held trait falsifies the claim
-    // for the set-shaped atoms without either side being wrong.
+    // The growth is strict bc a delta re-naming a held trait falsifies the
+    // claim for the set-shaped atoms w/o either side being wrong.
     fc.assert(
       fc.property(worldArb, ({ req, facts, rules, lookups, strictDelta }) => {
         const status = evaluate(req, facts, rules, lookups);
@@ -474,8 +489,8 @@ describe("P6 — an any-of collapses", () => {
   });
 
   it("keeps a branch that another unmet node still needs", () => {
-    // t2 leaves the any-of, which is satisfied by t1, but survives in the
-    // residual because the second node asks for it in its own right.
+    // t2 leaves the any-of, which is satisfied by t1, but is still included in
+    // the residual bc the second node separately asks for it in its own right.
     const facts = makeFacts({ held: held("t1") });
     const outer: Requirement = {
       kind: "all",
@@ -507,9 +522,9 @@ describe("P7 — what the player intends changes nothing", () => {
   it("evaluates two runs differing only in intent identically", () => {
     fc.assert(
       fc.property(worldArb, intentArb, intentArb, ({ req, facts, rules, lookups }, one, two) => {
-        // The guarantee is structural — evaluation is handed facts and never the
-        // whole run state, so intent is not in scope to be read. This asserts
-        // the seam has not been widened.
+        // The guarantee here is structural: evaluation is given facts and
+        // never the whole run state, so intent isn't even in scope to be read.
+        // This asserts the seam hasn't been widened/strengthened.
         const a: RunState = { facts, intent: one };
         const b: RunState = { facts, intent: two };
         expect(evaluate(req, a.facts, rules, lookups)).toEqual(
@@ -526,11 +541,12 @@ describe("P8 — whether a requirement is met does not depend on feasibility", (
     fc.assert(
       fc.property(worldArb, ({ req, facts, rules, lookups }) => {
         // Satisfaction is read before feasibility in every rule, so whether a
-        // requirement is *met* is a question about the facts alone. A run that
-        // holds a trait the layer now blocks, or has a god pooled that could not
-        // enter the pool today, still meets a requirement naming them — and it
-        // is only in such a run that the two orderings give different answers,
-        // which is why the generator is free to produce one.
+        // requirement is *met* is a question about literally just the facts.
+        // A run that holds a trait the layer now blocks or has a god pooled
+        // that couldn't enter the pool today still meets a requirement
+        // naming them. Also, it's only in that kind of run where the two
+        // orderings give different answers (which is why the generator is yk
+        // free to produce one).
         const answered = evaluate(req, facts, rules, lookups).kind === "satisfied";
         const permissive = evaluate(req, facts, stubRules(), lookups).kind === "satisfied";
         expect(permissive).toBe(answered);
@@ -549,15 +565,15 @@ describe("P9 — an acquisition that lands proves the requirement was reachable"
 
         // Nothing an acquisition can satisfy was ever impossible. This is the
         // direction the engine must not get wrong: a false "unreachable" writes
-        // off a run that was still winnable, where a false "not yet" costs only
-        // a hint. Every other invariant here bounds impossible from below.
+        // off a run that was still winnable, whereas a false "not yet" costs
+        // only a lil hint. Every other invariant here bounds impossible from below.
         expect(before.kind).not.toBe("unsatisfiable");
 
-        // And the residual asked for no MORE than this acquisition supplied.
-        // The acquisition is drawn by the generator rather than derived from the
-        // residual, so it is an independent witness: a residual inflated past
-        // the shortfall fails here while still passing soundness, which only
-        // ever asks whether the residual is enough.
+        // Also, the residual asked for no *more* than this acquisition supplied.
+        // Since the acquisition is drawn by the generator instead of derived
+        // from the residual, it's an independent witness. This means a residual
+        // inflated past the shortfall still passes soundness (which only ever
+        // asks whether the residual is enough) but actually fails here.
         if (before.kind === "pending") {
           expect(
             evaluate(before.residual, applyAcquisition(zeroBaseline(facts), delta), rules, lookups)

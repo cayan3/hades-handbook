@@ -6,34 +6,35 @@ import type { RunFacts } from "./run-state.js";
 import type { Reason, Status } from "./status.js";
 
 /**
- * Given everything true about a run and a requirement, return what is still
- * needed, that it is met, or that it is impossible this run.
+ * Given everything true about a run and a requirement, return what's still
+ * needed, that it's already been met, or that it's impossible to meet this run.
  *
- * Pure, total and deterministic: every requirement shape is handled, no branch
- * throws, and nothing outside `facts`, `rules` and `lookups` is read. The user's
- * plans are not an input — what someone intends to pick cannot change what is
- * satisfiable, and that stays true by construction because this function is
- * given facts and never the whole run state.
+ * This is pure, total, and deterministic: every requirement shape is handled,
+ * no branch throws any errors, and nothing outside `facts`, `rules`, &
+ * `lookups` is read. The user's plans aren't an input, since what someone
+ * "intends to pick" can't change what's legitimately satisfiable; that stays
+ * true by construction bc this function is given facts and never the entire run state.
  *
- * Two conventions hold across every rule below.
+ * Two conventions hold across every rule below:
  *
- * **Satisfaction is checked before feasibility, always.** A trait you already
- * hold reads satisfied even if the feasibility layer would now refuse to hand it
- * to you. This is what makes "once satisfied, acquiring more keeps it satisfied"
- * true, and it is why purging is the only thing that can take a requirement back
- * to unmet.
+ * Convention 1: **Satisfaction is checked before feasibility, always.**
+ * A trait a user already holds is read as satisfied even if the feasibility
+ * layer would now refuse to hand it to them. This is what makes "once
+ * satisfied, acquiring more keeps it satisfied" true, and it's also why
+ * purging is the only thing that can take a requirement back to being unmet.
  *
- * **Feasibility for a trait comes only from `rules.isBlocked`.** Bans, aspect
- * conflicts, slot and exclusive-group collisions and one-directional blocks all
- * arrive through that one call, so this function never inspects `facts.bans`
- * itself. Element counts are read from `facts.elements` as the run's running
- * total; the non-boon element sources on the rules interface feed the ceiling
+ * Convention 2: **Feasibility for a trait comes only from `rules.isBlocked`.**
+ * Bans, weapon aspect conflicts, slot & exclusive-group collisions, and
+ * one-directional blocks all arrive through that one call, so this function
+ * never directly inspects `facts.bans` itself. Element counts (for Hades II)
+ * are read from `facts.elements` as the run's running total; the non-boon
+ * element sources on the rules interface are what influence the ceiling
  * calculation, and adding them here would double-count.
  *
- * The status a requirement gets is a *residual*: the part still outstanding,
- * expressed as another requirement. "Two more Water", not "false". Everything
- * the product displays — per-goal progress, an any-of collapsing once a branch
- * is taken, "impossible tonight" — is a view over that.
+ * The status a requirement gets is a *residual*: the part still missing/needed,
+ * expressed as another requirement. (E.g. "two more Water", not just "false").
+ * Everything the UI displays (e.g. per-goal progress, an any-of collapsing
+ * once a branch is taken, "impossible tonight" indicators) is a view over that.
  */
 export function evaluate(
   req: Requirement,
@@ -51,33 +52,46 @@ export function evaluate(
 
     case "godInPool": {
       if (facts.godPool.has(req.god)) return SATISFIED;
-      // The pool cap is soft: an absent god's keepsake pulls that god in past
-      // it, and keepsakes are swappable each region, so how many keepsake
-      // opportunities remain is what decides whether a god is genuinely
-      // unreachable. Without run progress we cannot count them, so we report
-      // "not yet" — wrongly declaring a god unreachable is the most damaging
-      // answer this engine can give, and "you'll need a keepsake" is actionable
-      // where a dead end is not.
+      // The god pool cap is soft, i.e. even if the player already has four
+      // distinct gods in their pool, equipping a fifth god's keepsake "forces"
+      // that god into the god pool. Since keepsakes are swappable each region,
+      // the number of remaining keepsake-equipping opportunities determines
+      // whether or not a god is genuinely unreachable. If run progress isn't
+      // tracked, the default is to treat a god as still reachable (bc it's more
+      // damaging to mistakenly display a reachable god (even if they're only
+      // reachable-via-keepsake) as unreachable; also, "this god is technically
+      // reachable but you'll need to equip their keepsake to get them in your
+      // god pool" is actually yk actionable whereas the dead end of
+      // "unreachable." is.. much less so (not to mention maybe a bit ermmm idk
+      // ouch-ful ig :pensive: :pensive:)).
       if (facts.progress === undefined) return pending(req);
       if (rules.canGodEnterPool(req.god, facts)) return pending(req);
-      // Always a full pool, never an excluded god: the rules call answers with a
-      // boolean and cannot tell the two apart. Exclusion reaches evaluation
-      // through `isBlocked` on a trait instead, and a god who can never enter
-      // the pool at all is a catalog fact, so a requirement naming one should
-      // not exist in authored data.
+      // This function always reports godPoolFull bc canGodEnterPool(g, f)
+      // returns a boolean, so false means "god can't enter" but there are two
+      // distinct possibilities for why that's the case: either the pool is full
+      // (which is a run state), or the god is permanently excluded (which is a
+      // catalog fact, e.g. GodKind being NPC/Ally). Since canGodEnterPool(g, f)
+      // returns false in both cases (so can't tell the two apart), godPoolFull
+      // supplies the additional info needed to distinguish between the two.
+      // Also, godInPool never handles god exclusion from the pool. Instead,
+      // exclusion reaches evaluation through `isBlocked` on a trait (e.g.
+      // asking abt a trait of an excluded god can make rules.isBlocked return
+      // {kind:"godExcluded"}). Any gods that can never enter the pool at all
+      // (e.g. Hermes in both games) is a catalog fact, so there shouldn't be
+      // any requirements naming them in the first place.
       return unsatisfiable({ kind: "godPoolFull", god: req.god });
     }
 
     case "hasKeepsake":
       // Never impossible: keepsakes are swapped freely between regions.
-      return facts.loadout.keepsake === req.keepsake ? SATISFIED : pending(req);
+      return facts.equipped.keepsake === req.keepsake ? SATISFIED : pending(req);
 
     case "hasElement": {
       const have = facts.elements.get(req.element) ?? 0;
       if (have >= req.count) return SATISFIED;
       const max = rules.maxAttainableElement(req.element, facts);
-      // `needed` is the full requirement rather than the shortfall, so it
-      // compares like with like against the ceiling.
+      // Here, `needed` is yk the whole requirement instead of the shortfall, so it
+      // can just be read against the ceiling directly.
       if (max < req.count) {
         return unsatisfiable({
           kind: "elementCeiling",
@@ -103,13 +117,14 @@ export function evaluate(
       }));
     }
 
-    case "aspectIn": {
-      const equipped = facts.loadout.aspect;
-      if (equipped === undefined) return pending(req);
-      if (req.aspects.includes(equipped)) return SATISFIED;
-      // A weapon aspect is chosen when the run starts and cannot be changed
-      // mid-run, so the wrong one equipped is structural, not "not yet".
-      return unsatisfiable({ kind: "aspectConflict", aspect: equipped });
+    case "hasAspect": {
+      const aspect = facts.equipped.aspect;
+      if (aspect === undefined) return pending(req);
+      if (req.aspects.includes(aspect)) return SATISFIED;
+      // Since weapon aspect is chosen before the run starts & can't be swapped
+      // mid-run, this is literally structurally impossible & should display as
+      // such instead of likee always showing as "not yet" (rip).
+      return unsatisfiable({ kind: "aspectConflict", aspect });
     }
 
     case "all": {
@@ -120,9 +135,10 @@ export function evaluate(
         if (status.kind === "pending") residuals.push(status.residual);
         else if (status.kind === "unsatisfiable") reasons.push(status.reason);
       }
-      // No shortfall context here on purpose: an `all` whose children failed for
-      // unrelated reasons has no "how many more" to report. Those two fields
-      // exist for groups that were a pick short, which this never is.
+      // There's purposefully no shortfall context here bc an `all` whose
+      // children failed for unrelated reasons has no "how many more" to report.
+      // Those two fields exist for groups that were a pick short, which this
+      // never is.
       if (reasons.length > 0) return unsatisfiable({ kind: "composite", reasons });
       if (residuals.length === 0) return SATISFIED;
       return pending({ kind: "all", of: residuals });
@@ -140,10 +156,10 @@ export function evaluate(
       }
       if (satisfiedCount >= req.min) return SATISFIED;
       const needed = req.min - satisfiedCount;
-      // A bare list of reasons cannot express "two were needed and one
-      // alternative was merely pending" — which is exactly the group the UI must
-      // not render as a flat impossible. Carrying both numbers is what lets it
-      // say "one short" instead.
+      // A single bare list of reasons can't express "two were needed and one
+      // alternative was merely pending", which is yk exactly the group the UI
+      // must not display as just a flat impossible. Carrying both numbers is
+      // what lets it correctly indicate "one (pick) short" instead.
       if (residuals.length < needed) {
         return unsatisfiable({
           kind: "composite",
@@ -152,8 +168,10 @@ export function evaluate(
           pendingAlternatives: residuals.length,
         });
       }
-      // The satisfied branches drop out of the residual, which is what makes an
-      // any-of collapse to nothing once enough of it is taken.
+      // The satisfied branches drop out of the residual (you're making progress
+      // woohoo :starstruck: :starstruck:), which is what makes an any-of
+      // collapse to nothing once enough of it is taken (gj you did it yay
+      // yippee :partying_face: :partying_face:).
       return pending({ kind: "anyOf", min: needed, of: residuals });
     }
   }
@@ -171,9 +189,14 @@ function unsatisfiable(reason: Reason): Status {
 
 interface MemberTally {
   held: number;
-  /** Not held and not blocked — the members that could still close the gap. */
+  /** Not held and not blocked; the members that could still close the gap (:triumph: :triumph:). */
   gettable: number;
-  /** Why the rest are out of reach, for the composite reason. */
+  /** Why the rest of the members are out of reach; needed for the composite
+   * reason, i.e. this collects individual reasons for why each member is
+   * unreachable (instead of just collapsing all reasons into one single
+   * "impossible"/"unreachable"), which then become the `composite` reason's
+   * `reasons`.
+  */
   blocked: Reason[];
 }
 
@@ -189,9 +212,10 @@ function tallyMembers(
       continue;
     }
     // Deliberately not recursive: a member counts as gettable on its own
-    // feasibility, without evaluating its prerequisites in turn. Recursing would
-    // not terminate on a set whose member requires the set, and it would trade
-    // "not yet" for "impossible", which is the wrong direction to be wrong in.
+    // feasibility, w/o evaluating its prerequisites in turn. Recursing would
+    // 1) not terminate on a set whose member requires the set, and 2) trade
+    // "not yet" for "impossible" (which is like the exact wrong direction to
+    // be wrong in).
     const blocked = rules.isBlocked(member, facts);
     if (blocked === null) tally.gettable += 1;
     else tally.blocked.push(blocked);

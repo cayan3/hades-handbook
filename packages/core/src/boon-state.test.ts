@@ -4,15 +4,17 @@ import type { Reason, Requirement } from "./index.js";
 import { held, makeFacts, stubLookups, stubRules } from "./test-support.js";
 
 /**
- * The five display buckets, derived from the three answers the model has.
+ * The five states a boon renders as, each derived from one of the engine's
+ * three Status branches/answers.
  *
- * The whole content of the derivation is the Pending/Locked split, which asks
- * one further question of an unmet prerequisite: has the player made a start on
- * it?
+ * This is basically abt the Pending/Locked split (since `unsatisfiable` &
+ * `satisfied` map cleanly to Impossible & Available respectively), which asks
+ * one additional question abt any unmet prerequisite: has the player at least
+ * made a start on any leaves of the boon prerequisite?
  */
 
 const TARGET = "target";
-/** Two prerequisites, so "some met" is representable. */
+/** Using two prerequisites here so "some requirements met" is actually representable. */
 const prereq: Requirement = {
   kind: "all",
   of: [
@@ -20,6 +22,15 @@ const prereq: Requirement = {
     { kind: "hasTrait", trait: "p2" },
   ],
 };
+/**
+ *  stubLookups() w/ no arguments returns setMembers: () => [] and
+ *  boonsOfGod: () => [] (i.e. every set is empty & every god is boonless (lol))
+ *  Purpose of this is bc evaluate always takes four parameters, but only hasSet
+ *  and hasBoonFrom ever call lookups (every other atom just yk ignores it).
+ *  So this lil constant guy has two big-boy jobs: it's the default for the
+ *  residualOf/reasonOf helpers, and the name itself documents the call site
+ *  (i.e. "NO_LOOKUPS" means the assertion doesn't depend on catalog member lists).
+ */
 const NO_LOOKUPS = stubLookups();
 
 function stateOf(facts: Parameters<typeof boonState>[2], rules = stubRules()) {
@@ -50,8 +61,8 @@ describe("boonState", () => {
   });
 
   it("stays Obtained even once the boon could no longer be taken", () => {
-    // A boon obtained before the blocker appeared is still obtained; held wins
-    // over every other answer.
+    // A boon obtained before the blocker appeared is still yk obtained (a boon
+    // being held takes priority over every other answer).
     const rules = stubRules({ blocked: new Map([["p2", { kind: "banned", trait: "p2" }]]) });
     expect(stateOf(makeFacts({ held: held(TARGET, "p1") }), rules)).toBe("Obtained");
   });
@@ -65,9 +76,9 @@ describe("boonState", () => {
     const lookups = stubLookups({ core: ["m1", "m2"] });
     const setPrereq: Requirement = { kind: "hasSet", set: "core", count: 2 };
     const facts = makeFacts({ held: held("m1") });
-    // One of the two members is held. The leaf is not satisfied and never will
-    // be until both are, but the player has visibly started — showing this the
-    // same frame as an untouched boon would be wrong.
+    // One of the two members is held. The leaf isn't satisfied (& never will
+    // be until both members are held), but the player has visibly started, so
+    // this shouldn't be displayed the same as a completely untouched/unstarted boon.
     expect(boonState(TARGET, setPrereq, facts, stubRules(), lookups)).toBe("Pending");
   });
 
@@ -104,13 +115,13 @@ describe("anyLeafStarted", () => {
 
   it("treats the all-or-nothing leaves as started only when satisfied", () => {
     const equipped: Requirement = { kind: "hasKeepsake", keepsake: "Skull" };
-    const facts = makeFacts({ loadout: { keepsake: "Skull" } });
+    const facts = makeFacts({ equipped: { keepsake: "Skull" } });
     expect(anyLeafStarted(equipped, facts, stubRules(), NO_LOOKUPS)).toBe(true);
     expect(anyLeafStarted(equipped, makeFacts(), stubRules(), NO_LOOKUPS)).toBe(false);
   });
 
   it("is false for a requirement that asks for nothing", () => {
-    // No leaves means nothing has been started.
+    // No leaves means nothing has been started (lol).
     expect(anyLeafStarted({ kind: "all", of: [] }, makeFacts(), stubRules(), NO_LOOKUPS)).toBe(
       false,
     );
