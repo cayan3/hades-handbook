@@ -25,4 +25,5 @@ __pycache__/
 *.pem
 scripts/
 .pre-commit-config.yaml
+docs/personal/
 tools/data-extract/reference/
