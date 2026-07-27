@@ -1,5 +1,4 @@
 import type {
-  AspectId,
   CatalogLookups,
   Element,
   GameRules,
@@ -319,5 +318,3 @@ export function rank(kind: "satisfied" | "pending" | "unsatisfiable"): number {
       return 2;
   }
 }
-
-export const ASPECTS: readonly AspectId[] = ["AspectOfZagreus", "AspectOfSelene"];
