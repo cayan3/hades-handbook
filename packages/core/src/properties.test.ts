@@ -71,6 +71,29 @@ const leafArb: fc.Arbitrary<Requirement> = fc.oneof(
   }),
 );
 
+/**
+ * An any-of asks for no more branches than it has.
+ *
+ * Drawing `min` independently of the branch list made roughly half of every run
+ * a requirement no run could ever meet — `min: 3` over an empty `of` and its
+ * neighbours — and an unsatisfiable world is one the residual properties skip
+ * entirely, so the suite was spending most of its budget proving nothing. It is
+ * also not a shape the data can take: an arity past the branch count is an
+ * authoring error the catalog build rejects, so a generator that produces it by
+ * accident is testing input the engine will never be handed.
+ *
+ * `evaluate` must still answer for it, which is a claim about totality rather
+ * than about residuals — P1 makes it separately against `malformedArb`.
+ */
+const anyOfArb = (branch: fc.Arbitrary<Requirement>): fc.Arbitrary<Requirement> =>
+  fc
+    .array(branch, { minLength: 1, maxLength: 3 })
+    .chain((of) =>
+      fc
+        .integer({ min: 1, max: of.length })
+        .map((min) => ({ kind: "anyOf", min, of }) as const satisfies Requirement),
+    );
+
 const requirementArb: fc.Arbitrary<Requirement> = fc.letrec<{ requirement: Requirement }>((tie) => ({
   requirement: fc.oneof(
     { maxDepth: 3 },
@@ -79,13 +102,17 @@ const requirementArb: fc.Arbitrary<Requirement> = fc.letrec<{ requirement: Requi
       kind: fc.constant("all" as const),
       of: fc.array(tie("requirement"), { maxLength: 3 }),
     }),
-    fc.record({
-      kind: fc.constant("anyOf" as const),
-      min: fc.integer({ min: 1, max: 3 }),
-      of: fc.array(tie("requirement"), { maxLength: 3 }),
-    }),
+    anyOfArb(tie("requirement")),
   ),
 })).requirement;
+
+/**
+ * The shapes the catalog build rejects, kept only so totality is still asserted
+ * over them: an any-of wanting more branches than exist, including none at all.
+ */
+const malformedArb: fc.Arbitrary<Requirement> = fc
+  .tuple(fc.array(leafArb, { maxLength: 2 }), fc.integer({ min: 1, max: 4 }))
+  .map(([of, extra]) => ({ kind: "anyOf", min: of.length + extra, of }) as const);
 
 const lookupsArb: fc.Arbitrary<CatalogLookups> = fc
   .tuple(
@@ -231,12 +258,25 @@ const worldArb = feasibilityArb.chain((feasibility) => {
           elements: new Map<Element, number>(elements.map(([element, , gain]) => [element, gain])),
         };
 
+        // Soundness needs a delta that acquires only what the run does not
+        // already hold. Re-acquiring a held trait is a level upgrade, and the
+        // two set-shaped atoms count *members*: such an upgrade closes one of
+        // the residual's counts against a baseline holding nothing, while
+        // adding no new member to the facts the residual came from. Every other
+        // property is indifferent to the overlap and keeps the free `delta`.
+        const strictDelta: Acquisition = {
+          held: new Map([...delta.held].filter(([trait]) => !base.held.has(trait))),
+          godPool: delta.godPool,
+          elements: delta.elements,
+        };
+
         return {
           req,
           facts: progress === undefined ? base : { ...base, progress },
           rules: rulesFor(feasibility),
           lookups,
           delta,
+          strictDelta,
         };
       },
     );
@@ -244,13 +284,27 @@ const worldArb = feasibilityArb.chain((feasibility) => {
 
 /**
  * Ten times the default, because the interesting cases are a minority of what
- * gets generated. Measured over 2000 scenarios: roughly a fifth come out
- * pending, and of those about half describe an acquisition that can actually be
- * made — so the properties that only bite on a pending status would otherwise
- * see a couple of dozen real cases per run. The whole suite still finishes in
- * well under a second.
+ * gets generated. Measured over 20000 scenarios: 27% come out pending, and of
+ * those about half describe an acquisition that can actually be made — so the
+ * properties that only bite on a pending status would otherwise see a couple of
+ * dozen real cases per run.
  */
 const RUNS = { numRuns: 1000 };
+
+/**
+ * For the two properties whose precondition is selective enough that `RUNS`
+ * leaves them thin. Both bite only on a world that is pending *and* whose
+ * generated acquisition happens to answer it, which measurement puts at ~7% of
+ * worlds — about seventy real samples per thousand runs.
+ *
+ * That is too few for what these two carry. P9's first clause is the only thing
+ * in the suite bounding `unsatisfiable` from above, which is the axis a previous
+ * round of mutations survived on, and P4's universal form is the half that does
+ * not build its own witness. Raising the count rather than steering the
+ * generator towards the requirement's own ids is deliberate: the independence of
+ * the witness is exactly what gives both their power.
+ */
+const DEEP_RUNS = { numRuns: 6000 };
 
 describe("P1 — determinism and totality", () => {
   it("never throws, always answers, and answers the same way twice", () => {
@@ -260,6 +314,20 @@ describe("P1 — determinism and totality", () => {
         const second = evaluate(req, facts, rules, lookups);
         expect(["satisfied", "pending", "unsatisfiable"]).toContain(first.kind);
         expect(second).toEqual(first);
+      }),
+      RUNS,
+    );
+  });
+
+  it("still answers for an any-of asking for more branches than it has", () => {
+    // Totality is a contract about any input, not only well-formed input. The
+    // catalog build rejects this shape, so the other properties no longer draw
+    // it; the engine must nonetheless answer rather than throw.
+    fc.assert(
+      fc.property(worldArb, malformedArb, ({ facts, rules, lookups }, req) => {
+        expect(["satisfied", "pending", "unsatisfiable"]).toContain(
+          evaluate(req, facts, rules, lookups).kind,
+        );
       }),
       RUNS,
     );
@@ -317,9 +385,9 @@ describe("P4 — a residual is a sound shopping list", () => {
         fc.pre(status.kind === "pending");
         if (status.kind !== "pending") return;
 
-        // Skipped where no acquisition can satisfy the residual: upgrading a
-        // trait already held, or equipping a keepsake or aspect, none of which
-        // is a gain the run can simply add.
+        // Skipped where no acquisition can satisfy the residual: equipping a
+        // keepsake or an aspect, neither of which is a gain the run can simply
+        // add, and a set with too few unheld members left to close its gap.
         const delta = acquisitionFor(status.residual, facts, rules, lookups);
         fc.pre(delta !== null);
         if (delta === null) return;
@@ -333,6 +401,35 @@ describe("P4 — a residual is a sound shopping list", () => {
         expect(evaluate(req, applyAcquisition(facts, delta), rules, lookups).kind).toBe("satisfied");
       }),
       RUNS,
+    );
+  });
+
+  it("holds for any strict growth that answers it, not only the derived one", () => {
+    // The clause above builds its own witness, and the builder reads the same
+    // rules `evaluate` does — held before feasibility, nothing banned acquired —
+    // so a shared misreading would pass both. This states the invariant as a
+    // universal instead: whatever the generator hands over, if it answers the
+    // residual then it answers the requirement. That is where the property's
+    // power to catch an under-stated residual actually lives.
+    //
+    // The growth is strict: a delta re-naming a held trait falsifies the claim
+    // for the set-shaped atoms without either side being wrong.
+    fc.assert(
+      fc.property(worldArb, ({ req, facts, rules, lookups, strictDelta }) => {
+        const status = evaluate(req, facts, rules, lookups);
+        fc.pre(status.kind === "pending");
+        if (status.kind !== "pending") return;
+
+        fc.pre(
+          evaluate(status.residual, applyAcquisition(zeroBaseline(facts), strictDelta), rules, lookups)
+            .kind === "satisfied",
+        );
+
+        expect(evaluate(req, applyAcquisition(facts, strictDelta), rules, lookups).kind).toBe(
+          "satisfied",
+        );
+      }),
+      DEEP_RUNS,
     );
   });
 });
@@ -468,7 +565,7 @@ describe("P9 — an acquisition that lands proves the requirement was reachable"
           ).toBe("satisfied");
         }
       }),
-      RUNS,
+      DEEP_RUNS,
     );
   });
 });
