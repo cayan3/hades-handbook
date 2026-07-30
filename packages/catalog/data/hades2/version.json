@@ -1,0 +1,15 @@
+{
+ "game": "Hades II",
+ "steamAppId": "1145350",
+ "steamBuildId": "23661331",
+ "steamLastUpdatedEpoch": 1781141050,
+ "steamLastUpdatedUtc": "2026-06-11T01:24:10Z",
+ "bundleShortVersion": "138517",
+ "bundleVersion": "138517",
+ "installDir": "Hades II/Hades II.app",
+ "extractedAtUtc": "2026-07-30T02:43:06.382638Z",
+ "source": {
+  "steamAppManifest": "steamapps/appmanifest_1145350.acf",
+  "infoPlist": "Hades II/Hades II.app/Contents/Info.plist"
+ }
+}

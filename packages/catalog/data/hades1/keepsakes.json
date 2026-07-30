@@ -1,0 +1,306 @@
+{
+ "AlphaStrikeTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": null,
+  "id": "AlphaStrikeTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:18391"
+ },
+ "BackstabAlphaStrikeTrait": {
+  "associatedGod": "NPC_Nyx_01",
+  "associatedNpcId": "NPC_Nyx_01",
+  "iconKey": "Keepsake_Shawl",
+  "id": "BackstabAlphaStrikeTrait",
+  "name": "Black Shawl",
+  "source": "Scripts/TraitData.lua:18787"
+ },
+ "BloodAmmoTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": null,
+  "id": "BloodAmmoTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:19042"
+ },
+ "BonusMoneyTrait": {
+  "associatedGod": "NPC_Hypnos_01",
+  "associatedNpcId": "NPC_Hypnos_01",
+  "iconKey": "Keepsake_Purse",
+  "id": "BonusMoneyTrait",
+  "name": "Chthonic Coin Purse",
+  "source": "Scripts/TraitData.lua:19167"
+ },
+ "ChamberStackTrait": {
+  "associatedGod": "NPC_Persephone_Home_01",
+  "associatedNpcId": "NPC_Persephone_Home_01",
+  "iconKey": "Keepsake_Bloom",
+  "id": "ChamberStackTrait",
+  "name": "Pom Blossom",
+  "source": "Scripts/TraitData.lua:18323"
+ },
+ "ChaosBoonTrait": {
+  "associatedGod": "TrialUpgrade",
+  "associatedNpcId": "TrialUpgrade",
+  "iconKey": "Keepsake_Egg",
+  "id": "ChaosBoonTrait",
+  "name": "Cosmic Egg",
+  "source": "Scripts/TraitData.lua:19540"
+ },
+ "DarknessRoomTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": null,
+  "id": "DarknessRoomTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:18368"
+ },
+ "DefensiveRushTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": null,
+  "id": "DefensiveRushTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:19234"
+ },
+ "DirectionalArmorTrait": {
+  "associatedGod": "NPC_Achilles_01",
+  "associatedNpcId": "NPC_Achilles_01",
+  "iconKey": "Keepsake_Bracer",
+  "id": "DirectionalArmorTrait",
+  "name": "Myrmidon Bracer",
+  "source": "Scripts/TraitData.lua:18409"
+ },
+ "DistanceDamageTrait": {
+  "associatedGod": "NPC_Orpheus_01",
+  "associatedNpcId": "NPC_Orpheus_01",
+  "iconKey": "Keepsake_Memory",
+  "id": "DistanceDamageTrait",
+  "name": "Distant Memory",
+  "source": "Scripts/TraitData.lua:18991"
+ },
+ "FastClearDodgeBonusTrait": {
+  "associatedGod": "HermesUpgrade",
+  "associatedNpcId": "HermesUpgrade",
+  "iconKey": "Keepsake_Feather",
+  "id": "FastClearDodgeBonusTrait",
+  "name": "Lambent Plume",
+  "source": "Scripts/TraitData.lua:18520"
+ },
+ "ForceAphroditeBoonTrait": {
+  "associatedGod": "AphroditeUpgrade",
+  "associatedNpcId": "AphroditeUpgrade",
+  "iconKey": "Keepsake_Rose",
+  "id": "ForceAphroditeBoonTrait",
+  "name": "Eternal Rose",
+  "source": "Scripts/TraitData.lua:19365"
+ },
+ "ForceAresBoonTrait": {
+  "associatedGod": "AresUpgrade",
+  "associatedNpcId": "AresUpgrade",
+  "iconKey": "Keepsake_Vial",
+  "id": "ForceAresBoonTrait",
+  "name": "Blood-filled Vial",
+  "source": "Scripts/TraitData.lua:19400"
+ },
+ "ForceArtemisBoonTrait": {
+  "associatedGod": "ArtemisUpgrade",
+  "associatedNpcId": "ArtemisUpgrade",
+  "iconKey": "Keepsake_Arrowhead",
+  "id": "ForceArtemisBoonTrait",
+  "name": "Adamant Arrowhead",
+  "source": "Scripts/TraitData.lua:19330"
+ },
+ "ForceAthenaBoonTrait": {
+  "associatedGod": "AthenaUpgrade",
+  "associatedNpcId": "AthenaUpgrade",
+  "iconKey": "Keepsake_Pendant",
+  "id": "ForceAthenaBoonTrait",
+  "name": "Owl Pendant",
+  "source": "Scripts/TraitData.lua:19435"
+ },
+ "ForceDemeterBoonTrait": {
+  "associatedGod": "DemeterUpgrade",
+  "associatedNpcId": "DemeterUpgrade",
+  "iconKey": "Keepsake_Cornucopia",
+  "id": "ForceDemeterBoonTrait",
+  "name": "Frostbitten Horn",
+  "source": "Scripts/TraitData.lua:19295"
+ },
+ "ForceDionysusBoonTrait": {
+  "associatedGod": "DionysusUpgrade",
+  "associatedNpcId": "DionysusUpgrade",
+  "iconKey": "Keepsake_Goblet",
+  "id": "ForceDionysusBoonTrait",
+  "name": "Overflowing Cup",
+  "source": "Scripts/TraitData.lua:19470"
+ },
+ "ForcePoseidonBoonTrait": {
+  "associatedGod": "PoseidonUpgrade",
+  "associatedNpcId": "PoseidonUpgrade",
+  "iconKey": "Keepsake_Conch",
+  "id": "ForcePoseidonBoonTrait",
+  "name": "Conch Shell",
+  "source": "Scripts/TraitData.lua:19505"
+ },
+ "ForceZeusBoonTrait": {
+  "associatedGod": "ZeusUpgrade",
+  "associatedNpcId": "ZeusUpgrade",
+  "iconKey": "Keepsake_Signet",
+  "id": "ForceZeusBoonTrait",
+  "name": "Thunder Signet",
+  "source": "Scripts/TraitData.lua:19260"
+ },
+ "FreeHealthGateTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": null,
+  "id": "FreeHealthGateTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:19210"
+ },
+ "HadesShoutKeepsake": {
+  "associatedGod": "NPC_Hades_01",
+  "associatedNpcId": "NPC_Hades_01",
+  "iconKey": "Keepsake_Badge",
+  "id": "HadesShoutKeepsake",
+  "name": "Sigil of the Dead",
+  "source": "Scripts/TraitData.lua:18144"
+ },
+ "HeroicStandTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": "Keepsake_Skelly_Tooth",
+  "id": "HeroicStandTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:18047"
+ },
+ "IncreasedWrathStockTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": null,
+  "id": "IncreasedWrathStockTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:19121"
+ },
+ "LifeOnKillTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": null,
+  "id": "LifeOnKillTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:19103"
+ },
+ "LifeOnUrnTrait": {
+  "associatedGod": "NPC_Dusa_01",
+  "associatedNpcId": "NPC_Dusa_01",
+  "iconKey": "Keepsake_Duster",
+  "id": "LifeOnUrnTrait",
+  "name": "Harpy Feather Duster",
+  "source": "Scripts/TraitData.lua:17269"
+ },
+ "LowHealthDamageTrait": {
+  "associatedGod": "NPC_FurySister_01",
+  "associatedNpcId": "NPC_FurySister_01",
+  "iconKey": "Keepsake_Earring",
+  "id": "LowHealthDamageTrait",
+  "name": "Skull Earring",
+  "source": "Scripts/TraitData.lua:18474"
+ },
+ "MaxHealthKeepsakeTrait": {
+  "associatedGod": "NPC_Cerberus_01",
+  "associatedNpcId": "NPC_Cerberus_01",
+  "iconKey": "Keepsake_Collar",
+  "id": "MaxHealthKeepsakeTrait",
+  "name": "Old Spiked Collar",
+  "source": "Scripts/TraitData.lua:19056"
+ },
+ "MegaRubbleTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": "Keepsake_Shackle",
+  "id": "MegaRubbleTrait",
+  "name": "Abandoned Shackle",
+  "source": "Scripts/TraitData.lua:18937"
+ },
+ "MetaPointHealTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": "Keepsake_Shawl",
+  "id": "MetaPointHealTrait",
+  "name": "Abandoned Shawl",
+  "source": "Scripts/TraitData.lua:18755"
+ },
+ "NoCollisionTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": "Keepsake_Shawl",
+  "id": "NoCollisionTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:18739"
+ },
+ "PerfectClearDamageBonusTrait": {
+  "associatedGod": "NPC_Thanatos_01",
+  "associatedNpcId": "NPC_Thanatos_01",
+  "iconKey": "Keepsake_Butterfly",
+  "id": "PerfectClearDamageBonusTrait",
+  "name": "Pierced Butterfly",
+  "source": "Scripts/TraitData.lua:18583"
+ },
+ "PerfectClearHealthBonusTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": "Keepsake_Shackle",
+  "id": "PerfectClearHealthBonusTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:18645"
+ },
+ "ReincarnationTrait": {
+  "associatedGod": "NPC_Skelly_01",
+  "associatedNpcId": "NPC_Skelly_01",
+  "iconKey": "Keepsake_Skelly_Tooth",
+  "id": "ReincarnationTrait",
+  "name": "Lucky Tooth",
+  "source": "Scripts/TraitData.lua:17364"
+ },
+ "RetainMoneyOnDeathTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": "Keepsake_Purse",
+  "id": "RetainMoneyOnDeathTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:19134"
+ },
+ "ShieldAfterHitTrait": {
+  "associatedGod": "NPC_Patroclus_01",
+  "associatedNpcId": "NPC_Patroclus_01",
+  "iconKey": "Keepsake_Spear",
+  "id": "ShieldAfterHitTrait",
+  "name": "Broken Spearpoint",
+  "source": "Scripts/TraitData.lua:18092"
+ },
+ "ShieldBossTrait": {
+  "associatedGod": "NPC_Eurydice_01",
+  "associatedNpcId": "NPC_Eurydice_01",
+  "iconKey": "Keepsake_Acorn",
+  "id": "ShieldBossTrait",
+  "name": "Evergreen Acorn",
+  "source": "Scripts/TraitData.lua:18839"
+ },
+ "ShopDurationTrait": {
+  "associatedGod": "NPC_Charon_01",
+  "associatedNpcId": "NPC_Charon_01",
+  "iconKey": "Keepsake_Hourglass",
+  "id": "ShopDurationTrait",
+  "name": "Bone Hourglass",
+  "source": "Scripts/TraitData.lua:17300"
+ },
+ "VanillaTrait": {
+  "associatedGod": "NPC_Sisyphus_01",
+  "associatedNpcId": "NPC_Sisyphus_01",
+  "iconKey": "Keepsake_Shackle",
+  "id": "VanillaTrait",
+  "name": "Shattered Shackle",
+  "source": "Scripts/TraitData.lua:18882"
+ }
+}

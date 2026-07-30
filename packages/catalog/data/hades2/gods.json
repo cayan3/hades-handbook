@@ -1,0 +1,111 @@
+{
+ "Aphrodite": {
+  "iconKey": "BoonSymbolAphrodite",
+  "id": "AphroditeUpgrade",
+  "kind": "PoolSlot",
+  "name": "Aphrodite",
+  "source": "Scripts/LootData_Aphrodite.lua:4"
+ },
+ "Apollo": {
+  "iconKey": "BoonSymbolApollo",
+  "id": "ApolloUpgrade",
+  "kind": "PoolSlot",
+  "name": "Apollo",
+  "source": "Scripts/LootData_Apollo.lua:4"
+ },
+ "Ares": {
+  "iconKey": "BoonSymbolAres",
+  "id": "AresUpgrade",
+  "kind": "PoolSlot",
+  "name": "Ares",
+  "source": "Scripts/LootData_Ares.lua:4"
+ },
+ "Chaos": {
+  "iconKey": "BoonSymbolChaos",
+  "id": "TrialUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Chaos",
+  "source": "Scripts/LootData_Chaos.lua:4"
+ },
+ "Demeter": {
+  "iconKey": "BoonSymbolDemeter",
+  "id": "DemeterUpgrade",
+  "kind": "PoolSlot",
+  "name": "Demeter",
+  "source": "Scripts/LootData_Demeter.lua:4"
+ },
+ "Hephaestus": {
+  "iconKey": "BoonSymbolHephaestus",
+  "id": "HephaestusUpgrade",
+  "kind": "PoolSlot",
+  "name": "Hephaestus",
+  "source": "Scripts/LootData_Hephaestus.lua:4"
+ },
+ "Hera": {
+  "iconKey": "BoonSymbolHera",
+  "id": "HeraUpgrade",
+  "kind": "PoolSlot",
+  "name": "Hera",
+  "source": "Scripts/LootData_Hera.lua:4"
+ },
+ "Hermes": {
+  "iconKey": "BoonSymbolHermes",
+  "id": "HermesUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Hermes",
+  "source": "Scripts/LootData_Hermes.lua:4"
+ },
+ "Hestia": {
+  "iconKey": "BoonSymbolHestia",
+  "id": "HestiaUpgrade",
+  "kind": "PoolSlot",
+  "name": "Hestia",
+  "source": "Scripts/LootData_Hestia.lua:4"
+ },
+ "Poseidon": {
+  "iconKey": "BoonSymbolPoseidon",
+  "id": "PoseidonUpgrade",
+  "kind": "PoolSlot",
+  "name": "Poseidon",
+  "source": "Scripts/LootData_Poseidon.lua:4"
+ },
+ "Selene": {
+  "iconKey": null,
+  "id": "SpellDrop",
+  "kind": "NonPoolSlot",
+  "name": "Selene",
+  "note": "Selene does not grant boons through the standard <God>Upgrade loot mechanism; she grants Hex/Arcana spells via a SpellDrop interactable.",
+  "source": "Scripts/LootData_Selene.lua (SpellDrop table; not a <God>Upgrade -- irregular structure, see token-pass notes)"
+ },
+ "Zeus": {
+  "iconKey": "BoonSymbolZeus",
+  "id": "ZeusUpgrade",
+  "kind": "PoolSlot",
+  "name": "Zeus",
+  "source": "Scripts/LootData_Zeus.lua:4"
+ },
+ "__mechanic_StackUpgrade": {
+  "iconKey": "BoonSymbolPom",
+  "id": "StackUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Pom of Power",
+  "note": "Not a god; a mechanical loot slot (Daedalus Hammer / stacked reward variants).",
+  "source": "Scripts/LootData.lua:89"
+ },
+ "__mechanic_StackUpgradeTriple": {
+  "iconKey": null,
+  "id": "StackUpgradeTriple",
+  "kind": "NonPoolSlot",
+  "name": "Giga Pom of Power",
+  "note": "Not a god; a mechanical loot slot (Daedalus Hammer / stacked reward variants).",
+  "source": "Scripts/LootData.lua"
+ },
+ "__mechanic_WeaponUpgrade": {
+  "iconKey": "BoonSymbolHammer",
+  "id": "WeaponUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Daedalus Hammer",
+  "note": "Not a god; a mechanical loot slot (Daedalus Hammer / stacked reward variants).",
+  "source": "Scripts/LootData.lua:212"
+ }
+}

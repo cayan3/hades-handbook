@@ -1,0 +1,95 @@
+{
+ "Aphrodite": {
+  "iconKey": "BoonSymbolAphrodite",
+  "id": "AphroditeUpgrade",
+  "kind": "PoolSlot",
+  "name": "Aphrodite",
+  "source": "Scripts/LootData.lua:5882"
+ },
+ "Ares": {
+  "iconKey": "BoonSymbolAres",
+  "id": "AresUpgrade",
+  "kind": "PoolSlot",
+  "name": "Ares",
+  "source": "Scripts/LootData.lua:1882"
+ },
+ "Artemis": {
+  "iconKey": "BoonSymbolArtemis",
+  "id": "ArtemisUpgrade",
+  "kind": "PoolSlot",
+  "name": "Artemis",
+  "source": "Scripts/LootData.lua:3899"
+ },
+ "Athena": {
+  "iconKey": "BoonSymbolAthena",
+  "id": "AthenaUpgrade",
+  "kind": "PoolSlot",
+  "name": "Athena",
+  "source": "Scripts/LootData.lua:9430"
+ },
+ "Chaos": {
+  "iconKey": "BoonSymbolChaos",
+  "id": "TrialUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Chaos",
+  "source": "Scripts/LootData.lua:18109"
+ },
+ "Demeter": {
+  "iconKey": "BoonSymbolDemeter",
+  "id": "DemeterUpgrade",
+  "kind": "PoolSlot",
+  "name": "Demeter",
+  "source": "Scripts/LootData.lua:13334"
+ },
+ "Dionysus": {
+  "iconKey": "BoonSymbolDionysus",
+  "id": "DionysusUpgrade",
+  "kind": "PoolSlot",
+  "name": "Dionysus",
+  "source": "Scripts/LootData.lua:7602"
+ },
+ "Hades": {
+  "iconKey": null,
+  "id": "HadesUpgrade",
+  "kind": "PoolSlot",
+  "name": "Hades",
+  "source": "Scripts/LootData.lua:20294"
+ },
+ "Hermes": {
+  "iconKey": "BoonSymbolHermes",
+  "id": "HermesUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Hermes",
+  "source": "Scripts/LootData.lua:15366"
+ },
+ "Poseidon": {
+  "iconKey": "BoonSymbolPoseidon",
+  "id": "PoseidonUpgrade",
+  "kind": "PoolSlot",
+  "name": "Poseidon",
+  "source": "Scripts/LootData.lua:11281"
+ },
+ "Zeus": {
+  "iconKey": "BoonSymbolZeus",
+  "id": "ZeusUpgrade",
+  "kind": "PoolSlot",
+  "name": "Zeus",
+  "source": "Scripts/LootData.lua:21"
+ },
+ "__mechanic_StackUpgrade": {
+  "iconKey": "StackUpgradeSymbol",
+  "id": "StackUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Pom of Power",
+  "note": "Not a god; a mechanical loot slot.",
+  "source": "Scripts/LootData.lua:19948"
+ },
+ "__mechanic_WeaponUpgrade": {
+  "iconKey": "WeaponUpgradeSymbol",
+  "id": "WeaponUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Daedalus Hammer",
+  "note": "Not a god; a mechanical loot slot.",
+  "source": "Scripts/LootData.lua:20014"
+ }
+}

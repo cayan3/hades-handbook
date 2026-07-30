@@ -1,0 +1,1001 @@
+{
+ "asymmetricExclusiveGroups": [
+  {
+   "expectedBackReferenceIn": "AresRangedTrait",
+   "from": "AmmoReclaimTrait",
+   "otherGroup": [
+    "AresRangedTrait",
+    "ShieldLoadAmmoTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "DemeterRangedTrait",
+   "from": "AmmoReclaimTrait",
+   "otherGroup": [
+    "DemeterRangedTrait",
+    "ShieldLoadAmmoTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "DionysusRangedTrait",
+   "from": "AmmoReclaimTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "PoseidonAresProjectileTrait",
+   "from": "AmmoReclaimTrait",
+   "otherGroup": [
+    "ArtemisBonusProjectileTrait",
+    "BlizzardOrbTrait",
+    "BowLoadAmmoTrait",
+    "PoseidonAresProjectileTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "AmmoReclaimTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "AphroditeRangedBonusTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "AphroditeRangedTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "AresHomingTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "AresRangedTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "AresRangedTrait",
+   "from": "ArtemisAmmoExitTrait",
+   "otherGroup": [
+    "AresRangedTrait",
+    "ShieldLoadAmmoTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "BlizzardOrbTrait",
+   "from": "ArtemisAmmoExitTrait",
+   "otherGroup": [
+    "BlizzardOrbTrait",
+    "IceStrikeArrayTrait",
+    "PoseidonAresProjectileTrait",
+    "ShieldLoadAmmoTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "DemeterRangedTrait",
+   "from": "ArtemisAmmoExitTrait",
+   "otherGroup": [
+    "DemeterRangedTrait",
+    "ShieldLoadAmmoTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "DionysusRangedTrait",
+   "from": "ArtemisAmmoExitTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "PoseidonAresProjectileTrait",
+   "from": "ArtemisAmmoExitTrait",
+   "otherGroup": [
+    "ArtemisBonusProjectileTrait",
+    "BlizzardOrbTrait",
+    "BowLoadAmmoTrait",
+    "PoseidonAresProjectileTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "ArtemisAmmoExitTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "ArtemisRangedTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "ArtemisRushTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "AthenaRangedTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "BlizzardOrbTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "BowBondTrait",
+   "from": "BowBeamTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "BowDashFanTrait",
+   "from": "BowChainShotTrait",
+   "otherGroup": [
+    "BowDashFanTrait",
+    "BowDoubleShotTrait",
+    "BowSlowChargeDamageTrait",
+    "BowTripleShotTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "BowBondTrait",
+   "from": "BowConsecutiveBarrageTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "BowBondTrait",
+   "from": "BowPenetrationTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "BowBondTrait",
+   "from": "BowSecondaryFocusedFireTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "BowMarkHomingTrait",
+   "from": "BowSecondaryFocusedFireTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "BowBondTrait",
+   "from": "BowTapFireTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "DionysusRangedTrait",
+   "from": "CastBackstabTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "CastBackstabTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "ChaosBlessingDashAttackTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "DemeterRangedTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "FistDetonateTrait",
+   "from": "FistAttackFinisherTrait",
+   "otherGroup": [
+    "FistDetonateTrait",
+    "FistWeaveTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "FistVacuumTrait",
+   "from": "FistChargeSpecialTrait",
+   "otherGroup": [
+    "FistTeleportSpecialTrait",
+    "FistVacuumTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "FistWeaveTrait",
+   "from": "FistDetonateTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "FistDetonateTrait",
+   "from": "FistHeavyAttackTrait",
+   "otherGroup": [
+    "FistDetonateTrait",
+    "FistWeaveTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "FistDetonateTrait",
+   "from": "FistReachAttackTrait",
+   "otherGroup": [
+    "FistDetonateTrait",
+    "FistWeaveTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "FistDetonateTrait",
+   "from": "FistSpecialFireballTrait",
+   "otherGroup": [
+    "FistDetonateTrait",
+    "FistWeaveTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "FistVacuumTrait",
+   "from": "FistSpecialFireballTrait",
+   "otherGroup": [
+    "FistTeleportSpecialTrait",
+    "FistVacuumTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "FistWeaveTrait",
+   "from": "FistSpecialLandTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunChainShotTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunManualReloadTrait",
+   "from": "GunDashAmmoTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunExplodingSecondaryTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunFinalBulletTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunGrenadeClusterTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunGrenadeDropTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunHeavyBulletTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunHomingBulletTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunInfiniteAmmoTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunMinigunTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "GunLoadedGrenadeTrait",
+   "from": "GunShotgunTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "HermesPlannedRushTrait",
+   "from": "HermesPlannedRushTrait2",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "BowLoadAmmoTrait",
+   "from": "PoseidonAresProjectileTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "BowLoadAmmoTrait",
+   "from": "RapidCastTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "RapidCastTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "HadesShoutTrait",
+   "from": "RegeneratingCappedSuperTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldChargeHealthBufferTrait",
+   "from": "ShieldAttackChargeTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldChargeSpeedTrait",
+   "from": "ShieldAttackChargeTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldChargeSpeedTrait",
+   "from": "ShieldDashAttackTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldRushPunchTrait",
+   "from": "ShieldDashAttackTrait",
+   "otherGroup": [
+    "ShieldChargeSpeedTrait",
+    "ShieldPerfectRushTrait",
+    "ShieldRushProjectileTrait",
+    "ShieldRushPunchTrait",
+    "ShieldSlowChargeDamage"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "ShieldRushProjectileTrait",
+   "from": "ShieldDoubleRushTrait",
+   "otherGroup": [
+    "ShieldRushProjectileTrait",
+    "ShieldRushPunchTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "ShieldChargeSpeedTrait",
+   "from": "ShieldRushPunchTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldRushBonusProjectileTrait",
+   "from": "ShieldThrowElectiveCharge",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldTwoShieldTrait",
+   "from": "ShieldThrowElectiveCharge",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldTwoShieldTrait",
+   "from": "ShieldThrowFastTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldThrowSingleTargetTrait",
+   "from": "ShieldThrowGrindTrait",
+   "otherGroup": [
+    "ShieldThrowElectiveCharge",
+    "ShieldThrowFastTrait",
+    "ShieldThrowSingleTargetTrait",
+    "ShieldTwoShieldTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "ShieldThrowFastTrait",
+   "from": "ShieldThrowMultiHitTrait",
+   "otherGroup": [
+    "ShieldThrowFastTrait",
+    "ShieldThrowGrindTrait",
+    "ShieldThrowSingleTargetTrait",
+    "ShieldTwoShieldTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "ShieldThrowSingleTargetTrait",
+   "from": "ShieldThrowMultiHitTrait",
+   "otherGroup": [
+    "ShieldThrowElectiveCharge",
+    "ShieldThrowFastTrait",
+    "ShieldThrowSingleTargetTrait",
+    "ShieldTwoShieldTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "ShieldTwoShieldTrait",
+   "from": "ShieldThrowMultiHitTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldTwoShieldTrait",
+   "from": "ShieldThrowRushTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldTwoShieldTrait",
+   "from": "ShieldThrowSingleTargetTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "SpearWeaveTrait",
+   "from": "SpearAutoAttack",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "SpearAutoAttack",
+   "from": "SpearSpinAura",
+   "otherGroup": [
+    "SpearAutoAttack",
+    "SpearSpinChargeAreaDamageTrait",
+    "SpearSpinChargeLevelTime",
+    "SpearSpinDamageRadius",
+    "SpearSpinTravel",
+    "SpearWeaveTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "SpearSpinChargeLevelTime",
+   "from": "SpearSpinAura",
+   "otherGroup": [
+    "SpearAutoAttack",
+    "SpearSpinChargeLevelTime"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "SpearAutoAttack",
+   "from": "SpearSpinDoubleStrike",
+   "otherGroup": [
+    "SpearAutoAttack",
+    "SpearSpinChargeAreaDamageTrait",
+    "SpearSpinChargeLevelTime",
+    "SpearSpinDamageRadius",
+    "SpearSpinTravel",
+    "SpearWeaveTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "SpearSpinTravel",
+   "from": "SpearThrowBounce",
+   "otherGroup": [
+    "SpearAutoAttack",
+    "SpearSpinAura",
+    "SpearSpinTravel"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "SpearTeleportTrait",
+   "from": "SpearThrowBounce",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "SpearSpinTravel",
+   "from": "SpearThrowCritical",
+   "otherGroup": [
+    "SpearAutoAttack",
+    "SpearSpinAura",
+    "SpearSpinTravel"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "SpearTeleportTrait",
+   "from": "SpearThrowElectiveCharge",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "SpearSpinTravel",
+   "from": "SpearThrowExplode",
+   "otherGroup": [
+    "SpearAutoAttack",
+    "SpearSpinAura",
+    "SpearSpinTravel"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "SpearTeleportTrait",
+   "from": "SpearThrowExplode",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "SpearSpinTravel",
+   "from": "SpearThrowObjectAOETrait",
+   "otherGroup": [
+    "SpearAutoAttack",
+    "SpearSpinAura",
+    "SpearSpinTravel"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "SwordHeavySecondStrikeTrait",
+   "from": "SwordConsecutiveFirstStrikeTrait",
+   "otherGroup": [
+    "SwordConsecrationTrait",
+    "SwordCriticalTrait",
+    "SwordHeavySecondStrikeTrait",
+    "SwordTwoComboTrait"
+   ]
+  },
+  {
+   "expectedBackReferenceIn": "SwordConsecrationTrait",
+   "from": "SwordCriticalTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "SwordConsecrationTrait",
+   "from": "SwordHeavySecondStrikeTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "SwordConsecrationTrait",
+   "from": "SwordTwoComboTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "MagnetismTrait",
+   "from": "UnstoredAmmoDamageTrait",
+   "otherGroup": []
+  },
+  {
+   "expectedBackReferenceIn": "ShieldLoadAmmoTrait",
+   "from": "ZeusRangedTrait",
+   "otherGroup": []
+  }
+ ],
+ "asymmetricExclusiveGroups_note": "Hades I's RequiredFalseTrait(s) field does not appear to be maintained as a symmetric pairwise relationship the way Hades II's HasNone cast-exclusivity trio is (each Hades II member explicitly lists the other members back). Treat this list as one-directional 'don't offer X if Y was already taken' soft blocks, not confirmed two-way mutual exclusion, unless individually checked.",
+ "boonsWithNoDescriptionRef": [
+  "AmmoFieldTrait",
+  "AphroditeRangedBonusTrait",
+  "ArtemisShoutBuffTrait",
+  "AssistTrait",
+  "BouldyBlessing",
+  "BowBeamTrait",
+  "BowHomingShotTrait",
+  "BowProjectileReturnTrait",
+  "BowSecondaryChargeTrait",
+  "BowStoredChargeTrait",
+  "CastBackstabTrait",
+  "ChainCurseTrait",
+  "ChaosBlessingSecretTrait",
+  "ChaosBlessingTrait",
+  "ChaosBlessingTroveTrait",
+  "ChaosCurseRemainingEncounters",
+  "ChaosCurseTrait",
+  "CriticalBoltTrait",
+  "CriticalStunTrait",
+  "DemeterRangedBonusTrait",
+  "DemeterRetaliateTrait",
+  "DionysusAoETrait",
+  "DionysusMaxHealthTrait",
+  "EncounterStartOffenseBuffTrait",
+  "FistDoubleSpecialTrait",
+  "FistSpecialWaveTrait",
+  "FistThrowSpecial",
+  "FountainDamageBonusTrait",
+  "FreezeTimeDashTrait",
+  "GiftTrait",
+  "GunGrenadeProjectileSpeedTrait",
+  "GunSniperTrait",
+  "HealthAsAmmoTrait",
+  "HealthBonusTrait",
+  "HermesBonusProjectilesTrait",
+  "HermesPlannedRushTrait2",
+  "HermesRangedTrait",
+  "ImprovedWeaponTrait",
+  "InfiniteAmmoTrait",
+  "LastStandDamageBonusTrait",
+  "LimitedTimeTrait",
+  "MarkedDropGoldTrait",
+  "MoneyMultiplierTrait",
+  "MultiLaserTrait",
+  "OnEnemyDeathDefenseBuffTrait",
+  "OnSpawnSwordTrait",
+  "PerfectDashBoltTrait",
+  "PoseidonAphroditeTouchTrait",
+  "PoseidonPickedUpMinorLootTrait",
+  "PoseidonShoutDurationTrait",
+  "RapidRushTrait",
+  "ReducedCooldownTrait",
+  "ReducedEnemySpawnsTrait",
+  "RetainTempHealthTrait",
+  "RoomAmmoTrait",
+  "RoomRewardEmptyMaxHealthTrait",
+  "RoomRewardMaxHealthTrait",
+  "ShieldAttackChargeTrait",
+  "ShieldBounceEmpowerTrait",
+  "ShieldDashAttackTrait",
+  "ShieldDoubleRushTrait",
+  "ShieldRevengeTrait",
+  "ShieldThrowExplode",
+  "ShieldThrowGrindTrait",
+  "ShieldThrowMultiHitTrait",
+  "ShopTier1Trait",
+  "ShopTier2Trait",
+  "ShopTier3Trait",
+  "ShopTrait",
+  "SlamStunTrait",
+  "SpearAttackEscalate",
+  "SpearMultiAttack",
+  "SpearSpinDoubleStrike",
+  "SpearSpinTravelRadiusDamageTrait",
+  "SwordAmmoWaveTrait",
+  "SwordSecondaryNovaWaveTrait",
+  "SwordSecondaryReflectionTrait",
+  "SwordSecondaryWaveTrait",
+  "SynergyTrait",
+  "TempSwordUpgrade",
+  "TempSwordUpgrade2",
+  "TemporaryBlockCrusherEnemiesTrait",
+  "TemporaryBonusDamageTrait",
+  "TemporaryBossDamageTrait",
+  "TemporaryPoisonImmunityTrait",
+  "TemporaryTempHealthTrait",
+  "TemporaryThanatosSummonerTrait",
+  "WeaponEnchantmentTrait",
+  "WeaponTrait",
+  "WrathDamageBuffTrait",
+  "ZeusReflectSparkTrait"
+ ],
+ "boonsWithNoDescriptionRefCount": 91,
+ "boonsWithNoName": [
+  "AmmoFieldTrait",
+  "AphroditeRangedBonusTrait",
+  "ArtemisShoutBuffTrait",
+  "AssistTrait",
+  "BouldyBlessing",
+  "BowBeamTrait",
+  "BowHomingShotTrait",
+  "BowProjectileReturnTrait",
+  "BowSecondaryChargeTrait",
+  "BowStoredChargeTrait",
+  "CastBackstabTrait",
+  "ChainCurseTrait",
+  "ChaosBlessingSecretTrait",
+  "ChaosBlessingTrait",
+  "ChaosBlessingTroveTrait",
+  "ChaosCurseRemainingEncounters",
+  "ChaosCurseTrait",
+  "CriticalBoltTrait",
+  "CriticalStunTrait",
+  "DemeterRangedBonusTrait",
+  "DemeterRetaliateTrait",
+  "DionysusAoETrait",
+  "DionysusMaxHealthTrait",
+  "EncounterStartOffenseBuffTrait",
+  "FistDoubleSpecialTrait",
+  "FistSpecialWaveTrait",
+  "FistThrowSpecial",
+  "FountainDamageBonusTrait",
+  "FreezeTimeDashTrait",
+  "GiftTrait",
+  "GunGrenadeProjectileSpeedTrait",
+  "GunSniperTrait",
+  "HarvestBoonTrait",
+  "HealthAsAmmoTrait",
+  "HealthBonusTrait",
+  "HermesBonusProjectilesTrait",
+  "HermesPlannedRushTrait2",
+  "HermesRangedTrait",
+  "ImprovedWeaponTrait",
+  "InfiniteAmmoTrait",
+  "LastStandDamageBonusTrait",
+  "LimitedTimeTrait",
+  "MarkedDropGoldTrait",
+  "MoneyMultiplierTrait",
+  "MultiLaserTrait",
+  "OnEnemyDeathDefenseBuffTrait",
+  "OnSpawnSwordTrait",
+  "PerfectDashBoltTrait",
+  "PoseidonAphroditeTouchTrait",
+  "PoseidonPickedUpMinorLootTrait",
+  "PoseidonShoutDurationTrait",
+  "RapidRushTrait",
+  "ReducedCooldownTrait",
+  "ReducedEnemySpawnsTrait",
+  "RetainTempHealthTrait",
+  "RoomAmmoTrait",
+  "RoomRewardEmptyMaxHealthTrait",
+  "RoomRewardMaxHealthTrait",
+  "ShieldAttackChargeTrait",
+  "ShieldBounceEmpowerTrait",
+  "ShieldDashAttackTrait",
+  "ShieldDoubleRushTrait",
+  "ShieldRevengeTrait",
+  "ShieldThrowExplode",
+  "ShieldThrowGrindTrait",
+  "ShieldThrowMultiHitTrait",
+  "ShopTier1Trait",
+  "ShopTier2Trait",
+  "ShopTier3Trait",
+  "ShopTrait",
+  "SlamStunTrait",
+  "SpearAttackEscalate",
+  "SpearMultiAttack",
+  "SpearSpinDoubleStrike",
+  "SpearSpinTravelRadiusDamageTrait",
+  "SuperTemporaryBoonRarityTrait",
+  "SwordAmmoWaveTrait",
+  "SwordSecondaryNovaWaveTrait",
+  "SwordSecondaryReflectionTrait",
+  "SwordSecondaryWaveTrait",
+  "SynergyTrait",
+  "TempSwordUpgrade",
+  "TempSwordUpgrade2",
+  "TemporaryBlockCrusherEnemiesTrait",
+  "TemporaryBonusDamageTrait",
+  "TemporaryBossDamageTrait",
+  "TemporaryPoisonImmunityTrait",
+  "TemporaryTempHealthTrait",
+  "TemporaryThanatosSummonerTrait",
+  "WeaponEnchantmentTrait",
+  "WeaponTrait",
+  "WrathDamageBuffTrait",
+  "ZeusReflectSparkTrait"
+ ],
+ "boonsWithNoNameCount": 93,
+ "boonsWithNoPrereq": [
+  "AchillesPatroclusAssistTrait",
+  "AmmoFieldTrait",
+  "AphroditeDeathTrait",
+  "AphroditeRetaliateTrait",
+  "AphroditeRushTrait",
+  "AphroditeSecondaryTrait",
+  "AphroditeShoutTrait",
+  "AphroditeWeaponTrait",
+  "AresRetaliateTrait",
+  "AresRushTrait",
+  "AresSecondaryTrait",
+  "AresShoutTrait",
+  "AresWeaponTrait",
+  "ArtemisSecondaryTrait",
+  "ArtemisShoutBuffTrait",
+  "ArtemisShoutTrait",
+  "ArtemisWeaponTrait",
+  "AssistTrait",
+  "AthenaRetaliateTrait",
+  "AthenaRushTrait",
+  "AthenaSecondaryTrait",
+  "AthenaShoutTrait",
+  "AthenaWeaponTrait",
+  "BouldyBlessing",
+  "BouldyBlessing_Armor",
+  "BouldyBlessing_Attack",
+  "BouldyBlessing_Money",
+  "BouldyBlessing_None",
+  "BouldyBlessing_Ranged",
+  "BouldyBlessing_Special",
+  "BouldyBlessing_Speed",
+  "BowBaseUpgradeTrait",
+  "BowBondTrait",
+  "BowHomingShotTrait",
+  "BowLoadAmmoTrait",
+  "BowMarkHomingTrait",
+  "BowProjectileReturnTrait",
+  "BowRandomExplosionTrait",
+  "BowSecondaryChargeTrait",
+  "BowWideShotTrait",
+  "CastNovaTrait",
+  "ChainCurseTrait",
+  "ChaosBlessingAlphaStrikeTrait",
+  "ChaosBlessingAmmoTrait",
+  "ChaosBlessingBackstabTrait",
+  "ChaosBlessingBoonRarityTrait",
+  "ChaosBlessingGemTrait",
+  "ChaosBlessingHealTrait",
+  "ChaosBlessingMaxHealthTrait",
+  "ChaosBlessingMeleeTrait",
+  "ChaosBlessingMetapointTrait",
+  "ChaosBlessingMoneyTrait",
+  "ChaosBlessingRangedTrait",
+  "ChaosBlessingSecondaryTrait",
+  "ChaosBlessingSecretTrait",
+  "ChaosBlessingTrait",
+  "ChaosBlessingTrapDamageTrait",
+  "ChaosBlessingTroveTrait",
+  "ChaosCurseAmmoUseDelayTrait",
+  "ChaosCurseCastAttackTrait",
+  "ChaosCurseDamageTrait",
+  "ChaosCurseDashAttackTrait",
+  "ChaosCurseDashRangeTrait",
+  "ChaosCurseDeathWeaponTrait",
+  "ChaosCurseHealthTrait",
+  "ChaosCurseHiddenRoomReward",
+  "ChaosCurseMoveSpeedTrait",
+  "ChaosCurseNoMoneyTrait",
+  "ChaosCursePrimaryAttackTrait",
+  "ChaosCurseRemainingEncounters",
+  "ChaosCurseSecondaryAttackTrait",
+  "ChaosCurseSpawnTrait",
+  "ChaosCurseTrait",
+  "ChaosCurseTrapDamageTrait",
+  "CritBonusTrait",
+  "CriticalStunTrait",
+  "DemeterRetaliateTrait",
+  "DemeterRushTrait",
+  "DemeterSecondaryTrait",
+  "DemeterShoutTrait",
+  "DemeterWeaponTrait",
+  "DionysusAoETrait",
+  "DionysusMaxHealthTrait",
+  "DionysusRangedTrait",
+  "DionysusRushTrait",
+  "DionysusSecondaryTrait",
+  "DionysusShoutTrait",
+  "DionysusWeaponTrait",
+  "DiscountTrait",
+  "DislodgeAmmoTrait",
+  "DusaAssistTrait",
+  "EncounterStartOffenseBuffTrait",
+  "EnemyDamageTrait",
+  "FistAttackDefenseTrait",
+  "FistBaseUpgradeTrait",
+  "FistConsecutiveAttackTrait",
+  "FistDashAttackHealthBufferTrait",
+  "FistDoubleSpecialTrait",
+  "FistKillTrait",
+  "FistSpecialWaveTrait",
+  "FistThrowSpecial",
+  "FuryAssistTrait",
+  "GiftHealthTrait",
+  "GiftTrait",
+  "GodModeTrait",
+  "GunBaseUpgradeTrait",
+  "GunEmptyClipBlastTrait",
+  "GunGrenadeProjectileSpeedTrait",
+  "GunGrenadeSelfEmpowerTrait",
+  "GunLoadedGrenadeTrait",
+  "GunManualReloadTrait",
+  "GunSlowGrenade",
+  "HealingPotencyTrait",
+  "HealthAsAmmoTrait",
+  "HealthBonusTrait",
+  "HermesBonusProjectilesTrait",
+  "HermesRangedTrait",
+  "HermesWeaponTrait",
+  "ImprovedWeaponTrait",
+  "IncreasedDamageTrait",
+  "InfiniteAmmoTrait",
+  "LastStandDurationTrait",
+  "LastStandHealTrait",
+  "LimitedTimeTrait",
+  "LowHealthDefenseTrait",
+  "MarkedDropGoldTrait",
+  "MoneyMultiplierTrait",
+  "OnEnemyDeathDamageInstanceBuffTrait",
+  "OnEnemyDeathDefenseBuffTrait",
+  "OnSpawnSwordTrait",
+  "PerfectDashBoltTrait",
+  "PoseidonAphroditeTouchTrait",
+  "PoseidonPickedUpMinorLootTrait",
+  "PoseidonRangedTrait",
+  "PoseidonRushTrait",
+  "PoseidonSecondaryTrait",
+  "PoseidonShoutTrait",
+  "PoseidonWeaponTrait",
+  "ProximityArmorTrait",
+  "ReducedCooldownTrait",
+  "ReducedEnemySpawnsTrait",
+  "RetainTempHealthTrait",
+  "RetaliateWeaponTrait",
+  "RoomAmmoTrait",
+  "RoomRewardEmptyMaxHealthTrait",
+  "RoomRewardMaxHealthTrait",
+  "ShieldBaseUpgradeTrait",
+  "ShieldBashDamageTrait",
+  "ShieldBashReflectTrait",
+  "ShieldBlockEmpowerTrait",
+  "ShieldBounceEmpowerTrait",
+  "ShieldChargeHealthBufferTrait",
+  "ShieldChargeSpeedTrait",
+  "ShieldDamageBarrierTrait",
+  "ShieldDamageReductionTrait",
+  "ShieldDashAOETrait",
+  "ShieldLoadAmmoTrait",
+  "ShieldRevengeTrait",
+  "ShieldRushBonusProjectileTrait",
+  "ShieldThrowCatchExplode",
+  "ShieldThrowEmpowerTrait",
+  "ShieldThrowExplode",
+  "ShieldThrowJumpDamageTrait",
+  "ShieldTwoShieldTrait",
+  "ShopTier1Trait",
+  "ShopTier2Trait",
+  "ShopTier3Trait",
+  "ShopTrait",
+  "SisyphusAssistTrait",
+  "SkellyAssistTrait",
+  "SlamStunTrait",
+  "SpearAttackEscalate",
+  "SpearAttackPhalanxTrait",
+  "SpearBaseUpgradeTrait",
+  "SpearDashMultiStrike",
+  "SpearMultiAttack",
+  "SpearReachAttack",
+  "SpearTeleportTrait",
+  "SpearThrowFarRangeDamage",
+  "SpearThrowPenetrate",
+  "SpearWeaveTrait",
+  "SuperTemporaryBoonRarityTrait",
+  "SwordAmmoWaveTrait",
+  "SwordBackstabTrait",
+  "SwordBaseUpgradeTrait",
+  "SwordBlinkTrait",
+  "SwordConsecrationTrait",
+  "SwordCriticalParryTrait",
+  "SwordCursedLifeStealTrait",
+  "SwordDoubleDashAttackTrait",
+  "SwordGoldDamageTrait",
+  "SwordHealthBufferDamageTrait",
+  "SwordRandomExplosionTrait",
+  "SwordSecondaryAreaDamageTrait",
+  "SwordSecondaryDoubleAttackTrait",
+  "SwordSecondaryNovaWaveTrait",
+  "SwordSecondaryReflectionTrait",
+  "SwordSecondaryWaveTrait",
+  "SwordThrustWaveTrait",
+  "SynergyTrait",
+  "TempSwordUpgrade",
+  "TempSwordUpgrade2",
+  "TemporaryAlphaStrikeTrait",
+  "TemporaryArmorDamageTrait",
+  "TemporaryBackstabTrait",
+  "TemporaryBlockCrusherEnemiesTrait",
+  "TemporaryBlockExplodingChariotsTrait",
+  "TemporaryBonusDamageTrait",
+  "TemporaryBoonRarityTrait",
+  "TemporaryDoorHealTrait",
+  "TemporaryDoorHealTrait_Patroclus",
+  "TemporaryForcedChallengeSwitchTrait",
+  "TemporaryForcedFishingPointTrait",
+  "TemporaryForcedSecretDoorTrait",
+  "TemporaryImprovedRangedTrait",
+  "TemporaryImprovedSecondaryTrait",
+  "TemporaryImprovedTrapDamageTrait",
+  "TemporaryImprovedWeaponTrait",
+  "TemporaryImprovedWeaponTrait_Patroclus",
+  "TemporaryLastStandHealTrait",
+  "TemporaryMoreAmmoTrait",
+  "TemporaryMoveSpeedTrait",
+  "TemporaryPoisonImmunityTrait",
+  "TemporaryTempHealthTrait",
+  "TemporaryWeaponLifeOnKillTrait",
+  "ThanatosAssistTrait",
+  "UnusedWeaponBonusTrait",
+  "UnusedWeaponBonusTraitAddGems",
+  "UpgradedTemporaryLastStandHealTrait",
+  "WeaponEnchantmentTrait",
+  "WeaponTrait",
+  "WrathDamageBuffTrait",
+  "ZeusReflectSparkTrait",
+  "ZeusRushTrait",
+  "ZeusSecondaryTrait",
+  "ZeusShoutTrait",
+  "ZeusWeaponTrait"
+ ],
+ "boonsWithNoPrereqCount": 237,
+ "danglingPrereqReferenceCount": 0,
+ "danglingPrereqReferences": {},
+ "duplicateColorValues": {
+  "(0, 138, 255, 255)": [
+   "BoonPatchRare",
+   "PoseidonDamage"
+  ]
+ },
+ "raritiesNeverUsedByAnyBoon": [
+  "Duo"
+ ],
+ "raritiesNeverUsedByAnyBoon_notes": {
+  "Duo": "Hades I's Duo (Synergy) boons use RarityLevels={Legendary=...} internally (SynergyTrait, TraitData.lua:83-98), not a distinct 'Duo' RarityLevels key -- they are only visually/logically tagged as Duo via Frame=\"Duo\" and IsDuoBoon=true. This is expected, not missing data (matches the earlier spike finding)."
+ },
+ "raritiesSeenInData": [
+  "Common",
+  "Epic",
+  "Heroic",
+  "Legendary",
+  "Rare"
+ ],
+ "totalBoonRecords": 449,
+ "totalGodRecords": 13,
+ "totalKeepsakeRecords": 38
+}

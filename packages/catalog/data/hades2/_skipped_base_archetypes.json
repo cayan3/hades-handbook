@@ -1,0 +1,158 @@
+[
+ {
+  "id": "AetherBoon",
+  "source": "Scripts/TraitData.lua:821"
+ },
+ {
+  "id": "AirBoon",
+  "source": "Scripts/TraitData.lua:801"
+ },
+ {
+  "id": "BaseDummyWeapon",
+  "source": "Scripts/TraitData.lua:1334"
+ },
+ {
+  "id": "BaseTrait",
+  "source": "Scripts/TraitData.lua:772"
+ },
+ {
+  "id": "ChaosBlessingTrait",
+  "source": "Scripts/TraitData.lua:1056"
+ },
+ {
+  "id": "ChaosCurseTrait",
+  "source": "Scripts/TraitData.lua:1038"
+ },
+ {
+  "id": "CostumeTrait",
+  "source": "Scripts/TraitData.lua:936"
+ },
+ {
+  "id": "DummyWeaponAxe",
+  "source": "Scripts/TraitData.lua:1360"
+ },
+ {
+  "id": "DummyWeaponDagger",
+  "source": "Scripts/TraitData.lua:1351"
+ },
+ {
+  "id": "DummyWeaponLob",
+  "source": "Scripts/TraitData.lua:1378"
+ },
+ {
+  "id": "DummyWeaponStaff",
+  "source": "Scripts/TraitData.lua:1342"
+ },
+ {
+  "id": "DummyWeaponSuit",
+  "source": "Scripts/TraitData.lua:1387"
+ },
+ {
+  "id": "DummyWeaponTorch",
+  "source": "Scripts/TraitData.lua:1369"
+ },
+ {
+  "id": "EarthBoon",
+  "source": "Scripts/TraitData.lua:811"
+ },
+ {
+  "id": "ErisCurseTrait",
+  "source": "Scripts/TraitData.lua:1247"
+ },
+ {
+  "id": "FallbackGold",
+  "source": "Scripts/TraitData.lua:1147"
+ },
+ {
+  "id": "FireBoon",
+  "source": "Scripts/TraitData.lua:806"
+ },
+ {
+  "id": "ForceCommonAppearanceTrait",
+  "source": "Scripts/TraitData.lua:1018"
+ },
+ {
+  "id": "ForceDuoAppearanceTrait",
+  "source": "Scripts/TraitData.lua:1028"
+ },
+ {
+  "id": "GodModeTrait",
+  "source": "Scripts/TraitData.lua:1122"
+ },
+ {
+  "id": "InPersonOlympianTrait",
+  "source": "Scripts/TraitData.lua:842"
+ },
+ {
+  "id": "InfernalContractBoon",
+  "source": "Scripts/TraitData.lua:1208"
+ },
+ {
+  "id": "LegacyTrait",
+  "source": "Scripts/TraitData.lua:890"
+ },
+ {
+  "id": "LegendaryTrait",
+  "source": "Scripts/TraitData.lua:827"
+ },
+ {
+  "id": "ManaOverTimeSource",
+  "source": "Scripts/TraitData.lua:1140"
+ },
+ {
+  "id": "RoomRewardEmptyMaxHealthTrait",
+  "source": "Scripts/TraitData.lua:1316"
+ },
+ {
+  "id": "RoomRewardMaxHealthTrait",
+  "source": "Scripts/TraitData.lua:1302"
+ },
+ {
+  "id": "RoomRewardMaxManaTrait",
+  "source": "Scripts/TraitData.lua:1287"
+ },
+ {
+  "id": "SpellTalentTrait",
+  "source": "Scripts/TraitData.lua:962"
+ },
+ {
+  "id": "StorePendingDeliveryItem",
+  "source": "Scripts/TraitData.lua:998"
+ },
+ {
+  "id": "SuitInherentSpeedBoon",
+  "source": "Scripts/TraitData.lua:1186"
+ },
+ {
+  "id": "SurfacePenalty",
+  "source": "Scripts/TraitData.lua:1215"
+ },
+ {
+  "id": "SynergyTrait",
+  "source": "Scripts/TraitData.lua:866"
+ },
+ {
+  "id": "UnityTrait",
+  "source": "Scripts/TraitData.lua:896"
+ },
+ {
+  "id": "UnusedWeaponBonusTrait",
+  "source": "Scripts/TraitData.lua:1269"
+ },
+ {
+  "id": "UnusedWeaponBonusTrait2",
+  "source": "Scripts/TraitData.lua:1280"
+ },
+ {
+  "id": "WaterBoon",
+  "source": "Scripts/TraitData.lua:816"
+ },
+ {
+  "id": "WeaponEnchantmentTrait",
+  "source": "Scripts/TraitData.lua:1079"
+ },
+ {
+  "id": "WeaponTrait",
+  "source": "Scripts/TraitData.lua:926"
+ }
+]

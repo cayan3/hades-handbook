@@ -1,0 +1,250 @@
+{
+ "AphroditeCoreTraits": {
+  "members": [
+   "AphroditeWeaponBoon",
+   "AphroditeSpecialBoon",
+   "AphroditeCastBoon",
+   "AphroditeSprintBoon",
+   "AphroditeManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:84"
+ },
+ "AphroditeWeakTraits": {
+  "members": [
+   "AphroditeCastBoon",
+   "AphroditeSprintBoon",
+   "AphroditeManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:85"
+ },
+ "ApolloBlindTraits": {
+  "members": [
+   "ApolloCastBoon",
+   "ApolloSprintBoon",
+   "ApolloRetaliateBoon",
+   "BlindChanceBoon"
+  ],
+  "source": "Scripts/TraitData.lua:88"
+ },
+ "ApolloCoreTraits": {
+  "members": [
+   "ApolloWeaponBoon",
+   "ApolloSpecialBoon",
+   "ApolloCastBoon",
+   "ApolloSprintBoon",
+   "ApolloManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:87"
+ },
+ "AresBloodDropTraits": {
+  "members": [
+   "AresManaBoon",
+   "BloodDropRevengeBoon"
+  ],
+  "source": "Scripts/TraitData.lua:92"
+ },
+ "AresCoreTraits": {
+  "members": [
+   "AresWeaponBoon",
+   "AresSpecialBoon",
+   "AresCastBoon",
+   "AresSprintBoon",
+   "AresManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:90"
+ },
+ "AresRendTraits": {
+  "members": [
+   "AresWeaponBoon",
+   "AresSpecialBoon"
+  ],
+  "source": "Scripts/TraitData.lua:91"
+ },
+ "AresSwordTraits": {
+  "members": [
+   "AresCastBoon",
+   "AresSprintBoon",
+   "OmegaDelayedDamageBoon",
+   "RendBloodDropBoon"
+  ],
+  "source": "Scripts/TraitData.lua:93"
+ },
+ "CastTraits": {
+  "members": [
+   "AphroditeCastBoon",
+   "ApolloCastBoon",
+   "DemeterCastBoon",
+   "HephaestusCastBoon",
+   "HeraCastBoon",
+   "HestiaCastBoon",
+   "PoseidonCastBoon",
+   "ZeusCastBoon",
+   "AresCastBoon"
+  ],
+  "source": "Scripts/TraitData.lua:118"
+ },
+ "DemeterCoreTraits": {
+  "members": [
+   "DemeterWeaponBoon",
+   "DemeterSpecialBoon",
+   "DemeterCastBoon",
+   "DemeterSprintBoon",
+   "DemeterManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:95"
+ },
+ "DemeterRootTraits": {
+  "members": [
+   "DemeterWeaponBoon",
+   "DemeterSpecialBoon",
+   "DemeterCastBoon"
+  ],
+  "source": "Scripts/TraitData.lua:96"
+ },
+ "HephaestusCoreTraits": {
+  "members": [
+   "HephaestusWeaponBoon",
+   "HephaestusSpecialBoon",
+   "HephaestusCastBoon",
+   "HephaestusSprintBoon",
+   "HephaestusManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:98"
+ },
+ "HephaestusMassiveTraits": {
+  "members": [
+   "HephaestusWeaponBoon",
+   "HephaestusSpecialBoon",
+   "HephaestusSprintBoon"
+  ],
+  "source": "Scripts/TraitData.lua:99"
+ },
+ "HeraCoreTraits": {
+  "members": [
+   "HeraWeaponBoon",
+   "HeraSpecialBoon",
+   "HeraCastBoon",
+   "HeraSprintBoon",
+   "HeraManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:101"
+ },
+ "HeraLinkTraits": {
+  "members": [
+   "HeraWeaponBoon",
+   "HeraSpecialBoon",
+   "HeraCastBoon",
+   "HeraSprintBoon"
+  ],
+  "source": "Scripts/TraitData.lua:102"
+ },
+ "HestiaBurnTraits": {
+  "members": [
+   "HestiaWeaponBoon",
+   "HestiaSpecialBoon",
+   "HestiaCastBoon"
+  ],
+  "source": "Scripts/TraitData.lua:105"
+ },
+ "HestiaCoreTraits": {
+  "members": [
+   "HestiaWeaponBoon",
+   "HestiaSpecialBoon",
+   "HestiaCastBoon",
+   "HestiaSprintBoon",
+   "HestiaManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:104"
+ },
+ "PoseidonCoreTraits": {
+  "members": [
+   "PoseidonWeaponBoon",
+   "PoseidonSpecialBoon",
+   "PoseidonCastBoon",
+   "PoseidonSprintBoon",
+   "PoseidonManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:107"
+ },
+ "PoseidonKnockbackAmplifyTraits": {
+  "members": [
+   "PoseidonCastBoon",
+   "PoseidonStatusBoon"
+  ],
+  "source": "Scripts/TraitData.lua:110"
+ },
+ "PoseidonKnockbackTraits": {
+  "members": [
+   "PoseidonWeaponBoon",
+   "PoseidonSpecialBoon",
+   "PoseidonCastBoon",
+   "PoseidonSprintBoon",
+   "PoseidonExCastBoon"
+  ],
+  "source": "Scripts/TraitData.lua:109"
+ },
+ "PoseidonSplashTraits": {
+  "members": [
+   "PoseidonWeaponBoon",
+   "PoseidonSpecialBoon"
+  ],
+  "source": "Scripts/TraitData.lua:108"
+ },
+ "SpecialTraits": {
+  "members": [
+   "AphroditeSpecialBoon",
+   "ApolloSpecialBoon",
+   "DemeterSpecialBoon",
+   "HephaestusSpecialBoon",
+   "HeraSpecialBoon",
+   "HestiaSpecialBoon",
+   "PoseidonSpecialBoon",
+   "ZeusSpecialBoon",
+   "AresSpecialBoon"
+  ],
+  "source": "Scripts/TraitData.lua:117"
+ },
+ "WeaponTraits": {
+  "members": [
+   "AphroditeWeaponBoon",
+   "ApolloWeaponBoon",
+   "DemeterWeaponBoon",
+   "HephaestusWeaponBoon",
+   "HeraWeaponBoon",
+   "HestiaWeaponBoon",
+   "PoseidonWeaponBoon",
+   "ZeusWeaponBoon",
+   "AresWeaponBoon"
+  ],
+  "source": "Scripts/TraitData.lua:116"
+ },
+ "ZeusBoltTraits": {
+  "members": [
+   "ZeusWeaponBoon",
+   "ZeusSpecialBoon",
+   "ZeusCastBoon",
+   "ZeusSprintBoon",
+   "ZeusManaBoltBoon",
+   "BoltRetaliateBoon",
+   "CastAnywhereBoon"
+  ],
+  "source": "Scripts/TraitData.lua:114"
+ },
+ "ZeusCoreTraits": {
+  "members": [
+   "ZeusWeaponBoon",
+   "ZeusSpecialBoon",
+   "ZeusCastBoon",
+   "ZeusSprintBoon",
+   "ZeusManaBoon"
+  ],
+  "source": "Scripts/TraitData.lua:112"
+ },
+ "ZeusEchoTraits": {
+  "members": [
+   "ZeusWeaponBoon",
+   "ZeusSpecialBoon"
+  ],
+  "source": "Scripts/TraitData.lua:113"
+ }
+}

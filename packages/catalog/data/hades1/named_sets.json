@@ -1,0 +1,307 @@
+{
+ "AphroditeUpgrade.PriorityUpgrades": {
+  "members": [
+   "AphroditeWeaponTrait",
+   "AphroditeSecondaryTrait",
+   "AphroditeRushTrait",
+   "AphroditeRangedTrait",
+   "ShieldLoadAmmo_AphroditeRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:5882"
+ },
+ "AphroditeUpgrade.Traits": {
+  "members": [
+   "AphroditeRetaliateTrait",
+   "AphroditeDeathTrait",
+   "ProximityArmorTrait",
+   "HealthRewardBonusTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:5882"
+ },
+ "AphroditeUpgrade.WeaponUpgrades": {
+  "members": [
+   "AphroditeWeaponTrait",
+   "AphroditeRushTrait",
+   "AphroditeRangedTrait",
+   "AphroditeSecondaryTrait",
+   "AphroditeShoutTrait",
+   "ShieldLoadAmmo_AphroditeRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:5882"
+ },
+ "AresUpgrade.PriorityUpgrades": {
+  "members": [
+   "AresWeaponTrait",
+   "AresSecondaryTrait",
+   "AresRushTrait",
+   "AresRangedTrait",
+   "ShieldLoadAmmo_AresRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:1882"
+ },
+ "AresUpgrade.Traits": {
+  "members": [
+   "AresRetaliateTrait",
+   "IncreasedDamageTrait",
+   "OnEnemyDeathDamageInstanceBuffTrait",
+   "LastStandDamageBonusTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:1882"
+ },
+ "AresUpgrade.WeaponUpgrades": {
+  "members": [
+   "AresWeaponTrait",
+   "AresRushTrait",
+   "AresRangedTrait",
+   "AresSecondaryTrait",
+   "AresShoutTrait",
+   "ShieldLoadAmmo_AresRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:1882"
+ },
+ "ArtemisUpgrade.PriorityUpgrades": {
+  "members": [
+   "ArtemisWeaponTrait",
+   "ArtemisSecondaryTrait",
+   "ArtemisRushTrait",
+   "ArtemisRangedTrait",
+   "ShieldLoadAmmo_ArtemisRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:3899"
+ },
+ "ArtemisUpgrade.Traits": {
+  "members": [
+   "CritBonusTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:3899"
+ },
+ "ArtemisUpgrade.WeaponUpgrades": {
+  "members": [
+   "ArtemisWeaponTrait",
+   "ArtemisRushTrait",
+   "ArtemisRangedTrait",
+   "ShieldLoadAmmo_ArtemisRangedTrait",
+   "ArtemisSecondaryTrait",
+   "ArtemisShoutTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:3899"
+ },
+ "AthenaUpgrade.Consumables": {
+  "members": [
+   "LastStandDurationDrop",
+   "LastStandHealDrop"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:9430"
+ },
+ "AthenaUpgrade.PriorityUpgrades": {
+  "members": [
+   "AthenaWeaponTrait",
+   "AthenaSecondaryTrait",
+   "AthenaRushTrait",
+   "AthenaRangedTrait",
+   "ShieldLoadAmmo_AthenaRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:9430"
+ },
+ "AthenaUpgrade.Traits": {
+  "members": [
+   "TrapDamageTrait",
+   "EnemyDamageTrait",
+   "AthenaRetaliateTrait",
+   "PreloadSuperGenerationTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:9430"
+ },
+ "AthenaUpgrade.WeaponUpgrades": {
+  "members": [
+   "AthenaWeaponTrait",
+   "AthenaRushTrait",
+   "AthenaRangedTrait",
+   "ShieldLoadAmmo_AthenaRangedTrait",
+   "AthenaSecondaryTrait",
+   "AthenaShoutTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:9430"
+ },
+ "DemeterUpgrade.Consumables": {
+  "members": [
+   "HealingPotencyDrop",
+   "HarvestBoonDrop"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:13334"
+ },
+ "DemeterUpgrade.PriorityUpgrades": {
+  "members": [
+   "DemeterWeaponTrait",
+   "DemeterSecondaryTrait",
+   "DemeterRushTrait",
+   "DemeterRangedTrait",
+   "ShieldLoadAmmo_DemeterRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:13334"
+ },
+ "DemeterUpgrade.Traits": {
+  "members": [
+   "CastNovaTrait",
+   "ZeroAmmoBonusTrait",
+   "DemeterRetaliateTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:13334"
+ },
+ "DemeterUpgrade.WeaponUpgrades": {
+  "members": [
+   "DemeterWeaponTrait",
+   "DemeterSecondaryTrait",
+   "DemeterRushTrait",
+   "DemeterRangedTrait",
+   "ShieldLoadAmmo_DemeterRangedTrait",
+   "DemeterShoutTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:13334"
+ },
+ "DionysusUpgrade.Consumables": {
+  "members": [
+   "DionysusGiftDrop"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:7602"
+ },
+ "DionysusUpgrade.PriorityUpgrades": {
+  "members": [
+   "DionysusWeaponTrait",
+   "DionysusSecondaryTrait",
+   "DionysusRushTrait",
+   "DionysusRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:7602"
+ },
+ "DionysusUpgrade.Traits": {
+  "members": [
+   "DoorHealTrait",
+   "LowHealthDefenseTrait",
+   "FountainDamageBonusTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:7602"
+ },
+ "DionysusUpgrade.WeaponUpgrades": {
+  "members": [
+   "DionysusWeaponTrait",
+   "DionysusSecondaryTrait",
+   "DionysusRushTrait",
+   "DionysusRangedTrait",
+   "ShieldLoadAmmo_DionysusRangedTrait",
+   "DionysusShoutTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:7602"
+ },
+ "HermesUpgrade.Traits": {
+  "members": [
+   "RegeneratingSuperTrait",
+   "ChamberGoldTrait",
+   "AmmoReloadTrait",
+   "HermesShoutDodge",
+   "HermesWeaponTrait",
+   "HermesSecondaryTrait",
+   "RushRallyTrait",
+   "MoveSpeedTrait",
+   "RushSpeedBoostTrait",
+   "RapidCastTrait",
+   "BonusDashTrait",
+   "DodgeChanceTrait",
+   "AmmoReclaimTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:15366"
+ },
+ "PoseidonUpgrade.Consumables": {
+  "members": [
+   "RandomMinorLootDrop"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:11281"
+ },
+ "PoseidonUpgrade.PriorityUpgrades": {
+  "members": [
+   "PoseidonWeaponTrait",
+   "PoseidonSecondaryTrait",
+   "PoseidonRushTrait",
+   "PoseidonRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:11281"
+ },
+ "PoseidonUpgrade.Traits": {
+  "members": [
+   "RoomRewardBonusTrait",
+   "DefensiveSuperGenerationTrait",
+   "EncounterStartOffenseBuffTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:11281"
+ },
+ "PoseidonUpgrade.WeaponUpgrades": {
+  "members": [
+   "PoseidonWeaponTrait",
+   "PoseidonRushTrait",
+   "PoseidonRangedTrait",
+   "ShieldLoadAmmo_PoseidonRangedTrait",
+   "PoseidonSecondaryTrait",
+   "PoseidonShoutTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:11281"
+ },
+ "ZeusUpgrade.PriorityUpgrades": {
+  "members": [
+   "ZeusWeaponTrait",
+   "ZeusSecondaryTrait",
+   "ZeusRushTrait",
+   "ZeusRangedTrait",
+   "ShieldLoadAmmo_ZeusRangedTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:21"
+ },
+ "ZeusUpgrade.Traits": {
+  "members": [
+   "RetaliateWeaponTrait",
+   "SuperGenerationTrait",
+   "OnWrathDamageBuffTrait",
+   "PerfectDashBoltTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:21"
+ },
+ "ZeusUpgrade.WeaponUpgrades": {
+  "members": [
+   "ZeusWeaponTrait",
+   "ZeusRushTrait",
+   "ZeusRangedTrait",
+   "ShieldLoadAmmo_ZeusRangedTrait",
+   "ZeusSecondaryTrait",
+   "ZeusShoutTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:21"
+ }
+}

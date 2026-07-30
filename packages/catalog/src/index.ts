@@ -8,8 +8,9 @@
  * pure reads with no dependence on run facts, they belong here instead of in
  * the game-rules seam.
  *
- * Not implemented yet: schema, overlay, and the icon & text resolvers. (The
- * normalized data lands under `data/` rn.)
+ * Not implemented yet: schema, overlay, and the icon & text resolvers. The
+ * normalized data itself is under `data/` and is loaded by `data.ts`.
  */
 
-export {};
+export { dataFor, gameData } from "./data.js";
+export type { GameData, GameKey } from "./data.js";

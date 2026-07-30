@@ -1,0 +1,15 @@
+{
+ "game": "Hades",
+ "steamAppId": "1145360",
+ "steamBuildId": "10929685",
+ "steamLastUpdatedEpoch": 1739557365,
+ "steamLastUpdatedUtc": "2025-02-14T18:22:45Z",
+ "bundleShortVersion": "0.0",
+ "bundleVersion": "1",
+ "installDir": "Hades/Game.macOS.app",
+ "extractedAtUtc": "2026-07-30T02:43:06.382628Z",
+ "source": {
+  "steamAppManifest": "steamapps/appmanifest_1145360.acf",
+  "infoPlist": "Hades/Game.macOS.app/Contents/Info.plist"
+ }
+}
