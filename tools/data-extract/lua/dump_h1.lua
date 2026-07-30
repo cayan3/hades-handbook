@@ -14,14 +14,19 @@ end
 local HOME = os.getenv("HOME") or "."
 local STEAM = HOME .. "/Library/Application Support/Steam/steamapps/"
 local SCRIPTS = envdir("EXTRACT_SCRIPTS_HADES1", STEAM .. "common/Hades/Game.macOS.app/Contents/Resources/Content/Scripts/")
-local OUT = envdir("EXTRACT_RAW", "../reference/raw/")
+-- arg[1] is this script's own directory, passed in by the caller, so the
+-- fallback resolves relative to the tool rather than to the shell's cwd.
+local OUT = envdir("EXTRACT_RAW", arg[1] .. "../reference/raw/")
 
 dofile(arg[1] .. "engine_stub.lua")
 dofile(arg[1] .. "json_encode.lua")
 
 local function writeFile(name, content)
 	local f = assert(io.open(OUT .. name, "w"))
-	f:write(content)
+	-- Terminated with a newline: the fixture dumps are committed and compared
+	-- byte-for-byte, so what lands on disk has to be a complete text file
+	-- rather than one an editor or hook would silently finish later.
+	f:write(content, "\n")
 	f:close()
 end
 
