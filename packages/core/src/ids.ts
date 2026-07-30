@@ -32,9 +32,11 @@ export type Element = "Air" | "Water" | "Earth" | "Fire" | "Aether";
  * probably not worth the effort tbh)).
  *
  * The values listed are the games' real
- * set of values; both treat "Duo" as a rarity, & Hades II adds "Elemental" for
- * Infusion boons as well as Perfect & Legacy (both of which appear in the game
- * data w/ no (found) consumers).
+ * set of values; only Hades II treats "Duo" as a rarity (Hades I marks its duos
+ * by inheritance instead, so no rarity value carries them), & Hades II adds
+ * "Elemental" for Infusion boons as well as "Perfect" and "Legacy" (the former
+ * is for weapon aspects, the latter doesn't actually have any (found)
+ * consumers, in either game, so it stays commented out until one turns up).
  */
 export type Rarity =
   | "Common"
@@ -44,5 +46,5 @@ export type Rarity =
   | "Legendary"
   | "Duo"
   | "Elemental"
-  | "Perfect"
-  | "Legacy";
+  | "Perfect";
+  // | "Legacy"
