@@ -1,0 +1,42 @@
+[
+ {
+  "id": "AetherAffinityBase",
+  "source": "Scripts/TraitData.lua:33"
+ },
+ {
+  "id": "BaseTraitTemplate",
+  "source": "Scripts/TraitData.lua:8"
+ },
+ {
+  "id": "CameoBoonBase",
+  "source": "Scripts/TraitData.lua:105"
+ },
+ {
+  "id": "CindraCoreTemplate",
+  "source": "Scripts/TraitData.lua:42"
+ },
+ {
+  "id": "DuoTraitTemplate",
+  "source": "Scripts/TraitData.lua:65"
+ },
+ {
+  "id": "EmberAffinityBase",
+  "source": "Scripts/TraitData.lua:21"
+ },
+ {
+  "id": "InfusionTraitTemplate",
+  "source": "Scripts/TraitData.lua:88"
+ },
+ {
+  "id": "LegendaryTraitTemplate",
+  "source": "Scripts/TraitData.lua:54"
+ },
+ {
+  "id": "RootAffinityBase",
+  "source": "Scripts/TraitData.lua:27"
+ },
+ {
+  "id": "VerdanCoreTemplate",
+  "source": "Scripts/TraitData.lua:48"
+ }
+]

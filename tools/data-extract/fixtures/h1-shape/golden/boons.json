@@ -1,0 +1,336 @@
+{
+ "AuricBarkTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Auric",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Auric_02",
+  "id": "AuricBarkTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Secondary",
+  "source": "Scripts/TraitData.lua:122"
+ },
+ "AuricGroveTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Auric",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Auric_03",
+  "id": "AuricGroveTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Ranged",
+  "source": "Scripts/TraitData.lua:132"
+ },
+ "AuricRootTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Auric",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Auric_01",
+  "id": "AuricRootTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Melee",
+  "source": "Scripts/TraitData.lua:115"
+ },
+ "FennickSwiftTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Fennick",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Fennick_01",
+  "id": "FennickSwiftTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:145"
+ },
+ "SableAuricBloomTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_SableAuric_01",
+  "id": "SableAuricBloomTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Legendary"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:109"
+ },
+ "SableDebugTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Sable",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Sable_66",
+  "id": "SableDebugTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:154"
+ },
+ "SableEmberComboTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": [
+   "AuricBarkTrait",
+   "SableEmberComboTrait"
+  ],
+  "god": "Sable",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Sable_12",
+  "id": "SableEmberComboTrait",
+  "name": null,
+  "prereq": {
+   "inline": {
+    "RequiredFalseTrait": "AuricBarkTrait"
+   },
+   "inlineSource": "Scripts/TraitData.lua:87"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:87"
+ },
+ "SableEmberTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Sable",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Sable_01",
+  "id": "SableEmberTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Melee",
+  "source": "Scripts/TraitData.lua:50"
+ },
+ "SableFlareTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Sable",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Sable_02",
+  "id": "SableFlareTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Secondary",
+  "source": "Scripts/TraitData.lua:57"
+ },
+ "SableMirageTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Sable",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Sable_77",
+  "id": "SableMirageTrait",
+  "name": null,
+  "prereq": {
+   "inline": {
+    "RequiredOneOfTraits": [
+     "SableEmberTrait",
+     "SablePhantomTrait"
+    ]
+   },
+   "inlineSource": "Scripts/TraitData.lua:165"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:165"
+ },
+ "SablePyreTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Sable",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Sable_09",
+  "id": "SablePyreTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Legendary"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:76"
+ },
+ "SableWardenTrait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Sable",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Sable_03",
+  "id": "SableWardenTrait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Ranged",
+  "source": "Scripts/TraitData.lua:64"
+ },
+ "ShopTier1Trait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": null,
+  "id": "ShopTier1Trait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:11"
+ },
+ "ShopTier3Trait": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": null,
+  "id": "ShopTier3Trait",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Legendary"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:23"
+ },
+ "SynergyTraitTemplate": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": null,
+  "id": "SynergyTraitTemplate",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Legendary"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:36"
+ }
+}

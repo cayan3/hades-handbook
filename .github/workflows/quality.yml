@@ -68,19 +68,10 @@ jobs:
           python-version: '3.13'
       - name: run extractor fixtures
         run: |
-          if [ ! -d tools/data-extract ]; then
-            echo "tools/data-extract is not in the tree yet; nothing to run"
-            exit 0
-          fi
           pip install pytest
-          set +e
           pytest tools/data-extract/
-          code=$?
-          set -e
-          # Exit 5 is "no tests collected". The fixtures are not written yet, so
-          # an empty run is expected rather than a failure.
-          if [ "$code" -eq 5 ]; then
-            echo "no extractor tests collected yet"
-            exit 0
-          fi
-          exit $code
+        # The snapshot starts from committed synthetic JSON dumps, so this needs
+        # neither a Lua interpreter nor a game install. What it cannot see is
+        # grammar drift: a patch that changes the shape of the real data leaves
+        # every fixture green, and only the local drift check against the stored
+        # extraction catches that.

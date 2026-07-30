@@ -1,0 +1,564 @@
+{
+ "CindraArcCastBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": [
+   "CindraArcCastBoon",
+   "CindraEchoCastBoon",
+   "CindraLobCastBoon"
+  ],
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_10",
+  "id": "CindraArcCastBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "GameStateRequirements": [
+     {
+      "HasNone": [
+       "CindraLobCastBoon",
+       "CindraEchoCastBoon"
+      ],
+      "Path": [
+       "CurrentRun",
+       "Hero",
+       "TraitDictionary"
+      ]
+     }
+    ]
+   },
+   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
+   "source": "Scripts/TraitData_Cindra.lua:46"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Cindra.lua:46"
+ },
+ "CindraDebugOnlyBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_99",
+  "id": "CindraDebugOnlyBoon",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Rush",
+  "source": "Scripts/TraitData_Cindra.lua:120"
+ },
+ "CindraEchoCastBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": [
+   "CindraArcCastBoon",
+   "CindraEchoCastBoon",
+   "CindraLobCastBoon"
+  ],
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_12",
+  "id": "CindraEchoCastBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "GameStateRequirements": [
+     {
+      "HasNone": [
+       "CindraArcCastBoon",
+       "CindraLobCastBoon"
+      ],
+      "Path": [
+       "CurrentRun",
+       "Hero",
+       "TraitDictionary"
+      ]
+     }
+    ]
+   },
+   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
+   "source": "Scripts/TraitData_Cindra.lua:70"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Cindra.lua:70"
+ },
+ "CindraEmberBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_04",
+  "id": "CindraEmberBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "OneOf": [
+     "CindraStrikeBoon",
+     "CindraFlareBoon",
+     "CindraWardenBoon"
+    ]
+   },
+   "source": "Scripts/TraitData.lua:128"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Cindra.lua:30"
+ },
+ "CindraFlareBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_02",
+  "id": "CindraFlareBoon",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Secondary",
+  "source": "Scripts/TraitData_Cindra.lua:15"
+ },
+ "CindraLobCastBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": [
+   "CindraArcCastBoon",
+   "CindraEchoCastBoon",
+   "CindraLobCastBoon"
+  ],
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_11",
+  "id": "CindraLobCastBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "GameStateRequirements": [
+     {
+      "HasNone": [
+       "CindraArcCastBoon",
+       "CindraEchoCastBoon"
+      ],
+      "Path": [
+       "CurrentRun",
+       "Hero",
+       "TraitDictionary"
+      ]
+     }
+    ]
+   },
+   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
+   "source": "Scripts/TraitData_Cindra.lua:58"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Cindra.lua:58"
+ },
+ "CindraMalformedBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_66",
+  "id": "CindraMalformedBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "GameStateRequirements": [
+     {
+      "HasNone": [
+       "VerdanGroveBoon"
+      ],
+      "Path": [
+       "CurrentRun",
+       "Hero",
+       "EquippedRelic"
+      ]
+     }
+    ]
+   },
+   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
+   "source": "Scripts/TraitData_Cindra.lua:105"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Cindra.lua:105"
+ },
+ "CindraPyreBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_09",
+  "id": "CindraPyreBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "OneFromEachSet": [
+     [
+      "CindraStrikeBoon",
+      "CindraFlareBoon",
+      "CindraWardenBoon"
+     ],
+     [
+      "CindraEmberBoon",
+      "CindraArcCastBoon"
+     ],
+     [
+      "CindraLobCastBoon",
+      "CindraEchoCastBoon"
+     ]
+    ]
+   },
+   "source": "Scripts/TraitData.lua:137"
+  },
+  "rarity": [
+   "Legendary"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Cindra.lua:38"
+ },
+ "CindraReclaimBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": [
+   "CindraReclaimBoon",
+   "VerdanBarkBoon"
+  ],
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_20",
+  "id": "CindraReclaimBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "GameStateRequirements": [
+     {
+      "HasNone": [
+       "VerdanBarkBoon"
+      ],
+      "Path": [
+       "CurrentRun",
+       "Hero",
+       "TraitDictionary"
+      ]
+     }
+    ]
+   },
+   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
+   "source": "Scripts/TraitData_Cindra.lua:87"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Cindra.lua:87"
+ },
+ "CindraStrikeBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_01",
+  "id": "CindraStrikeBoon",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Melee",
+  "source": "Scripts/TraitData_Cindra.lua:9"
+ },
+ "CindraVerdanBloomBoon": {
+  "boonCategory": "StandardOlympian",
+  "descriptionRef": null,
+  "duoGods": [
+   "Cindra",
+   "Verdan"
+  ],
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_CindraVerdan_01",
+  "id": "CindraVerdanBloomBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "OneFromEachSet": [
+     [
+      "CindraStrikeBoon",
+      "CindraFlareBoon",
+      "CindraWardenBoon"
+     ],
+     [
+      "VerdanRootBoon",
+      "VerdanBarkBoon",
+      "VerdanGroveBoon"
+     ]
+    ]
+   },
+   "source": "Scripts/TraitData.lua:149"
+  },
+  "rarity": [
+   "Duo"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Duo.lua:8"
+ },
+ "CindraWardenBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Cindra_03",
+  "id": "CindraWardenBoon",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Ranged",
+  "source": "Scripts/TraitData_Cindra.lua:21"
+ },
+ "InfusionRadianceBoon": {
+  "_godInferredFromComment": true,
+  "boonCategory": "StandardOlympian",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": "Cindra",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Infusion_01",
+  "id": "InfusionRadianceBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "GameStateRequirements": [
+     {
+      "Comparison": ">=",
+      "Path": [
+       "CurrentRun",
+       "Hero",
+       "Elements",
+       "Ember"
+      ],
+      "Value": 2
+     }
+    ]
+   },
+   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
+   "source": "Scripts/TraitData_Elementals.lua:10"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Elementals.lua:10"
+ },
+ "OrithiaBlessBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Orithia_01",
+  "id": "OrithiaBlessBoon",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Orithia.lua:12"
+ },
+ "VerdanBarkBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Verdan_02",
+  "id": "VerdanBarkBoon",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Secondary",
+  "source": "Scripts/TraitData_Verdan.lua:17"
+ },
+ "VerdanBriarBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Verdan_08",
+  "id": "VerdanBriarBoon",
+  "name": null,
+  "prereq": {
+   "expr": {
+    "OneOf": [
+     "VerdanRootBoon",
+     "VerdanPhantomBoon"
+    ]
+   },
+   "source": "Scripts/TraitData.lua:160"
+  },
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Verdan.lua:33"
+ },
+ "VerdanGroveBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Verdan_03",
+  "id": "VerdanGroveBoon",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Ranged",
+  "source": "Scripts/TraitData_Verdan.lua:23"
+ },
+ "VerdanRootBoon": {
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementCost": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Boon_Verdan_01",
+  "id": "VerdanRootBoon",
+  "name": null,
+  "prereq": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": "Melee",
+  "source": "Scripts/TraitData_Verdan.lua:11"
+ }
+}

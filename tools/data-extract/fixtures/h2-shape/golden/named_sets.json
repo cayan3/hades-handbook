@@ -1,0 +1,18 @@
+{
+ "CindraCoreTraits": {
+  "members": [
+   "CindraStrikeBoon",
+   "CindraFlareBoon",
+   "CindraWardenBoon"
+  ],
+  "source": "Scripts/TraitData.lua:120"
+ },
+ "VerdanCoreTraits": {
+  "members": [
+   "VerdanRootBoon",
+   "VerdanBarkBoon",
+   "VerdanGroveBoon"
+  ],
+  "source": "Scripts/TraitData.lua:121"
+ }
+}
