@@ -63,6 +63,7 @@ text_bundle = {
 }
 with open(OUT + "text.json", "w") as f:
     json.dump(text_bundle, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 # ---------------------------------------------------------------------------
 # Gods
@@ -143,6 +144,7 @@ for key in ["WeaponUpgrade", "StackUpgrade"]:
 
 with open(OUT + "gods.json", "w") as f:
     json.dump(gods, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 # ---------------------------------------------------------------------------
 # Keepsakes
@@ -190,6 +192,7 @@ for tid, data in TraitData.items():
 
 with open(OUT + "keepsakes.json", "w") as f:
     json.dump(keepsakes, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 # ---------------------------------------------------------------------------
 # Named prerequisite sets
@@ -217,6 +220,7 @@ for godname, upgradeId in list(GOD_UPGRADE_IDS.items()) + [("Chaos", "TrialUpgra
 
 with open(OUT + "named_sets.json", "w") as f:
     json.dump(named_sets, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 print("H1 gods:", len(gods), "keepsakes:", len(keepsakes), "named_sets:", len(named_sets))
 
@@ -355,5 +359,6 @@ for tid, data in TraitData.items():
 
 with open(OUT + "boons.json", "w") as f:
     json.dump(boons, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 print("H1 boon records:", len(boons), "excluded (keepsakes, emitted separately):", len(skipped_keepsakes_in_main_catalog))

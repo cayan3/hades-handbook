@@ -47,8 +47,10 @@ h2_stamp = stamp("Hades II", "1145350", h2_acf, h2_plist,
 
 with open(OUT + "hades1/version.json", "w") as f:
     json.dump(h1_stamp, f, indent=1)
+    f.write("\n")
 with open(OUT + "hades2/version.json", "w") as f:
     json.dump(h2_stamp, f, indent=1)
+    f.write("\n")
 
 print(json.dumps(h1_stamp, indent=1))
 print(json.dumps(h2_stamp, indent=1))

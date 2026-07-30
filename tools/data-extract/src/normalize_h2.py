@@ -76,6 +76,7 @@ text_bundle = {
 }
 with open(OUT + "text.json", "w") as f:
     json.dump(text_bundle, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 # ---------------------------------------------------------------------------
 # God records
@@ -151,6 +152,7 @@ if trial_upgrade:
 
 with open(OUT + "gods.json", "w") as f:
     json.dump(gods, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 # ---------------------------------------------------------------------------
 # Keepsake records
@@ -200,6 +202,7 @@ for kid, kdata in TraitSetData.get("Keepsakes", {}).items():
 
 with open(OUT + "keepsakes.json", "w") as f:
     json.dump(keepsakes, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 # ---------------------------------------------------------------------------
 # Named prerequisite sets (LinkedTraitData)
@@ -215,6 +218,7 @@ for name, members in LinkedTraitData.items():
     }
 with open(OUT + "named_sets.json", "w") as f:
     json.dump(named_sets, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 print("H2 gods:", len(gods), "keepsakes:", len(keepsakes), "named_sets:", len(named_sets))
 print("boon_source entries:", len(boon_source), "base_trait_source entries:", len(base_trait_source))
@@ -475,8 +479,10 @@ for trait_id, data in ALL_DEFS.items():
 
 with open(OUT + "boons.json", "w") as f:
     json.dump(boons, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 with open(OUT + "_skipped_base_archetypes.json", "w") as f:
     json.dump(skipped_base_archetypes, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 print("H2 boon records:", len(boons), "skipped base archetypes:", len(skipped_base_archetypes))

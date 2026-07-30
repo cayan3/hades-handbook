@@ -188,6 +188,7 @@ h2_report["raritiesNeverUsedByAnyBoon_notes"] = {
 
 with open(OUT + "hades2/validation.json", "w") as f:
     json.dump(h2_report, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 # ---------------------------------------------------------------------------
 # Hades I
@@ -215,6 +216,7 @@ h1_report["asymmetricExclusiveGroups_note"] = (
 
 with open(OUT + "hades1/validation.json", "w") as f:
     json.dump(h1_report, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 print("H2 validation summary:")
 for k in ["totalBoonRecords", "danglingPrereqReferenceCount", "boonsWithNoPrereqCount", "raritiesNeverUsedByAnyBoon"]:
