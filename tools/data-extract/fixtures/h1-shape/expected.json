@@ -1,0 +1,154 @@
+{
+  "_comment": "Expected normalized output for fixtures/h1-shape/input/*.lua. Verified against an actual Lua load of these files -- see fixtures/README.md. Base-template exclusion here (ShopTier1Trait/ShopTier3Trait/SynergyTraitTemplate) uses a more principled rule than the earlier one-off real-Hades-I extraction script did (that script had no per-god-file signal to exclude by, since Hades I has none, and ended up NOT excluding its base templates -- see fixtures/README.md 'Known gap' section). This fixture treats a trait as real/offerable only if it appears in some god's PriorityUpgrades/WeaponUpgrades/Traits list, or as a LinkedUpgrades key -- templates that are only ever inherited from, never listed, are excluded.",
+
+  "boons": {
+    "SableEmberTrait": {
+      "id": "SableEmberTrait", "god": "Sable", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Sable_01", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Melee", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData.lua"
+    },
+    "SableFlareTrait": {
+      "id": "SableFlareTrait", "god": "Sable", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Sable_02", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Secondary", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData.lua"
+    },
+    "SableWardenTrait": {
+      "id": "SableWardenTrait", "god": "Sable", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Sable_03", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Ranged", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData.lua"
+    },
+    "SableEmberComboTrait": {
+      "id": "SableEmberComboTrait", "god": "Sable", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Sable_12", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": ["AuricBarkTrait"], "elementAffinity": null,
+      "prereq": { "type": "OneOf", "ids": ["SableEmberTrait", "SableFlareTrait"] },
+      "activation": null,
+      "source": "TraitData.lua",
+      "_covers": "#2 (OneOf, inline in LootData.lua's SableUpgrade.LinkedUpgrades) AND #9 (asymmetric negation, inline RequiredFalseTrait field on the trait itself, in TraitData.lua) SIMULTANEOUSLY -- proves prereq and blockedBy are independent fields, not mutually exclusive, and that an extractor must merge a boon's LootData-derived prereq with its TraitData-derived negation rather than letting one clobber the other."
+    },
+    "SablePyreTrait": {
+      "id": "SablePyreTrait", "god": "Sable", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Sable_09", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Legendary", "rarity": ["Legendary"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": {
+        "type": "OneFromEachSet",
+        "sets": [
+          ["SableEmberTrait", "SableFlareTrait", "SableWardenTrait"],
+          ["AuricRootTrait", "AuricBarkTrait", "AuricGroveTrait"]
+        ],
+        "synthesizedSetId": "autoset:AuricBarkTrait,AuricGroveTrait,AuricRootTrait+SableEmberTrait,SableFlareTrait,SableWardenTrait",
+        "declaredIn": ["LootData.lua:SableUpgrade.LinkedUpgrades", "LootData.lua:AuricUpgrade.LinkedUpgrades"]
+      },
+      "activation": null,
+      "source": "TraitData.lua",
+      "_covers": "#1's core point -- the IDENTICAL OneFromEachSet content is retyped verbatim in TWO different gods' LinkedUpgrades blocks (see raw input). The extractor must recognize these as ONE logical prerequisite (one synthesizedSetId, one prereq record on this boon), not two separate or conflicting ones, DESPITE there being no named set anywhere in Hades I's data to key off of the way fixtures/h2-shape's LinkedTraitData.CindraCoreTraits does. `synthesizedSetId`'s exact string format is illustrative, not prescriptive -- what the fixture actually checks is STABILITY (the same content always yields the same id, everywhere it appears), not this literal string. Also note: this is structurally a duo-shaped gate (one set per god) despite being a plain Legendary, not a distinct 'Duo' rarity -- matches the real Hades I quirk found during the earlier investigation (Synergy/Duo boons there use the Legendary RarityLevels key, no separate Duo tier exists)."
+    },
+    "AuricRootTrait": {
+      "id": "AuricRootTrait", "god": "Auric", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Auric_01", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Melee", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData.lua"
+    },
+    "AuricBarkTrait": {
+      "id": "AuricBarkTrait", "god": "Auric", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Auric_02", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Secondary", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData.lua",
+      "_covers": "#9 -- the other half of the asymmetric pair. Must have blockedBy=null: SableEmberComboTrait avoids this, this does not avoid SableEmberComboTrait back."
+    },
+    "AuricGroveTrait": {
+      "id": "AuricGroveTrait", "god": "Auric", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Auric_03", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Ranged", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData.lua"
+    },
+    "SableAuricBloomTrait": {
+      "id": "SableAuricBloomTrait", "god": null, "duoGods": ["Sable", "Auric"], "name": null, "descriptionRef": null,
+      "icon": "Boon_SableAuric_01", "boonCategory": "StandardOlympian", "godKind": null,
+      "slot": null, "tier": "Legendary", "rarity": ["Legendary"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData.lua",
+      "_covers": "#10, Hades-I idiom -- RequiredFalseRewardType=\"TradeOffReward\" is a plain field (not a GameStateRequirements wrapper the way fixtures/h2-shape expresses the same idea) and must be discarded as an offer-time gate: does not appear in prereq/exclusiveGroup/blockedBy anywhere on this record. See offerTimeGatesDiscarded below. duoGods parsed from the `-- Sable x Auric` comment, same convention as fixtures/h2-shape. tier=\"Legendary\" (not \"Duo\") because Hades I's SynergyTraitTemplate reuses the Legendary RarityLevels key -- this is intentional and matches the real game, not a fixture bug."
+    },
+    "FennickSwiftTrait": {
+      "id": "FennickSwiftTrait", "god": "Fennick", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Fennick_01", "boonCategory": "NonStandard", "godKind": "NonPoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData.lua",
+      "_covers": "godKind=NonPoolSlot here is read from a REAL GodLoot=false field on FennickUpgrade in LootData.lua (InheritFrom-resolved to false, overriding BaseLoot's GodLoot=true) -- contrast with fixtures/h2-shape's Orithia, whose NonPoolSlot status has no LootData/GodLoot signal at all and comes purely from an InheritFrom marker."
+    },
+    "SableMirageTrait": {
+      "id": "SableMirageTrait", "god": "Sable", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Sable_77", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": { "type": "OneOf", "ids": ["SableEmberTrait", "SablePhantomTrait"] },
+      "activation": null,
+      "source": "TraitData.lua",
+      "_covers": "#15, Hades-I idiom -- RequiredOneOfTraits (a plain inline field) referencing SablePhantomTrait, which is never defined anywhere in this fixture. Prereq structure is preserved as-is; the VALIDATOR (not this record) reports the dangling id. See validation.danglingIds below."
+    }
+  },
+
+  "excludedFromCatalog": {
+    "SableDebugTrait": {
+      "reason": "DebugOnly = true",
+      "source": "TraitData.lua",
+      "_covers": "#13"
+    },
+    "ShopTier1Trait": {
+      "reason": "base template: never appears in any god's PriorityUpgrades/WeaponUpgrades/Traits list, and never appears as a LinkedUpgrades key -- only ever inherited FROM, never itself offered",
+      "source": "TraitData.lua"
+    },
+    "ShopTier3Trait": { "reason": "base template (see ShopTier1Trait)", "source": "TraitData.lua" },
+    "SynergyTraitTemplate": { "reason": "base template (see ShopTier1Trait)", "source": "TraitData.lua" }
+  },
+
+  "droppedByCommentedOutSource": {
+    "SableCutContentTrait": {
+      "note": "Never appears anywhere in the raw Lua-loaded TraitData table (commented out in TraitData.lua) and never referenced by any LinkedUpgrades block -- should not appear in `boons`, `excludedFromCatalog`, or any dangling-id report. Same proof-of-real-Lua-loading point as fixtures/h2-shape's CindraObsoleteBoon, in Hades I's flat single-table shape.",
+      "_covers": "#12"
+    }
+  },
+
+  "offerTimeGatesDiscarded": [
+    {
+      "boon": "SableAuricBloomTrait",
+      "source": "RequiredFalseRewardType field on SynergyTraitTemplate (inherited)",
+      "raw": { "RequiredFalseRewardType": "TradeOffReward" },
+      "note": "Must be recognized and discarded, not misread as a trait-id reference (it isn't even list-shaped, unlike the HasNone/IsNone idioms -- it's a single string) and not left in prereq/exclusiveGroup/blockedBy.",
+      "_covers": "#10"
+    }
+  ],
+
+  "validation": {
+    "danglingIds": [
+      {
+        "referencedBy": "SableMirageTrait",
+        "field": "prereq.ids",
+        "danglingId": "SablePhantomTrait",
+        "_covers": "#15"
+      }
+    ],
+    "buildFailures": []
+  }
+}

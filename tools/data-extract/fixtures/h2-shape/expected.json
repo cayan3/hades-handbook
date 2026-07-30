@@ -1,0 +1,239 @@
+{
+  "_comment": "Expected normalized output for fixtures/h2-shape/input/*.lua. Verified against an actual Lua load of these files (not hand-simulated) -- see fixtures/README.md for how to reproduce raw/fixture_a_dump.json. All ids/names are synthetic; ambiguous fields (name, descriptionRef, boonCategory derivation) are documented inline where this fixture doesn't have enough input to determine them the same way the real extractor does.",
+
+  "boons": {
+    "CindraStrikeBoon": {
+      "id": "CindraStrikeBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_01", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Melee", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Ember",
+      "prereq": null, "activation": null,
+      "source": "TraitData_Cindra.lua"
+    },
+    "CindraFlareBoon": {
+      "id": "CindraFlareBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_02", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Secondary", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Ember",
+      "prereq": null, "activation": null,
+      "source": "TraitData_Cindra.lua"
+    },
+    "CindraWardenBoon": {
+      "id": "CindraWardenBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_03", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Ranged", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Ember",
+      "prereq": null, "activation": null,
+      "source": "TraitData_Cindra.lua"
+    },
+    "CindraEmberBoon": {
+      "id": "CindraEmberBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_04", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Ember",
+      "prereq": { "type": "OneOf", "ids": ["CindraStrikeBoon", "CindraFlareBoon", "CindraWardenBoon"] },
+      "activation": null,
+      "source": "TraitData_Cindra.lua",
+      "_covers": "#2 OneOf"
+    },
+    "CindraPyreBoon": {
+      "id": "CindraPyreBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_09", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Legendary", "rarity": ["Legendary"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Ember",
+      "prereq": {
+        "type": "OneFromEachSet",
+        "sets": [
+          ["CindraStrikeBoon", "CindraFlareBoon", "CindraWardenBoon"],
+          ["CindraEmberBoon", "CindraArcCastBoon"],
+          ["CindraLobCastBoon", "CindraEchoCastBoon"]
+        ]
+      },
+      "activation": null,
+      "source": "TraitData_Cindra.lua",
+      "_covers": "#3 (three-set OneFromEachSet), #5 (legendary gated behind own god's boons), #6 (rarity+tier+elementAffinity all arrive via 2-level InheritFrom: CindraPyreBoon -> LegendaryTraitTemplate for rarity/tier, -> EmberAffinityBase directly for element)"
+    },
+    "CindraArcCastBoon": {
+      "id": "CindraArcCastBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_10", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": ["CindraArcCastBoon", "CindraEchoCastBoon", "CindraLobCastBoon"],
+      "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData_Cindra.lua",
+      "_covers": "#8 symmetric HasNone clique of 3 (all three members produce this identical sorted group)"
+    },
+    "CindraLobCastBoon": {
+      "id": "CindraLobCastBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_11", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": ["CindraArcCastBoon", "CindraEchoCastBoon", "CindraLobCastBoon"],
+      "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData_Cindra.lua",
+      "_covers": "#8 (see CindraArcCastBoon)"
+    },
+    "CindraEchoCastBoon": {
+      "id": "CindraEchoCastBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_12", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": ["CindraArcCastBoon", "CindraEchoCastBoon", "CindraLobCastBoon"],
+      "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData_Cindra.lua",
+      "_covers": "#8 (see CindraArcCastBoon)"
+    },
+    "CindraReclaimBoon": {
+      "id": "CindraReclaimBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_20", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": ["VerdanBarkBoon"], "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData_Cindra.lua",
+      "_covers": "#9 asymmetric negation: CindraReclaimBoon is blockedBy VerdanBarkBoon, but VerdanBarkBoon (see below) is NOT blockedBy this -- must not appear as a 2-member exclusiveGroup on either side"
+    },
+    "CindraMalformedBoon": {
+      "id": "CindraMalformedBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Cindra_66", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": {
+        "type": "UNCLASSIFIED_NEGATION",
+        "raw": { "Path": ["CurrentRun", "Hero", "EquippedRelic"], "HasNone": ["VerdanGroveBoon"] }
+      },
+      "activation": null,
+      "source": "TraitData_Cindra.lua",
+      "_covers": "#11 -- Path is neither [...,\"TraitDictionary\"] (trait-vs-trait) nor [...,\"ChosenRewardType\"] (offer-time). This record's presence with type=UNCLASSIFIED_NEGATION IS the expected output: the classifier must flag it, not silently drop it or silently guess a bucket. See validation.buildFailures below -- an extractor that does not surface a build failure for this id should be considered failing this fixture."
+    },
+    "OrithiaBlessBoon": {
+      "id": "OrithiaBlessBoon", "god": "Orithia", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Orithia_01", "boonCategory": "NonStandard", "godKind": "NonPoolSlot",
+      "slot": null, "tier": "Cameo", "rarity": ["Common"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": null, "activation": null,
+      "source": "TraitData_Orithia.lua",
+      "_covers": "#14 -- godKind must be NonPoolSlot purely because of the CameoBoonBase InheritFrom marker; this fixture has no LootData/GodLoot signal at all, unlike the real games or fixtures/h1-shape"
+    },
+    "InfusionRadianceBoon": {
+      "id": "InfusionRadianceBoon", "god": "Cindra", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Infusion_01", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Infusion", "rarity": ["Common", "Epic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": null,
+      "prereq": {
+        "type": "ElementThreshold",
+        "element": "Ember", "comparison": ">=", "value": 2
+      },
+      "activation": {
+        "type": "ElementThreshold",
+        "element": "Ember", "comparison": ">=", "value": 3
+      },
+      "source": "TraitData_Elementals.lua",
+      "_covers": "#7 -- offer/obtain threshold (>=2, from GameStateRequirements) is distinct from and lower than the activation threshold (>=3, from ActivationRequirements). god=\"Cindra\" here is read from the `-- Cindra, ember infusion` leading comment, same inferred-from-comment caveat as the real extraction's TraitData_Elementals.lua handling. elementAffinity is null (not \"Ember\") because InfusionTraitTemplate carries no Elements field itself -- the element relationship for Infusion boons lives entirely in prereq/activation, not elementAffinity, matching how the real game's UnityTrait-based boons work."
+    },
+    "VerdanRootBoon": {
+      "id": "VerdanRootBoon", "god": "Verdan", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Verdan_01", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Melee", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Root",
+      "prereq": null, "activation": null,
+      "source": "TraitData_Verdan.lua"
+    },
+    "VerdanBarkBoon": {
+      "id": "VerdanBarkBoon", "god": "Verdan", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Verdan_02", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Secondary", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Root",
+      "prereq": null, "activation": null,
+      "source": "TraitData_Verdan.lua",
+      "_covers": "#9 -- the OTHER side of the asymmetric pair. Must have blockedBy=null (CindraReclaimBoon avoids this; this does not avoid CindraReclaimBoon back)"
+    },
+    "VerdanGroveBoon": {
+      "id": "VerdanGroveBoon", "god": "Verdan", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Verdan_03", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": "Ranged", "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Root",
+      "prereq": null, "activation": null,
+      "source": "TraitData_Verdan.lua"
+    },
+    "VerdanBriarBoon": {
+      "id": "VerdanBriarBoon", "god": "Verdan", "duoGods": null, "name": null, "descriptionRef": null,
+      "icon": "Boon_Verdan_08", "boonCategory": "StandardOlympian", "godKind": "PoolSlot",
+      "slot": null, "tier": "Core", "rarity": ["Common", "Epic", "Heroic", "Rare"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Root",
+      "prereq": { "type": "OneOf", "ids": ["VerdanRootBoon", "VerdanPhantomBoon"] },
+      "activation": null,
+      "source": "TraitData_Verdan.lua",
+      "_covers": "#15 -- prereq structure is preserved as-is (VerdanPhantomBoon stays in the list); the validator (not this record) is what must report VerdanPhantomBoon as dangling. See validation.danglingIds below."
+    },
+    "CindraVerdanBloomBoon": {
+      "id": "CindraVerdanBloomBoon", "god": null, "duoGods": ["Cindra", "Verdan"], "name": null, "descriptionRef": null,
+      "icon": "Boon_CindraVerdan_01", "boonCategory": "StandardOlympian", "godKind": null,
+      "slot": null, "tier": "Duo", "rarity": ["Duo"],
+      "exclusiveGroup": null, "blockedBy": null, "elementAffinity": "Aether",
+      "prereq": {
+        "type": "OneFromEachSet",
+        "sets": [
+          ["CindraStrikeBoon", "CindraFlareBoon", "CindraWardenBoon"],
+          ["VerdanRootBoon", "VerdanBarkBoon", "VerdanGroveBoon"]
+        ]
+      },
+      "activation": null,
+      "source": "TraitData_Duo.lua",
+      "_covers": "#3 (two-set OneFromEachSet), #4 (cross-god duo referencing a second god's named set), #6 (elementAffinity=\"Aether\" arrives via InheritFrom DuoTraitTemplate -> AetherAffinityBase, one hop). duoGods is read from the `-- Cindra x Verdan` comment on the definition line, same as the real extractor's flagged-as-inferred approach. NOT covered here: #10's offer-time gate is ALSO present on this boon (via DuoTraitTemplate's IsNone), and correctly does not appear anywhere in this record -- see offerTimeGatesDiscarded below for what was seen and thrown away."
+    }
+  },
+
+  "excludedFromCatalog": {
+    "CindraDebugOnlyBoon": {
+      "reason": "DebugOnly = true",
+      "source": "TraitData_Cindra.lua",
+      "_covers": "#13"
+    },
+    "BaseTraitTemplate": { "reason": "base template (DebugOnly=true, never a real per-god boon file entry)", "source": "TraitData.lua" },
+    "EmberAffinityBase": { "reason": "base template", "source": "TraitData.lua" },
+    "RootAffinityBase": { "reason": "base template", "source": "TraitData.lua" },
+    "AetherAffinityBase": { "reason": "base template", "source": "TraitData.lua" },
+    "CindraCoreTemplate": { "reason": "base template", "source": "TraitData.lua" },
+    "VerdanCoreTemplate": { "reason": "base template", "source": "TraitData.lua" },
+    "LegendaryTraitTemplate": { "reason": "base template", "source": "TraitData.lua" },
+    "DuoTraitTemplate": { "reason": "base template", "source": "TraitData.lua" },
+    "InfusionTraitTemplate": { "reason": "base template", "source": "TraitData.lua" },
+    "CameoBoonBase": { "reason": "base template", "source": "TraitData.lua" }
+  },
+
+  "droppedByCommentedOutSource": {
+    "CindraObsoleteBoon": {
+      "note": "Never appears anywhere in the raw Lua-loaded TraitRequirements table (it's commented out at TraitData.lua's TraitRequirements block) -- and is also never defined as an actual TraitData boon, so it should not appear in `boons`, `excludedFromCatalog`, OR any dangling-id report. Proves the pipeline is loading real Lua semantics (comments vanish) rather than text/regex scanning a serialized copy of the source, which might still 'see' the commented line.",
+      "_covers": "#12"
+    }
+  },
+
+  "offerTimeGatesDiscarded": [
+    {
+      "boon": "CindraVerdanBloomBoon",
+      "source": "GameStateRequirements on DuoTraitTemplate (inherited)",
+      "raw": { "Path": ["CurrentRun", "CurrentRoom", "ChosenRewardType"], "IsNone": ["TradeOffReward"] },
+      "note": "Must be recognized and discarded, not misread as a trait reference and not left in prereq/exclusiveGroup/blockedBy anywhere on CindraVerdanBloomBoon's record above.",
+      "_covers": "#10"
+    }
+  ],
+
+  "validation": {
+    "danglingIds": [
+      {
+        "referencedBy": "VerdanBriarBoon",
+        "field": "prereq.ids",
+        "danglingId": "VerdanPhantomBoon",
+        "_covers": "#15"
+      }
+    ],
+    "buildFailures": [
+      {
+        "boon": "CindraMalformedBoon",
+        "reason": "GameStateRequirements HasNone with an unrecognized Path (neither [...,\"TraitDictionary\"] nor [...,\"ChosenRewardType\"]); cannot be classified as trait-exclusion or offer-time gate",
+        "raw": { "Path": ["CurrentRun", "Hero", "EquippedRelic"], "HasNone": ["VerdanGroveBoon"] },
+        "_covers": "#11"
+      }
+    ]
+  }
+}
