@@ -103,6 +103,26 @@ describe("hasTrait", () => {
     expect(reasonOf(needsA, facts, rules)).toEqual(banned);
   });
 
+  it("stays pending for a ban the rules do not report, however loudly facts.bans says otherwise", () => {
+    // The discriminating half of the case above: the two sources disagree, so
+    // the answer names which one evaluation actually read. A is in facts.bans
+    // and the rules return null for it, so pending is only reachable by
+    // ignoring the set. Reading it would give unsat(banned) here, and the test
+    // above would have gone green either way -- that is the whole reason this
+    // one exists.
+    //
+    // Not a hypothetical seam to guard: `bans` sits on RunFacts in plain view,
+    // one field away from `held`, and the one legitimate path in is as input to
+    // a GameRules implementation deciding what to block. A future branch that
+    // "helpfully" consults it directly would double-count the ban in the games
+    // that model one and invent a verdict in the game that does not.
+    const facts = makeFacts({ bans: new Set(["A"]) });
+    expect(evaluate(needsA, facts, stubRules(), NO_LOOKUPS)).toEqual({
+      kind: "pending",
+      residual: needsA,
+    });
+  });
+
   it("reports a god that cannot reach the pool as the reason the trait cannot", () => {
     const excluded: Reason = { kind: "godExcluded", god: "Hades" };
     const rules = stubRules({ blocked: new Map([["A", excluded]]) });
