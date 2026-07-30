@@ -17,7 +17,9 @@
     "test:watch": "vitest",
     "test:core": "vitest run packages/core",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "lint": "depcruise packages apps"
+    "lint": "depcruise packages apps",
+    "verify:real": "python3 tools/data-extract/verify_real.py",
+    "test:extract": "python3 -m pytest tools/data-extract"
   },
   "devDependencies": {
     "dependency-cruiser": "^18.1.0",
