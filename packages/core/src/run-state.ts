@@ -91,6 +91,6 @@ export interface RunIntent {
   /** Pinned targets (i.e. goals, forget-me-not's (FMN's for short)).
    * A pinned target serves as its own progress-tracking entry. */
   pins: Set<TraitId>;
-  planned: Map<TraitId, "tentative" | "planned">;
+  planned: Set<TraitId>;
   notes: Map<TraitId, string>;
 }

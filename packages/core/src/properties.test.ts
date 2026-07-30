@@ -515,7 +515,7 @@ describe("P7 — what the player intends changes nothing", () => {
     )
     .map(([pins, planned, note]) => ({
       pins: new Set(pins),
-      planned: new Map(planned.map((trait) => [trait, "planned" as const])),
+      planned: new Set(planned),
       notes: note === undefined ? new Map() : new Map(planned.map((trait) => [trait, note])),
     }));
 
