@@ -113,6 +113,47 @@ Numbers match the 15 items from the brief. "H2" = `fixtures/h2-shape`,
 noted; check `expected.json`'s `_covers` annotations on each record for
 the exact reasoning.
 
+> **Read this as a map of the inputs, not a claim about the assertions.**
+> Each row says the fixture *contains* a shape. Whether the extractor then
+> does anything with it is a separate question, and for eight rows the answer
+> is currently no — the shape goes in and the golden records the extractor's
+> silence as the expected output. That is what a snapshot does, and it is why
+> `golden/` is the assertion while `expected.json` stays the target (above);
+> but a reader scanning this table for "what is tested" would be misled, so
+> the gaps are named here rather than left to be rediscovered. Verified by
+> running both normalizers over the fixtures and reading `golden/`:
+>
+> - **Rows 1, 3, 4, and the `OneOf` half of 2 and 9 (H1 only)** — every H1
+>   prerequisite that lives in `LootData.lua`'s `<God>Upgrade.LinkedUpgrades`
+>   is absent from the golden. `normalize_h1.py` walks a hardcoded
+>   `GOD_UPGRADE_IDS` map of the ten real gods, and the fixture's gods are
+>   invented, so the entire `LootData` pass produces nothing: `gods.json`,
+>   `named_sets.json` and `keepsakes.json` are all `{}`, `SablePyreTrait`'s
+>   prereq is `null`, and `SableEmberComboTrait` keeps only its inline
+>   `RequiredFalseTrait`. The inline idioms *are* covered — `SableMirageTrait`
+>   exercises `RequiredOneOfTraits` — so row 2 is half true. Fixing this means
+>   making the god table injectable the way the paths already are, not
+>   admitting real names into the fixtures.
+> - **Row 14 (H1)** — follows from the same cause. `FennickSwiftTrait` takes
+>   its god from its own `God` field; the `GodLoot = false` resolution the row
+>   describes never runs, because `FennickUpgrade` is not in the hardcoded map.
+> - **Row 13 (both games)** — neither normalizer implements `DebugOnly`
+>   exclusion at all; the string does not appear in `src/*.py`. Both
+>   `SableDebugTrait` and `CindraDebugOnlyBoon` are in their goldens. The
+>   fixtures hold the input the rule would need, and the rule is not written.
+> - **Row 9 (both games)** — there is no `blockedBy` field in either game's
+>   output. The asymmetric negation lands in `exclusiveGroup` instead
+>   (`CindraReclaimBoon` gets a two-member group), which is the shape the
+>   oracle pass separately found to be wrong for Hades I.
+> - **Row 7 (H2)** — the fixture carries `ActivationRequirements`, and no
+>   `activation` key is emitted for it or for anything else.
+>
+> None of these are fixture defects: the inputs are right and are what a fix
+> would be written against. They are places where the golden currently freezes
+> an omission, so **a change that starts emitting one of these fields will show
+> up as a large golden diff and must be reviewed as a correctness change, not
+> refreshed mechanically.**
+
 | # | What it exercises | H2 | H1 |
 |---|---|---|---|
 | 1 | Core-boon set: **named** (H2) vs. **inline + repeated verbatim across two gods' files, no name at all** (H1) — extractor must synthesize a stable set identity either way | `LinkedTraitData.CindraCoreTraits`, referenced by id in 3 places | `{SableEmberTrait,SableFlareTrait,SableWardenTrait}` retyped identically in both `SableUpgrade.LinkedUpgrades` and `AuricUpgrade.LinkedUpgrades` (mirrors the real game's `AmmoBoltTrait` appearing in both `ZeusUpgrade` and `ArtemisUpgrade`) |
