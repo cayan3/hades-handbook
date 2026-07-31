@@ -7,7 +7,7 @@
  * shipped text can be easily swapped or withdrawn in just one place.
  */
 
-/** The two (awesome) games. */
+/** The two (awesome!!) games. */
 export type GameId = "hades1" | "hades2";
 
 export type TraitId = string;
@@ -31,12 +31,17 @@ export type Element = "Air" | "Water" | "Earth" | "Fire" | "Aether";
  * doesn't model loot tables (thought abt it but seems pretty hard o_0 & also
  * probably not worth the effort tbh)).
  *
- * The values listed are the games' real
- * set of values; only Hades II treats "Duo" as a rarity (Hades I marks its duos
- * by inheritance instead, so no rarity value carries them), & Hades II adds
- * "Elemental" for Infusion boons as well as "Perfect" and "Legacy" (the former
- * is for weapon aspects, the latter doesn't actually have any (found)
- * consumers, in either game, so it stays commented out until one turns up).
+ * The values listed are the games' real set of values :O. Only Hades II treats
+ * "Duo" as a rarity (Hades I marks its duos by inheritance instead), & Hades II
+ * also adds "Elemental", "Perfect", and "Legacy". "Perfect" is for weapon
+ * aspects lol, and "Elemental" is what Infusion boons *display* as (not just
+ * "what rarity the boon is" since apparently there's an ordinary Common/Rare/Epic
+ * assignment under an Infusion boon but the display color & "rarity name" are
+ * yk unique to "Infusions" lol; keeping this bc it's what we players actually
+ * see lolol even though it won't actually turn up in extracted data). "Legacy"
+ * shows up in the data but doesn't actually have any like consumers (we'll list
+ * it here but commented out, so it doesn't look like a new discovery to any
+ * future patches).
  */
 export type Rarity =
   | "Common"

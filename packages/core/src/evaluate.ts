@@ -11,9 +11,9 @@ import type { Reason, Status } from "./status.js";
  *
  * This is pure, total, and deterministic: every requirement shape is handled,
  * no branch throws any errors, and nothing outside `facts`, `rules`, &
- * `lookups` is read. The user's plans aren't an input, since what someone
- * "intends to pick" can't change what's legitimately satisfiable; that stays
- * true by construction bc this function is given facts and never the entire run state.
+ * `lookups` is read. The user's plans aren't an input (since what someone
+ * "intends to pick" can't change what's legitimately satisfiable); that stays
+ * true by construction bc this fn is given facts and never the entire run state.
  *
  * Two conventions hold across every rule below:
  *
@@ -83,7 +83,15 @@ export function evaluate(
     }
 
     case "hasKeepsake":
-      // Never impossible: keepsakes are swapped freely between regions.
+      // Never says "impossible"; deliberately vague-posting here instead of just
+      // yk showing "true" since a god's keepsake can only "activate"/do the yk
+      // actual boon-summoning thing once per run, so "unequipped & already spent"
+      // really is impossible & this returns pending for it anyway o_0.
+      // Actually saying that would mean having like a "facts" field for spent
+      // keepsakes, a rules method (isBlocked is built for boons rn so can't
+      // just be "reused" for keepsakes), a Reason variant, which is a whole
+      // lotta effort just to include this like weird lil niche case (esp in a
+      // direction that's technically already safe even if a bit imprecise).
       return facts.equipped.keepsake === req.keepsake ? SATISFIED : pending(req);
 
     case "hasElement": {

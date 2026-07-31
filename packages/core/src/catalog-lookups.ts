@@ -3,7 +3,7 @@ import type { GodId, SetId, TraitId } from "./ids.js";
 /**
  * The catalog seam: member lists. (yep, nothing else!)
  *
- * Two of the nine requirement atoms are set-shaped (e.g. "hold 2 of Zeus's core
+ * Two of the requirement atoms are set-shaped (e.g. "hold 2 of Zeus's core
  * boons", "hold a boon of Hera"), and neither can be answered w/o yk knowing
  * who the members are, which is static catalog data and thus must not be
  * imported by this package (i.e. `core`) at all. Therefore, this package
@@ -16,7 +16,7 @@ import type { GodId, SetId, TraitId } from "./ids.js";
  * This is deliberately kept to two methods instead of four: `isCoreBoon`
  * doesn't have any callers in `core`, while `prereqOf` is already passed to
  * `boonState` as data (since a caller rendering a trait already knows that
- * traits's prerequisite(s)).
+ * trait's prerequisite(s)).
  *
  * Implementations must be pure and stable for a given data snapshot (i.e.
  * within a snapshot, implementations must be pure and return the same members
@@ -27,8 +27,8 @@ export interface CatalogLookups {
   /**
    * Members of a named set. For Hades II, these are "real" set ids from
    * the code (e.g. `LinkedTraitData.<God>CoreTraits` (core boons!) & narrower
-   * subsets like `HestiaBurnTraits`)). For Hades I, these are synthesized bc
-   * ermmmm might be a skill issue but I just couldn't find them in the game
+   * subsets like `HestiaBurnTraits`). For Hades I, these are synthesized bc
+   * (ermmmm might be a skill issue but) I just couldn't find them in the game
    * code :pensive: :pensive: (game code seems to repeat the same boon-id list
    * inline at every requirement? which means there's no uh actual "name" to
    * bind to o_0).
