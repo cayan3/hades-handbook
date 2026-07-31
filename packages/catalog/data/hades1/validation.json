@@ -982,6 +982,7 @@
    "PoseidonDamage"
   ]
  },
+ "godNamesOutsideKnownVocabulary": [],
  "raritiesNeverUsedByAnyBoon": [
   "Duo"
  ],
@@ -997,5 +998,9 @@
  ],
  "totalBoonRecords": 449,
  "totalGodRecords": 13,
- "totalKeepsakeRecords": 38
+ "totalKeepsakeRecords": 38,
+ "unresolvedSentinelKnown": [],
+ "unresolvedSentinelKnownNoLongerPresent": [],
+ "unresolvedSentinelLeakCount": 0,
+ "unresolvedSentinelLeaks": []
 }

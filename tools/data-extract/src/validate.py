@@ -9,6 +9,46 @@ def load(p):
     with open(p, encoding="utf-8") as f:
         return json.load(f)
 
+
+UNRESOLVED_PREFIX = "<unresolved:"
+
+# Records already known to ship an unresolved sentinel, exempted from the leak
+# check so that a genuinely new one is not lost in the noise of an old one.
+# Both are Chaos boons whose prereq reaches `G.LootData.TrialUpgrade
+# .PermanentTraits`: Hades II keeps its loot tables in LootSetData, so the
+# global LootData that TraitData.lua reaches for is never populated and the
+# reference falls through to the dumper's proxy. The data is present in the
+# LootSetData dump, so this is a load-order defect and not a gap in the game's
+# own files. It is recorded rather than repaired because Chaos boons are out of
+# scope for the first release; anything appearing here that is NOT on this list
+# is a new leak and fails the run.
+UNRESOLVED_SENTINEL_KNOWN = {
+    "ChaosLastStandBlessing",
+    "ChaosMetaUpgradeCurse",
+}
+
+# Gods who appear as a boon's attributed god but own no <God>Upgrade loot table
+# and therefore get no record in gods.json -- the other game's Olympians making
+# a cameo appearance. A name outside the union of these and the emitted god
+# records is not an attribution, it is a parse accident.
+CAMEO_GOD_NAMES = {"Artemis", "Athena", "Dionysus", "Hades"}
+
+
+def find_unresolved(node, _path=""):
+    """Yield (dotted path, value) for every string anywhere in an emitted
+    record that is still a dumper placeholder. Walks the whole tree rather
+    than checking named fields, because the fields worth protecting are the
+    ones nobody thought to guard."""
+    if isinstance(node, str):
+        if node.startswith(UNRESOLVED_PREFIX):
+            yield _path or "(root)", node
+    elif isinstance(node, dict):
+        for k, v in node.items():
+            yield from find_unresolved(v, "%s.%s" % (_path, k) if _path else str(k))
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            yield from find_unresolved(v, "%s[%d]" % (_path, i))
+
 def collect_prereq_ids(expr):
     """Walk a prereq expression tree and collect every trait id string it
     references (OneOf list members, OneFromEachSet nested lists, HasNone
@@ -120,6 +160,41 @@ def validate_game(game_key, boons, gods, keepsakes):
                 asymmetric.append({"from": bid, "expectedBackReferenceIn": other, "otherGroup": other_grp})
     report["asymmetricExclusiveGroups"] = asymmetric
 
+    # 5. unresolved-sentinel leaks. The dumper writes "<unresolved:X>" wherever
+    # a Lua table reached for a global that had not been loaded yet, and those
+    # markers are expected in the raw dumps. What must never happen is one
+    # surviving into a normalized field, because there it is a *value*: a
+    # `prereq` whose OneOf is the string "<unresolved:...>" instead of a list of
+    # trait ids has lost its whole clause, and it does so invisibly. The
+    # dangling-reference check above cannot see it -- collect_prereq_ids only
+    # reads OneOf when it is a list, so a string contributes no ids and the
+    # count comes back 0 for exactly the records that are broken. This walks
+    # every emitted tree instead of trusting any one field's own guard.
+    leaks = []
+    for scope, records in (("boon", boons), ("god", gods), ("keepsake", keepsakes)):
+        for rid, rec in sorted(records.items()):
+            for path, value in find_unresolved(rec):
+                leaks.append({"scope": scope, "id": rid, "field": path, "value": value})
+    report["unresolvedSentinelLeaks"] = [l for l in leaks if l["id"] not in UNRESOLVED_SENTINEL_KNOWN]
+    report["unresolvedSentinelLeakCount"] = len(report["unresolvedSentinelLeaks"])
+    report["unresolvedSentinelKnown"] = [l for l in leaks if l["id"] in UNRESOLVED_SENTINEL_KNOWN]
+    # A known carrier that stopped carrying means the exemption outlived the
+    # defect and should be deleted rather than quietly kept. Only records this
+    # game actually has can say anything about it -- the exemption list spans
+    # both games, and an id absent from this catalog is simply the other game's.
+    present_here = set(boons) | set(gods) | set(keepsakes)
+    report["unresolvedSentinelKnownNoLongerPresent"] = sorted(
+        (UNRESOLVED_SENTINEL_KNOWN & present_here) - {l["id"] for l in leaks}
+    )
+
+    # 6. inferred gods that are not gods. Attribution from a source comment is
+    # a guess by construction; this asserts the guess landed inside the known
+    # vocabulary rather than on an arbitrary capitalised word.
+    known_gods = {g for g in gods if not g.startswith("__")} | CAMEO_GOD_NAMES
+    attributed = {b["god"] for b in boons.values() if b.get("god") is not None}
+    attributed |= {g for b in boons.values() for g in (b.get("duoGods") or [])}
+    report["godNamesOutsideKnownVocabulary"] = sorted(attributed - known_gods)
+
     return report
 
 
@@ -226,3 +301,25 @@ print()
 print("H1 validation summary:")
 for k in ["totalBoonRecords", "danglingPrereqReferenceCount", "boonsWithNoPrereqCount", "raritiesNeverUsedByAnyBoon"]:
     print(" ", k, "=", h1_report[k])
+
+# The reports above are advisory -- they describe the catalog and a human reads
+# them. These two are different in kind: each says a field holds a value that is
+# not data, which no consumer of the catalog can detect for itself. Exit
+# non-zero so a run that produced one cannot be mistaken for a clean run.
+print()
+fatal = []
+for game, rep in (("hades2", h2_report), ("hades1", h1_report)):
+    for leak in rep["unresolvedSentinelLeaks"]:
+        fatal.append("%s %s %s.%s = %s" % (game, leak["scope"], leak["id"], leak["field"], leak["value"]))
+    for name in rep["godNamesOutsideKnownVocabulary"]:
+        fatal.append("%s attributes a boon to %r, which is not a known god" % (game, name))
+    for stale in rep["unresolvedSentinelKnownNoLongerPresent"]:
+        print("NOTE: %s no longer carries an unresolved sentinel; drop it from "
+              "UNRESOLVED_SENTINEL_KNOWN in validate.py." % stale)
+if fatal:
+    print("EMISSION INTEGRITY FAILURES (%d):" % len(fatal))
+    for f in fatal:
+        print("  ", f)
+    raise SystemExit(1)
+print("Emission integrity: clean (%d known sentinel carriers exempted)."
+      % sum(len(r["unresolvedSentinelKnown"]) for r in (h1_report, h2_report)))

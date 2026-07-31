@@ -186,10 +186,26 @@ Not a literal data field. Rule, in priority order, using each boon's
   cross-references (`exclusiveGroup`, prereq validation).
 - **Unresolved external references** (`WeaponSets.X`, `Keywords.X`,
   `EffectData.X`, etc.) inside a boon's raw table appear as
-  `"<unresolved:...>"` strings if you inspect `raw/*.json` directly — these
-  never leak into the normalized `boons.json` schema fields themselves
-  (they'd only ever land in `icon`/other resolved fields, and both are
-  explicitly filtered to null if unresolved).
+  `"<unresolved:...>"` strings if you inspect `raw/*.json` directly. They are
+  expected there and mostly harmless, because the fields that carry them are
+  filtered — `icon` and the other resolved scalars become `null` rather than
+  shipping a marker. **Two records are the exception, and they show why the
+  filtering had to become a check rather than a habit.**
+  `ChaosLastStandBlessing` and `ChaosMetaUpgradeCurse` ship
+  `prereq.expr.OneOf` as the *string*
+  `"<unresolved:G.LootData.TrialUpgrade.PermanentTraits>"` where every other
+  record has a list of trait ids: Hades II keeps its loot tables in
+  `LootSetData`, so the global `LootData` that `TraitData.lua` reaches for is
+  never populated and the reference falls through to the dumper's proxy. The
+  data itself is intact in `raw/h2_LootSetData.json` under
+  `Chaos.TrialUpgrade.PermanentTraits`, so this is a load-order defect in
+  `lua/dump_h2.lua`, not missing game data. It is **recorded rather than
+  repaired** — both are Chaos boons, which the first release does not model.
+  `validate.py` now walks every emitted tree for the marker, exempts exactly
+  these two by id, and exits non-zero on any other; `validation.json` reports
+  both lists. Note that the dangling-reference count could never have caught
+  this: `collect_prereq_ids` reads `OneOf` only when it is a list, so a string
+  contributes no ids and the count returns 0 for precisely the broken records.
 - **`Color.X` references**: resolved to their concrete RGBA values in the
   raw dumps (`raw/h1_Color.json` / `raw/h2_Color.json` are themselves the
   resolved source of truth); anywhere a boon or god record's data pointed

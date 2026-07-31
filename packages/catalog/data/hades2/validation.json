@@ -537,6 +537,7 @@
    "HephaestusVoice"
   ]
  },
+ "godNamesOutsideKnownVocabulary": [],
  "knownFindingsReverified": {
   "ApolloDamageLight_equals_AthenaDamageLight": true,
   "ApolloDamage_equals_AthenaDamage": true,
@@ -565,5 +566,22 @@
  ],
  "totalBoonRecords": 612,
  "totalGodRecords": 15,
- "totalKeepsakeRecords": 35
+ "totalKeepsakeRecords": 35,
+ "unresolvedSentinelKnown": [
+  {
+   "field": "prereq.expr.OneOf",
+   "id": "ChaosLastStandBlessing",
+   "scope": "boon",
+   "value": "<unresolved:G.LootData.TrialUpgrade.PermanentTraits>"
+  },
+  {
+   "field": "prereq.expr.OneOf",
+   "id": "ChaosMetaUpgradeCurse",
+   "scope": "boon",
+   "value": "<unresolved:G.LootData.TrialUpgrade.PermanentTraits>"
+  }
+ ],
+ "unresolvedSentinelKnownNoLongerPresent": [],
+ "unresolvedSentinelLeakCount": 0,
+ "unresolvedSentinelLeaks": []
 }
