@@ -1,4 +1,4 @@
-import json, re, os
+import json, re, os, sys
 from parse_text_bundle import parse_sjson_text_bundle
 from line_index import index_keys_at_depth, find_key_anywhere
 
@@ -29,6 +29,18 @@ def is_unresolved(v):
 # Source indices
 # ---------------------------------------------------------------------------
 
+# Stop here if the scripts directory is not the scripts directory. A missing
+# file makes `index_keys_at_depth` answer `{}` rather than raise, so without
+# this the run would carry on with no citations at all. It currently happens to
+# die a few lines below on the text bundle instead, which is luck, not a check.
+_missing = [f for f in ("TraitData.lua", "LootData.lua") if not os.path.isfile(SCRIPTS + f)]
+if _missing:
+    sys.exit(
+        "normalize_h1: missing %s under %s\n"
+        "Point EXTRACT_SCRIPTS_HADES1 at the game's Scripts directory."
+        % (", ".join(_missing), SCRIPTS)
+    )
+
 boon_source = index_keys_at_depth(SCRIPTS + "TraitData.lua", 1)          # trait id -> line, in TraitData.lua
 god_upgrade_source = index_keys_at_depth(SCRIPTS + "LootData.lua", 1)     # <God>Upgrade id -> line
 
@@ -52,6 +64,12 @@ linked_upgrade_source = index_keys_at_depth(SCRIPTS + "LootData.lua", 3)
 # ---------------------------------------------------------------------------
 
 text_bundle_raw = parse_sjson_text_bundle(TEXT_EN + "HelpText.en.sjson")
+# Warned about rather than required, because the synthetic fixtures deliberately
+# ship no text bundle and must still run. A real extraction that reaches here
+# empty would emit a whole catalog of `name: null`, which looks like data.
+if not text_bundle_raw:
+    print("WARNING: no text bundle read from %s -- every name and descriptionRef "
+          "will be null. Check EXTRACT_TEXT_HADES1." % TEXT_EN, file=sys.stderr)
 text_bundle = {
     tid: {
         "displayName": v.get("displayName"),

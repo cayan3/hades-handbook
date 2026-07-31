@@ -39,6 +39,24 @@ REL_SCRIPTS = "Scripts/"  # cited paths are relative to the game's Scripts dir, 
 TRAIT_FILES = sorted(os.path.basename(p) for p in glob.glob(SCRIPTS + "TraitData_*.lua"))
 LOOT_FILES = sorted(os.path.basename(p) for p in glob.glob(SCRIPTS + "LootData_*.lua"))
 
+# Stop here if the scripts directory is not the scripts directory.
+# `index_keys_at_depth` answers `{}` for a file that is not there, which is the
+# right answer for an optional per-god file -- a game shipping none of them is
+# not an error -- but it is silently fatal for the ones every citation depends
+# on. Without this check a mistyped path produces an empty source index, every
+# trait then fails its `src is None` test and is reclassified as a base
+# archetype, and the run writes `{}` over the catalog and exits 0. An empty
+# glob is the same failure seen from the other side: the directory exists but
+# holds no per-god trait files, so nothing would be read from it.
+_missing = [f for f in ("TraitData.lua",) if not os.path.isfile(SCRIPTS + f)]
+if _missing or not TRAIT_FILES:
+    sys.exit(
+        "normalize_h2: %s under %s\n"
+        "Point EXTRACT_SCRIPTS_HADES2 at the game's Scripts directory."
+        % ("no TraitData_*.lua files" if not _missing
+           else "missing " + ", ".join(_missing), SCRIPTS)
+    )
+
 # id -> (file, line)  (base TraitData.lua covers base archetypes, tracked separately)
 boon_source = {}
 for fname in TRAIT_FILES:
@@ -65,6 +83,12 @@ prereq_source = base_trait_source
 # ---------------------------------------------------------------------------
 
 text_bundle_raw = parse_sjson_text_bundle(TEXT_EN + "TraitText.en.sjson")
+# Warned about rather than required, because the synthetic fixtures deliberately
+# ship no text bundle and must still run. A real extraction that reaches here
+# empty would emit a whole catalog of `name: null`, which looks like data.
+if not text_bundle_raw:
+    print("WARNING: no text bundle read from %s -- every name and descriptionRef "
+          "will be null. Check EXTRACT_TEXT_HADES2." % TEXT_EN, file=sys.stderr)
 text_bundle = {
     tid: {
         "displayName": v.get("displayName"),
