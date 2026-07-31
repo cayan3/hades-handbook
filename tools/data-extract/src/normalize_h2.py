@@ -90,6 +90,39 @@ GOD_FILE_KEYS = {  # LootSetData top-level key -> <God>Upgrade id
     "Zeus": "ZeusUpgrade",
 }
 
+# LootSetData is sectioned by god, but an `InheritFrom` entry names a bare id
+# that may live in any section: every <God>Upgrade inherits `BaseLoot`, which
+# sits under the `Loot` section and is where `GodLoot = true` is actually
+# declared. Resolution therefore walks a flat union of every section's entries.
+# This matters -- Poseidon and Zeus carry no literal `GodLoot` of their own and
+# are pool gods purely through that inheritance, so reading the field directly
+# off the record answers None for two of the nine.
+LOOT_ENTRIES = {}
+for _section in LootSetData.values():
+    if isinstance(_section, dict):
+        for _entry_id, _entry in _section.items():
+            if isinstance(_entry, dict):
+                LOOT_ENTRIES.setdefault(_entry_id, _entry)
+
+def resolve_loot_field(entry_id, field, _visited=None, _depth=0):
+    if _depth > 6:
+        return None
+    _visited = _visited or set()
+    if entry_id in _visited:
+        return None
+    _visited.add(entry_id)
+    entry = LOOT_ENTRIES.get(entry_id)
+    if not isinstance(entry, dict):
+        return None
+    if field in entry:
+        return entry[field]
+    for parent in entry.get("InheritFrom") or []:
+        if isinstance(parent, str):
+            v = resolve_loot_field(parent, field, _visited, _depth + 1)
+            if v is not None:
+                return v
+    return None
+
 gods = {}
 pool_god_names = set()
 for godname, upgradeId in GOD_FILE_KEYS.items():
@@ -98,7 +131,9 @@ for godname, upgradeId in GOD_FILE_KEYS.items():
     if data is None:
         continue
     src = god_upgrade_source.get(upgradeId)
-    is_pool = bool(data.get("GodLoot")) if isinstance(data.get("GodLoot"), bool) else (godname != "Hermes")
+    # Resolved rather than read: Hermes overrides BaseLoot's `true` with `false`,
+    # and the rest either declare it or inherit it.
+    is_pool = bool(resolve_loot_field(upgradeId, "GodLoot"))
     if is_pool:
         pool_god_names.add(godname)
     text = text_bundle_raw.get(godname, {})
@@ -277,13 +312,6 @@ def inherit_chain(trait_id, _visited=None, _depth=0):
 
 ELEMENT_BASE_TRAITS = {"AirBoon": "Air", "FireBoon": "Fire", "EarthBoon": "Earth", "WaterBoon": "Water", "AetherBoon": "Aether"}
 
-FILE_TO_GOD = {
-    "TraitData_Aphrodite.lua": "Aphrodite", "TraitData_Apollo.lua": "Apollo", "TraitData_Ares.lua": "Ares",
-    "TraitData_Demeter.lua": "Demeter", "TraitData_Hades.lua": "Hades", "TraitData_Hephaestus.lua": "Hephaestus",
-    "TraitData_Hera.lua": "Hera", "TraitData_Hermes.lua": "Hermes", "TraitData_Hestia.lua": "Hestia",
-    "TraitData_Poseidon.lua": "Poseidon", "TraitData_Zeus.lua": "Zeus",
-    "TraitData_Artemis.lua": "Artemis", "TraitData_Athena.lua": "Athena", "TraitData_Dionysus.lua": "Dionysus",
-}
 NPC_MARKER_FILES = {  # files whose boons are tied to one specific non-Olympian NPC
     "TraitData_Circe.lua": "Circe", "TraitData_Icarus.lua": "Icarus", "TraitData_Medea.lua": "Medea",
     "TraitData_Narcissus.lua": "Narcissus", "TraitData_Arachne.lua": "Arachne", "TraitData_Echo.lua": "Echo",
@@ -294,6 +322,35 @@ MECHANIC_ONLY_FILES = {
     "TraitData_Spell.lua", "TraitData_Store.lua", "TraitData_Talent.lua", "TraitData_Chaos.lua",
     "TraitData_Elementals.lua", "TraitData_Essence.lua",
 }
+# Files named for a god but holding no single god's boons: duos belong to two and
+# read their pair from a source comment, keepsakes belong to whoever gives them.
+CROSS_GOD_TRAIT_FILES = {"TraitData_Duo.lua", "TraitData_Keepsake.lua"}
+
+# `TraitData_<Name>.lua` names its god, so derive the map from the files actually
+# present rather than listing them. Listing was the older form and it left a new
+# god silently unattributed -- a patch adding `TraitData_Chronos.lua` would emit
+# its boons with `god: null` and `boonCategory: NonStandard` and say nothing,
+# which is the same failure the file glob above already exists to prevent. Every
+# `TraitData_*` file must fall in exactly one of the four buckets; anything the
+# three exclusion sets do not claim is a god's file by construction.
+FILE_TO_GOD = {
+    fname: fname[len("TraitData_"):-len(".lua")]
+    for fname in TRAIT_FILES
+    if fname not in MECHANIC_ONLY_FILES
+    and fname not in NPC_MARKER_FILES
+    and fname not in CROSS_GOD_TRAIT_FILES
+}
+
+# Every god name the extractor is willing to attribute a boon to. Both readers
+# below recover a name from a hand-written source comment, which is the only
+# place the data records these associations at all -- but a comment is prose,
+# and the patterns match any capitalised word. Without this set, a comment that
+# happens to read `-- Deprecated: replaced in 1.3` yields `god = "Deprecated"`,
+# which then decides godKind and boonCategory as confidently as a real name
+# would. An unrecognised name must become an absent god, not a plausible one:
+# an unattributed boon renders as unattributed, whereas an invented god renders
+# as somebody's, and only the second is silently wrong.
+KNOWN_GOD_NAMES = set(GOD_FILE_KEYS) | set(FILE_TO_GOD.values()) | {"Selene", "Chaos"}
 
 DUO_COMMENT_RE = re.compile(r'--\s*([A-Z][a-zA-Z]+)\s*(?:x|×)\s*([A-Z][a-zA-Z]+)')
 
@@ -307,7 +364,7 @@ def parse_duo_gods(fname, line):
             lines = f.readlines()
         raw = lines[line - 1]
         m = DUO_COMMENT_RE.search(raw)
-        if m:
+        if m and m.group(1) in KNOWN_GOD_NAMES and m.group(2) in KNOWN_GOD_NAMES:
             return [m.group(1), m.group(2)]
     except Exception:
         pass
@@ -326,7 +383,7 @@ def parse_elemental_god_comment(fname, line):
         # look up to 2 lines above the entry for a comment
         for i in range(max(0, line - 3), line - 1):
             m = ELEMENTAL_COMMENT_RE.search(lines[i])
-            if m and m.group(1) not in ("Elementals",):
+            if m and m.group(1) in KNOWN_GOD_NAMES:
                 return m.group(1)
     except Exception:
         pass
