@@ -8,9 +8,12 @@ describe("boonsOfGod", () => {
   const traits = Object.values(dataFor("hades2").boons as Record<string, TraitRecord>);
   const aGod = traits.find((t) => t.god !== null)?.god as string;
 
-  it("returns every trait the god grants", () => {
+  it("returns every trait the god grants, including its Duos", () => {
     const expected = traits
-      .filter((t) => t.god === aGod)
+      .filter((t) => {
+        const pair: readonly string[] = t.duoGods ?? [];
+        return t.god === aGod || pair.includes(aGod);
+      })
       .map((t) => t.id)
       .sort();
     expect([...lookups.boonsOfGod(aGod)]).toEqual(expected);
@@ -35,11 +38,32 @@ describe("boonsOfGod", () => {
     expect(lookups.boonsOfGod("NoSuchOtherGod")).toBe(missing);
   });
 
-  it("never includes a Duo, which belongs to no single god", () => {
-    const duoIds = new Set(traits.filter((t) => t.duoGods !== null).map((t) => t.id));
-    for (const god of new Set(traits.map((t) => t.god).filter((g): g is string => g !== null))) {
+  it("lists a Duo under both of its gods", () => {
+    // The game's own loot tables file each Duo under both, and a player asking
+    // for Hera's boons means to see the Hera duos among them. The function the
+    // game uses to read a held trait's god back disagrees -- it stops at the
+    // first match -- but that is iteration-order dependent and is not the
+    // behaviour being copied here.
+    const duos = traits.filter((t) => t.duoGods !== null);
+    expect(duos.length).toBeGreaterThan(0);
+    for (const duo of duos) {
+      for (const god of duo.duoGods as readonly string[]) {
+        expect(lookups.boonsOfGod(god)).toContain(duo.id);
+      }
+    }
+  });
+
+  it("does not invent a god for a trait that has neither a god nor a pair", () => {
+    // Chaos boons, keepsakes, aspects and talents all reach the loop with a
+    // null god and no duoGods; they must contribute to no god's list at all.
+    const attributed = new Set(
+      traits.flatMap((t) => (t.god !== null ? [t.god] : (t.duoGods ?? []))).map(String),
+    );
+    const unattributed = traits.filter((t) => t.god === null && t.duoGods === null);
+    expect(unattributed.length).toBeGreaterThan(0);
+    for (const god of attributed) {
       for (const member of lookups.boonsOfGod(god)) {
-        expect(duoIds.has(member)).toBe(false);
+        expect(unattributed.some((t) => t.id === member)).toBe(false);
       }
     }
   });
