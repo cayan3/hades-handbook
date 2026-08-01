@@ -1,4 +1,4 @@
-import type { AspectId, Element, GodId, GroupId, TraitId } from "./ids.js";
+import type { AspectId, GodId, GroupId, TalentId, TraitId } from "./ids.js";
 import type { Requirement } from "./requirement.js";
 
 /**
@@ -45,7 +45,13 @@ export type Reason =
    * blocking trait/boon is purged.
    */
   | { kind: "blockedByTrait"; trait: TraitId; blockedBy: TraitId }
-  | { kind: "elementCeiling"; element: Element; needed: number; max: number }
+  /**
+   * Mirror talents are picked before the run starts and can't be changed
+   * during it, so a requirement naming the talent the player didn't pick is
+   * settled for the whole run rather than merely unmet so far. Same shape as
+   * `aspectConflict` for the same reason.
+   */
+  | { kind: "talentNotSelected"; talent: TalentId }
   | {
       kind: "composite";
       reasons: Reason[];

@@ -12,7 +12,7 @@
  * node_modules wouldn't catch it).
  *
  * There are two things that this package can't answer alone: 1) what a game's
- * pool rules are, and 2) which traits belong to a named set. Both things arrive as
+ * pool rules are, and 2) which boons a god grants. Both things arrive as
  * interfaces declared here & are actually implemented further out.
  */
 
@@ -27,6 +27,7 @@ export type {
   ResourceId,
   SetId,
   SlotId,
+  TalentId,
   TraitId,
 } from "./ids.js";
 export type { Requirement } from "./requirement.js";

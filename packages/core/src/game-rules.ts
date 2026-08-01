@@ -1,4 +1,4 @@
-import type { Element, GodId, TraitId } from "./ids.js";
+import type { GodId, TraitId } from "./ids.js";
 import type { RunFacts } from "./run-state.js";
 import type { Reason } from "./status.js";
 
@@ -12,7 +12,7 @@ import type { Reason } from "./status.js";
  * Layout and coordinate data also never appear here bc they're UI concerns.
  *
  * The Hades I implementation is mostly degenerate/redundant (e.g. no elements,
- * `maxAttainableElement` is always 0, etc).
+ * so no element atoms at all).
  *
  * God pool mechanics are shared between the games (and confirmed identical by the actual data extractions).
  */
@@ -39,12 +39,6 @@ export interface GameRules {
    * well whichever silly lil guy wrote the implementation ig (0_0).
    */
   canGodEnterPool(g: GodId, f: RunFacts): boolean;
-
-  /** Non-boon element contributions for Hades II (e.g. Gathering Tools II). Empty for hades1. */
-  elementSources(f: RunFacts): Map<Element, number>;
-
-  /** The ceiling that separates "not reached yet" from "this run literally can't reach it". */
-  maxAttainableElement(el: Element, f: RunFacts): number;
 
   /**
    * Feasibility for one trait: bans, weapon aspect conflicts, slot &

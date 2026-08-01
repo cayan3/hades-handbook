@@ -7,6 +7,7 @@ import type {
   Rarity,
   ResourceId,
   SlotId,
+  TalentId,
   TraitId,
 } from "./ids.js";
 
@@ -42,8 +43,20 @@ export interface RunFacts {
   /** Empty for hades1 ofc. */
   elements: Map<Element, number>;
   slots: Map<SlotId, TraitId | null>;
-  /** The equipped kit. (Not the Loadout panel, which displays obtained boons). */
-  equipped: { weapon?: string; aspect?: AspectId; keepsake?: KeepsakeId };
+  /**
+   * The equipped kit. (Not the Loadout panel, which displays obtained boons).
+   *
+   * `talents` is the odd member and belongs here for the same reason the aspect
+   * does: chosen before the run & fixed for its whole duration. Absent (not
+   * empty) when the source doesn't collect Mirror selections, which evaluation
+   * reads as "unknown" rather than "none selected".
+   */
+  equipped: {
+    weapon?: string;
+    aspect?: AspectId;
+    keepsake?: KeepsakeId;
+    talents?: Set<TalentId>;
+  };
   resources: Map<ResourceId, number>;
   /**
    * Not populated in v1. (This is primarily for Hades II's Vow of Denial.)

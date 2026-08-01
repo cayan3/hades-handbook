@@ -39,11 +39,18 @@ import {
 
 const TRAITS = ["t1", "t2", "t3", "t4", "t5"] as const;
 const GODS = ["g1", "g2", "g3"] as const;
-const SETS = ["s1", "s2"] as const;
 const KEEPSAKES = ["k1", "k2"] as const;
 const ASPECTS = ["a1", "a2"] as const;
+const TALENTS = ["m1", "m2"] as const;
 const ELEMENTS = ["Fire", "Water"] as const satisfies readonly Element[];
 
+/**
+ * `hasElement` is the only leaf left that carries one, so this no longer
+ * spreads across three atoms the way it did when `hasSet` and `hasBoonFrom`
+ * counted members too. That matters for P2: the "a pending residual only
+ * shrinks" clause is interesting exactly where a count falls w/o the shape
+ * changing, and this is now the sole source of those.
+ */
 const count = fc.integer({ min: 1, max: 3 });
 
 const leafArb: fc.Arbitrary<Requirement> = fc.oneof(
@@ -54,8 +61,7 @@ const leafArb: fc.Arbitrary<Requirement> = fc.oneof(
         ? ({ kind: "hasTrait", trait } as const)
         : ({ kind: "hasTrait", trait, minLevel } as const),
     ),
-  fc.record({ kind: fc.constant("hasSet" as const), set: fc.constantFrom(...SETS), count }),
-  fc.record({ kind: fc.constant("hasBoonFrom" as const), god: fc.constantFrom(...GODS), count }),
+  fc.record({ kind: fc.constant("hasBoonFrom" as const), god: fc.constantFrom(...GODS) }),
   fc.record({
     kind: fc.constant("hasElement" as const),
     element: fc.constantFrom(...ELEMENTS),
@@ -70,6 +76,7 @@ const leafArb: fc.Arbitrary<Requirement> = fc.oneof(
     kind: fc.constant("hasAspect" as const),
     aspects: fc.uniqueArray(fc.constantFrom(...ASPECTS), { minLength: 1 }),
   }),
+  fc.record({ kind: fc.constant("hasTalent" as const), talent: fc.constantFrom(...TALENTS) }),
 );
 
 /**
@@ -119,35 +126,18 @@ const malformedArb: fc.Arbitrary<Requirement> = fc
   .map(([of, extra]) => ({ kind: "anyOf", min: of.length + extra, of }) as const);
 
 const lookupsArb: fc.Arbitrary<CatalogLookups> = fc
-  .tuple(
-    fc.subarray([...TRAITS]),
-    fc.subarray([...TRAITS]),
-    fc.subarray([...TRAITS]),
-    fc.subarray([...TRAITS]),
-    fc.subarray([...TRAITS]),
-  )
-  .map(([s1, s2, g1, g2, g3]) => stubLookups({ s1, s2 }, { g1, g2, g3 }));
+  .tuple(fc.subarray([...TRAITS]), fc.subarray([...TRAITS]), fc.subarray([...TRAITS]))
+  .map(([g1, g2, g3]) => stubLookups({ g1, g2, g3 }));
 
 /** What the feasibility layer refuses, drawn before anything that must yk respect it. */
 interface Feasibility {
   blocked: readonly string[];
   unreachable: readonly string[];
-  ceilings: ReadonlyMap<Element, number>;
 }
 
 const feasibilityArb: fc.Arbitrary<Feasibility> = fc
-  .tuple(
-    fc.subarray([...TRAITS]),
-    fc.subarray([...GODS]),
-    fc.uniqueArray(fc.tuple(fc.constantFrom(...ELEMENTS), fc.integer({ min: 0, max: 4 })), {
-      selector: ([element]) => element,
-    }),
-  )
-  .map(([blocked, unreachable, ceilings]) => ({
-    blocked,
-    unreachable,
-    ceilings: new Map(ceilings),
-  }));
+  .tuple(fc.subarray([...TRAITS]), fc.subarray([...GODS]))
+  .map(([blocked, unreachable]) => ({ blocked, unreachable }));
 
 function rulesFor(feasibility: Feasibility): GameRules {
   return stubRules({
@@ -155,7 +145,6 @@ function rulesFor(feasibility: Feasibility): GameRules {
       feasibility.blocked.map((trait) => [trait, { kind: "banned", trait }] as const),
     ),
     unreachableGods: new Set(feasibility.unreachable),
-    ceilings: feasibility.ceilings,
   });
 }
 
@@ -163,24 +152,23 @@ function rulesFor(feasibility: Feasibility): GameRules {
  * A run and a further acquisition.
  *
  * **The acquisition is drawn so the feasibility layer permits it**: nothing
- * banned is acquired, no god that can't enter the pool is added to it, and no
- * element is gained past its respective `maxAttainableElement`. Without that,
- * the property is simply well false. A generator free to "acquire" a banned
- * trait or to like gain a second Water in a run w/ a Water ceiling of 1,
- * describes a step the rules say literally can't be taken, and after such a
- * step an impossible branch erm well climbs back to pending (the dead branch
- * rejoins an any-of residual & the residual ermmm grows o_0).
+ * banned is acquired, and no god that can't enter the pool is added to it.
+ * Without that, the property is simply well false. A generator free to
+ * "acquire" a banned trait describes a step the rules say literally can't be
+ * taken, and after such a step an impossible branch erm well climbs back to
+ * pending (the dead branch rejoins an any-of residual & the residual ermmm
+ * grows o_0). Elements need no such guard anymore: they have no feasibility
+ * verdict left to respect, so any gain is a step the rules permit.
  *
  * **What the run already holds is deliberately not constrained that way.** Run
- * may hold a trait the feasibility layer now blocks, have a god pooled that
- * couldn't currently enter the pool, or hold more of an element than its ceiling
- * would now allow. Those states are in fact reachable in prod (evaluation runs
- * on effective facts, & the override layer can set one w/o the other) and
- * they're the only states that distinguish "satisfaction is checked before
- * feasibility" from the reverse ordering. Ruling them out costs the suite
- * precisely that distinction, and also gets literally nothing back since what
- * an impossible answer "turns on" never depends on the holding (& only depends on the
- * ceiling), so monotonicity, the residual fixpoint, residual soundness, &
+ * may hold a trait the feasibility layer now blocks, or have a god pooled that
+ * couldn't currently enter the pool. Those states are in fact reachable in prod
+ * (evaluation runs on effective facts, & the override layer can set one w/o the
+ * other) and they're the only states that distinguish "satisfaction is checked
+ * before feasibility" from the reverse ordering. Ruling them out costs the
+ * suite precisely that distinction, and also gets literally nothing back since
+ * what an impossible answer "turns on" never depends on the holding, so
+ * monotonicity, the residual fixpoint, residual soundness, &
  * satisfied-stability were each measured to hold w/o it.
  *
  * (Monotonicity is still a claim about evaluation under acquisition, never like
@@ -189,27 +177,21 @@ function rulesFor(feasibility: Feasibility): GameRules {
 const worldArb = feasibilityArb.chain((feasibility) => {
   const obtainable = TRAITS.filter((trait) => !feasibility.blocked.includes(trait));
   const reachable = GODS.filter((god) => !feasibility.unreachable.includes(god));
-  const ceiling = (element: Element) => Math.min(3, feasibility.ceilings.get(element) ?? 99);
 
   const levelled = (traits: readonly string[]) =>
     fc
       .tuple(...traits.map(() => fc.integer({ min: 1, max: 3 })))
       .map((levels) => traits.map((trait, i) => [trait, levels[i] ?? 1] as const));
 
-  // What the run already holds is drawn freely (including above the ceiling),
-  // but what the run can still gain is not. The gain is restricted to
-  // [0, ceiling - have], which is empty once the run is at or above the ceiling;
-  // i.e. a run can't acquire anything past what it can actually reach, and
-  // clamping at zero prevents an acquisition from just likee quietly becoming
-  // a loss ig.
+  // Both halves are drawn freely now. The gain used to be clamped to what the
+  // run could still reach, & w/ the ceiling gone there's nothing left to clamp
+  // against: an element count only ever grows, so every gain is a step the
+  // rules permit.
   const elementPlan = fc.tuple(
     ...ELEMENTS.map((element) =>
       fc
         .tuple(fc.nat({ max: 3 }), fc.nat({ max: 3 }))
-        .map(
-          ([have, gain]) =>
-            [element, have, Math.max(0, Math.min(gain, ceiling(element) - have))] as const,
-        ),
+        .map(([have, gain]) => [element, have, gain] as const),
     ),
   );
 
@@ -231,6 +213,10 @@ const worldArb = feasibilityArb.chain((feasibility) => {
       ),
       fc.subarray(obtainable).chain(levelled),
       fc.subarray(reachable),
+      // Absent as well as present, bc the two cases answer differently: an
+      // unselected talent is impossible for the whole run, but a source that
+      // never collected the selections must read as "not yet" instead.
+      fc.option(fc.subarray([...TALENTS]), { nil: undefined }),
     )
     .map(
       ([
@@ -244,10 +230,12 @@ const worldArb = feasibilityArb.chain((feasibility) => {
         progress,
         gainedTraits,
         gainedGods,
+        talents,
       ]) => {
         const equipped: RunFacts["equipped"] = {};
         if (keepsake !== undefined) equipped.keepsake = keepsake;
         if (aspect !== undefined) equipped.aspect = aspect;
+        if (talents !== undefined) equipped.talents = new Set(talents);
 
         const base = makeFacts({
           held: held(...heldEntries),
@@ -263,12 +251,15 @@ const worldArb = feasibilityArb.chain((feasibility) => {
         };
 
         // Soundness needs a delta that acquires only what the run doesn't
-        // already hold. Re-acquiring a held trait is a level upgrade, and the
-        // two set-shaped atoms count *members*, so that kind of upgrade closes
-        // one of the residual's counts against a baseline holding literally
-        // nothing, while adding no new member to the facts that the residual
-        // came from. Every other property is indifferent to the overlap (lol)
-        // and just well keeps the free `delta` ig.
+        // already hold. Re-acquiring a held trait is a level upgrade, and back
+        // when `hasBoonFrom` counted *members* that upgrade closed one of the
+        // residual's counts against a baseline holding literally nothing while
+        // adding no new member to the facts the residual came from. No leaf
+        // counts members anymore, so the restriction may well have nothing left
+        // to exclude; it's kept bc it's still a true precondition & narrowing a
+        // property to prove it's now redundant is a separate job from this one.
+        // Every other property is indifferent to the overlap (lol) and just
+        // well keeps the free `delta` ig.
         const strictDelta: Acquisition = {
           held: new Map([...delta.held].filter(([trait]) => !base.held.has(trait))),
           godPool: delta.godPool,

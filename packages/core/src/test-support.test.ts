@@ -49,13 +49,15 @@ describe("acquisitionFor", () => {
     expect([...(delta?.held.keys() ?? [])]).toEqual(["t2"]);
   });
 
-  it("closes two sets that share a member by acquiring it once", () => {
-    const shared = stubLookups({ s1: ["m1"], s2: ["m1"] });
+  it("closes two gods that share a boon by acquiring it once", () => {
+    // Not a contrived overlap: a Duo is filed under both of its gods, so one
+    // acquisition really does answer both memberships.
+    const shared = stubLookups({ Hera: ["m1"], Zeus: ["m1"] });
     const req: Requirement = {
       kind: "all",
       of: [
-        { kind: "hasSet", set: "s1", count: 1 },
-        { kind: "hasSet", set: "s2", count: 1 },
+        { kind: "hasBoonFrom", god: "Hera" },
+        { kind: "hasBoonFrom", god: "Zeus" },
       ],
     };
     const facts = makeFacts();
@@ -93,16 +95,26 @@ describe("acquisitionFor", () => {
     ).toBeNull();
   });
 
-  it("does not under-acquire a set whose members are partly held", () => {
-    const lookups = stubLookups({ s1: ["m1", "m2", "m3"] });
+  it("asks for nothing when one of the god's boons is already held", () => {
+    // The atom is all-or-nothing now, so a run holding any of the god's boons
+    // has nothing left to acquire. Without the short-circuit this would ask for
+    // a second boon that answers a requirement already met.
+    const lookups = stubLookups({ Hera: ["m1", "m2", "m3"] });
     const facts = makeFacts({ held: held("m1") });
-    const req: Requirement = { kind: "hasSet", set: "s1", count: 2 };
+    const req: Requirement = { kind: "hasBoonFrom", god: "Hera" };
+    expect(evaluate(req, facts, rules, lookups).kind).toBe("satisfied");
+    expect(acquisitionFor(req, facts, rules, lookups)?.held.size).toBe(0);
+  });
+
+  it("acquires one of the god's boons when none is held", () => {
+    const lookups = stubLookups({ Hera: ["m1", "m2", "m3"] });
+    const facts = makeFacts();
+    const req: Requirement = { kind: "hasBoonFrom", god: "Hera" };
     const status = evaluate(req, facts, rules, lookups);
     if (status.kind !== "pending") throw new Error("setup");
     const delta = acquisitionFor(status.residual, facts, rules, lookups);
     expect(delta).not.toBeNull();
     if (delta === null) return;
-    // must acquire a genuinely new member, not just count the one already held
     expect(delta.held.size).toBe(1);
     expect(
       evaluate(status.residual, applyAcquisition(zeroBaseline(facts), delta), rules, lookups).kind,
@@ -112,13 +124,13 @@ describe("acquisitionFor", () => {
 });
 
 describe("residualCost", () => {
-  const lookups = stubLookups({ s1: ["m1", "m2", "m3"] });
+  const lookups = stubLookups();
   const req: Requirement = {
     kind: "anyOf",
     min: 1,
     of: [
       { kind: "hasTrait", trait: "t1" },
-      { kind: "hasSet", set: "s1", count: 3 },
+      { kind: "hasElement", element: "Water", count: 3 },
     ],
   };
 
@@ -143,8 +155,10 @@ describe("residualCost", () => {
   });
 
   it("falls as a count is paid down", () => {
-    const facts = makeFacts({ held: held("m1") });
-    const status = evaluate({ kind: "hasSet", set: "s1", count: 3 }, facts, rules, lookups);
+    // hasElement is the only leaf left that can shrink without changing shape,
+    // so it is the only thing this measure can still watch fall.
+    const facts = makeFacts({ elements: new Map([["Water", 1] as const]) });
+    const status = evaluate({ kind: "hasElement", element: "Water", count: 3 }, facts, rules, lookups);
     if (status.kind !== "pending") throw new Error("setup");
     expect(residualCost(status.residual)).toBe(2);
   });

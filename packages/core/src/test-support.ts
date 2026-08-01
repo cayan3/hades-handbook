@@ -49,7 +49,6 @@ export function held(...traits: ReadonlyArray<TraitId | readonly [TraitId, numbe
 export interface StubRules {
   blocked?: ReadonlyMap<TraitId, Reason>;
   unreachableGods?: ReadonlySet<GodId>;
-  ceilings?: ReadonlyMap<Element, number>;
   capacity?: number;
 }
 
@@ -71,24 +70,17 @@ export interface StubRules {
  * bc this lil stub guy literally can't produce them itself (pat pat pat).
  */
 export function stubRules(cfg: StubRules = {}): GameRules {
-  const ceilings = cfg.ceilings ?? new Map<Element, number>();
   return {
     poolCapacity: () => cfg.capacity ?? 4,
     canGodEnterPool: (g) => !(cfg.unreachableGods?.has(g) ?? false),
-    elementSources: () => new Map(),
-    // Generous by default since a ceiling below the requirement is the
-    // interesting case and every test that wants it says so.
-    maxAttainableElement: (el) => ceilings.get(el) ?? 99,
     isBlocked: (t) => cfg.blocked?.get(t) ?? null,
   };
 }
 
 export function stubLookups(
-  sets: Readonly<Record<string, readonly TraitId[]>> = {},
   gods: Readonly<Record<string, readonly TraitId[]>> = {},
 ): CatalogLookups {
   return {
-    setMembers: (s) => sets[s] ?? [],
     boonsOfGod: (g) => gods[g] ?? [],
   };
 }
@@ -150,11 +142,12 @@ export function applyAcquisition(facts: RunFacts, delta: Acquisition): RunFacts 
  *
  * Returns null when no such acquisition exists; callers treat that as a
  * precondition failure and discard the world (erm rip). There are two cases
- * where that can happen. Case 1: a keepsake or an aspect, since equipping a
- * keepsake is a swap (not a gain) so is outside what "acquire this" can even
- * mean, while a weapon aspect yk can't be changed mid-run at all. Case 2: a
- * set with too few unheld members to actually achieve, which a real residual
- * wouldn't contain but a generated one could (lol).
+ * where that can happen. Case 1: a keepsake, an aspect, or a Mirror talent,
+ * since equipping a keepsake is a swap (not a gain) so is outside what
+ * "acquire this" can even mean, while a weapon aspect and a talent selection
+ * yk can't be changed mid-run at all. Case 2: a god w/ too few unheld boons
+ * left to actually achieve, which a real residual wouldn't contain but a
+ * generated one could (lol).
  *
  * A trait held below the level asked for is deliberately not one of those
  * cases. Since its residual is a threshold instead of a count of steps (and
@@ -218,10 +211,15 @@ function collect(
       next.held.set(req.trait, Math.max(next.held.get(req.trait) ?? 0, wanted));
       return next;
     }
-    case "hasSet":
-      return takeMembers(lookups.setMembers(req.set), req.count, facts, rules, sofar);
-    case "hasBoonFrom":
-      return takeMembers(lookups.boonsOfGod(req.god), req.count, facts, rules, sofar);
+    case "hasBoonFrom": {
+      const members = lookups.boonsOfGod(req.god);
+      // Already satisfied, so there's nothing to go get -- same short-circuit
+      // hasTrait and godInPool make, & it matters now that the atom is
+      // all-or-nothing: w/o it this would ask for a second boon of a god the
+      // run already has one from.
+      if (members.some((member) => facts.held.has(member))) return sofar;
+      return takeMembers(members, 1, facts, rules, sofar);
+    }
     case "hasElement": {
       // The max, not the sum (bc two thresholds on one element are both
       // satisfied by just yk meeting the higher one, & the count just adds to
@@ -239,6 +237,7 @@ function collect(
     }
     case "hasKeepsake":
     case "hasAspect":
+    case "hasTalent":
       return null;
     case "all": {
       let acc = sofar;
@@ -301,9 +300,10 @@ function takeMembers(
  * satisfying it still costs.
  *
  * This counts what's outstanding/still missing instead of counting nodes,
- * i.e. it counts how many more of a set, how many more of an element,
- * how many branches of an any-of, etc the user still has to get. A requirement
- * that keeps its shape but drops a count should genuinely get smaller.
+ * i.e. it counts how many more of an element, how many branches of an any-of,
+ * etc the user still has to get. A requirement that keeps its shape but drops a
+ * count should genuinely get smaller. (`hasElement` is the only leaf left
+ * carrying a count, so it's the only one that can shrink w/o changing shape.)
  *
  * An any-of is charged for only the `min` cheapest of its branches (bc only
  * that many ever have to be taken lol; we're not trying to default
@@ -321,9 +321,9 @@ export function residualCost(req: Requirement): number {
     case "godInPool":
     case "hasKeepsake":
     case "hasAspect":
-      return 1;
-    case "hasSet":
+    case "hasTalent":
     case "hasBoonFrom":
+      return 1;
     case "hasElement":
       return req.count;
     case "all":

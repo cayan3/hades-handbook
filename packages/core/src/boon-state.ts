@@ -52,14 +52,13 @@ export function boonState(
  * Whether the player has made a start on any leaf of a requirement (the entire
  * point of the Pending vs Locked distinction).
  *
- * This cares abt **started, not satisfied**. Three of the leaves carry a count,
- * & a count can ofc be partially met; e.g. holding one of a god's two core
- * boons needed for their Legendary, or having one Water out of the three needed
- * by an Infusion, is clearly a start even if none those leaves are actually
- * satisfied. Testing for satisfaction would show the same "nothing done yet"
- * indicator for both a player who's halfway to a boon and a player who hasn't
- * even started. The remaining leaves are all-or-nothing, and for those
- * started & satisfied are the same question.
+ * This cares abt **started, not satisfied**. `hasElement` is the one leaf left
+ * carrying a count, & a count can ofc be partially met: having one Water out of
+ * the three an Infusion needs is clearly a start even if the leaf isn't
+ * actually satisfied. Testing for satisfaction would show the same "nothing
+ * done yet" indicator for both a player who's halfway to a boon and a player
+ * who hasn't even started. The remaining leaves are all-or-nothing, and for
+ * those started & satisfied are the same question.
  *
  * A trait held below the level asked for counts as started for the same reason.
  *
@@ -79,15 +78,18 @@ export function anyLeafStarted(
       return req.of.some((child) => anyLeafStarted(child, facts, rules, lookups));
     case "hasTrait":
       return facts.held.has(req.trait);
-    case "hasSet":
-      return lookups.setMembers(req.set).some((member) => facts.held.has(member));
     case "hasBoonFrom":
+      // All-or-nothing since it lost its count: holding any of the god's boons
+      // is exactly what satisfies it. Answered directly instead of through
+      // `evaluate` bc evaluation asks the feasibility layer abt every un-held
+      // boon of the god, & this runs per boon per render.
       return lookups.boonsOfGod(req.god).some((member) => facts.held.has(member));
     case "hasElement":
       return (facts.elements.get(req.element) ?? 0) > 0;
     case "godInPool":
     case "hasKeepsake":
     case "hasAspect":
+    case "hasTalent":
       return evaluate(req, facts, rules, lookups).kind === "satisfied";
   }
 }

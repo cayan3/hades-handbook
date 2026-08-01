@@ -43,12 +43,12 @@ const KINDS = [
   "all",
   "anyOf",
   "hasTrait",
-  "hasSet",
   "hasBoonFrom",
   "hasElement",
   "godInPool",
   "hasKeepsake",
   "hasAspect",
+  "hasTalent",
 ] as const;
 
 type Kind = (typeof KINDS)[number];
@@ -62,8 +62,6 @@ function kindOf(req: Requirement): Kind {
       return "anyOf";
     case "hasTrait":
       return "hasTrait";
-    case "hasSet":
-      return "hasSet";
     case "hasBoonFrom":
       return "hasBoonFrom";
     case "hasElement":
@@ -74,6 +72,8 @@ function kindOf(req: Requirement): Kind {
       return "hasKeepsake";
     case "hasAspect":
       return "hasAspect";
+    case "hasTalent":
+      return "hasTalent";
   }
 }
 
@@ -81,12 +81,12 @@ const SAMPLES: ReadonlyArray<readonly [Kind, Requirement]> = [
   ["all", { kind: "all", of: [{ kind: "godInPool", god: "ZeusUpgrade" }] }],
   ["anyOf", { kind: "anyOf", min: 1, of: [{ kind: "hasTrait", trait: "ZeusShoutTrait" }] }],
   ["hasTrait", { kind: "hasTrait", trait: "ZeusBonusBounceTrait", minLevel: 2 }],
-  ["hasSet", { kind: "hasSet", set: "HestiaCoreTraits", count: 2 }],
-  ["hasBoonFrom", { kind: "hasBoonFrom", god: "HeraUpgrade", count: 1 }],
+  ["hasBoonFrom", { kind: "hasBoonFrom", god: "HeraUpgrade" }],
   ["hasElement", { kind: "hasElement", element: "Fire", count: 3 }],
   ["godInPool", { kind: "godInPool", god: "PoseidonUpgrade" }],
   ["hasKeepsake", { kind: "hasKeepsake", keepsake: "ZeusKeepsake" }],
   ["hasAspect", { kind: "hasAspect", aspects: ["AspectOfSelene"] }],
+  ["hasTalent", { kind: "hasTalent", talent: "AmmoMetaUpgrade" }],
 ];
 
 const identifier = fc.string({ minLength: 1 });
@@ -104,11 +104,11 @@ const hasTrait: fc.Arbitrary<Requirement> = fc
 
 const leaf: fc.Arbitrary<Requirement> = fc.oneof(
   hasTrait,
-  fc.record({ kind: fc.constant("hasSet" as const), set: identifier, count }),
-  fc.record({ kind: fc.constant("hasBoonFrom" as const), god: identifier, count }),
+  fc.record({ kind: fc.constant("hasBoonFrom" as const), god: identifier }),
   fc.record({ kind: fc.constant("hasElement" as const), element, count }),
   fc.record({ kind: fc.constant("godInPool" as const), god: identifier }),
   fc.record({ kind: fc.constant("hasKeepsake" as const), keepsake: identifier }),
+  fc.record({ kind: fc.constant("hasTalent" as const), talent: identifier }),
   fc.record({
     kind: fc.constant("hasAspect" as const),
     aspects: fc.array(identifier, { minLength: 1, maxLength: 3 }),

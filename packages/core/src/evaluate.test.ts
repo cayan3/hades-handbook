@@ -290,74 +290,17 @@ describe("hasElement", () => {
     });
   });
 
-  it("is impossible when the run cannot reach the threshold", () => {
-    const facts = makeFacts({ elements: new Map([["Water", 1] as const]) });
-    const rules = stubRules({ ceilings: new Map([["Water", 2] as const]) });
-    // Here, `needed` is yk the whole requirement instead of the shortfall, so it
-    // can just be read against the ceiling directly.
-    expect(reasonOf(needsThreeWater, facts, rules)).toEqual({
-      kind: "elementCeiling",
-      element: "Water",
-      needed: 3,
-      max: 2,
-    });
-  });
-});
-
-describe("hasSet", () => {
-  const core = { CoreTraits: ["m1", "m2", "m3"] };
-  const needsTwo: Requirement = { kind: "hasSet", set: "CoreTraits", count: 2 };
-  const lookups = stubLookups(core);
-
-  it("is satisfied once enough members are held", () => {
-    const facts = makeFacts({ held: held("m1", "m2") });
-    expect(evaluate(needsTwo, facts, stubRules(), lookups)).toEqual({ kind: "satisfied" });
-  });
-
-  it("asks only for the shortfall", () => {
-    const facts = makeFacts({ held: held("m1") });
-    expect(residualOf(needsTwo, facts, stubRules(), lookups)).toEqual({
-      kind: "hasSet",
-      set: "CoreTraits",
-      count: 1,
-    });
-  });
-
-  it("keeps the shortfall context when too few members are left", () => {
-    const facts = makeFacts({ held: held("m1") });
-    const rules = stubRules({
-      blocked: new Map<string, Reason>([
-        ["m2", { kind: "banned", trait: "m2" }],
-        ["m3", { kind: "banned", trait: "m3" }],
-      ]),
-    });
-    // w/o the two counts, the UI can only say "impossible" for a group that
-    // in actuality may have just been a single pick short.
-    expect(reasonOf(needsTwo, facts, rules, lookups)).toEqual({
-      kind: "composite",
-      reasons: [
-        { kind: "banned", trait: "m2" },
-        { kind: "banned", trait: "m3" },
-      ],
-      needed: 1,
-      pendingAlternatives: 0,
-    });
-  });
-
-  it("counts a member that is merely unheld as still reachable", () => {
-    const facts = makeFacts({ held: held("m1") });
-    const rules = stubRules({ blocked: new Map([["m2", { kind: "banned", trait: "m2" }]]) });
-    expect(residualOf(needsTwo, facts, rules, lookups)).toEqual({
-      kind: "hasSet",
-      set: "CoreTraits",
-      count: 1,
-    });
+  it("is never impossible, however far off the threshold is", () => {
+    // Element counts only grow, and no Infusion gates an element its granting
+    // god can't reach, so there's no ceiling left to be over. A run at zero
+    // Water still reads "not yet" rather than "never".
+    expect(evaluate(needsThreeWater, makeFacts(), stubRules(), NO_LOOKUPS).kind).toBe("pending");
   });
 });
 
 describe("hasBoonFrom", () => {
-  const lookups = stubLookups({}, { Hera: ["hera1", "hera2"] });
-  const needsOne: Requirement = { kind: "hasBoonFrom", god: "Hera", count: 1 };
+  const lookups = stubLookups({ Hera: ["hera1", "hera2"] });
+  const needsOne: Requirement = { kind: "hasBoonFrom", god: "Hera" };
 
   it("is satisfied when one of the god's boons is held", () => {
     const facts = makeFacts({ held: held("hera2") });
@@ -366,6 +309,68 @@ describe("hasBoonFrom", () => {
 
   it("is pending while the god's boons are still reachable", () => {
     expect(residualOf(needsOne, makeFacts(), stubRules(), lookups)).toEqual(needsOne);
+  });
+
+  it("counts a boon that is merely unheld as still reachable", () => {
+    const rules = stubRules({ blocked: new Map([["hera1", { kind: "banned", trait: "hera1" }]]) });
+    expect(residualOf(needsOne, makeFacts(), rules, lookups)).toEqual(needsOne);
+  });
+
+  it("keeps the shortfall context when none of the god's boons are left", () => {
+    // w/o the two counts, the UI can only say "impossible" for a group that in
+    // actuality may have just been a single pick short. This is the only atom
+    // that still produces a composite with them; the set-shaped one that used
+    // to share the job is gone.
+    const rules = stubRules({
+      blocked: new Map<string, Reason>([
+        ["hera1", { kind: "banned", trait: "hera1" }],
+        ["hera2", { kind: "banned", trait: "hera2" }],
+      ]),
+    });
+    expect(reasonOf(needsOne, makeFacts(), rules, lookups)).toEqual({
+      kind: "composite",
+      reasons: [
+        { kind: "banned", trait: "hera1" },
+        { kind: "banned", trait: "hera2" },
+      ],
+      needed: 1,
+      pendingAlternatives: 0,
+    });
+  });
+});
+
+describe("hasTalent", () => {
+  const needsSwiftFlight: Requirement = { kind: "hasTalent", talent: "SwiftFlightMetaUpgrade" };
+
+  it("is satisfied when the run selected it", () => {
+    const facts = makeFacts({ equipped: { talents: new Set(["SwiftFlightMetaUpgrade"]) } });
+    expect(evaluate(needsSwiftFlight, facts, stubRules(), NO_LOOKUPS)).toEqual({
+      kind: "satisfied",
+    });
+  });
+
+  it("is impossible when the other side of the row was selected", () => {
+    // Mirror rows resolve to one member before the run and can't be changed
+    // during it, so this is settled for the whole run rather than not-yet.
+    const facts = makeFacts({ equipped: { talents: new Set(["GreaterRecallMetaUpgrade"]) } });
+    expect(reasonOf(needsSwiftFlight, facts)).toEqual({
+      kind: "talentNotSelected",
+      talent: "SwiftFlightMetaUpgrade",
+    });
+  });
+
+  it("is pending when the selections were never collected", () => {
+    // A source that doesn't gather Mirror state leaves `talents` absent, which
+    // is not the same as "selected nothing" -- an absent fact must never
+    // manufacture an impossible.
+    expect(residualOf(needsSwiftFlight, makeFacts())).toEqual(needsSwiftFlight);
+  });
+
+  it("is impossible when the run selected nothing at all", () => {
+    // An empty set is a collected fact: the source looked and found no
+    // selection, which is different from never having looked.
+    const facts = makeFacts({ equipped: { talents: new Set<string>() } });
+    expect(reasonOf(needsSwiftFlight, facts).kind).toBe("talentNotSelected");
   });
 });
 

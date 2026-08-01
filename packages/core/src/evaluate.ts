@@ -27,9 +27,7 @@ import type { Reason, Status } from "./status.js";
  * Bans, weapon aspect conflicts, slot & exclusive-group collisions, and
  * one-directional blocks all arrive through that one call, so this function
  * never directly inspects `facts.bans` itself. Element counts (for Hades II)
- * are read from `facts.elements` as the run's running total; the non-boon
- * element sources on the rules interface are what influence the ceiling
- * calculation, and adding them here would double-count.
+ * are read from `facts.elements` as the run's running total.
  *
  * The status a requirement gets is a *residual*: the part still missing/needed,
  * expressed as another requirement. (E.g. "two more Water", not just "false").
@@ -97,32 +95,41 @@ export function evaluate(
     case "hasElement": {
       const have = facts.elements.get(req.element) ?? 0;
       if (have >= req.count) return SATISFIED;
-      const max = rules.maxAttainableElement(req.element, facts);
-      // Here, `needed` is yk the whole requirement instead of the shortfall, so it
-      // can just be read against the ceiling directly.
-      if (max < req.count) {
-        return unsatisfiable({
-          kind: "elementCeiling",
-          element: req.element,
-          needed: req.count,
-          max,
-        });
-      }
+      // Never impossible: element counts only grow, and no Infusion gates an
+      // element its granting god can't reach, so there's nothing to be short of
+      // except time.
       return pending({ kind: "hasElement", element: req.element, count: req.count - have });
-    }
-
-    case "hasSet": {
-      const tally = tallyMembers(lookups.setMembers(req.set), facts, rules);
-      return fromMembers(tally, req.count, (count) => ({ kind: "hasSet", set: req.set, count }));
     }
 
     case "hasBoonFrom": {
       const tally = tallyMembers(lookups.boonsOfGod(req.god), facts, rules);
-      return fromMembers(tally, req.count, (count) => ({
-        kind: "hasBoonFrom",
-        god: req.god,
-        count,
-      }));
+      if (tally.held > 0) return SATISFIED;
+      if (tally.gettable === 0) {
+        // The shortfall numbers are always 1 and 0 here, which looks like
+        // padding & isn't: an `all` reports a composite w/o them to mean "no
+        // shortfall to report", so omitting them would say the opposite of
+        // what's true (there IS one boon missing, w/ no way left to get it).
+        return unsatisfiable({
+          kind: "composite",
+          reasons: tally.blocked,
+          needed: 1,
+          pendingAlternatives: 0,
+        });
+      }
+      return pending(req);
+    }
+
+    case "hasTalent": {
+      const talents = facts.equipped.talents;
+      // A source that doesn't collect Mirror selections leaves this absent, and
+      // an absent fact must never manufacture an impossible (the one direction
+      // this engine really must not get wrong), so that reads as "not yet".
+      if (talents === undefined) return pending(req);
+      if (talents.has(req.talent)) return SATISFIED;
+      // Talents are picked at the Mirror before the run & can't change during
+      // it, so the other side of the row being selected is settled for the
+      // whole run rather than merely not-done-yet. Same argument as hasAspect.
+      return unsatisfiable({ kind: "talentNotSelected", talent: req.talent });
     }
 
     case "hasAspect": {
@@ -208,6 +215,14 @@ interface MemberTally {
   blocked: Reason[];
 }
 
+/**
+ * Counts a god's boons by what the run holds and what it can still get.
+ *
+ * The second half is the whole reason this reads the god's boon list rather
+ * than reading the run's holdings backwards through a `godOf(trait)` lookup:
+ * a reverse lookup sees what's held and can't see what's still *available*,
+ * which is exactly the difference between "not yet" and "impossible".
+ */
 function tallyMembers(
   members: readonly TraitId[],
   facts: RunFacts,
@@ -229,23 +244,4 @@ function tallyMembers(
     else tally.blocked.push(blocked);
   }
   return tally;
-}
-
-/** Shared by the two set-shaped atoms, which differ only in where members come from. */
-function fromMembers(
-  tally: MemberTally,
-  count: number,
-  residualWith: (count: number) => Requirement,
-): Status {
-  if (tally.held >= count) return SATISFIED;
-  const needed = count - tally.held;
-  if (tally.gettable < needed) {
-    return unsatisfiable({
-      kind: "composite",
-      reasons: tally.blocked,
-      needed,
-      pendingAlternatives: tally.gettable,
-    });
-  }
-  return pending(residualWith(needed));
 }

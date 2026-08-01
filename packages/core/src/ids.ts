@@ -18,6 +18,12 @@ export type AspectId = string;
 export type SlotId = string;
 /** A set of traits, at most one of which can be held at once. */
 export type GroupId = string;
+/**
+ * A Mirror of Night talent (hades1). This names which talent the run has
+ * *selected*, never which ones the save file has unlocked (ownership is out of
+ * scope; every talent is assumed unlocked).
+ */
+export type TalentId = string;
 export type ResourceId = string;
 
 /**

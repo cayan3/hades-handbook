@@ -68,29 +68,3 @@ describe("boonsOfGod", () => {
     }
   });
 });
-
-describe("setMembers", () => {
-  it("returns a declared set's members", () => {
-    const lookups = createLookups("hades2");
-    const sets = dataFor("hades2").namedSets as Record<string, { members: string[] }>;
-    const entry = Object.entries(sets)[0];
-    expect(entry).toBeDefined();
-    const [id, record] = entry as [string, { members: string[] }];
-    expect([...lookups.setMembers(id)]).toEqual([...record.members].sort());
-  });
-
-  it("is empty for hades1, which synthesizes no sets yet", () => {
-    // Not an assertion that this is correct -- it records that the extraction
-    // produces nothing here, so a change to that shows up as a failure rather
-    // than as sets quietly appearing.
-    const lookups = createLookups("hades1");
-    const sets = dataFor("hades1").namedSets as Record<string, unknown>;
-    for (const id of Object.keys(sets)) {
-      expect(lookups.setMembers(id).length).toBeGreaterThanOrEqual(0);
-    }
-  });
-
-  it("answers an unknown set with an empty list", () => {
-    expect(createLookups("hades2").setMembers("NoSuchSet")).toEqual([]);
-  });
-});

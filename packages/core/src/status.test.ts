@@ -22,7 +22,7 @@ const REASON_KINDS = [
   "aspectConflict",
   "slotConflict",
   "blockedByTrait",
-  "elementCeiling",
+  "talentNotSelected",
   "composite",
 ] as const;
 
@@ -51,8 +51,8 @@ function reasonKind(r: Reason): (typeof REASON_KINDS)[number] {
       return "slotConflict";
     case "blockedByTrait":
       return "blockedByTrait";
-    case "elementCeiling":
-      return "elementCeiling";
+    case "talentNotSelected":
+      return "talentNotSelected";
     case "composite":
       return "composite";
   }
@@ -79,7 +79,7 @@ const REASON_SAMPLES: ReadonlyArray<readonly [(typeof REASON_KINDS)[number], Rea
     "blockedByTrait",
     { kind: "blockedByTrait", trait: "AmmoReclaimTrait", blockedBy: "AmmoReplaceTrait" },
   ],
-  ["elementCeiling", { kind: "elementCeiling", element: "Water", needed: 3, max: 2 }],
+  ["talentNotSelected", { kind: "talentNotSelected", talent: "AmmoMetaUpgrade" }],
   ["composite", { kind: "composite", reasons: [] }],
 ];
 
@@ -96,9 +96,9 @@ describe("Status", () => {
   it("carries a residual on pending, not a boolean", () => {
     const s: Status = {
       kind: "pending",
-      residual: { kind: "hasSet", set: "HestiaCoreTraits", count: 1 },
+      residual: { kind: "hasBoonFrom", god: "HestiaUpgrade" },
     };
-    expect(s.kind === "pending" && s.residual.kind).toBe("hasSet");
+    expect(s.kind === "pending" && s.residual.kind).toBe("hasBoonFrom");
   });
 });
 

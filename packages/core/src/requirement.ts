@@ -1,4 +1,4 @@
-import type { AspectId, Element, GodId, KeepsakeId, SetId, TraitId } from "./ids.js";
+import type { AspectId, Element, GodId, KeepsakeId, TalentId, TraitId } from "./ids.js";
 
 /**
  * A predicate over run facts.
@@ -8,9 +8,9 @@ import type { AspectId, Element, GodId, KeepsakeId, SetId, TraitId } from "./ids
  * the atoms cover the element, pool, keepsake, and aspect dimensions directly.
  * Requirements are created from extracted game data, not transcribed by hand.
  *
- * There's deliberately no `not` since game data does contain some negations, but
- * none of them actually needs a `not`. (That was the tldr; this next part is
- * just details for hashtag nerds lol (:heart_hands: :heart_hands:).) Game
+ * There's no `not`: the game data does contain some negations, but none of them
+ * actually needs a `not` to be modeled here. (That was the tldr; this next part
+ * is just details for hashtag nerds lol (:heart_hands: :heart_hands:).) Game
  * extraction findings were sorted four ways:
  *  1) symmetric trait-vs-trait (i.e. both traits name each other which is just
  *     yk mutual exclusion, covered in this project by "Exclusive Group");
@@ -43,17 +43,21 @@ export type Requirement =
   | { kind: "anyOf"; min: number; of: Requirement[] }
   | { kind: "hasTrait"; trait: TraitId; minLevel?: number }
   /**
-   * Named sets come from the catalog. For Hades II, these are "real" sets from
-   * the code (e.g. `LinkedTraitData.<God>CoreTraits` (core boons!) & narrower
-   * subsets like `HestiaBurnTraits`)). For Hades I, these are synthesized bc
-   * (ermmmm might be a skill issue but) I just couldn't find them in the game code
-   * :pensive: :pensive: (game code seems to repeat the same boon-id list inline
-   * at every requirement? which means there's no uh actual "name" to bind to o_0).
+   * "Hold any boon of this god." No count: every producer in the data asks for
+   * exactly one, and the atom is kept over inlining the god's boons into a
+   * disjunction only bc a god grants ~35 of them and a 35-way any-of is not a
+   * thing a player can read.
    */
-  | { kind: "hasSet"; set: SetId; count: number }
-  | { kind: "hasBoonFrom"; god: GodId; count: number }
+  | { kind: "hasBoonFrom"; god: GodId }
   /** Element thresholds (e.g. for Infusions in Hades II). */
   | { kind: "hasElement"; element: Element; count: number }
   | { kind: "godInPool"; god: GodId }
   | { kind: "hasKeepsake"; keepsake: KeepsakeId }
-  | { kind: "hasAspect"; aspects: AspectId[] };
+  | { kind: "hasAspect"; aspects: AspectId[] }
+  /**
+   * Which Mirror talent the run has selected (Hades I only; Hades II's Arcana
+   * gates nothing). This is abt *selection*, not ownership: every talent is
+   * assumed unlocked, but a Mirror row resolves to exactly one of its two
+   * members for the whole run, & ten Hades I traits are gated on which.
+   */
+  | { kind: "hasTalent"; talent: TalentId };

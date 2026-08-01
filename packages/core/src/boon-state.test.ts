@@ -23,10 +23,10 @@ const prereq: Requirement = {
   ],
 };
 /**
- *  stubLookups() w/ no arguments returns setMembers: () => [] and
- *  boonsOfGod: () => [] (i.e. every set is empty & every god is boonless (lol))
- *  Purpose of this is bc evaluate always takes four parameters, but only hasSet
- *  and hasBoonFrom ever call lookups (every other atom just yk ignores it).
+ *  stubLookups() w/ no arguments returns boonsOfGod: () => [] (i.e. every god
+ *  is boonless (lol)).
+ *  Purpose of this is bc evaluate always takes four parameters, but only
+ *  hasBoonFrom ever calls lookups (every other atom just yk ignores it).
  *  So this lil constant guy has two big-boy jobs: it's the default for the
  *  residualOf/reasonOf helpers, and the name itself documents the call site
  *  (i.e. "NO_LOOKUPS" means the assertion doesn't depend on catalog member lists).
@@ -72,20 +72,23 @@ describe("boonState", () => {
     expect(state).toBe("Available");
   });
 
-  it("is Pending when a set-shaped prerequisite is part-held", () => {
-    const lookups = stubLookups({ core: ["m1", "m2"] });
-    const setPrereq: Requirement = { kind: "hasSet", set: "core", count: 2 };
-    const facts = makeFacts({ held: held("m1") });
-    // One of the two members is held. The leaf isn't satisfied (& never will
-    // be until both members are held), but the player has visibly started, so
-    // this shouldn't be displayed the same as a completely untouched/unstarted boon.
-    expect(boonState(TARGET, setPrereq, facts, stubRules(), lookups)).toBe("Pending");
+  it("goes Locked straight to Available for a god-shaped prerequisite", () => {
+    // hasBoonFrom lost its count, so it can't be part-met: holding any of the
+    // god's boons is exactly what satisfies it. There is no Pending in between,
+    // which is what "all-or-nothing leaf" means in display terms.
+    const lookups = stubLookups({ Hera: ["m1", "m2"] });
+    const godPrereq: Requirement = { kind: "hasBoonFrom", god: "Hera" };
+    expect(boonState(TARGET, godPrereq, makeFacts(), stubRules(), lookups)).toBe("Locked");
+    const started = makeFacts({ held: held("m1") });
+    expect(boonState(TARGET, godPrereq, started, stubRules(), lookups)).toBe("Available");
   });
 
-  it("is Locked when a set-shaped prerequisite has not been started", () => {
-    const lookups = stubLookups({ core: ["m1", "m2"] });
-    const setPrereq: Requirement = { kind: "hasSet", set: "core", count: 2 };
-    expect(boonState(TARGET, setPrereq, makeFacts(), stubRules(), lookups)).toBe("Locked");
+  it("is Impossible when an unselected talent gates the boon", () => {
+    // Mirror selection is fixed before the run, so this is the display face of
+    // the one atom whose unmet state is never merely "not yet".
+    const talentPrereq: Requirement = { kind: "hasTalent", talent: "AmmoMetaUpgrade" };
+    const facts = makeFacts({ equipped: { talents: new Set(["ReloadAmmoMetaUpgrade"]) } });
+    expect(boonState(TARGET, talentPrereq, facts, stubRules(), NO_LOOKUPS)).toBe("Impossible");
   });
 
   it("is Pending when an element threshold is part-met", () => {

@@ -1,6 +1,6 @@
-import type { CatalogLookups, GodId, SetId, TraitId } from "@repo/core";
+import type { CatalogLookups, GodId, TraitId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
-import type { SetRecord, TraitRecord } from "./schema.js";
+import type { TraitRecord } from "./schema.js";
 
 const EMPTY: readonly TraitId[] = Object.freeze([]);
 
@@ -57,22 +57,7 @@ export function createLookups(game: GameKey): CatalogLookups {
     byGod.set(god, Object.freeze([...members].sort()));
   }
 
-  const bySet = new Map<SetId, readonly TraitId[]>();
-  for (const [id, record] of Object.entries(data.namedSets as Record<string, SetRecord>)) {
-    bySet.set(id, Object.freeze([...record.members].sort()));
-  }
-
   return {
-    /**
-     * Named sets exist in Hades II's data and are absent from Hades I's, which
-     * synthesizes nothing today -- so this answers honestly for one game and
-     * empty for the other. It reads what is actually there rather than
-     * pretending to a completeness the extraction does not have.
-     */
-    setMembers(s: SetId): readonly TraitId[] {
-      return bySet.get(s) ?? EMPTY;
-    },
-
     /**
      * Every trait the god grants (not the ones a run just happens to hold).
      * Duos are included under both corresponding gods.
