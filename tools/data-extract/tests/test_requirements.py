@@ -345,7 +345,7 @@ def test_depth_counts_only_prerequisites_of_the_same_god():
     assert cycles == []
 
 
-def test_depth_takes_the_longest_path():
+def test_needing_everything_costs_the_dearest_of_them():
     prereqs = {
         "Root": None, "Mid": requirements.has_trait("Root"),
         "Top": requirements.all_of([requirements.has_trait("Root"), requirements.has_trait("Mid")]),
@@ -353,6 +353,55 @@ def test_depth_takes_the_longest_path():
     gods = dict.fromkeys(prereqs, "A")
     depths, _ = requirements.compute_tiers(prereqs, gods, set(prereqs))
     assert depths["Top"] == 3
+
+
+def test_needing_any_one_costs_the_cheapest_of_them():
+    """A rung means "reaching this needs a boon of the rung below". Measuring a
+    disjunction by its deepest branch would claim a prerequisite the boon does
+    not have, and draw it several rows below where it becomes available."""
+    prereqs = {
+        "Shallow": None,
+        "Mid": requirements.has_trait("Shallow"),
+        "Deep": requirements.has_trait("Mid"),
+        "Top": requirements.any_of([requirements.has_trait("Shallow"),
+                                    requirements.has_trait("Mid"),
+                                    requirements.has_trait("Deep")]),
+    }
+    gods = dict.fromkeys(prereqs, "A")
+    depths, _ = requirements.compute_tiers(prereqs, gods, set(prereqs))
+    assert depths["Shallow"], depths["Deep"] == (1, 3)
+    assert depths["Top"] == 2
+
+
+def test_needing_several_of_them_costs_the_last_of_the_cheapest_few():
+    prereqs = {
+        "A1": None, "B2": requirements.has_trait("A1"), "C3": requirements.has_trait("B2"),
+        "Top": requirements.any_of([requirements.has_trait("A1"),
+                                    requirements.has_trait("B2"),
+                                    requirements.has_trait("C3")], minimum=2),
+    }
+    gods = dict.fromkeys(prereqs, "A")
+    depths, _ = requirements.compute_tiers(prereqs, gods, set(prereqs))
+    assert depths["Top"] == 3
+
+
+def test_a_branch_another_god_can_satisfy_costs_this_ladder_nothing():
+    """"hold a Cast from anyone" is not a rung of any one god's ladder."""
+    prereqs = {
+        "Mine": None,
+        "Theirs": None,
+        "Top": requirements.any_of([requirements.has_trait("Mine"),
+                                    requirements.has_trait("Theirs")]),
+    }
+    gods = {"Mine": "A", "Theirs": "B", "Top": "A"}
+    depths, _ = requirements.compute_tiers(prereqs, gods, {"Mine", "Top"})
+    assert depths["Top"] == 1
+
+
+def test_any_boon_of_this_god_is_the_first_rung():
+    prereqs = {"Top": requirements.has_boon_from("A")}
+    depths, _ = requirements.compute_tiers(prereqs, {"Top": "A"}, {"Top"})
+    assert depths["Top"] == 2
 
 
 def test_a_cycle_is_reported_rather_than_resolved():

@@ -291,7 +291,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:38",
-  "tier": 3
+  "tier": 2
  },
  "CindraReclaimBoon": {
   "activation": null,
@@ -551,7 +551,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Verdan.lua:33",
-  "tier": 2
+  "tier": 1
  },
  "VerdanGroveBoon": {
   "activation": null,

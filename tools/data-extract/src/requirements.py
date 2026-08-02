@@ -601,19 +601,55 @@ def compute_tiers(prereqs, god_of, ladder_ids):
 
     Depth counts only prerequisites belonging to the same god, because the
     ladder is what one god's page draws: a boon needing a second god's boon is
-    not one rung higher, it is off the ladder entirely. A boon with no
-    same-god prerequisite is the first rung.
+    not one rung higher, it is off the ladder entirely.
+
+    **The rung is the cheapest way in, not the dearest.** A rung number means
+    "reaching this needs at least one boon of the rung below", so it has to be
+    measured along the path that actually gets you there. A boon reachable
+    through any one of three others is on the rung above the *shallowest* of
+    them: taking the deepest as the answer would put it several rows below the
+    point where it becomes available, and would claim a prerequisite at the
+    rung below that it does not have.
+
+    So a disjunction costs what its cheapest satisfying branch costs -- or,
+    when it asks for several, what the last of the cheapest few costs -- while
+    a conjunction costs its dearest child, since all of them are needed. A
+    branch that can be satisfied without any of this god's boons costs nothing,
+    which is what puts a boon gated on "a Cast from anyone" on the first rung
+    of every god's ladder rather than partway up one.
 
     Anything outside `ladder_ids` -- cross-god boons and the element-gated
     ones -- gets no depth at all rather than a misleading zero, and the view
     places those separately.
 
-    Returns (depths, cycles). A cycle makes longest-path undefined, so it is
-    reported rather than resolved; the caller fails the run on it.
+    Returns (depths, cycles). A cycle leaves depth undefined, so it is reported
+    rather than resolved; the caller fails the run on it.
     """
     depths = {}
     cycles = []
     visiting = []
+
+    def cost(node, home):
+        """Rungs of `home`'s own ladder that satisfying this node demands."""
+        if not isinstance(node, dict) or home is None:
+            return 0
+        kind = node.get("kind")
+        if kind == "hasTrait":
+            trait = node["trait"]
+            return depth_of(trait) if god_of.get(trait) == home else 0
+        if kind == "hasBoonFrom":
+            # Any boon of the god, and the cheapest of those is the first rung.
+            return 1 if node.get("god") == home else 0
+        if kind == "all":
+            return max((cost(c, home) for c in node.get("of") or []), default=0)
+        if kind == "anyOf":
+            branches = sorted(cost(c, home) for c in node.get("of") or [])
+            if not branches:
+                return 0
+            wanted = max(1, min(node.get("min", 1), len(branches)))
+            return branches[wanted - 1]
+        # Elements, keepsakes, talents and aspects are not rungs of any ladder.
+        return 0
 
     def depth_of(trait_id):
         if trait_id in depths:
@@ -622,12 +658,7 @@ def compute_tiers(prereqs, god_of, ladder_ids):
             cycles.append(visiting[visiting.index(trait_id):] + [trait_id])
             return 1
         visiting.append(trait_id)
-        god = god_of.get(trait_id)
-        parents = [
-            t for t in sorted(referenced_trait_ids(prereqs.get(trait_id)))
-            if t != trait_id and god is not None and god_of.get(t) == god
-        ]
-        depth = 1 + max((depth_of(p) for p in parents), default=0)
+        depth = 1 + cost(prereqs.get(trait_id), god_of.get(trait_id))
         visiting.pop()
         depths[trait_id] = depth
         return depth

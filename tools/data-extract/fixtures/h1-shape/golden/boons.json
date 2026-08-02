@@ -259,7 +259,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:165",
-  "tier": 2
+  "tier": 1
  },
  "SablePyreTrait": {
   "activation": null,

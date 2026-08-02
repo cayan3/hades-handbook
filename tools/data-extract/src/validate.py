@@ -261,16 +261,14 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     # everywhere and forever; it is cheap to check it here against the same
     # prereqs the view will read.
     god_of = {bid: b.get("god") for bid, b in boons.items()}
+    stored = {bid: b["tier"] for bid, b in boons.items() if b.get("tier") is not None}
+    recomputed, _ = requirements.compute_tiers(
+        {bid: b.get("prereq") for bid, b in boons.items()}, god_of, set(stored)
+    )
     inconsistent = []
-    for bid, b in sorted(boons.items()):
-        tier = b.get("tier")
-        if tier is None:
-            continue
-        parents = [t for t in requirements.referenced_trait_ids(b.get("prereq"))
-                   if t != bid and god_of.get(t) is not None and god_of.get(t) == god_of.get(bid)]
-        expected = 1 + max((boons[p].get("tier") or 0 for p in parents if p in boons), default=0)
-        if tier != expected:
-            inconsistent.append({"id": bid, "tier": tier, "expected": expected})
+    for bid in sorted(stored):
+        if stored[bid] != recomputed.get(bid):
+            inconsistent.append({"id": bid, "tier": stored[bid], "expected": recomputed.get(bid)})
     report["tiersInconsistentWithPrereqs"] = inconsistent
     for entry in inconsistent:
         fatal.append("%s %s is tier %s but its prerequisites put it at %s"
