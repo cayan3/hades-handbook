@@ -132,8 +132,8 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     # never be satisfied, so it renders the boon impossible for every player.
     dangling = {}
     for bid, b in sorted(boons.items()):
-        referenced = requirements.referenced_trait_ids(b.get("prereq"))
-        referenced |= requirements.referenced_trait_ids(b.get("activation"))
+        referenced = requirements.referenced_catalog_ids(b.get("prereq"))
+        referenced |= requirements.referenced_catalog_ids(b.get("activation"))
         referenced |= set(b.get("exclusiveGroup") or [])
         referenced |= set(b.get("blockedBy") or [])
         missing = sorted(r for r in referenced if r not in all_ids)

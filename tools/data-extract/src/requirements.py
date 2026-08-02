@@ -128,8 +128,28 @@ def walk(requirement):
 
 
 def referenced_trait_ids(requirement):
-    """Every trait id a requirement tree names, for the dangling-id check."""
+    """Every trait id a requirement tree names.
+
+    Traits only, because this is also what ladder depth is computed from and a
+    keepsake is not a rung.
+    """
     return {n["trait"] for n in walk(requirement) if n.get("kind") == "hasTrait"}
+
+
+def referenced_catalog_ids(requirement):
+    """Every id a requirement names that the catalog is expected to carry.
+
+    Keepsakes belong here as well as traits: a gate naming a keepsake that does
+    not exist is unsatisfiable forever, exactly as a dangling trait is, and
+    checking only one of the two would leave the other free to rot.
+
+    Mirror talents are deliberately absent. They are run state chosen outside
+    the run, not catalog records, so there is nothing here for them to dangle
+    against -- the validator would report every one of them as missing.
+    """
+    ids = referenced_trait_ids(requirement)
+    ids |= {n["keepsake"] for n in walk(requirement) if n.get("kind") == "hasKeepsake"}
+    return ids
 
 
 # ---------------------------------------------------------------------------

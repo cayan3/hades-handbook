@@ -156,6 +156,20 @@ def test_a_requirement_naming_an_id_the_catalog_does_not_have_is_reported():
     assert report["danglingPrereqReferences"] == {"A": ["Ghost"]}
 
 
+def test_a_gate_naming_a_keepsake_the_catalog_lacks_is_reported():
+    """A keepsake that does not exist is unsatisfiable forever, exactly as a
+    dangling trait is. Checking only traits would leave the other free to rot."""
+    report, _ = check({"A": boon(id="A", prereq={"kind": "hasKeepsake", "keepsake": "Ghost"})})
+    assert report["danglingPrereqReferences"] == {"A": ["Ghost"]}
+
+
+def test_a_mirror_talent_is_not_expected_to_be_a_catalog_record():
+    """Talents are run state chosen outside the run, so there is nothing here
+    for them to dangle against."""
+    report, _ = check({"A": boon(id="A", prereq={"kind": "hasTalent", "talent": "AmmoMetaUpgrade"})})
+    assert report["danglingPrereqReferenceCount"] == 0
+
+
 def test_a_keepsake_counts_as_present_for_that_check():
     report, _ = check(
         {"A": boon(id="A", prereq={"kind": "hasTrait", "trait": "K"})},
