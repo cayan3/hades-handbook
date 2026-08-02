@@ -24,6 +24,16 @@ export type GroupId = string;
  * scope; every talent is assumed unlocked).
  */
 export type TalentId = string;
+
+/**
+ * What's known about one talent. Absence from the map is the third state and
+ * means "nobody asked yet", which is deliberately not the same as
+ * "notSelected": a source that collected some Mirror rows and not others would
+ * otherwise have its silence read as a definite no, and a definite no is
+ * permanent for the run. Per-talent rather than one flag for the whole map bc
+ * the rows can genuinely be collected separately.
+ */
+export type TalentSelection = "selected" | "notSelected";
 export type ResourceId = string;
 
 /**

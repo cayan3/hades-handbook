@@ -120,12 +120,15 @@ export function evaluate(
     }
 
     case "hasTalent": {
-      const talents = facts.equipped.talents;
-      // A source that doesn't collect Mirror selections leaves this absent, and
-      // an absent fact must never manufacture an impossible (the one direction
-      // this engine really must not get wrong), so that reads as "not yet".
-      if (talents === undefined) return pending(req);
-      if (talents.has(req.talent)) return SATISFIED;
+      const selection = facts.equipped.talents?.get(req.talent);
+      // Nothing known abt this talent, so "not yet". The lookup is per talent
+      // on purpose: a source that collected the Cast row & not the others must
+      // not have its silence about the others read as a definite no, since a
+      // definite no here is permanent for the run. An absent fact must never
+      // manufacture an impossible -- the one direction this really can't get
+      // wrong.
+      if (selection === undefined) return pending(req);
+      if (selection === "selected") return SATISFIED;
       // Talents are picked at the Mirror before the run & can't change during
       // it, so the other side of the row being selected is settled for the
       // whole run rather than merely not-done-yet. Same argument as hasAspect.

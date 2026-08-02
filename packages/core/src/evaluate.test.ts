@@ -343,7 +343,9 @@ describe("hasTalent", () => {
   const needsSwiftFlight: Requirement = { kind: "hasTalent", talent: "SwiftFlightMetaUpgrade" };
 
   it("is satisfied when the run selected it", () => {
-    const facts = makeFacts({ equipped: { talents: new Set(["SwiftFlightMetaUpgrade"]) } });
+    const facts = makeFacts({
+      equipped: { talents: new Map([["SwiftFlightMetaUpgrade", "selected"] as const]) },
+    });
     expect(evaluate(needsSwiftFlight, facts, stubRules(), NO_LOOKUPS)).toEqual({
       kind: "satisfied",
     });
@@ -352,7 +354,9 @@ describe("hasTalent", () => {
   it("is impossible when the other side of the row was selected", () => {
     // Mirror rows resolve to one member before the run and can't be changed
     // during it, so this is settled for the whole run rather than not-yet.
-    const facts = makeFacts({ equipped: { talents: new Set(["GreaterRecallMetaUpgrade"]) } });
+    const facts = makeFacts({
+      equipped: { talents: new Map([["SwiftFlightMetaUpgrade", "notSelected"] as const]) },
+    });
     expect(reasonOf(needsSwiftFlight, facts)).toEqual({
       kind: "talentNotSelected",
       talent: "SwiftFlightMetaUpgrade",
@@ -366,10 +370,23 @@ describe("hasTalent", () => {
     expect(residualOf(needsSwiftFlight, makeFacts())).toEqual(needsSwiftFlight);
   });
 
-  it("is impossible when the run selected nothing at all", () => {
-    // An empty set is a collected fact: the source looked and found no
-    // selection, which is different from never having looked.
-    const facts = makeFacts({ equipped: { talents: new Set<string>() } });
+  it("is pending for a talent the source never asked about", () => {
+    // The row this trait belongs to was never collected, even though another
+    // row was. This is the case a set of the selected talents cannot express:
+    // it would have to leave this one out, and leaving it out would read as a
+    // definite no, which is impossible for the whole run.
+    const facts = makeFacts({
+      equipped: { talents: new Map([["GreaterRecallMetaUpgrade", "selected"] as const]) },
+    });
+    expect(residualOf(needsSwiftFlight, facts)).toEqual(needsSwiftFlight);
+  });
+
+  it("is impossible when the run selected nothing on that row", () => {
+    // "Asked, and the answer was none" -- reachable via the Pact condition that
+    // disables Mirror talents for a whole run, and different from never asking.
+    const facts = makeFacts({
+      equipped: { talents: new Map([["SwiftFlightMetaUpgrade", "notSelected"] as const]) },
+    });
     expect(reasonOf(needsSwiftFlight, facts).kind).toBe("talentNotSelected");
   });
 });

@@ -28,6 +28,7 @@ export type {
   SetId,
   SlotId,
   TalentId,
+  TalentSelection,
   TraitId,
 } from "./ids.js";
 export type { Requirement } from "./requirement.js";

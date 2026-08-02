@@ -8,6 +8,7 @@ import type {
   ResourceId,
   SlotId,
   TalentId,
+  TalentSelection,
   TraitId,
 } from "./ids.js";
 
@@ -47,15 +48,21 @@ export interface RunFacts {
    * The equipped kit. (Not the Loadout panel, which displays obtained boons).
    *
    * `talents` is the odd member and belongs here for the same reason the aspect
-   * does: chosen before the run & fixed for its whole duration. Absent (not
-   * empty) when the source doesn't collect Mirror selections, which evaluation
-   * reads as "unknown" rather than "none selected".
+   * does: chosen before the run & fixed for its whole duration.
+   *
+   * It's a map instead of a set of the selected ones bc "nobody asked" has to
+   * stay tellable apart from "asked, and no" **per talent**. A set carries that
+   * distinction once, in whether the field is there at all, so the moment a
+   * source knows any one talent it has to hand over a set, & the set then says
+   * "not selected" abt every talent missing from it. Since an unselected talent
+   * is impossible for the whole run, that turns silence into a permanent no on
+   * every Mirror row nobody got around to asking abt.
    */
   equipped: {
     weapon?: string;
     aspect?: AspectId;
     keepsake?: KeepsakeId;
-    talents?: Set<TalentId>;
+    talents?: Map<TalentId, TalentSelection>;
   };
   resources: Map<ResourceId, number>;
   /**

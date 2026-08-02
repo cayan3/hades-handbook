@@ -87,7 +87,9 @@ describe("boonState", () => {
     // Mirror selection is fixed before the run, so this is the display face of
     // the one atom whose unmet state is never merely "not yet".
     const talentPrereq: Requirement = { kind: "hasTalent", talent: "AmmoMetaUpgrade" };
-    const facts = makeFacts({ equipped: { talents: new Set(["ReloadAmmoMetaUpgrade"]) } });
+    const facts = makeFacts({
+      equipped: { talents: new Map([["AmmoMetaUpgrade", "notSelected"] as const]) },
+    });
     expect(boonState(TARGET, talentPrereq, facts, stubRules(), NO_LOOKUPS)).toBe("Impossible");
   });
 

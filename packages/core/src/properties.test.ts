@@ -213,10 +213,20 @@ const worldArb = feasibilityArb.chain((feasibility) => {
       ),
       fc.subarray(obtainable).chain(levelled),
       fc.subarray(reachable),
-      // Absent as well as present, bc the two cases answer differently: an
-      // unselected talent is impossible for the whole run, but a source that
-      // never collected the selections must read as "not yet" instead.
-      fc.option(fc.subarray([...TALENTS]), { nil: undefined }),
+      // Drawn as a partial map on purpose, so all three answers occur: a talent
+      // the generator marks selected, one it marks notSelected, and one it
+      // leaves out entirely. The third is the case a set couldn't produce, and
+      // it's the one that has to come out pending rather than impossible.
+      fc.option(
+        fc.uniqueArray(
+          fc.tuple(
+            fc.constantFrom(...TALENTS),
+            fc.constantFrom("selected" as const, "notSelected" as const),
+          ),
+          { selector: ([talent]) => talent },
+        ),
+        { nil: undefined },
+      ),
     )
     .map(
       ([
@@ -235,7 +245,7 @@ const worldArb = feasibilityArb.chain((feasibility) => {
         const equipped: RunFacts["equipped"] = {};
         if (keepsake !== undefined) equipped.keepsake = keepsake;
         if (aspect !== undefined) equipped.aspect = aspect;
-        if (talents !== undefined) equipped.talents = new Set(talents);
+        if (talents !== undefined) equipped.talents = new Map(talents);
 
         const base = makeFacts({
           held: held(...heldEntries),
