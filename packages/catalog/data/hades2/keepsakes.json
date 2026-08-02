@@ -5,7 +5,7 @@
   "iconKey": "Keepsake_38",
   "id": "ArmorGainKeepsake",
   "name": "Silken Sash",
-  "source": "Scripts/TraitData_Keepsake.lua:1199"
+  "source": "Scripts/TraitData_Keepsake.lua:1204"
  },
  "AthenaEncounterKeepsake": {
   "associatedGod": "NPC_Athena_01",
@@ -13,7 +13,7 @@
   "iconKey": "Keepsake_54",
   "id": "AthenaEncounterKeepsake",
   "name": "Gorgon Amulet",
-  "source": "Scripts/TraitData_Keepsake.lua:2163"
+  "source": "Scripts/TraitData_Keepsake.lua:2168"
  },
  "BaseBoonUpgradeKeepsake": {
   "associatedGod": null,
@@ -37,7 +37,7 @@
   "iconKey": "Keepsake_34",
   "id": "BonusMoneyKeepsake",
   "name": "Gold Purse",
-  "source": "Scripts/TraitData_Keepsake.lua:678"
+  "source": "Scripts/TraitData_Keepsake.lua:683"
  },
  "BossMetaUpgradeKeepsake": {
   "associatedGod": "NPC_Circe_01",
@@ -45,7 +45,7 @@
   "iconKey": "Keepsake_37",
   "id": "BossMetaUpgradeKeepsake",
   "name": "Crystal Figurine",
-  "source": "Scripts/TraitData_Keepsake.lua:968"
+  "source": "Scripts/TraitData_Keepsake.lua:973"
  },
  "BossPreDamageKeepsake": {
   "associatedGod": "NPC_Odysseus_01",
@@ -53,7 +53,7 @@
   "iconKey": "Keepsake_28",
   "id": "BossPreDamageKeepsake",
   "name": "Knuckle Bones",
-  "source": "Scripts/TraitData_Keepsake.lua:765"
+  "source": "Scripts/TraitData_Keepsake.lua:770"
  },
  "DamagedDamageBoostKeepsake": {
   "associatedGod": "NPC_Medea_01",
@@ -61,7 +61,7 @@
   "iconKey": "Keepsake_36",
   "id": "DamagedDamageBoostKeepsake",
   "name": "Blackened Fleece",
-  "source": "Scripts/TraitData_Keepsake.lua:1488"
+  "source": "Scripts/TraitData_Keepsake.lua:1493"
  },
  "DeathVengeanceKeepsake": {
   "associatedGod": "NPC_Nemesis_01",
@@ -77,7 +77,7 @@
   "iconKey": "Keepsake_35",
   "id": "DecayingBoostKeepsake",
   "name": "Lion Fang",
-  "source": "Scripts/TraitData_Keepsake.lua:1383"
+  "source": "Scripts/TraitData_Keepsake.lua:1388"
  },
  "DoorHealReserveKeepsake": {
   "associatedGod": "NPC_Dora_01",
@@ -93,7 +93,7 @@
   "iconKey": "Keepsake_33",
   "id": "EscalatingKeepsake",
   "name": "Discordant Bell",
-  "source": "Scripts/TraitData_Keepsake.lua:1592"
+  "source": "Scripts/TraitData_Keepsake.lua:1597"
  },
  "ForceAphroditeBoonKeepsake": {
   "associatedGod": "AphroditeUpgrade",
@@ -101,7 +101,7 @@
   "iconKey": "Keepsake_51",
   "id": "ForceAphroditeBoonKeepsake",
   "name": "Beautiful Mirror",
-  "source": "Scripts/TraitData_Keepsake.lua:2847"
+  "source": "Scripts/TraitData_Keepsake.lua:2852"
  },
  "ForceApolloBoonKeepsake": {
   "associatedGod": "ApolloUpgrade",
@@ -109,7 +109,7 @@
   "iconKey": "Keepsake_50",
   "id": "ForceApolloBoonKeepsake",
   "name": "Harmonic Photon",
-  "source": "Scripts/TraitData_Keepsake.lua:3020"
+  "source": "Scripts/TraitData_Keepsake.lua:3025"
  },
  "ForceAresBoonKeepsake": {
   "associatedGod": "AresUpgrade",
@@ -117,7 +117,7 @@
   "iconKey": "Keepsake_56",
   "id": "ForceAresBoonKeepsake",
   "name": "Sword Hilt",
-  "source": "Scripts/TraitData_Keepsake.lua:3192"
+  "source": "Scripts/TraitData_Keepsake.lua:3197"
  },
  "ForceDemeterBoonKeepsake": {
   "associatedGod": "DemeterUpgrade",
@@ -125,7 +125,7 @@
   "iconKey": "Keepsake_49",
   "id": "ForceDemeterBoonKeepsake",
   "name": "Barley Sheaf",
-  "source": "Scripts/TraitData_Keepsake.lua:2761"
+  "source": "Scripts/TraitData_Keepsake.lua:2766"
  },
  "ForceHephaestusBoonKeepsake": {
   "associatedGod": "HephaestusUpgrade",
@@ -133,7 +133,7 @@
   "iconKey": "Keepsake_52",
   "id": "ForceHephaestusBoonKeepsake",
   "name": "Adamant Shard",
-  "source": "Scripts/TraitData_Keepsake.lua:2588"
+  "source": "Scripts/TraitData_Keepsake.lua:2593"
  },
  "ForceHeraBoonKeepsake": {
   "associatedGod": "HeraUpgrade",
@@ -141,7 +141,7 @@
   "iconKey": "Keepsake_47",
   "id": "ForceHeraBoonKeepsake",
   "name": "Iridescent Fan",
-  "source": "Scripts/TraitData_Keepsake.lua:3278"
+  "source": "Scripts/TraitData_Keepsake.lua:3283"
  },
  "ForceHestiaBoonKeepsake": {
   "associatedGod": "HestiaUpgrade",
@@ -149,7 +149,7 @@
   "iconKey": "Keepsake_53",
   "id": "ForceHestiaBoonKeepsake",
   "name": "Everlasting Ember",
-  "source": "Scripts/TraitData_Keepsake.lua:3106"
+  "source": "Scripts/TraitData_Keepsake.lua:3111"
  },
  "ForcePoseidonBoonKeepsake": {
   "associatedGod": "PoseidonUpgrade",
@@ -157,7 +157,7 @@
   "iconKey": "Keepsake_48",
   "id": "ForcePoseidonBoonKeepsake",
   "name": "Vivid Sea",
-  "source": "Scripts/TraitData_Keepsake.lua:2934"
+  "source": "Scripts/TraitData_Keepsake.lua:2939"
  },
  "ForceZeusBoonKeepsake": {
   "associatedGod": "ZeusUpgrade",
@@ -165,7 +165,7 @@
   "iconKey": "Keepsake_46",
   "id": "ForceZeusBoonKeepsake",
   "name": "Cloud Bangle",
-  "source": "Scripts/TraitData_Keepsake.lua:2674"
+  "source": "Scripts/TraitData_Keepsake.lua:2679"
  },
  "FountainRarityKeepsake": {
   "associatedGod": "NPC_Narcissus_01",
@@ -173,7 +173,7 @@
   "iconKey": "Keepsake_39",
   "id": "FountainRarityKeepsake",
   "name": "Aromatic Phial",
-  "source": "Scripts/TraitData_Keepsake.lua:1054"
+  "source": "Scripts/TraitData_Keepsake.lua:1059"
  },
  "GoldifyKeepsake": {
   "associatedGod": "NPC_Chronos_02",
@@ -181,7 +181,7 @@
   "iconKey": "Keepsake_59",
   "id": "GoldifyKeepsake",
   "name": "Time Piece",
-  "source": "Scripts/TraitData_Keepsake.lua:2507"
+  "source": "Scripts/TraitData_Keepsake.lua:2512"
  },
  "HadesAndPersephoneKeepsake": {
   "associatedGod": "NPC_Hades_Field_01",
@@ -189,7 +189,7 @@
   "iconKey": "Keepsake_58",
   "id": "HadesAndPersephoneKeepsake",
   "name": "Jeweled Pom",
-  "source": "Scripts/TraitData_Keepsake.lua:2404"
+  "source": "Scripts/TraitData_Keepsake.lua:2409"
  },
  "LowHealthCritKeepsake": {
   "associatedGod": "NPC_Artemis_01",
@@ -205,7 +205,7 @@
   "iconKey": "Keepsake_27",
   "id": "ManaOverTimeRefundKeepsake",
   "name": "Silver Wheel",
-  "source": "Scripts/TraitData_Keepsake.lua:870"
+  "source": "Scripts/TraitData_Keepsake.lua:875"
  },
  "PersistentDionysusSkipKeepsake": {
   "associatedGod": null,
@@ -213,7 +213,7 @@
   "iconKey": "Keepsake_55",
   "id": "PersistentDionysusSkipKeepsake",
   "name": null,
-  "source": "Scripts/TraitData_Keepsake.lua:2119"
+  "source": "Scripts/TraitData_Keepsake.lua:2124"
  },
  "RandomBlessingKeepsake": {
   "associatedGod": "TrialUpgrade",
@@ -221,7 +221,7 @@
   "iconKey": "Keepsake_42",
   "id": "RandomBlessingKeepsake",
   "name": "Transcendent Embryo",
-  "source": "Scripts/TraitData_Keepsake.lua:1911"
+  "source": "Scripts/TraitData_Keepsake.lua:1916"
  },
  "RarifyKeepsake": {
   "associatedGod": "NPC_Zagreus_01",
@@ -229,7 +229,7 @@
   "iconKey": "Keepsake_57",
   "id": "RarifyKeepsake",
   "name": "Calling Card",
-  "source": "Scripts/TraitData_Keepsake.lua:2306"
+  "source": "Scripts/TraitData_Keepsake.lua:2311"
  },
  "ReincarnationKeepsake": {
   "associatedGod": "NPC_Skelly_01",
@@ -245,7 +245,7 @@
   "iconKey": "Keepsake_55",
   "id": "SkipEncounterKeepsake",
   "name": "Fig Leaf",
-  "source": "Scripts/TraitData_Keepsake.lua:2021"
+  "source": "Scripts/TraitData_Keepsake.lua:2026"
  },
  "SpellTalentKeepsake": {
   "associatedGod": "SpellDrop",
@@ -261,7 +261,7 @@
   "iconKey": "Keepsake_41",
   "id": "TempHammerKeepsake",
   "name": "Experimental Hammer",
-  "source": "Scripts/TraitData_Keepsake.lua:1304"
+  "source": "Scripts/TraitData_Keepsake.lua:1309"
  },
  "TimedBuffKeepsake": {
   "associatedGod": "HermesUpgrade",
@@ -269,7 +269,7 @@
   "iconKey": "Keepsake_43",
   "id": "TimedBuffKeepsake",
   "name": "Metallic Droplet",
-  "source": "Scripts/TraitData_Keepsake.lua:1701"
+  "source": "Scripts/TraitData_Keepsake.lua:1706"
  },
  "UnpickedBoonKeepsake": {
   "associatedGod": "NPC_Echo_01",
@@ -277,6 +277,6 @@
   "iconKey": "Keepsake_40",
   "id": "UnpickedBoonKeepsake",
   "name": "Concave Stone",
-  "source": "Scripts/TraitData_Keepsake.lua:1805"
+  "source": "Scripts/TraitData_Keepsake.lua:1810"
  }
 }
