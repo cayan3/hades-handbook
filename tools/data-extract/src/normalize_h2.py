@@ -1,6 +1,7 @@
 import glob, json, re, os, sys
 from parse_text_bundle import parse_sjson_text_bundle
 from line_index import index_keys_at_depth
+import requirements
 
 from config import out_dir, raw_dir, scripts_dir, text_dir
 
@@ -413,51 +414,17 @@ def parse_elemental_god_comment(fname, line):
         pass
     return None
 
-def get_exclusive_group(trait_id, data):
-    # `HasNone` is a generic "this list-valued GameState path contains none
-    # of these strings" primitive -- it is reused for unrelated purposes
-    # depending on what `Path` it's paired with. Confirmed by validation:
-    # Path=[...,"TraitDictionary"] means "I hold none of these traits" (a
-    # real mutual-exclusion group), but Path=[...,"CurrentRoom"] means "this
-    # room has none of these flags set" (e.g. HasNone={"BlockGiftBoons"}),
-    # which is not a trait reference at all. Only treat the former as an
-    # exclusiveGroup.
-    gsr = data.get("GameStateRequirements")
-    if not isinstance(gsr, list):
-        return None
-    for cond in gsr:
-        if not isinstance(cond, dict) or not isinstance(cond.get("HasNone"), list):
-            continue
-        path = cond.get("Path")
-        if isinstance(path, list) and path and path[-1] == "TraitDictionary":
-            group = sorted(set([trait_id] + [x for x in cond["HasNone"] if isinstance(x, str)]))
-            return group
-    return None
+def get_element_affinities(trait_id):
+    """Every element base in the inherit chain, not only the first one found.
 
-def get_element_affinity(trait_id):
+    The resolver this replaces returned on its first match, so a trait
+    inheriting two affinity bases would have kept one and lost the other in
+    silence. No shipped trait has two, which is precisely why the loss would
+    never have been noticed -- so every match is returned and the caller fails
+    the run rather than picking one.
+    """
     chain = [trait_id] + inherit_chain(trait_id)
-    for c in chain:
-        if c in ELEMENT_BASE_TRAITS:
-            return ELEMENT_BASE_TRAITS[c]
-    return None
-
-def get_element_cost(trait_id, data):
-    chain = [trait_id] + inherit_chain(trait_id)
-    if "UnityTrait" not in chain:
-        return None
-    gsr = data.get("GameStateRequirements")
-    costs = {}
-    if isinstance(gsr, list):
-        for cond in gsr:
-            if not isinstance(cond, dict):
-                continue
-            path = cond.get("Path")
-            if isinstance(path, list) and len(path) >= 4 and path[2] == "Elements":
-                elem = path[3]
-                val = cond.get("Value")
-                if isinstance(val, (int, float)):
-                    costs[elem] = val
-    return costs or None
+    return [ELEMENT_BASE_TRAITS[c] for c in chain if c in ELEMENT_BASE_TRAITS]
 
 def get_rarity(trait_id):
     rl, definer = resolve_field(trait_id, "RarityLevels")
@@ -491,6 +458,22 @@ def classify_category(trait_id, god, fname, data, chain):
 boons = {}
 skipped_base_archetypes = []
 
+# Which ids the player cannot shed once the run has them. A keepsake swaps
+# between regions, so anything a keepsake is or grants is temporary -- and a
+# negation whose blocker is temporary must never be reported as permanent,
+# because that renders as an impossible build to a player who only has the
+# wrong keepsake equipped right now.
+REMOVABLE_BLOCKERS = set(keepsakes)
+for _tid, _data in ALL_DEFS.items():
+    if isinstance(_data, dict):
+        _setup = _data.get("SetupFunction")
+        _args = _setup.get("Args") if isinstance(_setup, dict) else None
+        if isinstance(_args, dict) and isinstance(_args.get("TraitName"), str):
+            REMOVABLE_BLOCKERS.add(_args["TraitName"])
+
+declared_negations = {}   # trait id -> ids it declares itself incompatible with
+classified = {}           # trait id -> what its clauses came to
+
 for trait_id, data in ALL_DEFS.items():
     if not isinstance(data, dict):
         continue
@@ -515,23 +498,53 @@ for trait_id, data in ALL_DEFS.items():
         elemental_god_comment = parse_elemental_god_comment(fname, line)
         god = elemental_god_comment  # best-effort, sourced from a comment, flagged below
 
-    prereq = TraitRequirements.get(trait_id)
+    # Both halves are read and ANDed. The reader this replaces took the
+    # central entry when there was one and never looked at the record's own
+    # `GameStateRequirements`, so nine records had a gate suppressed by
+    # another gate -- and it also required the inline half to be a list, which
+    # a dozen records write as a bare table instead. Between them those two
+    # tests dropped every Selene-duo gate in the game.
     prereq_line = prereq_source.get(trait_id)
-    prereq_record = None
-    if prereq is not None:
-        prereq_record = {
-            "expr": prereq,
-            "source": "Scripts/TraitData.lua:%d" % prereq_line if prereq_line else "Scripts/TraitData.lua",
-        }
+    central = requirements.classify_h2(TraitRequirements.get(trait_id), keepsakes)
+    inline = requirements.classify_h2(data.get("GameStateRequirements"), keepsakes)
+    clauses = requirements.Classified()
+    clauses.absorb(central)
+    clauses.absorb(inline)
+    classified[trait_id] = clauses
+    if clauses.negations:
+        declared_negations[trait_id] = clauses.negations
+
+    prereq = clauses.requirement()
+    if central.requirements and prereq_line:
+        prereq_citation = "Scripts/TraitData.lua:%d" % prereq_line
+    elif prereq is not None:
+        prereq_citation = "Scripts/%s:%d" % (fname, line)
     else:
-        # inline GameStateRequirements HasNone-style negation counts as a prereq too
-        gsr = data.get("GameStateRequirements")
-        if isinstance(gsr, list) and any(isinstance(c, dict) and ("HasNone" in c or "Path" in c) for c in gsr):
-            prereq_record = {
-                "expr": {"GameStateRequirements": gsr},
-                "source": "Scripts/%s:%d" % (fname, line),
-                "note": "inline on the trait definition itself, not in the central TraitRequirements table",
-            }
+        prereq_citation = None
+
+    build_failures = [
+        dict(f, stage="prereq") for f in clauses.unclassified
+    ]
+    if clauses.unclassified:
+        # A record whose clauses did not all classify must not ship a
+        # requirement at all: half a gate reads as a weaker gate, and the run
+        # is going to fail anyway. The marker replaces it so nothing can
+        # mistake the remains for a requirement.
+        prereq = {"type": requirements.UNCLASSIFIED_MARKER}
+
+    activation = None
+    activation_clauses = requirements.classify_h2(data.get("ActivationRequirements"), keepsakes)
+    build_failures += [dict(f, stage="activation") for f in activation_clauses.unclassified]
+    if not activation_clauses.unclassified:
+        activation = activation_clauses.requirement()
+
+    affinities = get_element_affinities(trait_id)
+    if len(set(affinities)) > 1:
+        build_failures.append({
+            "clause": {"elementAffinity": sorted(set(affinities))},
+            "reason": "more than one element base in the inherit chain, and the field holds one",
+            "stage": "elementAffinity",
+        })
 
     text = text_bundle_raw.get(trait_id, {})
 
@@ -547,16 +560,114 @@ for trait_id, data in ALL_DEFS.items():
         "boonCategory": classify_category(trait_id, god, fname, data, chain),
         "godKind": ("PoolSlot" if god in pool_god_names else "NonPoolSlot") if god else None,
         "slot": get_slot(trait_id),
+        "tier": None,
         "rarity": get_rarity(trait_id),
-        "exclusiveGroup": get_exclusive_group(trait_id, data),
-        "elementAffinity": get_element_affinity(trait_id),
-        "elementCost": get_element_cost(trait_id, data),
-        "prereq": prereq_record,
+        "exclusiveGroup": None,
+        "blockedBy": None,
+        "elementAffinity": affinities[0] if affinities else None,
+        "prereq": prereq,
+        # Where the gate was written, which is not where the trait was. Hades
+        # II keeps most prerequisites in one central table and the rest inline
+        # on the record, so a citation that always named the record would be
+        # wrong for the majority of them.
+        "prereqSource": prereq_citation,
+        "activation": activation,
         "source": "Scripts/%s:%d" % (fname, line),
     }
     if elemental_god_comment:
         record["_godInferredFromComment"] = True
+    if build_failures:
+        record["buildFailure"] = build_failures
     boons[trait_id] = record
+
+# ---------------------------------------------------------------------------
+# Selene's paired boons
+# ---------------------------------------------------------------------------
+
+# Nine records pair one of Selene's Hexes with one Olympian, and the game files
+# them under Talents rather than beside the Hexes -- which is why they read as
+# god-less mechanic content. Two halves of their requirement are real clauses
+# and one is not: the gate on the Olympian is written out, while holding the
+# matching Hex is carried by the inheritance and the name. That half is derived
+# here, and the derivation checks itself -- the god read from the name must
+# agree with the god read from the gate, and the Hex id must exist -- so a
+# renamed record fails the run instead of quietly losing half its gate.
+SELENE_PAIRED_MARKER = "SeleneDuosUnlocked"
+SELENE_PAIRED_BASE = "SpellTalentTrait"
+
+selene_paired = set()
+for trait_id, record in boons.items():
+    data = ALL_DEFS.get(trait_id) or {}
+    gsr = data.get("GameStateRequirements")
+    named = gsr.get("NamedRequirements") if isinstance(gsr, dict) else None
+    if not (isinstance(named, list) and SELENE_PAIRED_MARKER in named):
+        continue
+    if SELENE_PAIRED_BASE not in inherit_chain(trait_id):
+        continue
+
+    gated_gods = sorted({n["god"] for n in requirements.walk(record["prereq"])
+                         if n.get("kind") == "hasBoonFrom"})
+    stem = trait_id[:-len("Talent")] if trait_id.endswith("Talent") else trait_id
+    named_god = next((g for g in gated_gods if stem.endswith(g)), None)
+    hex_id = "Spell%sTrait" % stem[:-len(named_god)] if named_god else None
+
+    if len(gated_gods) != 1 or named_god is None or hex_id not in boons:
+        record.setdefault("buildFailure", []).append({
+            "clause": {"gatedGods": gated_gods, "derivedHex": hex_id},
+            "reason": "a paired Selene boon whose god and Hex could not be read back from the data",
+            "stage": "prereq",
+        })
+        continue
+
+    selene_paired.add(trait_id)
+    record["god"] = named_god
+    record["godKind"] = "PoolSlot" if named_god in pool_god_names else "NonPoolSlot"
+    record["prereq"] = requirements.all_of([
+        requirements.has_trait(hex_id),
+        record["prereq"],
+    ])
+
+# ---------------------------------------------------------------------------
+# What a negation actually is, decided once every declaration is known
+# ---------------------------------------------------------------------------
+
+exclusive_groups, blocked_by, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
+    declared_negations,
+    removable=REMOVABLE_BLOCKERS,
+    is_out_of_scope=lambda tid: False,
+    same_family=lambda a, b: False,
+)
+for trait_id, group in exclusive_groups.items():
+    boons[trait_id]["exclusiveGroup"] = group
+for trait_id, blockers in blocked_by.items():
+    boons[trait_id]["blockedBy"] = blockers
+
+# ---------------------------------------------------------------------------
+# Ladder depth
+# ---------------------------------------------------------------------------
+
+# A duo belongs to two gods, an element-gated boon to none of the ladders, and
+# one of Selene's paired boons hangs off an Olympian's page the way a duo does
+# rather than standing on a rung of that god's ladder. Everything else with a
+# god sits on one.
+LADDER_IDS = {
+    tid for tid, rec in boons.items()
+    if rec["god"] and not rec["duoGods"] and tid not in selene_paired
+    and "UnityTrait" not in ([tid] + inherit_chain(tid))
+}
+tiers, tier_cycles = requirements.compute_tiers(
+    {tid: rec["prereq"] for tid, rec in boons.items()},
+    {tid: rec["god"] for tid, rec in boons.items()},
+    LADDER_IDS,
+)
+for trait_id, tier in tiers.items():
+    boons[trait_id]["tier"] = tier
+for cycle in tier_cycles:
+    boons[cycle[0]].setdefault("buildFailure", []).append({
+        "clause": {"cycle": cycle},
+        "reason": "a prerequisite cycle, which leaves the ladder depth undefined",
+        "stage": "tier",
+    })
 
 with open(OUT + "boons.json", "w") as f:
     json.dump(boons, f, indent=1, sort_keys=True)
@@ -564,6 +675,11 @@ with open(OUT + "boons.json", "w") as f:
 
 with open(OUT + "_skipped_base_archetypes.json", "w") as f:
     json.dump(skipped_base_archetypes, f, indent=1, sort_keys=True)
+    f.write("\n")
+
+with open(OUT + "_clause_report.json", "w") as f:
+    json.dump(requirements.clause_report(boons, classified, dropped_edges, no_duplicate_gates),
+              f, indent=1, sort_keys=True)
     f.write("\n")
 
 print("H2 boon records:", len(boons), "skipped base archetypes:", len(skipped_base_archetypes))

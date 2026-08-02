@@ -42,7 +42,10 @@ CATALOG = TOOL.parent.parent / "packages" / "catalog" / "data"
 # Produced by the normalizers; deliberately withheld from the catalog
 # package bc the localized text bundle is literally the game's own copy (& it
 # waits to be given a takedown path before it actually ships anywhere).
-NOT_SHIPPED = {"text.json"}
+# The clause report is withheld for a different reason: it describes an
+# extraction rather than the game, so it is something a person reads after a
+# run and nothing the app has any use for.
+NOT_SHIPPED = {"text.json", "_clause_report.json"}
 
 GAMES = [("hades1", "h1"), ("hades2", "h2")]
 

@@ -1,0 +1,25 @@
+{
+ "blockedByEdgeCount": 1,
+ "buildFailureCount": 1,
+ "buildFailures": [
+  {
+   "clause": {
+    "HasNone": [
+     "VerdanGroveBoon"
+    ],
+    "Path": [
+     "CurrentRun",
+     "Hero",
+     "EquippedRelic"
+    ]
+   },
+   "id": "CindraMalformedBoon",
+   "reason": "an unrecognised path",
+   "stage": "prereq"
+  }
+ ],
+ "discardedClausesByReason": {},
+ "exclusiveGroupCount": 3,
+ "negationEdgesDropped": [],
+ "noDuplicateGates": []
+}

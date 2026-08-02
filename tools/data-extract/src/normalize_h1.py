@@ -1,6 +1,7 @@
 import json, re, os, sys
 from parse_text_bundle import parse_sjson_text_bundle
 from line_index import index_keys_at_depth, find_key_anywhere
+import requirements
 
 from config import out_dir, raw_dir, scripts_dir, text_dir
 
@@ -263,8 +264,6 @@ for godname, upgradeId in list(GOD_UPGRADE_IDS.items()) + [("Chaos", "TrialUpgra
             "source": "%sLootData.lua:%d" % (REL_SCRIPTS, line) if line else "%sLootData.lua" % REL_SCRIPTS,
         })
 
-INLINE_REQ_FIELDS = ["RequiredOneOfTraits", "RequiredTrait", "RequiredFalseTrait", "RequiredFalseTraits", "RequiredSlottedTrait"]
-
 def resolve_field_h1(trait_id, field, _visited=None, _depth=0):
     if _depth > 8:
         return None
@@ -294,22 +293,69 @@ def get_slot_h1(trait_id):
     v = resolve_field_h1(trait_id, "Slot")
     return v if isinstance(v, str) else None
 
-def get_exclusive_group_h1(trait_id, data):
-    members = set([trait_id])
-    for f in ("RequiredFalseTrait", "RequiredFalseTraits"):
-        v = data.get(f)
-        if isinstance(v, str):
-            members.add(v)
-        elif isinstance(v, list):
-            members.update(x for x in v if isinstance(x, str))
-    if len(members) <= 1:
-        return None
-    return sorted(members)
-
 ASSIST_RE = re.compile(r'^([A-Za-z]+)Assist')
+
+def inherit_chain_h1(trait_id, _visited=None, _depth=0):
+    if _depth > 8 or trait_id in (_visited or set()):
+        return []
+    _visited = set(_visited or set())
+    _visited.add(trait_id)
+    data = TraitData.get(trait_id)
+    if not isinstance(data, dict):
+        return []
+    parents = [p for p in data.get("InheritFrom") or [] if isinstance(p, str)]
+    chain = list(parents)
+    for p in parents:
+        chain.extend(inherit_chain_h1(p, _visited, _depth + 1))
+    return chain
+
+# A Daedalus hammer upgrade. Its pool is derived from the weapon rather than
+# listed in any loot table, and hammers are not modelled in the first release,
+# so a negation edge touching one is not a constraint this catalog carries.
+def is_hammer(trait_id):
+    return "WeaponTrait" in inherit_chain_h1(trait_id)
+
+# A weapon aspect. Two aspects of the same weapon already exclude each other
+# by construction -- a run has exactly one -- so an edge between them records
+# nothing the model does not already know.
+def is_aspect(trait_id):
+    return "WeaponEnchantmentTrait" in inherit_chain_h1(trait_id)
+
+# What can be held in each slot, for the clause that asks whether a slot is
+# filled rather than naming a trait. Built from the data so a patch that adds
+# a god's Call widens the disjunction without anyone editing a list.
+#
+# Records with no display name are left out where a text bundle was read at
+# all: they are templates and support traits the player never picks up, and
+# putting one in a requirement would show the player a branch with no name on
+# it. The condition matters because the synthetic fixtures ship no text bundle
+# on purpose, and there every record is nameless.
+slot_members = {}
+for _tid, _data in sorted(TraitData.items()):
+    if not isinstance(_data, dict):
+        continue
+    _slot = resolve_field_h1(_tid, "Slot")
+    if not isinstance(_slot, str):
+        continue
+    if text_bundle_raw and not (text_bundle_raw.get(_tid) or {}).get("displayName"):
+        continue
+    slot_members.setdefault(_slot, []).append(_tid)
 
 boons = {}
 skipped_keepsakes_in_main_catalog = []
+declared_negations = {}
+classified = {}
+
+# A keepsake swaps out between regions, so nothing a keepsake is or grants can
+# block a build for the rest of a run. Hades I grants exactly one trait this
+# way; the edge it produces is dropped, and the validator watches for a second.
+REMOVABLE_BLOCKERS = set(keepsakes)
+for _tid, _data in TraitData.items():
+    if isinstance(_data, dict):
+        _setup = _data.get("SetupFunction")
+        _args = _setup.get("Args") if isinstance(_setup, dict) else None
+        if isinstance(_args, dict) and isinstance(_args.get("TraitName"), str):
+            REMOVABLE_BLOCKERS.add(_args["TraitName"])
 
 for tid, data in TraitData.items():
     if not isinstance(data, dict):
@@ -338,26 +384,51 @@ for tid, data in TraitData.items():
     else:
         boon_category = "NonStandard"
 
-    inline_reqs = {}
-    for f in INLINE_REQ_FIELDS:
-        if f in data:
-            inline_reqs[f] = data[f]
+    clauses = requirements.Classified()
+    requirements.classify_h1_inline(data, clauses, slot_members)
 
-    linked_occurrences = prereq_occurrences.get(tid)
+    # A trait can be offered from more than one god's pool, and each pool
+    # states its own condition. Twenty-eight traits are listed twice and every
+    # one of them repeats the same condition verbatim, so today this always
+    # collapses to a single requirement -- but if two pools ever disagreed,
+    # meeting either one is what earns the offer, so they are ORed rather than
+    # ANDed. Getting that backwards would turn an alternative into an
+    # additional demand.
+    linked_occurrences = prereq_occurrences.get(tid) or []
+    branches = []
+    for occurrence in linked_occurrences:
+        branch = requirements.Classified()
+        requirements.classify_h1_linked(occurrence.get("expr"), branch)
+        clauses.discarded.extend(branch.discarded)
+        clauses.unclassified.extend(branch.unclassified)
+        if branch.requirement() is not None:
+            branches.append(branch.requirement())
+    distinct = []
+    for branch in branches:
+        if branch not in distinct:
+            distinct.append(branch)
+    clauses.keep(requirements.any_of(distinct))
 
-    prereq_record = None
-    if linked_occurrences or inline_reqs:
-        prereq_record = {}
-        if linked_occurrences:
-            prereq_record["linkedUpgradesOccurrences"] = linked_occurrences
-        if inline_reqs:
-            prereq_record["inline"] = inline_reqs
-            prereq_record["inlineSource"] = "%sTraitData.lua:%d" % (REL_SCRIPTS, line)
+    classified[tid] = clauses
+    if clauses.negations:
+        declared_negations[tid] = clauses.negations
+
+    prereq = clauses.requirement()
+    build_failures = [dict(f, stage="prereq") for f in clauses.unclassified]
+    if clauses.unclassified:
+        prereq = {"type": requirements.UNCLASSIFIED_MARKER}
+
+    if linked_occurrences and branches:
+        prereq_citation = linked_occurrences[0]["source"]
+    elif prereq is not None:
+        prereq_citation = "%sTraitData.lua:%d" % (REL_SCRIPTS, line)
+    else:
+        prereq_citation = None
 
     text = text_bundle_raw.get(tid, {})
     icon = resolve_field_h1(tid, "Icon")
 
-    boons[tid] = {
+    record = {
         "id": tid,
         "god": god,
         "duoGods": None,  # Hades I has no distinct Duo-boon id space separate from its normal trait ids; see README
@@ -367,16 +438,66 @@ for tid, data in TraitData.items():
         "boonCategory": boon_category,
         "godKind": ("PoolSlot" if god in pool_god_names else "NonPoolSlot") if god else None,
         "slot": get_slot_h1(tid),
+        "tier": None,
         "rarity": get_rarity_h1(tid),
-        "exclusiveGroup": get_exclusive_group_h1(tid, data),
+        "exclusiveGroup": None,
+        "blockedBy": None,
         "elementAffinity": None,   # Hades I has no elemental-infusion mechanic (confirmed absent during the spike)
-        "elementCost": None,
-        "prereq": prereq_record,
+        "prereq": prereq,
+        "prereqSource": prereq_citation,
+        "activation": None,        # and no Infusions either, so nothing has a second threshold
         "source": "%sTraitData.lua:%d" % (REL_SCRIPTS, line),
     }
+    if build_failures:
+        record["buildFailure"] = build_failures
+    boons[tid] = record
+
+# ---------------------------------------------------------------------------
+# What a negation actually is, decided once every declaration is known
+# ---------------------------------------------------------------------------
+
+exclusive_groups, blocked_by, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
+    declared_negations,
+    removable=REMOVABLE_BLOCKERS,
+    is_out_of_scope=is_hammer,
+    same_family=lambda a, b: is_aspect(a) and is_aspect(b),
+)
+for tid, group in exclusive_groups.items():
+    boons[tid]["exclusiveGroup"] = group
+for tid, blockers in blocked_by.items():
+    boons[tid]["blockedBy"] = blockers
+
+# ---------------------------------------------------------------------------
+# Ladder depth
+# ---------------------------------------------------------------------------
+
+# Hades I marks a duo by inheritance rather than by rarity, and a duo belongs
+# to two gods, so it stands on neither god's ladder.
+LADDER_IDS = {
+    tid for tid, rec in boons.items()
+    if rec["god"] and "SynergyTrait" not in inherit_chain_h1(tid)
+}
+tiers, tier_cycles = requirements.compute_tiers(
+    {tid: rec["prereq"] for tid, rec in boons.items()},
+    {tid: rec["god"] for tid, rec in boons.items()},
+    LADDER_IDS,
+)
+for tid, tier in tiers.items():
+    boons[tid]["tier"] = tier
+for cycle in tier_cycles:
+    boons[cycle[0]].setdefault("buildFailure", []).append({
+        "clause": {"cycle": cycle},
+        "reason": "a prerequisite cycle, which leaves the ladder depth undefined",
+        "stage": "tier",
+    })
 
 with open(OUT + "boons.json", "w") as f:
     json.dump(boons, f, indent=1, sort_keys=True)
+    f.write("\n")
+
+with open(OUT + "_clause_report.json", "w") as f:
+    json.dump(requirements.clause_report(boons, classified, dropped_edges, no_duplicate_gates),
+              f, indent=1, sort_keys=True)
     f.write("\n")
 
 print("H1 boon records:", len(boons), "excluded (keepsakes, emitted separately):", len(skipped_keepsakes_in_main_catalog))

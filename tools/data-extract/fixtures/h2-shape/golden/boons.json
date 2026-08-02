@@ -1,10 +1,11 @@
 {
  "CindraArcCastBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": [
    "CindraArcCastBoon",
    "CindraEchoCastBoon",
@@ -15,25 +16,8 @@
   "icon": "Boon_Cindra_10",
   "id": "CindraArcCastBoon",
   "name": null,
-  "prereq": {
-   "expr": {
-    "GameStateRequirements": [
-     {
-      "HasNone": [
-       "CindraLobCastBoon",
-       "CindraEchoCastBoon"
-      ],
-      "Path": [
-       "CurrentRun",
-       "Hero",
-       "TraitDictionary"
-      ]
-     }
-    ]
-   },
-   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
-   "source": "Scripts/TraitData_Cindra.lua:46"
-  },
+  "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -41,14 +25,16 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Cindra.lua:46"
+  "source": "Scripts/TraitData_Cindra.lua:46",
+  "tier": 1
  },
  "CindraDebugOnlyBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
@@ -56,6 +42,7 @@
   "id": "CindraDebugOnlyBoon",
   "name": null,
   "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -63,14 +50,16 @@
    "Rare"
   ],
   "slot": "Rush",
-  "source": "Scripts/TraitData_Cindra.lua:120"
+  "source": "Scripts/TraitData_Cindra.lua:120",
+  "tier": 1
  },
  "CindraEchoCastBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": [
    "CindraArcCastBoon",
    "CindraEchoCastBoon",
@@ -81,25 +70,8 @@
   "icon": "Boon_Cindra_12",
   "id": "CindraEchoCastBoon",
   "name": null,
-  "prereq": {
-   "expr": {
-    "GameStateRequirements": [
-     {
-      "HasNone": [
-       "CindraArcCastBoon",
-       "CindraLobCastBoon"
-      ],
-      "Path": [
-       "CurrentRun",
-       "Hero",
-       "TraitDictionary"
-      ]
-     }
-    ]
-   },
-   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
-   "source": "Scripts/TraitData_Cindra.lua:70"
-  },
+  "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -107,14 +79,16 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Cindra.lua:70"
+  "source": "Scripts/TraitData_Cindra.lua:70",
+  "tier": 1
  },
  "CindraEmberBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
@@ -122,15 +96,24 @@
   "id": "CindraEmberBoon",
   "name": null,
   "prereq": {
-   "expr": {
-    "OneOf": [
-     "CindraStrikeBoon",
-     "CindraFlareBoon",
-     "CindraWardenBoon"
-    ]
-   },
-   "source": "Scripts/TraitData.lua:128"
+   "kind": "anyOf",
+   "min": 1,
+   "of": [
+    {
+     "kind": "hasTrait",
+     "trait": "CindraStrikeBoon"
+    },
+    {
+     "kind": "hasTrait",
+     "trait": "CindraFlareBoon"
+    },
+    {
+     "kind": "hasTrait",
+     "trait": "CindraWardenBoon"
+    }
+   ]
   },
+  "prereqSource": "Scripts/TraitData.lua:128",
   "rarity": [
    "Common",
    "Epic",
@@ -138,14 +121,16 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Cindra.lua:30"
+  "source": "Scripts/TraitData_Cindra.lua:30",
+  "tier": 2
  },
  "CindraFlareBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
@@ -153,6 +138,7 @@
   "id": "CindraFlareBoon",
   "name": null,
   "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -160,14 +146,16 @@
    "Rare"
   ],
   "slot": "Secondary",
-  "source": "Scripts/TraitData_Cindra.lua:15"
+  "source": "Scripts/TraitData_Cindra.lua:15",
+  "tier": 1
  },
  "CindraLobCastBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": [
    "CindraArcCastBoon",
    "CindraEchoCastBoon",
@@ -178,25 +166,8 @@
   "icon": "Boon_Cindra_11",
   "id": "CindraLobCastBoon",
   "name": null,
-  "prereq": {
-   "expr": {
-    "GameStateRequirements": [
-     {
-      "HasNone": [
-       "CindraArcCastBoon",
-       "CindraEchoCastBoon"
-      ],
-      "Path": [
-       "CurrentRun",
-       "Hero",
-       "TraitDictionary"
-      ]
-     }
-    ]
-   },
-   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
-   "source": "Scripts/TraitData_Cindra.lua:58"
-  },
+  "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -204,14 +175,32 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Cindra.lua:58"
+  "source": "Scripts/TraitData_Cindra.lua:58",
+  "tier": 1
  },
  "CindraMalformedBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
+  "buildFailure": [
+   {
+    "clause": {
+     "HasNone": [
+      "VerdanGroveBoon"
+     ],
+     "Path": [
+      "CurrentRun",
+      "Hero",
+      "EquippedRelic"
+     ]
+    },
+    "reason": "an unrecognised path",
+    "stage": "prereq"
+   }
+  ],
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
@@ -219,23 +208,9 @@
   "id": "CindraMalformedBoon",
   "name": null,
   "prereq": {
-   "expr": {
-    "GameStateRequirements": [
-     {
-      "HasNone": [
-       "VerdanGroveBoon"
-      ],
-      "Path": [
-       "CurrentRun",
-       "Hero",
-       "EquippedRelic"
-      ]
-     }
-    ]
-   },
-   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
-   "source": "Scripts/TraitData_Cindra.lua:105"
+   "type": "UNCLASSIFIED_NEGATION"
   },
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -243,14 +218,16 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Cindra.lua:105"
+  "source": "Scripts/TraitData_Cindra.lua:105",
+  "tier": 1
  },
  "CindraPyreBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
@@ -258,64 +235,81 @@
   "id": "CindraPyreBoon",
   "name": null,
   "prereq": {
-   "expr": {
-    "OneFromEachSet": [
-     [
-      "CindraStrikeBoon",
-      "CindraFlareBoon",
-      "CindraWardenBoon"
-     ],
-     [
-      "CindraEmberBoon",
-      "CindraArcCastBoon"
-     ],
-     [
-      "CindraLobCastBoon",
-      "CindraEchoCastBoon"
+   "kind": "all",
+   "of": [
+    {
+     "kind": "anyOf",
+     "min": 1,
+     "of": [
+      {
+       "kind": "hasTrait",
+       "trait": "CindraStrikeBoon"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "CindraFlareBoon"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "CindraWardenBoon"
+      }
      ]
-    ]
-   },
-   "source": "Scripts/TraitData.lua:137"
+    },
+    {
+     "kind": "anyOf",
+     "min": 1,
+     "of": [
+      {
+       "kind": "hasTrait",
+       "trait": "CindraEmberBoon"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "CindraArcCastBoon"
+      }
+     ]
+    },
+    {
+     "kind": "anyOf",
+     "min": 1,
+     "of": [
+      {
+       "kind": "hasTrait",
+       "trait": "CindraLobCastBoon"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "CindraEchoCastBoon"
+      }
+     ]
+    }
+   ]
   },
+  "prereqSource": "Scripts/TraitData.lua:137",
   "rarity": [
    "Legendary"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Cindra.lua:38"
+  "source": "Scripts/TraitData_Cindra.lua:38",
+  "tier": 3
  },
  "CindraReclaimBoon": {
+  "activation": null,
+  "blockedBy": [
+   "VerdanBarkBoon"
+  ],
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
-  "exclusiveGroup": [
-   "CindraReclaimBoon",
-   "VerdanBarkBoon"
-  ],
+  "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
   "icon": "Boon_Cindra_20",
   "id": "CindraReclaimBoon",
   "name": null,
-  "prereq": {
-   "expr": {
-    "GameStateRequirements": [
-     {
-      "HasNone": [
-       "VerdanBarkBoon"
-      ],
-      "Path": [
-       "CurrentRun",
-       "Hero",
-       "TraitDictionary"
-      ]
-     }
-    ]
-   },
-   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
-   "source": "Scripts/TraitData_Cindra.lua:87"
-  },
+  "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -323,14 +317,16 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Cindra.lua:87"
+  "source": "Scripts/TraitData_Cindra.lua:87",
+  "tier": 1
  },
  "CindraStrikeBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
@@ -338,6 +334,7 @@
   "id": "CindraStrikeBoon",
   "name": null,
   "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -345,9 +342,12 @@
    "Rare"
   ],
   "slot": "Melee",
-  "source": "Scripts/TraitData_Cindra.lua:9"
+  "source": "Scripts/TraitData_Cindra.lua:9",
+  "tier": 1
  },
  "CindraVerdanBloomBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": [
@@ -355,7 +355,6 @@
    "Verdan"
   ],
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": null,
   "godKind": null,
@@ -363,34 +362,61 @@
   "id": "CindraVerdanBloomBoon",
   "name": null,
   "prereq": {
-   "expr": {
-    "OneFromEachSet": [
-     [
-      "CindraStrikeBoon",
-      "CindraFlareBoon",
-      "CindraWardenBoon"
-     ],
-     [
-      "VerdanRootBoon",
-      "VerdanBarkBoon",
-      "VerdanGroveBoon"
+   "kind": "all",
+   "of": [
+    {
+     "kind": "anyOf",
+     "min": 1,
+     "of": [
+      {
+       "kind": "hasTrait",
+       "trait": "CindraStrikeBoon"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "CindraFlareBoon"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "CindraWardenBoon"
+      }
      ]
-    ]
-   },
-   "source": "Scripts/TraitData.lua:149"
+    },
+    {
+     "kind": "anyOf",
+     "min": 1,
+     "of": [
+      {
+       "kind": "hasTrait",
+       "trait": "VerdanRootBoon"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "VerdanBarkBoon"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "VerdanGroveBoon"
+      }
+     ]
+    }
+   ]
   },
+  "prereqSource": "Scripts/TraitData.lua:149",
   "rarity": [
    "Duo"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Duo.lua:8"
+  "source": "Scripts/TraitData_Duo.lua:8",
+  "tier": null
  },
  "CindraWardenBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
@@ -398,6 +424,7 @@
   "id": "CindraWardenBoon",
   "name": null,
   "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -405,15 +432,21 @@
    "Rare"
   ],
   "slot": "Ranged",
-  "source": "Scripts/TraitData_Cindra.lua:21"
+  "source": "Scripts/TraitData_Cindra.lua:21",
+  "tier": 1
  },
  "InfusionRadianceBoon": {
   "_godInferredFromComment": true,
+  "activation": {
+   "count": 3,
+   "element": "Ember",
+   "kind": "hasElement"
+  },
+  "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "NonPoolSlot",
@@ -421,37 +454,27 @@
   "id": "InfusionRadianceBoon",
   "name": null,
   "prereq": {
-   "expr": {
-    "GameStateRequirements": [
-     {
-      "Comparison": ">=",
-      "Path": [
-       "CurrentRun",
-       "Hero",
-       "Elements",
-       "Ember"
-      ],
-      "Value": 2
-     }
-    ]
-   },
-   "note": "inline on the trait definition itself, not in the central TraitRequirements table",
-   "source": "Scripts/TraitData_Elementals.lua:10"
+   "count": 2,
+   "element": "Ember",
+   "kind": "hasElement"
   },
+  "prereqSource": "Scripts/TraitData_Elementals.lua:10",
   "rarity": [
    "Common",
    "Epic",
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Elementals.lua:10"
+  "source": "Scripts/TraitData_Elementals.lua:10",
+  "tier": 1
  },
  "OrithiaBlessBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Orithia",
   "godKind": "NonPoolSlot",
@@ -459,18 +482,21 @@
   "id": "OrithiaBlessBoon",
   "name": null,
   "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Orithia.lua:12"
+  "source": "Scripts/TraitData_Orithia.lua:12",
+  "tier": 1
  },
  "VerdanBarkBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Verdan",
   "godKind": "NonPoolSlot",
@@ -478,6 +504,7 @@
   "id": "VerdanBarkBoon",
   "name": null,
   "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -485,14 +512,16 @@
    "Rare"
   ],
   "slot": "Secondary",
-  "source": "Scripts/TraitData_Verdan.lua:17"
+  "source": "Scripts/TraitData_Verdan.lua:17",
+  "tier": 1
  },
  "VerdanBriarBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Verdan",
   "godKind": "NonPoolSlot",
@@ -500,14 +529,20 @@
   "id": "VerdanBriarBoon",
   "name": null,
   "prereq": {
-   "expr": {
-    "OneOf": [
-     "VerdanRootBoon",
-     "VerdanPhantomBoon"
-    ]
-   },
-   "source": "Scripts/TraitData.lua:160"
+   "kind": "anyOf",
+   "min": 1,
+   "of": [
+    {
+     "kind": "hasTrait",
+     "trait": "VerdanRootBoon"
+    },
+    {
+     "kind": "hasTrait",
+     "trait": "VerdanPhantomBoon"
+    }
+   ]
   },
+  "prereqSource": "Scripts/TraitData.lua:160",
   "rarity": [
    "Common",
    "Epic",
@@ -515,14 +550,16 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Verdan.lua:33"
+  "source": "Scripts/TraitData_Verdan.lua:33",
+  "tier": 2
  },
  "VerdanGroveBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Verdan",
   "godKind": "NonPoolSlot",
@@ -530,6 +567,7 @@
   "id": "VerdanGroveBoon",
   "name": null,
   "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -537,14 +575,16 @@
    "Rare"
   ],
   "slot": "Ranged",
-  "source": "Scripts/TraitData_Verdan.lua:23"
+  "source": "Scripts/TraitData_Verdan.lua:23",
+  "tier": 1
  },
  "VerdanRootBoon": {
+  "activation": null,
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
-  "elementCost": null,
   "exclusiveGroup": null,
   "god": "Verdan",
   "godKind": "NonPoolSlot",
@@ -552,6 +592,7 @@
   "id": "VerdanRootBoon",
   "name": null,
   "prereq": null,
+  "prereqSource": null,
   "rarity": [
    "Common",
    "Epic",
@@ -559,6 +600,7 @@
    "Rare"
   ],
   "slot": "Melee",
-  "source": "Scripts/TraitData_Verdan.lua:11"
+  "source": "Scripts/TraitData_Verdan.lua:11",
+  "tier": 1
  }
 }

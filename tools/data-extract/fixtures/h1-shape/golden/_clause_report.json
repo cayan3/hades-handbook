@@ -1,0 +1,16 @@
+{
+ "blockedByEdgeCount": 1,
+ "buildFailureCount": 0,
+ "buildFailures": [],
+ "discardedClausesByReason": {
+  "what the room is currently offering": {
+   "count": 1,
+   "ids": [
+    "SynergyTraitTemplate"
+   ]
+  }
+ },
+ "exclusiveGroupCount": 0,
+ "negationEdgesDropped": [],
+ "noDuplicateGates": []
+}
