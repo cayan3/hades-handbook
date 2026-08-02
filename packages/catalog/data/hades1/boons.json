@@ -4225,7 +4225,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:455",
-  "tier": 2
+  "tier": 1
  },
  "DemeterRangedBonusTrait": {
   "activation": null,
@@ -7615,7 +7615,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:14861",
-  "tier": 2
+  "tier": 1
  },
  "MaximumChillBonusSlow": {
   "activation": null,
@@ -7669,7 +7669,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:14949",
-  "tier": 2
+  "tier": 1
  },
  "MoneyMultiplierTrait": {
   "activation": null,
@@ -8029,7 +8029,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:11103",
-  "tier": 2
+  "tier": 1
  },
  "PerfectDashBoltTrait": {
   "activation": null,
@@ -8524,7 +8524,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:3366",
-  "tier": 2
+  "tier": 1
  },
  "ProximityArmorTrait": {
   "activation": null,
@@ -11276,7 +11276,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:411",
-  "tier": 2
+  "tier": 1
  },
  "SuperTemporaryBoonRarityTrait": {
   "activation": null,

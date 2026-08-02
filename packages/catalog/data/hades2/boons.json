@@ -191,7 +191,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:2200",
-  "tier": 3
+  "tier": 2
  },
  "AloneDamageBoon": {
   "activation": null,
@@ -296,7 +296,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:2408",
-  "tier": 3
+  "tier": 2
  },
  "AntiArmorBoon": {
   "activation": null,
@@ -492,7 +492,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2165",
-  "tier": 3
+  "tier": 2
  },
  "ApolloCastAreaBoon": {
   "activation": null,
@@ -608,7 +608,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:1652",
-  "tier": 2
+  "tier": 1
  },
  "ApolloManaBoon": {
   "activation": null,
@@ -904,7 +904,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:1612",
-  "tier": 2
+  "tier": 1
  },
  "AresManaBoon": {
   "activation": null,
@@ -2698,7 +2698,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:2189",
-  "tier": 3
+  "tier": 2
  },
  "BurnStackBoon": {
   "activation": null,
@@ -2812,7 +2812,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:1679",
-  "tier": 2
+  "tier": 1
  },
  "CastAttachBoon": {
   "activation": null,
@@ -2878,7 +2878,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:2111",
-  "tier": 2
+  "tier": 1
  },
  "CastDamageCostume": {
   "activation": null,
@@ -5552,7 +5552,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:2140",
-  "tier": 3
+  "tier": 2
  },
  "DoubleBoltBoon": {
   "activation": null,
@@ -5610,7 +5610,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:1926",
-  "tier": 3
+  "tier": 2
  },
  "DoubleExManaBoon": {
   "activation": null,
@@ -5690,7 +5690,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2408",
-  "tier": 4
+  "tier": 2
  },
  "DoubleFamiliarTrait": {
   "activation": null,
@@ -5948,7 +5948,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2288",
-  "tier": 2
+  "tier": 1
  },
  "DoubleSwordBoon": {
   "activation": null,
@@ -8830,7 +8830,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:2276",
-  "tier": 3
+  "tier": 2
  },
  "InvulnerabilityCastBoon": {
   "activation": null,
@@ -12918,7 +12918,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:1586",
-  "tier": 2
+  "tier": 1
  },
  "PoseidonManaBoon": {
   "activation": null,
@@ -13543,7 +13543,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:2049",
-  "tier": 3
+  "tier": 2
  },
  "RapidSwordBoon": {
   "activation": null,
@@ -14371,7 +14371,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:2017",
-  "tier": 2
+  "tier": 1
  },
  "SlowProjectileBoon": {
   "activation": null,
@@ -14595,7 +14595,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:1491",
-  "tier": 2
+  "tier": 1
  },
  "SpawnDamageCurse": {
   "activation": null,
@@ -14712,7 +14712,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:2119",
-  "tier": 4
+  "tier": 3
  },
  "SpellCostume": {
   "activation": null,
@@ -18214,7 +18214,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:2059",
-  "tier": 3
+  "tier": 2
  },
  "ZeusCastBoon": {
   "activation": null,
