@@ -39,7 +39,15 @@ flags everything that involved judgment or inference instead of a direct field r
      dedicated to functional programming instead of imperative" :salute:
      :salute:, i.e. use literally only SML~ :sparkles: :sparkles:)
 4. `validate.py` cross-checks the normalized catalogs and writes
-   `validation.json` per game.
+   `validation.json` per game. It **exits non-zero** on anything that means a
+   field is holding something that is not data — an unresolved placeholder, a
+   god nobody has heard of, a clause nothing classified, a requirement asking
+   for more branches than it has, a mutual exclusion the other record does not
+   name back, a ladder depth that disagrees with its prerequisites, a block
+   whose blocker the run can shed, a declared god that contradicts the loot
+   table offering it. Two of its lists are advisory and fail nothing: the named
+   records no source file references, and the requirement-shaped clause keys
+   nothing reads.
 
 Re-run order: `dump_h1.lua`/`dump_h2.lua` (via `lua`) → `normalize_h1.py` /
 `normalize_h2.py` → `write_version_stamps.py` → `validate.py`.
@@ -55,6 +63,7 @@ Re-run order: `dump_h1.lua`/`dump_h2.lua` (via `lua`) → `normalize_h1.py` /
 | `text.json` | Localized display text bundle (*separate* from `boons.json`); key is the same id used in `descriptionRef` |
 | `version.json` | Build/version stamp (Steam buildid + LastUpdated, bundle version, extraction timestamp) |
 | `validation.json` | Validation report (see below) |
+| `_clause_report.json` | What the classifier dropped and why, grouped by reason, plus anything that stopped the run. Describes an extraction rather than the game, so it stays here and is not copied into the app's catalog |
 | `_skipped_base_archetypes.json` (Hades II only) | Base trait templates (`BaseTrait`, `FireBoon`, `LegendaryTrait`, `SynergyTrait`, `UnityTrait`, ...) are excluded from `boons.json` bc they're not actually offerable boons themselves, and are really just kept here for transparency tbh |
 
 ## `boons.json` record schema
@@ -86,54 +95,73 @@ rarity            array of RarityLevels keys available for this boon (most boons
                   weapon aspects list six. Note: "Elemental" doesn't appear in
                   any array in either game since it's a display-name/color
                   override, not an actual RarityLevels key (see validation notes).
+tier              how deep this boon sits in its own god's ladder, first rung = 1,
+                  or null for anything not on one (duos, element-gated boons,
+                  Selene's paired boons, anything with no god). Counts only
+                  same-god prerequisites: needing another god's boon puts you off
+                  the ladder rather than one rung up it.
 exclusiveGroup    sorted array including this id + every id it's mutually exclusive
-                  with, or null. Hades II: derived *only* from GameStateRequirements
-                  HasNone entries whose Path ends in "TraitDictionary" (see
-                  validation notes; HasNone is a generic primitive also reused for
-                  unrelated room-flag checks that are excluded here).
-                  Hades I: derived from RequiredFalseTrait(s); *not* confirmed
-                  symmetric the way Hades II's is (see validation.json).
+                  with, or null. Only recorded when both records name each other,
+                  in both games. Hades I's are *not* cliques — four of its six
+                  pairs form a chain — so this is each record's own neighbourhood
+                  and is not always one set shared by every member.
+blockedBy         sorted array of ids that make this one unobtainable once held,
+                  or null. One-directional, so order matters: taking this boon
+                  first leaves both held. Every listed blocker is something the
+                  run cannot shed; a keepsake-granted one is dropped instead,
+                  because reporting it would be a false "impossible" for a player
+                  who can simply swap keepsakes.
 elementAffinity   Air | Fire | Earth | Water | Aether (Hades II only; resolved
                   through InheritFrom to the *Boon element-tag base traits).
                   Always null for Hades I (no element/Infusion mechanic exists).
-elementCost       {Element: minCount, ...} for Infusion/Unity boons (Hades II
-                  only), read from their GameStateRequirements Path=[...,
-                  "Elements", <Element>] Comparison/Value triples. Always null
-                  for Hades I.
-prereq            the requirement expression, structure preserved (see below)
+                  A trait inheriting two bases fails the run rather than having
+                  one of them dropped quietly; none currently does.
+prereq            the gate to be offered this boon, as a requirement tree (below)
+prereqSource      "Scripts/<file>.lua:<line>" where the gate is written, which for
+                  most of Hades II is the central table rather than the record
+activation        the separate, higher gate for an owned boon's effect to be live
+                  (Hades II element-gated boons), same shape as prereq, else null
+buildFailure      present only when something about this record stopped the run:
+                  a clause nobody classified, a second element base, a cycle in
+                  the ladder. validate.py collects these and exits non-zero, so a
+                  catalog carrying one never ships.
 source            "Scripts/<file>.lua:<line>" where this boon is actually defined
 ```
 
 ### `prereq` shape
 
-**Hades II** — one unified shape:
-```
-prereq: {
-  "expr": { "OneOf": [...] }  or  { "OneFromEachSet": [[...], [...], ...] }
-          or  { "GameStateRequirements": [...] }  (inline negation/threshold checks
-              not registered in the central table),
-  "source": "Scripts/TraitData.lua:<line>",   -- where the requirement itself is declared
-  "note": present only for the inline-GameStateRequirements case
-}
-```
-`null` if the boon has no prerequisite at all (core god boons, most Talents,
-most Keepsakes/Aspects — see `boonsWithNoPrereq` in `validation.json`).
+**One shape, both games**: the requirement tree the engine evaluates, as plain
+JSON with a `kind` discriminator. The games write their conditions in two
+different places and several different idioms, and all of that is resolved here
+rather than being passed along — a consumer of this catalog never sees a
+`OneOf`, a `Path` or a `RequiredFalseTrait`.
 
-**Hades I** — requirements are *not* centralized (see the earlier spike
-finding lol); a boon's prerequisite can appear in more than one god's
-`LootData.lua` `LinkedUpgrades` block (e.g. Duo boons offered by both gods),
-plus/instead an inline field directly on the trait:
 ```
-prereq: {
-  "linkedUpgradesOccurrences": [
-    { "expr": {...}, "definingGod": "Zeus", "source": "Scripts/LootData.lua:<line>" },
-    ...  -- one entry per god whose LootData.lua LinkedUpgrades block mentions this id
-  ],
-  "inline": { "RequiredOneOfTraits": [...], "RequiredFalseTrait": "...", ... },
-  "inlineSource": "Scripts/TraitData.lua:<line>"
-}
+{ "kind": "all",   "of": [ ... ] }              every child
+{ "kind": "anyOf", "min": N, "of": [ ... ] }    at least N children
+{ "kind": "hasTrait",    "trait": "<id>" }
+{ "kind": "hasBoonFrom", "god": "<god>" }       any boon of that god
+{ "kind": "hasElement",  "element": "Fire", "count": N }
+{ "kind": "hasKeepsake", "keepsake": "<id>" }
+{ "kind": "hasTalent",   "talent": "<id>" }     Hades I Mirror selection
 ```
-Either sub-key may be absent; if neither exists, the whole `prereq` is `null`.
+
+`null` if the boon has no prerequisite at all (core god boons, most Talents,
+most Keepsakes/Aspects — see `boonsWithNoPrereq` in `validation.json`). Note that
+"no prerequisite" now genuinely means no *build* prerequisite: a boon gated only
+on which weapon you are carrying or on what the current room is offering has
+those conditions dropped, because they describe when the game rolls a reward
+rather than what a build can reach.
+
+`{ "type": "UNCLASSIFIED_NEGATION" }` where a clause did not classify. The run
+fails in that case, so this only ever appears in output nobody ships; it is there
+so that half a gate cannot be mistaken for a whole one while you read the file.
+
+**What was dropped, and why**, is in `_clause_report.json` beside the catalog —
+grouped by reason, with the ids. Without it there is no way to tell a boon with
+no prerequisite from a boon whose prerequisite was discarded, short of going back
+to the raw dump. It is not copied into the app's catalog: it describes an
+extraction rather than the game.
 
 ## `boonCategory` methodology (Hades II) — FLAGGED: INFERRED
 
@@ -190,7 +218,10 @@ Not a literal data field. Rule (in priority order) using each boon's
 - **`RequiredSlottedTrait` (Hades I)** is a *slot name* (e.g. `"Shout"`),
   not a trait id; confirmed by this extraction's own validation pass
   (it showed up as a dangling reference against every real trait id before
-  being excluded). Not included in `exclusiveGroup`/reference validation.
+  being excluded). It is a real prerequisite even so — a Call is picked up
+  during a run and kept — so it expands into "hold any one of the traits in that
+  slot", built from the catalog's own slot field rather than from a list
+  anybody maintains. All nine carriers name the Call slot.
 - **`HasNone` (Hades II)** is a generic "this GameState list contains none
   of these strings" primitive reused for unrelated purposes depending on
   its sibling `Path`; confirmed by this extraction's validation pass

@@ -33,13 +33,14 @@ Two different things live beside each other here:
   `tests/test_golden.py`. It's a regression net. It doesn't claim that the
   output is *right*, only that it hasn't changed by accident.
 - **`expected.json`** is the **schema this fixture set was written to
-  specify**, and the tool doesn't produce it yet. It carries `tier`,
-  `blockedBy` and `activation`, none of which are emitted; it omits
-  `elementCost`, which is; and its `tier` is a category string
-  (`Core`/`Legendary`/`Duo`/`Infusion`/`Cameo`) where the app's `tier` is a
-  number (the ladder depth of a boon within its own god). Those are two
-  unrelated concepts sharing the same name. Treat this file as the todo list for
-  when the schema is written (not as something a test should pass).
+  specify**. Most of the gap has closed: `tier`, `blockedBy` and `activation`
+  are all emitted now, and `elementCost` no longer is. What remains is that its
+  `tier` is a category string (`Core`/`Legendary`/`Duo`/`Infusion`/`Cameo`)
+  where the app's `tier` is a number (the ladder depth of a boon within its own
+  god) — two unrelated concepts sharing one name — and its base-template
+  exclusion rule, described at the bottom of this file, which the Hades I
+  normalizer still does not apply. Treat what is left as a todo list, not as
+  something a test should pass.
 
 `raw/*.json` is the synthetic Lua dump the golden test starts from, produced by
 running the real dumpers over `input/` with `EXTRACT_RAW` and
@@ -114,13 +115,33 @@ the exact reasoning.
 
 > **Read this as a map of the inputs, not a claim about the assertions.**
 > Each row says the fixture *contains* a shape. Whether the extractor then
-> does anything with it is a separate question, and for **ten** rows the answer
-> is currently no — the shape goes in and the golden records the extractor's
+> does anything with it is a separate question, and for ten rows the answer
+> used to be no — the shape went in and the golden recorded the extractor's
 > silence as the expected output. That is what a snapshot does, and it is why
 > `golden/` is the assertion while `expected.json` stays the target (above);
 > but a reader scanning this table for "what is tested" would be misled, so
-> the gaps are named here rather than left to be rediscovered. Verified by
-> running both normalizers over the fixtures and reading `golden/`:
+> the gaps are named here rather than left to be rediscovered.
+>
+> **Four of the ten have since closed**, and the goldens were reviewed line by
+> line rather than refreshed, because in each case the diff *was* the finding:
+>
+> - **Row 7 (H2)** — `InfusionRadianceBoon` now emits an `activation`
+>   requirement at its higher threshold, distinct from the obtain threshold in
+>   `prereq`.
+> - **Row 9 (both games)** — the asymmetric negation now lands in `blockedBy`
+>   instead of `exclusiveGroup`. `CindraReclaimBoon` and `SableEmberComboTrait`
+>   each carry one blocker and no group, which is the shape the row asks for.
+> - **Row 11 (H2)** — `CindraMalformedBoon` refuses. Its `prereq` is the
+>   `UNCLASSIFIED_NEGATION` marker and the run records a matching build failure,
+>   which is the pass condition the "Fields" section below states. It had been
+>   failing in a way that section did not enumerate — silent passthrough, exit 0
+>   — for as long as the fixture has existed.
+> - **Row 15 (both games)** — the dangling reference is now asserted, by a test
+>   that runs the validator over the fixture output rather than by the golden.
+>   `validate.py` has its own test file for the first time.
+>
+> The rest still stand, verified by running both normalizers and reading
+> `golden/`:
 >
 > - **Rows 1, 3, 4, and the `OneOf` half of 2 and 9 (H1 only)** — every H1
 >   prerequisite that lives in `LootData.lua`'s `<God>Upgrade.LinkedUpgrades`
@@ -140,29 +161,6 @@ the exact reasoning.
 >   exclusion at all; the string does not appear in `src/*.py`. Both
 >   `SableDebugTrait` and `CindraDebugOnlyBoon` are in their goldens. The
 >   fixtures hold the input the rule would need, and the rule is not written.
-> - **Row 9 (both games)** — there is no `blockedBy` field in either game's
->   output. The asymmetric negation lands in `exclusiveGroup` instead
->   (`CindraReclaimBoon` gets a two-member group), which is the shape the
->   oracle pass separately found to be wrong for Hades I.
-> - **Row 7 (H2)** — the fixture carries `ActivationRequirements`, and no
->   `activation` key is emitted for it or for anything else.
-> - **Row 11 (H2)** — and this one contradicts a pass condition stated further
->   down this file, so read the two together. `CindraMalformedBoon` is emitted
->   with its unrecognised-`Path` `HasNone` passed through verbatim as
->   `prereq.expr.GameStateRequirements`, `exclusiveGroup: null`, **no build
->   failure, exit 0**. Neither `UNCLASSIFIED_NEGATION` nor `buildFailures`
->   exists anywhere in `src/`. The "Fields" section below says an extractor that
->   drops, misclassifies or crashes on this record is failing the fixture; what
->   actually happens is a fourth outcome nobody enumerated — silent passthrough
->   — which is exactly the state the classifier rule exists to rule out. The
->   fixture is doing its job; the rule is not implemented for **either** game.
-> - **Row 15 (both games)** — nothing asserts it, because the golden test never
->   runs `validate.py`: it invokes the two normalizers, compares their output
->   files, and stops, and no `validation.json` exists in either `golden/` tree.
->   `VerdanBriarBoon`'s dangling `VerdanPhantomBoon` reference is emitted and
->   unchecked. More broadly, **`validate.py` has no test coverage at all**, so
->   the emission-integrity and god-vocabulary checks that fail a real run are
->   themselves unexercised by the only extractor suite CI runs.
 > - **Row 6's element-affinity half (H2)** — `CindraStrikeBoon` has
 >   `elementAffinity: null` in the golden. The affinity resolver matches against
 >   a hardcoded table of the real games' element bases, which the fixture's
@@ -170,10 +168,10 @@ the exact reasoning.
 >   halves of that row *are* exercised.
 >
 > None of these are fixture defects: the inputs are right and are what a fix
-> would be written against. They are places where the golden currently freezes
-> an omission, so **a change that starts emitting one of these fields will show
-> up as a large golden diff and must be reviewed as a correctness change, not
-> refreshed mechanically.**
+> would be written against. They are places where the golden still freezes an
+> omission, so **a change that starts emitting one of these fields will show up
+> as a large golden diff and must be reviewed as a correctness change, not
+> refreshed mechanically.** The four rows above were closed exactly that way.
 
 | # | What it exercises | H2 | H1 |
 |---|---|---|---|
