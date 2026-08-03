@@ -239,13 +239,25 @@ H2_WEAPON_PATHS = {
     ("CurrentRun", "Hero", "Weapons"): "the weapon this trait belongs to",
 }
 
-# Requirement-shaped keys that carry no gate: offer weighting, and the
-# save-file unlocks that the app assumes are all unlocked.
+# Requirement-shaped keys that carry no gate: offer weighting, and the engine
+# predicates that ask a transient question.
 H2_OFFER_TIME_KEYS = {
     "PriorityChance": "reward weighting, not a gate",
-    "NamedRequirements": "a save-file unlock, which is assumed granted",
     "FunctionName": "an engine predicate over transient state",
     "FunctionArgs": "arguments to an engine predicate",
+}
+
+# `NamedRequirements` is read by value rather than dropped by key. The key only
+# says that some named condition applies; which name it is decides whether the
+# condition constrains a build, and the two answers are not alike. Two of the
+# three are save-file unlocks, which the app assumes granted. The third is run
+# state that moves during a run, so it describes the moment of the offer. A
+# blanket drop would have kept working while quietly covering both, and would
+# go on covering a name that is neither.
+H2_NAMED_REQUIREMENTS = {
+    "SeleneDuosUnlocked": "a save-file unlock, which is assumed granted",
+    "ChaosLegacyTraitsAvailable": "a save-file unlock, which is assumed granted",
+    "MissingLastStand": "the run's death defiances, which it can regain",
 }
 
 BASE_ELEMENTS = ("Air", "Water", "Earth", "Fire")
@@ -369,6 +381,13 @@ def classify_h2_clause(clause, out, keepsakes):
         return
 
     # `OrRequirements` is a list of AND-groups, any one of which suffices.
+    # Handled first, and then execution carries on through the rest of the
+    # chain rather than returning. The bottom of this function is what refuses
+    # a key nobody has classified, so returning here would exempt every clause
+    # that happens to carry an alternation from the one check that makes the
+    # table closed -- an unrecognised key beside an `OrRequirements` would
+    # vanish where the same key alone stops the run. `OrRequirements` is itself
+    # in `known` below, so falling through does not read it twice.
     if isinstance(clause.get("OrRequirements"), list):
         branches = []
         for group in clause["OrRequirements"]:
@@ -384,11 +403,20 @@ def classify_h2_clause(clause, out, keepsakes):
             out.discarded.extend(branch.discarded)
             branches.append(branch.requirement())
         out.keep(any_of(branches))
-        return
 
     for key, reason in H2_OFFER_TIME_KEYS.items():
         if key in clause:
             out.drop({key: clause[key]}, reason)
+
+    if "NamedRequirements" in clause:
+        named = clause["NamedRequirements"]
+        for name in named if isinstance(named, list) else [named]:
+            reason = H2_NAMED_REQUIREMENTS.get(name)
+            if reason is None:
+                out.refuse({"NamedRequirements": name},
+                           "a named requirement nobody has classified")
+            else:
+                out.drop({"NamedRequirements": name}, reason)
 
     # A member list that came back as a dumper placeholder is not an empty
     # gate, it is a gate whose contents were lost -- and normalizing it away
@@ -416,7 +444,8 @@ def classify_h2_clause(clause, out, keepsakes):
             out.refuse(clause, "a membership test with no path to test against")
 
     known = {
-        "OrRequirements", "OneOf", "OneFromEachSet", "Path", "PathTrue", "PathFalse",
+        "OrRequirements", "NamedRequirements",
+        "OneOf", "OneFromEachSet", "Path", "PathTrue", "PathFalse",
         "IsNone", "IsAny", "NotHasAll", "HasAll", "HasAny", "HasNone",
         "Comparison", "Value", "UseLength", "Count",
     } | set(H2_OFFER_TIME_KEYS)
@@ -540,7 +569,8 @@ def classify_h1_linked(expr, out):
 # reported rather than invisible -- the population of clauses has twice been
 # measured by listing the idioms somebody remembered.
 CONSUMED_CLAUSE_KEYS = (
-    {"OrRequirements", "OneOf", "OneFromEachSet", "Path", "PathTrue", "PathFalse",
+    {"OrRequirements", "NamedRequirements",
+     "OneOf", "OneFromEachSet", "Path", "PathTrue", "PathFalse",
      "IsNone", "IsAny", "NotHasAll", "HasAll", "HasAny", "HasNone",
      "Comparison", "Value", "UseLength", "Count"}
     | set(H2_OFFER_TIME_KEYS)

@@ -104,7 +104,7 @@ def test_a_named_trait_that_is_not_a_keepsake_becomes_a_trait_atom():
 
 def test_alternatives_become_one_anyOf():
     out = classify({
-        "NamedRequirements": ["SomethingUnlocked"],
+        "NamedRequirements": ["SeleneDuosUnlocked"],
         "OrRequirements": [
             [{"PathTrue": ["CurrentRun", "Hero", "MetGods", "ApolloUpgrade"]}],
             [{"PathTrue": ["CurrentRun", "Hero", "TraitDictionary", "ForceApolloBoonKeepsake"]}],
@@ -116,6 +116,43 @@ def test_alternatives_become_one_anyOf():
                {"kind": "hasKeepsake", "keepsake": "ForceApolloBoonKeepsake"}],
     }
     assert not out.unclassified
+    # The sibling key is dropped and recorded, not skipped. Every record with an
+    # alternation has one, so returning early hid nine of these.
+    assert [d["reason"] for d in out.discarded] == [
+        "a save-file unlock, which is assumed granted"]
+
+
+def test_a_key_beside_an_alternation_still_has_to_classify():
+    """The bottom of the classifier is what makes the table closed. An early
+    return would exempt any clause carrying an alternation from it, so the same
+    key would stop the run alone and vanish here."""
+    alone = classify({"SomeNewGateKey": ["A"]})
+    beside = classify({
+        "SomeNewGateKey": ["A"],
+        "OrRequirements": [[{"PathTrue": ["CurrentRun", "Hero", "MetGods", "HeraUpgrade"]}]],
+    })
+    assert alone.unclassified and beside.unclassified
+    assert beside.requirement() == {"kind": "hasBoonFrom", "god": "Hera"}
+
+
+def test_a_named_requirement_is_read_by_value_not_dropped_by_key():
+    """Which name it is decides whether it constrains a build: a save-file
+    unlock is assumed granted, while a run's death defiances move during the
+    run. One blanket reason covered both and would cover a third that is
+    neither."""
+    unlock = classify({"NamedRequirements": ["SeleneDuosUnlocked"]})
+    transient = classify({"NamedRequirements": ["MissingLastStand"]})
+    assert [d["reason"] for d in unlock.discarded] == [
+        "a save-file unlock, which is assumed granted"]
+    assert [d["reason"] for d in transient.discarded] == [
+        "the run's death defiances, which it can regain"]
+    assert not unlock.unclassified and not transient.unclassified
+
+
+def test_a_named_requirement_nobody_has_classified_refuses():
+    out = classify({"NamedRequirements": ["SomethingBrandNew"]})
+    assert out.unclassified
+    assert out.unclassified[0]["reason"] == "a named requirement nobody has classified"
 
 
 def test_an_element_threshold_becomes_an_element_atom():
@@ -191,7 +228,7 @@ def test_an_array_entry_of_a_mixed_table_is_read_as_a_nested_clause():
     """A Lua table with both an array part and named keys dumps the array
     entries under their numeric index."""
     out = classify({"1": {"PathTrue": ["CurrentRun", "Hero", "MetGods", "HeraUpgrade"]},
-                    "NamedRequirements": ["Whatever"]})
+                    "NamedRequirements": ["MissingLastStand"]})
     assert out.requirement() == {"kind": "hasBoonFrom", "god": "Hera"}
     assert not out.unclassified
 
@@ -391,7 +428,7 @@ def test_needing_any_one_costs_the_cheapest_of_them():
     }
     gods = dict.fromkeys(prereqs, "A")
     depths, _ = requirements.compute_tiers(prereqs, gods, set(prereqs))
-    assert depths["Shallow"], depths["Deep"] == (1, 3)
+    assert (depths["Shallow"], depths["Deep"]) == (1, 3)
     assert depths["Top"] == 2
 
 

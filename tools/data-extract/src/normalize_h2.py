@@ -542,6 +542,11 @@ for trait_id, data in ALL_DEFS.items():
     activation = None
     activation_clauses = requirements.classify_h2(data.get("ActivationRequirements"), keepsakes)
     build_failures += [dict(f, stage="activation") for f in activation_clauses.unclassified]
+    # The activation gate's own discards belong in the report as much as the
+    # prerequisite's do. Uncommon Grace carries the same rarity clause on both,
+    # and only one of the two was being counted -- so the report said the class
+    # was smaller than it is, which is the one question it exists to answer.
+    clauses.discarded.extend(activation_clauses.discarded)
     if not activation_clauses.unclassified:
         activation = activation_clauses.requirement()
 
@@ -641,6 +646,13 @@ for trait_id, record in boons.items():
 exclusive_groups, blocked_by, aspect_conflicts, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
     declared_negations,
     removable=REMOVABLE_BLOCKERS,
+    # Nothing is out of scope here, where Hades I drops anything touching a
+    # Daedalus hammer. That is an asymmetry rather than a difference between
+    # the games: this game's weapon-upgrade traits are the same mechanic under
+    # another name, and one pair of them does ship a real exclusive group. Both
+    # of its members are out of scope themselves, so nothing renders wrongly,
+    # and the filter is left unwritten until something depends on it rather
+    # than guessed at now.
     is_out_of_scope=lambda tid: False,
     is_aspect=is_aspect,
 )
