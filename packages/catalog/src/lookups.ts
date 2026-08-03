@@ -1,6 +1,6 @@
 import type { CatalogLookups, GodId, TraitId } from "@repo/core";
-import { type GameKey, dataFor } from "./data.js";
-import type { TraitRecord } from "./schema.js";
+import type { GameKey } from "./data.js";
+import { traitsFor } from "./traits.js";
 
 const EMPTY: readonly TraitId[] = Object.freeze([]);
 
@@ -23,15 +23,17 @@ const EMPTY: readonly TraitId[] = Object.freeze([]);
  * run itself, they would instead be covered by the game-rules seam.
  */
 export function createLookups(game: GameKey): CatalogLookups {
-  const data = dataFor(game);
-
   const byGod = new Map<GodId, readonly TraitId[]>();
-  const traits = Object.values(data.boons as Record<string, TraitRecord>);
+  // Overlay-merged rather than raw: two Hades I boons declare a god that
+  // isn't the one whose table grants them, and a god's own list is exactly
+  // where reading the game's mistake would show up as a missing boon.
+  const traits = Object.values(traitsFor(game));
   for (const trait of traits) {
     /**
      * A Duo is filed under both of its gods, which is what the game's own loot
      * tables do :sunglasses: :sunglasses: (technically, 35 of the 37 appear in
-     * exactly two gods' trait lists; the exception is Zeus/Hera in Hades II
+     * exactly two gods' trait lists; the two exceptions are the two distinct
+     * Zeus/Hera Duo boons in in Hades II
      * which yk makes sense lol).
      *
      * The game is a bit intuitively inconsistent with how that's read vs

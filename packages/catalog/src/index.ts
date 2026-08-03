@@ -8,6 +8,8 @@
  * on any run facts, they belong here instead of in like the game-rules seam.
  *
  * The normalized data itself is under `data/` and is loaded by `data.ts`.
+ * `data.ts` hands it back verbatim; `traits.ts` is the one that folds the
+ * overlay in, and is what anything reading a trait record should go through.
  *
  * Validation is purposefully kept (almost all) somewhere else. Anything
  * that can be answered just from the extracted data is checked while the data
@@ -25,6 +27,7 @@ export { createLookups } from "./lookups.js";
 export { iconFor, textFor } from "./assets.js";
 export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
+export { traitsFor } from "./traits.js";
 export type {
   GodRecord,
   KeepsakeRecord,
