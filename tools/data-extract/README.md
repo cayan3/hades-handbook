@@ -70,11 +70,18 @@ Re-run order: `dump_h1.lua`/`dump_h2.lua` (via `lua`) → `normalize_h1.py` /
 
 ```
 id                internal Lua table key (verbatim! i.e. never invented/localized)
-god               pantheon god name if the boon belongs to one god's file; else null
-duoGods           [GodA, GodB] for Hades II Duo boons, parsed from the `-- GodA x GodB`
-                  comment on the definition line (Hades II TraitData_Duo.lua only) —
-                  FLAGGED: this is read from a source comment, not a structured field
-name              short display name, resolved from the text bundle (may be null)
+god               pantheon god name if exactly one god grants the boon; else null.
+                  Hades II takes it from the god's own file. Hades I has three
+                  signals that can disagree: the trait's `God` field, the god's
+                  menu lists, and the `LinkedUpgrades` block of whoever gates it
+duoGods           [GodA, GodB] for a boon two gods grant between them. Hades II
+                  parses the `-- GodA x GodB` comment on the definition line in
+                  TraitData_Duo.lua — FLAGGED: a source comment, not a structured
+                  field. Hades I has no Duo id space and no such comment, so the
+                  pair is the two loot tables that both offer the boon
+name              short display name, resolved from the text bundle, following an
+                  entry's own InheritFrom where it has no name of its own (null if
+                  neither it nor anything it inherits from is named)
 descriptionRef    the same id, *if* a text-bundle entry actually exists for it;
                   else null. Purposefully kept separate from the full description
                   text (actual Description strings can be looked up in text.json).
@@ -183,13 +190,18 @@ Not a literal data field. Rule (in priority order) using each boon's
 
 ## `boonCategory` methodology (Hades I) — FLAGGED: INFERRED
 
-1. `id` matches `^[A-Za-z]+Assist` and has no `God` field/LootData
+1. Two loot tables offer it → a Duo. `StandardOlympian` when both are pool
+   gods, which every real one is
+2. `id` matches `^[A-Za-z]+Assist` and has no `God` field/LootData
    membership → `NpcAlly`
-2. `God` field (read directly since Hades I sets this natively on most traits,
-   unlike Hades II) or LootData-list membership resolves to a pool god
+3. `God` field (read directly since Hades I sets this natively on most traits,
+   unlike Hades II) or the one loot table offering it resolves to a pool god
    (`GodLoot == true`) → `StandardOlympian`
-3. God resolves to a non-pool "god" (Hermes) or Chaos → `NonStandard`
-4. No god at all (companion buffs, meta/debug traits, etc) → `NonStandard`
+4. God resolves to a non-pool "god" (Hermes) or Chaos → `NonStandard`
+5. No god at all (companion buffs, meta/debug traits, etc) → `NonStandard`
+
+The order matters at step 1: two of the twenty-eight Duos also declare a single
+`God`, and reading that first files a two-god boon under one of them.
 
 ## Known limitations / explicitly flagged inferences
 

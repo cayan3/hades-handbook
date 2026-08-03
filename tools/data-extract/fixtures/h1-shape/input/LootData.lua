@@ -77,6 +77,7 @@ LootData =
 	{
 		InheritFrom = { "BaseLoot" },
 		GodLoot = false,
+		Speaker = "NPC_Fennick_01",
 		Icon = "BoonSymbolFennick",
 		Traits = { "FennickSwiftTrait" },
 	},

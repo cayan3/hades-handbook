@@ -1,1 +1,23 @@
-{}
+{
+ "Auric": {
+  "iconKey": "BoonSymbolAuric",
+  "id": "AuricUpgrade",
+  "kind": "PoolSlot",
+  "name": "Auric",
+  "source": "Scripts/LootData.lua:49"
+ },
+ "Fennick": {
+  "iconKey": "BoonSymbolFennick",
+  "id": "FennickUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Fennick",
+  "source": "Scripts/LootData.lua:76"
+ },
+ "Sable": {
+  "iconKey": "BoonSymbolSable",
+  "id": "SableUpgrade",
+  "kind": "PoolSlot",
+  "name": "Sable",
+  "source": "Scripts/LootData.lua:16"
+ }
+}

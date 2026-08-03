@@ -1,5 +1,5 @@
 import glob, json, re, os, sys
-from parse_text_bundle import parse_sjson_text_bundle
+from parse_text_bundle import parse_sjson_text_bundle, resolve_display_name
 from line_index import index_keys_at_depth
 import requirements
 
@@ -250,10 +250,9 @@ for kid, kdata in TraitSetData.get("Keepsakes", {}).items():
         continue
     npc = keepsake_to_npc.get(kid)
     line = keepsake_src_index.get(kid)
-    text = text_bundle_raw.get(kid, {})
     keepsakes[kid] = {
         "id": kid,
-        "name": text.get("displayName"),
+        "name": resolve_display_name(text_bundle_raw, kid),
         "associatedGod": npc_to_god.get(npc, npc),  # NPC id verbatim if not a pantheon god
         "associatedNpcId": npc,
         "iconKey": kdata.get("Icon") if isinstance(kdata, dict) else None,
@@ -546,7 +545,6 @@ for trait_id, data in ALL_DEFS.items():
             "stage": "elementAffinity",
         })
 
-    text = text_bundle_raw.get(trait_id, {})
 
     icon, icon_definer = resolve_field(trait_id, "Icon")
 
@@ -554,7 +552,7 @@ for trait_id, data in ALL_DEFS.items():
         "id": trait_id,
         "god": god,
         "duoGods": duo_gods,
-        "name": text.get("displayName"),
+        "name": resolve_display_name(text_bundle_raw, trait_id),
         "descriptionRef": trait_id if trait_id in text_bundle_raw else None,
         "icon": icon if isinstance(icon, str) and not is_unresolved(icon) else None,
         "boonCategory": classify_category(trait_id, god, fname, data, chain),

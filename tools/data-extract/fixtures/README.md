@@ -140,23 +140,31 @@ the exact reasoning.
 >   that runs the validator over the fixture output rather than by the golden.
 >   `validate.py` has its own test file for the first time.
 >
+> **Rows 1, 3, 4, 14 and the `OneOf` half of 2 and 9 have since closed too**,
+> and for one cause. `normalize_h1.py` used to walk a written-out map of the ten
+> real gods, so the fixture's invented gods matched nothing and the entire
+> `LootData` pass produced nothing: `gods.json`, `named_sets.json` and
+> `keepsakes.json` were all `{}`, `SablePyreTrait`'s prereq was `null`, and
+> `SableEmberComboTrait` kept only its inline `RequiredFalseTrait`. A god's
+> table is now recognised by its shape — it inherits `BaseLoot` and either keeps
+> the `GodLoot` flag or has a speaker — which is what the fix note here asked
+> for, and no real name entered these files to get it. What that turned on:
+>
+> - **Rows 1, 3 and the `OneOf` half of 2** — the `LinkedUpgrades` prereqs now
+>   resolve. `SableEmberComboTrait` carries its `OneOf` (and stands a rung
+>   higher for it), `SablePyreTrait` its `OneFromEachSet`.
+> - **Row 4** — `SablePyreTrait` is offered by both `SableUpgrade` and
+>   `AuricUpgrade` and now comes out as a Duo of the two, which is the only
+>   thing a Hades I Duo ever is. It also declares `God = "Sable"`, so it covers
+>   the case where the two disagree.
+> - **Row 14** — `FennickUpgrade` gained a `Speaker`, without which nothing
+>   separates a non-pool god from the hammer. `Fennick` is now `NonPoolSlot`
+>   through the `GodLoot = false` resolution the row describes, rather than
+>   through its boon's own `God` field.
+>
 > The rest still stand, verified by running both normalizers and reading
 > `golden/`:
 >
-> - **Rows 1, 3, 4, and the `OneOf` half of 2 and 9 (H1 only)** — every H1
->   prerequisite that lives in `LootData.lua`'s `<God>Upgrade.LinkedUpgrades`
->   is absent from the golden. `normalize_h1.py` walks a hardcoded
->   `GOD_UPGRADE_IDS` map of the ten real gods, and the fixture's gods are
->   invented, so the entire `LootData` pass produces nothing: `gods.json`,
->   `named_sets.json` and `keepsakes.json` are all `{}`, `SablePyreTrait`'s
->   prereq is `null`, and `SableEmberComboTrait` keeps only its inline
->   `RequiredFalseTrait`. The inline idioms *are* covered — `SableMirageTrait`
->   exercises `RequiredOneOfTraits` — so row 2 is half true. Fixing this means
->   making the god table injectable the way the paths already are, not
->   admitting real names into the fixtures.
-> - **Row 14 (H1)** — follows from the same cause. `FennickSwiftTrait` takes
->   its god from its own `God` field; the `GodLoot = false` resolution the row
->   describes never runs, because `FennickUpgrade` is not in the hardcoded map.
 > - **Row 13 (both games)** — neither normalizer implements `DebugOnly`
 >   exclusion at all; the string does not appear in `src/*.py`. Both
 >   `SableDebugTrait` and `CindraDebugOnlyBoon` are in their goldens. The

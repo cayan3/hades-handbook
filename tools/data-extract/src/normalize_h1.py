@@ -1,5 +1,5 @@
 import json, re, os, sys
-from parse_text_bundle import parse_sjson_text_bundle
+from parse_text_bundle import parse_sjson_text_bundle, resolve_display_name
 from line_index import index_keys_at_depth, find_key_anywhere
 import requirements
 
@@ -88,13 +88,6 @@ with open(OUT + "text.json", "w") as f:
 # Gods
 # ---------------------------------------------------------------------------
 
-GOD_UPGRADE_IDS = {
-    "Zeus": "ZeusUpgrade", "Ares": "AresUpgrade", "Artemis": "ArtemisUpgrade",
-    "Aphrodite": "AphroditeUpgrade", "Dionysus": "DionysusUpgrade", "Athena": "AthenaUpgrade",
-    "Poseidon": "PoseidonUpgrade", "Demeter": "DemeterUpgrade", "Hermes": "HermesUpgrade",
-    "Hades": "HadesUpgrade",
-}
-
 def resolve_loot_field(upgrade_id, field, _visited=None, _depth=0):
     if _depth > 6:
         return None
@@ -114,9 +107,50 @@ def resolve_loot_field(upgrade_id, field, _visited=None, _depth=0):
                 return v
     return None
 
+# Chaos is the only god whose table is not named after it.
+GOD_TABLE_NAMES = {"TrialUpgrade": "Chaos"}
+
+
+def god_name_of(upgrade_id):
+    if upgrade_id in GOD_TABLE_NAMES:
+        return GOD_TABLE_NAMES[upgrade_id]
+    return upgrade_id[:-len("Upgrade")] if upgrade_id.endswith("Upgrade") else upgrade_id
+
+
+def is_god_table(upgrade_id, data):
+    """Whether a LootData entry is a god who hands out boons.
+
+    Every god's table inherits BaseLoot -- but so do the mechanical slots, so
+    that alone does not separate them. What does is that a god either keeps
+    BaseLoot's GodLoot flag or has an NPC who does the offering. Hermes turns
+    the flag off and has a speaker; the Daedalus hammer turns it off and has
+    nobody, because nothing hands a hammer over.
+
+    This used to be the ten names written out. That worked against the real
+    files and made the entire pass invisible to anything else, so every
+    fixture -- whose gods are invented, and have to be -- ran the LootData half
+    of this file as a no-op and froze the silence into the golden as correct.
+    """
+    if not isinstance(data, dict):
+        return False
+    if "BaseLoot" not in (data.get("InheritFrom") or []):
+        return False
+    return bool(resolve_loot_field(upgrade_id, "GodLoot")) or bool(data.get("Speaker"))
+
+
+GOD_UPGRADE_IDS = {
+    god_name_of(upgrade_id): upgrade_id
+    for upgrade_id, data in sorted(LootData.items())
+    if is_god_table(upgrade_id, data)
+}
+
 gods = {}
 pool_god_names = set()
 god_trait_membership = {}  # trait id -> god name, from each god's Traits/WeaponUpgrades/PriorityUpgrades lists
+# trait id -> every god whose table offers it. Membership above keeps the first
+# god only, which is all the mislabelling check wants; ownership has to keep
+# them all, because being offered by two tables is precisely what a Duo is.
+god_trait_owners = {}
 for godname, upgradeId in GOD_UPGRADE_IDS.items():
     data = LootData.get(upgradeId)
     if not isinstance(data, dict):
@@ -128,6 +162,14 @@ for godname, upgradeId in GOD_UPGRADE_IDS.items():
         for tid in data.get(listField) or []:
             if isinstance(tid, str):
                 god_trait_membership.setdefault(tid, godname)
+                god_trait_owners.setdefault(tid, set()).add(godname)
+    # A gated boon is listed under the god who gates it rather than in any of
+    # the lists above, so LinkedUpgrades is the other half of ownership -- and
+    # the half that carries every Duo and every boon a god sells behind a
+    # prerequisite.
+    for tid in data.get("LinkedUpgrades") or {}:
+        if isinstance(tid, str):
+            god_trait_owners.setdefault(tid, set()).add(godname)
     line = god_upgrade_source.get(upgradeId)
     text = text_bundle_raw.get(godname, {})
     gods[godname] = {
@@ -138,16 +180,18 @@ for godname, upgradeId in GOD_UPGRADE_IDS.items():
         "source": "%sLootData.lua:%d" % (REL_SCRIPTS, line) if line else "%sLootData.lua" % REL_SCRIPTS,
     }
 
-trial_upgrade = LootData.get("TrialUpgrade")
-if trial_upgrade:
-    line = god_upgrade_source.get("TrialUpgrade")
-    gods["Chaos"] = {
-        "id": "TrialUpgrade",
-        "name": text_bundle_raw.get("Chaos", {}).get("displayName") or "Chaos",
-        "kind": "NonPoolSlot",
-        "iconKey": trial_upgrade.get("Icon"),
-        "source": "%sLootData.lua:%d" % (REL_SCRIPTS, line) if line else "%sLootData.lua" % REL_SCRIPTS,
-    }
+# The same claim stated from the other end: a handful of traits name the table
+# that grants them rather than being listed in it. It is the only signal for
+# six of them, it agrees with the tables wherever both speak, and no trait it
+# names is claimed by a second god -- so it fills gaps without inventing Duos.
+_KNOWN_GOD_TABLES = set(GOD_UPGRADE_IDS.values())
+for tid, data in TraitData.items():
+    if not isinstance(data, dict):
+        continue
+    source = data.get("LootSource")
+    if isinstance(source, str) and source in _KNOWN_GOD_TABLES:
+        god_trait_owners.setdefault(tid, set()).add(god_name_of(source))
+
 for key in ["WeaponUpgrade", "StackUpgrade"]:
     d = LootData.get(key)
     if d:
@@ -199,10 +243,9 @@ for tid, data in TraitData.items():
         continue
     npc = keepsake_to_npc.get(tid)
     line = boon_source.get(tid)
-    text = text_bundle_raw.get(tid, {})
     keepsakes[tid] = {
         "id": tid,
-        "name": text.get("displayName"),
+        "name": resolve_display_name(text_bundle_raw, tid),
         "associatedGod": npc_to_god.get(npc, npc),
         "associatedNpcId": npc,
         "iconKey": data.get("Icon"),
@@ -225,7 +268,7 @@ with open(OUT + "keepsakes.json", "w") as f:
 # purpose (menu ordering / weapon-slot pool) than a prerequisite-set alias.
 
 named_sets = {}
-for godname, upgradeId in list(GOD_UPGRADE_IDS.items()) + [("Chaos", "TrialUpgrade")]:
+for godname, upgradeId in GOD_UPGRADE_IDS.items():
     data = LootData.get(upgradeId, {})
     line = god_upgrade_source.get(upgradeId)
     for listField in ("PriorityUpgrades", "WeaponUpgrades", "Traits", "Consumables"):
@@ -251,7 +294,7 @@ print("H1 gods:", len(gods), "keepsakes:", len(keepsakes), "named_sets:", len(na
 # ---------------------------------------------------------------------------
 
 prereq_occurrences = {}  # trait id -> list of {expr, definingGod, source}
-for godname, upgradeId in list(GOD_UPGRADE_IDS.items()) + [("Chaos", "TrialUpgrade")]:
+for godname, upgradeId in GOD_UPGRADE_IDS.items():
     data = LootData.get(upgradeId, {})
     linked = data.get("LinkedUpgrades")
     if not isinstance(linked, dict):
@@ -369,13 +412,40 @@ for tid, data in TraitData.items():
         skipped_keepsakes_in_main_catalog.append(tid)
         continue  # already emitted in keepsakes.json
 
-    god = data.get("God")
-    if not isinstance(god, str):
-        god = god_trait_membership.get(tid)
+    # Who grants it. Three signals, and they are not equally trustworthy.
+    #
+    # Two tables offering the same boon is what a Hades I Duo *is* -- the game
+    # has no separate Duo id space, so being gated by both Ares and Artemis is
+    # the only thing that makes a boon theirs jointly. That beats a declared
+    # `God`, because the two Duos that declare one name a single god for a
+    # boon that plainly needs two; the same collapse the Hades II side turned
+    # out to be a reader artifact rather than a rule.
+    #
+    # Failing that the declared field wins, and it is left alone even where it
+    # is wrong: two records name Zeus for boons Demeter's table offers, and
+    # correcting that here would put the extraction permanently at odds with
+    # its source. The mislabelling check reports them and the overlay fixes
+    # them, which keeps the disagreement visible instead of absorbed.
+    #
+    # Only then does a single owning table fill the gap -- which is most of
+    # this file's reach, since a boon sold behind a prerequisite is listed
+    # under the god who gates it and carries no `God` field at all.
+    declared = data.get("God")
+    owners = sorted(god_trait_owners.get(tid, ()))
+    if len(owners) == 2:
+        duo_gods, god = owners, None
+    else:
+        duo_gods = None
+        god = declared if isinstance(declared, str) else (owners[0] if owners else None)
 
     boon_category = None
     m = ASSIST_RE.match(tid)
-    if m and god is None:
+    if duo_gods:
+        # Between them a Duo is two pool gods' content, which is the reading
+        # the Hades II side already takes for the same shape.
+        boon_category = ("StandardOlympian" if all(g in pool_god_names for g in duo_gods)
+                         else "NonStandard")
+    elif m and god is None:
         boon_category = "NpcAlly"
     elif god in pool_god_names:
         boon_category = "StandardOlympian"
@@ -425,14 +495,15 @@ for tid, data in TraitData.items():
     else:
         prereq_citation = None
 
-    text = text_bundle_raw.get(tid, {})
     icon = resolve_field_h1(tid, "Icon")
 
     record = {
         "id": tid,
         "god": god,
-        "duoGods": None,  # Hades I has no distinct Duo-boon id space separate from its normal trait ids; see README
-        "name": text.get("displayName"),
+        # Hades I has no distinct Duo-boon id space, so the pair of tables
+        # offering a boon is what names its two gods.
+        "duoGods": duo_gods,
+        "name": resolve_display_name(text_bundle_raw, tid),
         "descriptionRef": tid if tid in text_bundle_raw else None,
         "icon": icon if isinstance(icon, str) and not is_unresolved(icon) else None,
         "boonCategory": boon_category,

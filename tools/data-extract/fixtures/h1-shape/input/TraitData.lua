@@ -169,4 +169,15 @@ TraitData =
 		Icon = "Boon_Sable_77",
 		RequiredOneOfTraits = { "SableEmberTrait", "SablePhantomTrait" },
 	},
+
+	-- Names its own source table instead of being listed in one. No God
+	-- field, and no god's Traits/PriorityUpgrades/WeaponUpgrades or
+	-- LinkedUpgrades mentions it, so LootSource is the only thing that says
+	-- whose it is. Six real Hades I traits are in exactly this position.
+	SableTideTrait =
+	{
+		InheritFrom = { "ShopTier1Trait" },
+		LootSource = "SableUpgrade",
+		Icon = "Boon_Sable_88",
+	},
 }

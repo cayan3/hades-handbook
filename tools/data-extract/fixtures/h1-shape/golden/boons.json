@@ -2,13 +2,13 @@
  "AuricBarkTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Auric",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
   "icon": "Boon_Auric_02",
   "id": "AuricBarkTrait",
   "name": null,
@@ -27,13 +27,13 @@
  "AuricGroveTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Auric",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
   "icon": "Boon_Auric_03",
   "id": "AuricGroveTrait",
   "name": null,
@@ -52,13 +52,13 @@
  "AuricRootTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Auric",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
   "icon": "Boon_Auric_01",
   "id": "AuricRootTrait",
   "name": null,
@@ -124,13 +124,13 @@
  "SableDebugTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Sable",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
   "icon": "Boon_Sable_66",
   "id": "SableDebugTrait",
   "name": null,
@@ -151,18 +151,31 @@
   "blockedBy": [
    "AuricBarkTrait"
   ],
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Sable",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
   "icon": "Boon_Sable_12",
   "id": "SableEmberComboTrait",
   "name": null,
-  "prereq": null,
-  "prereqSource": null,
+  "prereq": {
+   "kind": "anyOf",
+   "min": 1,
+   "of": [
+    {
+     "kind": "hasTrait",
+     "trait": "SableEmberTrait"
+    },
+    {
+     "kind": "hasTrait",
+     "trait": "SableFlareTrait"
+    }
+   ]
+  },
+  "prereqSource": "Scripts/LootData.lua:42",
   "rarity": [
    "Common",
    "Epic",
@@ -171,18 +184,18 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:87",
-  "tier": 1
+  "tier": 2
  },
  "SableEmberTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Sable",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
   "icon": "Boon_Sable_01",
   "id": "SableEmberTrait",
   "name": null,
@@ -201,13 +214,13 @@
  "SableFlareTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Sable",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
   "icon": "Boon_Sable_02",
   "id": "SableFlareTrait",
   "name": null,
@@ -226,13 +239,13 @@
  "SableMirageTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Sable",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
   "icon": "Boon_Sable_77",
   "id": "SableMirageTrait",
   "name": null,
@@ -264,35 +277,103 @@
  "SablePyreTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
-  "duoGods": null,
+  "duoGods": [
+   "Auric",
+   "Sable"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": "Sable",
-  "godKind": "NonPoolSlot",
+  "god": null,
+  "godKind": null,
   "icon": "Boon_Sable_09",
   "id": "SablePyreTrait",
   "name": null,
-  "prereq": null,
-  "prereqSource": null,
+  "prereq": {
+   "kind": "all",
+   "of": [
+    {
+     "kind": "anyOf",
+     "min": 1,
+     "of": [
+      {
+       "kind": "hasTrait",
+       "trait": "SableEmberTrait"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "SableFlareTrait"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "SableWardenTrait"
+      }
+     ]
+    },
+    {
+     "kind": "anyOf",
+     "min": 1,
+     "of": [
+      {
+       "kind": "hasTrait",
+       "trait": "AuricRootTrait"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "AuricBarkTrait"
+      },
+      {
+       "kind": "hasTrait",
+       "trait": "AuricGroveTrait"
+      }
+     ]
+    }
+   ]
+  },
+  "prereqSource": "Scripts/LootData.lua:32",
   "rarity": [
    "Legendary"
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:76",
-  "tier": 1
+  "tier": null
  },
- "SableWardenTrait": {
+ "SableTideTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Sable",
-  "godKind": "NonPoolSlot",
+  "godKind": "PoolSlot",
+  "icon": "Boon_Sable_88",
+  "id": "SableTideTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:177",
+  "tier": 1
+ },
+ "SableWardenTrait": {
+  "activation": null,
+  "blockedBy": null,
+  "boonCategory": "StandardOlympian",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "exclusiveGroup": null,
+  "god": "Sable",
+  "godKind": "PoolSlot",
   "icon": "Boon_Sable_03",
   "id": "SableWardenTrait",
   "name": null,

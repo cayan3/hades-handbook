@@ -1,1 +1,53 @@
-{}
+{
+ "AuricUpgrade.PriorityUpgrades": {
+  "members": [
+   "AuricRootTrait",
+   "AuricBarkTrait",
+   "AuricGroveTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:49"
+ },
+ "AuricUpgrade.WeaponUpgrades": {
+  "members": [
+   "AuricRootTrait",
+   "AuricBarkTrait",
+   "AuricGroveTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:49"
+ },
+ "FennickUpgrade.Traits": {
+  "members": [
+   "FennickSwiftTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:76"
+ },
+ "SableUpgrade.PriorityUpgrades": {
+  "members": [
+   "SableEmberTrait",
+   "SableFlareTrait",
+   "SableWardenTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:16"
+ },
+ "SableUpgrade.Traits": {
+  "members": [
+   "SablePyreTrait",
+   "SableEmberComboTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:16"
+ },
+ "SableUpgrade.WeaponUpgrades": {
+  "members": [
+   "SableEmberTrait",
+   "SableFlareTrait",
+   "SableWardenTrait"
+  ],
+  "note": "Not a prerequisite alias like Hades II's LinkedTraitData -- this is the god's own menu/weapon-slot trait list.",
+  "source": "Scripts/LootData.lua:16"
+ }
+}
