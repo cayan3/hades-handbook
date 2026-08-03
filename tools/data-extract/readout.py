@@ -1,28 +1,32 @@
-"""A human-readable rendering of the extraction, for checking against the game.
+"""This takes in the extraction and outputs a file that's actually readable
+by like real people ():standing_man: :standing_man:), mostly so I can check
+the extraction's findings against the actual game(s).
 
-The catalog is JSON keyed on internal ids, which is right for the app and
-useless for the one check nothing else can perform: sitting in front of the
-game and asking whether the requirement a boon actually shows matches the one
-that was extracted. This prints it the way the game says it -- display names,
-grouped by god, with each requirement written as a sentence.
+The catalog is in JSON and its keys are internal ids, which is fine if you're
+a little elf helper in the backend who's responsible for making the app work,
+but also pretty much unreadable for Real People (hi!) who are trying to verify
+if listed boons and their requirements actually match the game it came from.
+This fun lil guy prints out the most useful info out of the extraction's
+boon-related findings; e.g. display names, corresponding gods, requirements,
+and blockers.
 
-It reads the extraction and invents nothing. Where a name is missing the id is
-shown in braces instead, because a record with no display name is usually
-either cut content or a template and that is worth seeing rather than hiding.
+To do that, this lil guy reads the extraction and invents literally nothing
+(zero zilch nada). If a display name is missing for some reason (rip :pensive:
+:pensive: might be a skill issue mb), the id is used as a placeholder; usually,
+records that this happens to aren't actually in the game at all (e.g. existed
+in early access but was later cut for whatever reason).
 
-That includes leaving out the hand-written corrections the catalog applies on
-top, so where the game's own files name the wrong god this prints the wrong god
--- two Hades I records do, and the app shows them correctly. Folding those in
-here would make this agree with the game by construction for exactly the records
-someone has already corrected, and a correction that has since gone stale would
-read as a clean pass. The point of this file is to show what the tool worked
-out on its own.
+This also means that we're leaving out any hand-written corrections that were
+just uh put on top of the catalog o_0, (e.g. game file naming the wrong god;
+in particular, this happens to two Hades I records). If we considered those
+here, it would ermmm basically defeat the point of this file (i.e. to show
+exactly what the extractor worked out on its own). To use:
 
-    python3 readout.py                    both games, to stdout
-    python3 readout.py hades2 > out.md    one game, to a file
+    python3 readout.py                    for both games; to stdout
+    python3 readout.py hades2 > out.md    for one game; to a file
 
-The output carries the game's own display text, so it belongs somewhere
-private rather than in the repository.
+The output carries the game's own display text, so it should be stored somewhere
+private, not in the public repository itself.
 """
 
 import json
@@ -69,8 +73,8 @@ def render(requirement, name_of, depth=0):
     if kind in ("all", "anyOf"):
         children = requirement.get("of") or []
         if kind == "anyOf" and all(c.get("kind") == "hasTrait" for c in children):
-            # The common case by far, and it reads far better on one line than
-            # as a bulleted list of nine single words.
+            # By far the most common case; makes much more sense as a one-liner
+            # than a bulleted list of like nine singular words lol
             joined = ", ".join(name_of(c["trait"]) for c in children)
             return ["any %d of: %s" % (requirement.get("min", 1), joined)]
         header = "all of:" if kind == "all" else "any %d of:" % requirement.get("min", 1)
@@ -127,6 +131,9 @@ def report(game, out):
             if record.get("blockedBy"):
                 print("- **blocked by:** %s"
                       % ", ".join(name_of(b) for b in record["blockedBy"]), file=out)
+            if record.get("aspectConflicts"):
+                print("- **not offered on:** %s"
+                      % ", ".join(name_of(a) for a in record["aspectConflicts"]), file=out)
             if record.get("exclusiveGroup"):
                 others = [b for b in record["exclusiveGroup"] if b != trait_id]
                 print("- **cannot be held with:** %s"
