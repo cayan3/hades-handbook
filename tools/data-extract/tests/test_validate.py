@@ -216,6 +216,37 @@ def test_a_block_whose_blocker_is_keepsake_granted_stops_the_run():
     assert any("can shed" in f for f in fatal)
 
 
+def test_a_block_naming_a_weapon_form_stops_the_run():
+    """A run never holds an aspect -- it equips one -- so a block naming an
+    aspect looks for it among the held traits and never finds it. The
+    constraint is real and permanently inert, which reads as the boon being
+    reachable. Two thirds of every block edge in the catalog were this."""
+    _, fatal = check({"A": boon(id="A", blockedBy=["Asp"])}, aspect_ids={"Asp"})
+    assert any("names the aspect Asp in blockedBy" in f for f in fatal)
+
+
+def test_a_mutual_exclusion_naming_a_weapon_form_stops_the_run_too():
+    _, fatal = check(
+        {"A": boon(id="A", exclusiveGroup=["A", "Asp"]),
+         "Asp": boon(id="Asp", exclusiveGroup=["A", "Asp"])},
+        aspect_ids={"Asp"},
+    )
+    assert any("names the aspect Asp in exclusiveGroup" in f for f in fatal)
+
+
+def test_a_conflict_filed_as_a_weapon_form_is_fine():
+    _, fatal = check({"A": boon(id="A", aspectConflicts=["Asp"])},
+                     keepsakes={"Asp": {}}, aspect_ids={"Asp"})
+    assert fatal == []
+
+
+def test_an_aspect_the_catalog_does_not_have_is_reported():
+    """A conflict naming a form that does not exist never fires, exactly as a
+    dangling prerequisite never resolves."""
+    report, _ = check({"A": boon(id="A", aspectConflicts=["Ghost"])})
+    assert report["danglingPrereqReferences"] == {"A": ["Ghost"]}
+
+
 # ---------------------------------------------------------------------------
 # Ladder depth
 # ---------------------------------------------------------------------------

@@ -470,6 +470,14 @@ for _tid, _data in ALL_DEFS.items():
         if isinstance(_args, dict) and isinstance(_args.get("TraitName"), str):
             REMOVABLE_BLOCKERS.add(_args["TraitName"])
 
+
+# Which ids are a weapon form rather than something the run picks up. The
+# aspects have their own table, which is the test used here; the resolved
+# `Slot` field is not, because it reaches the two templates the aspects
+# inherit from and none of the aspects themselves.
+def is_aspect(trait_id):
+    return trait_id in ASPECT_DEFS
+
 declared_negations = {}   # trait id -> ids it declares itself incompatible with
 classified = {}           # trait id -> what its clauses came to
 
@@ -562,6 +570,7 @@ for trait_id, data in ALL_DEFS.items():
         "rarity": get_rarity(trait_id),
         "exclusiveGroup": None,
         "blockedBy": None,
+        "aspectConflicts": None,
         "elementAffinity": affinities[0] if affinities else None,
         "prereq": prereq,
         # Where the gate was written, which is not where the trait was. Hades
@@ -629,16 +638,18 @@ for trait_id, record in boons.items():
 # What a negation actually is, decided once every declaration is known
 # ---------------------------------------------------------------------------
 
-exclusive_groups, blocked_by, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
+exclusive_groups, blocked_by, aspect_conflicts, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
     declared_negations,
     removable=REMOVABLE_BLOCKERS,
     is_out_of_scope=lambda tid: False,
-    same_family=lambda a, b: False,
+    is_aspect=is_aspect,
 )
 for trait_id, group in exclusive_groups.items():
     boons[trait_id]["exclusiveGroup"] = group
 for trait_id, blockers in blocked_by.items():
     boons[trait_id]["blockedBy"] = blockers
+for trait_id, aspects in aspect_conflicts.items():
+    boons[trait_id]["aspectConflicts"] = aspects
 
 # ---------------------------------------------------------------------------
 # Ladder depth

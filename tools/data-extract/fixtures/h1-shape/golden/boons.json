@@ -1,6 +1,7 @@
 {
  "AuricBarkTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -26,6 +27,7 @@
  },
  "AuricGroveTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -51,6 +53,7 @@
  },
  "AuricRootTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -76,6 +79,7 @@
  },
  "FennickSwiftTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -101,6 +105,7 @@
  },
  "SableAuricBloomTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -123,6 +128,7 @@
  },
  "SableDebugTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -148,6 +154,7 @@
  },
  "SableEmberComboTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": [
    "AuricBarkTrait"
   ],
@@ -188,6 +195,7 @@
  },
  "SableEmberTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -213,6 +221,7 @@
  },
  "SableFlareTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -238,6 +247,7 @@
  },
  "SableMirageTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -276,6 +286,7 @@
  },
  "SablePyreTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -341,6 +352,7 @@
  },
  "SableTideTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -366,6 +378,7 @@
  },
  "SableWardenTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -391,6 +404,7 @@
  },
  "ShopTier1Trait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -416,6 +430,7 @@
  },
  "ShopTier3Trait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -438,6 +453,7 @@
  },
  "SynergyTraitTemplate": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,

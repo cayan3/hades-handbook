@@ -280,18 +280,18 @@ def resolve(declared, **kw):
         declared,
         removable=kw.get("removable", set()),
         is_out_of_scope=kw.get("is_out_of_scope", lambda t: False),
-        same_family=kw.get("same_family", lambda a, b: False),
+        is_aspect=kw.get("is_aspect", lambda t: False),
     )
 
 
 def test_naming_yourself_is_a_no_duplicate_gate_not_an_exclusion():
-    groups, blocked, dropped, self_gates = resolve({"A": ["A"]})
-    assert (groups, blocked, dropped) == ({}, {}, [])
+    groups, blocked, aspects, dropped, self_gates = resolve({"A": ["A"]})
+    assert (groups, blocked, aspects, dropped) == ({}, {}, {}, [])
     assert self_gates == ["A"]
 
 
 def test_naming_each_other_is_a_mutual_exclusion():
-    groups, blocked, _, _ = resolve({"A": ["B"], "B": ["A"]})
+    groups, blocked, _, _, _ = resolve({"A": ["B"], "B": ["A"]})
     assert groups == {"A": ["A", "B"], "B": ["A", "B"]}
     assert blocked == {}
 
@@ -299,7 +299,7 @@ def test_naming_each_other_is_a_mutual_exclusion():
 def test_a_one_directional_block_is_not_recorded_as_mutual():
     """Order matters: taking the blocked trait first leaves both held, which a
     mutual exclusion would deny."""
-    groups, blocked, _, _ = resolve({"A": ["B"]})
+    groups, blocked, _, _, _ = resolve({"A": ["B"]})
     assert groups == {}
     assert blocked == {"A": ["B"]}
 
@@ -307,7 +307,7 @@ def test_a_one_directional_block_is_not_recorded_as_mutual():
 def test_a_blocker_the_run_can_shed_is_dropped():
     """Reporting it would tell a player their build is impossible because of a
     keepsake they can swap out next region."""
-    groups, blocked, dropped, _ = resolve({"A": ["B"]}, removable={"B"})
+    groups, blocked, _, dropped, _ = resolve({"A": ["B"]}, removable={"B"})
     assert blocked == {}
     assert dropped and dropped[0]["blocker"] == "B"
 
@@ -315,16 +315,38 @@ def test_a_blocker_the_run_can_shed_is_dropped():
 def test_out_of_scope_content_is_dropped_whichever_way_the_edge_runs():
     """Testing symmetry first would let the same content back in through the
     exclusive-group half."""
-    _, _, dropped, _ = resolve({"A": ["B"], "B": ["A"]}, is_out_of_scope=lambda t: t == "B")
-    groups, blocked, _, _ = resolve({"A": ["B"], "B": ["A"]}, is_out_of_scope=lambda t: t == "B")
+    groups, blocked, _, dropped, _ = resolve(
+        {"A": ["B"], "B": ["A"]}, is_out_of_scope=lambda t: t == "B")
     assert dropped
     assert groups == {} and blocked == {}
 
 
-def test_an_edge_between_things_already_exclusive_adds_nothing():
-    groups, blocked, dropped, _ = resolve({"A": ["B"]}, same_family=lambda a, b: True)
-    assert blocked == {}
-    assert dropped and "construction" in dropped[0]["reason"]
+def test_a_weapon_form_is_not_a_blocker_it_is_its_own_conflict():
+    """An aspect is equipped rather than picked up, so a block naming one would
+    look for it among the traits held and never find it there -- the constraint
+    would be real and permanently inert."""
+    groups, blocked, aspects, _, _ = resolve({"A": ["B"]}, is_aspect=lambda t: t == "B")
+    assert blocked == {} and groups == {}
+    assert aspects == {"A": ["B"]}
+
+
+def test_a_weapon_form_is_kept_out_of_a_mutual_exclusion_too():
+    """Decided before symmetry, and this is the case that forces it: without it
+    the reverse edge pairs back up and produces a group naming the aspect, which
+    is the same category error the routing exists to prevent."""
+    groups, blocked, aspects, dropped, _ = resolve(
+        {"A": ["B"], "B": ["A"]}, is_aspect=lambda t: t == "B")
+    assert groups == {} and blocked == {}
+    assert aspects == {"A": ["B"]}
+    assert [d["reason"] for d in dropped] == ["a weapon form, which is chosen before anything is held"]
+
+
+def test_two_weapon_forms_are_not_a_conflict_with_each_other():
+    """A run has exactly one aspect, so an edge between two says nothing the
+    model does not already know."""
+    _, blocked, aspects, dropped, _ = resolve({"A": ["B"]}, is_aspect=lambda t: True)
+    assert aspects == {} and blocked == {}
+    assert dropped and "a run has one" in dropped[0]["reason"]
 
 
 # ---------------------------------------------------------------------------

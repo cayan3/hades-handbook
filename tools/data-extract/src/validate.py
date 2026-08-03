@@ -106,10 +106,11 @@ def inherit_chain(defs, trait_id, _visited=None, _depth=0):
 
 
 def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
-                  raw_defs=None, loot_membership=None, external_references=None):
+                  raw_defs=None, loot_membership=None, external_references=None,
+                  aspect_ids=None):
     """Check one game's emitted catalog. Returns (report, fatal messages).
 
-    The four trailing arguments are the inputs a check needs that the emitted
+    The five trailing arguments are the inputs a check needs that the emitted
     catalog does not carry. Each is optional, and the checks that need it are
     skipped when it is absent -- the fixtures do not have a whole game's
     scripts to scan, and a check that cannot run is different from one that
@@ -136,6 +137,7 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
         referenced |= requirements.referenced_catalog_ids(b.get("activation"))
         referenced |= set(b.get("exclusiveGroup") or [])
         referenced |= set(b.get("blockedBy") or [])
+        referenced |= set(b.get("aspectConflicts") or [])
         missing = sorted(r for r in referenced if r not in all_ids)
         if missing:
             dangling[bid] = missing
@@ -288,6 +290,28 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
         fatal.append("%s %s is blocked by %s, which the run can shed"
                      % (game_key, entry["id"], entry["blocker"]))
 
+    # 10b. a weapon aspect named as though it were a held trait. The two fields
+    # below both mean "the run picked this up", and a run never picks up an
+    # aspect -- it is equipped before the run and answered from a different
+    # fact. An aspect named in either one is a constraint that quietly never
+    # fires, which reads as a boon being reachable when it is not, and that is
+    # the direction of error nothing downstream can notice. This is the check
+    # that was missing while two thirds of every block edge in the catalog was
+    # an aspect.
+    if aspect_ids is not None:
+        misfiled = []
+        for bid, b in sorted(boons.items()):
+            for blocker in b.get("blockedBy") or []:
+                if blocker in aspect_ids:
+                    misfiled.append({"id": bid, "field": "blockedBy", "aspect": blocker})
+            for member in b.get("exclusiveGroup") or []:
+                if member in aspect_ids:
+                    misfiled.append({"id": bid, "field": "exclusiveGroup", "aspect": member})
+        report["aspectsNamedAsHeldTraits"] = misfiled
+        for entry in misfiled:
+            fatal.append("%s %s names the aspect %s in %s, where only a held trait belongs"
+                         % (game_key, entry["id"], entry["aspect"], entry["field"]))
+
     # 11. Infusions. An element-gated boon carries its gate in the requirement
     # and carries no affinity of its own; one with neither is a boon whose
     # whole cost has gone missing.
@@ -435,6 +459,11 @@ def _external_references(game):
     return referenced_outside_trait_data(scripts_dir(game))
 
 
+def aspects_by_inheritance(raw_defs, base):
+    """Hades I marks a weapon form by what it inherits from; there is no table."""
+    return {tid for tid in raw_defs if base in inherit_chain(raw_defs, tid)}
+
+
 def main():
     OUT = out_dir()
     RAW = raw_dir()
@@ -446,11 +475,16 @@ def main():
     h2_gods = load(OUT + "hades2/gods.json")
     h2_keepsakes = load(OUT + "hades2/keepsakes.json")
     h2_defs = load(RAW + "h2_TraitData.json")
+    # Hades II keeps its weapon forms in a table of their own, so membership is
+    # the test. Inheritance is not: every aspect inherits the same two
+    # templates, and those templates are what carries the `Slot` field.
+    h2_aspects = set(load(RAW + "h2_TraitSetData.json").get("Aspects", {}))
     h2_report, h2_fatal = validate_game(
         "hades2", h2_boons, h2_gods, h2_keepsakes,
         clause_report=_load_optional(OUT + "hades2/_clause_report.json"),
         raw_defs=h2_defs,
         external_references=_external_references("hades2"),
+        aspect_ids=h2_aspects,
     )
     h2_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h2_defs)
 
@@ -527,6 +561,7 @@ def main():
         raw_defs=h1_defs,
         loot_membership=h1_membership,
         external_references=_external_references("hades1"),
+        aspect_ids=aspects_by_inheritance(h1_defs, "WeaponEnchantmentTrait"),
     )
     h1_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h1_defs, (h1_loot,))
 

@@ -1,6 +1,7 @@
 {
  "CindraArcCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -30,6 +31,7 @@
  },
  "CindraDebugOnlyBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -55,6 +57,7 @@
  },
  "CindraEchoCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -84,6 +87,7 @@
  },
  "CindraEmberBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -126,6 +130,7 @@
  },
  "CindraFlareBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -151,6 +156,7 @@
  },
  "CindraLobCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -180,6 +186,7 @@
  },
  "CindraMalformedBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "buildFailure": [
@@ -223,6 +230,7 @@
  },
  "CindraPyreBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -295,6 +303,7 @@
  },
  "CindraReclaimBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": [
    "VerdanBarkBoon"
   ],
@@ -322,6 +331,7 @@
  },
  "CindraStrikeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -347,6 +357,7 @@
  },
  "CindraVerdanBloomBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -412,6 +423,7 @@
  },
  "CindraWardenBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -442,6 +454,7 @@
    "element": "Ember",
    "kind": "hasElement"
   },
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": null,
@@ -470,6 +483,7 @@
  },
  "OrithiaBlessBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -492,6 +506,7 @@
  },
  "VerdanBarkBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -517,6 +532,7 @@
  },
  "VerdanBriarBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -555,6 +571,7 @@
  },
  "VerdanGroveBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -580,6 +597,7 @@
  },
  "VerdanRootBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,

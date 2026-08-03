@@ -589,6 +589,7 @@ def clause_report(boons, classified, dropped_edges, no_duplicate_gates):
         "noDuplicateGates": no_duplicate_gates,
         "exclusiveGroupCount": sum(1 for r in boons.values() if r.get("exclusiveGroup")),
         "blockedByEdgeCount": sum(len(r.get("blockedBy") or []) for r in boons.values()),
+        "aspectConflictEdgeCount": sum(len(r.get("aspectConflicts") or []) for r in boons.values()),
     }
 
 
@@ -673,15 +674,18 @@ def compute_tiers(prereqs, god_of, ladder_ids):
 UNCLASSIFIED_MARKER = "UNCLASSIFIED_NEGATION"
 
 
-def resolve_negations(declared, removable, is_out_of_scope, same_family):
-    """Split every declared negation into the three things it can be.
+def resolve_negations(declared, removable, is_out_of_scope, is_aspect):
+    """Split every declared negation into the four things it can be.
 
     Takes `declared` as {holder: [blocker, ...]} and answers
-    (exclusive_groups, blocked_by, dropped), because none of the three can be
-    decided from a single record:
+    (exclusive_groups, blocked_by, aspect_conflicts, dropped), because none of
+    them can be decided from a single record:
 
       * a declaration naming its own trait is a "do not offer a duplicate"
         gate, not an exclusion of anything;
+      * a blocker that is a weapon aspect is not a trait the run holds at all
+        -- the aspect is equipped rather than picked up, so this is a conflict
+        with the weapon form, which the run answers from a different fact;
       * a pair that names each other is a symmetric mutual exclusion, and at
         most one of the group is ever held;
       * anything else is one-directional -- taking the blocked trait first
@@ -704,6 +708,7 @@ def resolve_negations(declared, removable, is_out_of_scope, same_family):
 
     exclusive_groups = {}
     blocked_by = {}
+    aspect_conflicts = {}
     dropped = []
     for holder, blocker in sorted(edges):
         # Scope is tested before symmetry, not after. An edge on content the
@@ -714,21 +719,44 @@ def resolve_negations(declared, removable, is_out_of_scope, same_family):
             dropped.append({"holder": holder, "blocker": blocker,
                             "reason": "an edge on content this release does not model"})
             continue
+        # Anything touching a weapon form is settled here, before symmetry.
+        # An aspect is equipped rather than picked up, so neither of the two
+        # fields below can carry it: both mean "the run holds this", and a run
+        # never holds an aspect. A block naming one would look for it among the
+        # traits held and never find it, leaving a real constraint permanently
+        # inert; a mutual exclusion would be the same mistake symmetrically,
+        # which is why symmetry cannot be allowed to see these first.
+        if is_aspect(holder) or is_aspect(blocker):
+            if is_aspect(holder) and is_aspect(blocker):
+                # A run has exactly one weapon form, so one cannot rule out
+                # another -- the edge says nothing the model does not know.
+                dropped.append({"holder": holder, "blocker": blocker,
+                                "reason": "an edge between two weapon forms, and a run has one"})
+            elif is_aspect(blocker):
+                aspect_conflicts.setdefault(holder, set()).add(blocker)
+            else:
+                # The declaration runs the other way: a weapon form saying it
+                # is not offered alongside some trait. The form is chosen
+                # before the run, when nothing is held yet, so there is no
+                # moment at which this could gate anything. Reading it in
+                # reverse -- as the trait being blocked by the form -- would be
+                # inventing an edge the data does not state.
+                dropped.append({"holder": holder, "blocker": blocker,
+                                "reason": "a weapon form, which is chosen before anything is held"})
+            continue
         if (blocker, holder) in edges:
             exclusive_groups.setdefault(holder, set()).update({holder, blocker})
             continue
         if blocker in removable:
             dropped.append({"holder": holder, "blocker": blocker,
                             "reason": "a blocker the run can shed, so it can never be permanent"})
-        elif same_family(holder, blocker):
-            dropped.append({"holder": holder, "blocker": blocker,
-                            "reason": "already exclusive by construction, so the edge adds nothing"})
         else:
             blocked_by.setdefault(holder, set()).add(blocker)
 
     return (
         {k: sorted(v) for k, v in exclusive_groups.items()},
         {k: sorted(v) for k, v in blocked_by.items()},
+        {k: sorted(v) for k, v in aspect_conflicts.items()},
         dropped,
         sorted(set(self_gates)),
     )

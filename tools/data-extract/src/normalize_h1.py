@@ -513,6 +513,7 @@ for tid, data in TraitData.items():
         "rarity": get_rarity_h1(tid),
         "exclusiveGroup": None,
         "blockedBy": None,
+        "aspectConflicts": None,
         "elementAffinity": None,   # Hades I has no elemental-infusion mechanic (confirmed absent during the spike)
         "prereq": prereq,
         "prereqSource": prereq_citation,
@@ -527,16 +528,18 @@ for tid, data in TraitData.items():
 # What a negation actually is, decided once every declaration is known
 # ---------------------------------------------------------------------------
 
-exclusive_groups, blocked_by, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
+exclusive_groups, blocked_by, aspect_conflicts, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
     declared_negations,
     removable=REMOVABLE_BLOCKERS,
     is_out_of_scope=is_hammer,
-    same_family=lambda a, b: is_aspect(a) and is_aspect(b),
+    is_aspect=is_aspect,
 )
 for tid, group in exclusive_groups.items():
     boons[tid]["exclusiveGroup"] = group
 for tid, blockers in blocked_by.items():
     boons[tid]["blockedBy"] = blockers
+for tid, aspects in aspect_conflicts.items():
+    boons[tid]["aspectConflicts"] = aspects
 
 # ---------------------------------------------------------------------------
 # Ladder depth
