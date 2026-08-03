@@ -654,13 +654,7 @@
  "totalBoonRecords": 612,
  "totalGodRecords": 15,
  "totalKeepsakeRecords": 35,
- "unconsumedClauseKeys": {
-  "BoonInfoIgnoreRequirements": 10,
-  "CodexGameStateRequirements": 38,
-  "CustomNameWithRequirements": 5,
-  "EternalBurnRequirements": 1,
-  "PriorityRequirements": 4
- },
+ "unconsumedClauseKeys": {},
  "unresolvedSentinelKnown": [
   {
    "field": "buildFailure[0].clause.OneOf",

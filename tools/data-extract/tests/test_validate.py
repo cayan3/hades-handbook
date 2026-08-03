@@ -392,6 +392,21 @@ def test_a_misspelled_gate_key_is_counted_too():
     assert "RequiresFalseTraits" in counts
 
 
+def test_a_key_somebody_has_read_and_ruled_out_is_not_reported():
+    """Every display-side and offer-weighting key matches the census pattern, so
+    reporting them left nine standing per game -- and a tenth arriving in a list
+    of nine is not something anybody notices."""
+    judged = sorted(validate.CLAUSE_KEYS_THAT_ARE_NOT_GATES)[0]
+    counts = validate.unconsumed_clause_keys({"A": {judged: True, "RequiredBrandNew": 1}})
+    assert counts == {"RequiredBrandNew": 1}
+
+
+def test_every_ruled_out_key_says_why():
+    """The reason is what lets a later reader disagree with the judgement."""
+    assert all(isinstance(r, str) and r
+               for r in validate.CLAUSE_KEYS_THAT_ARE_NOT_GATES.values())
+
+
 def test_nested_requirement_tables_are_scanned():
     counts = validate.unconsumed_clause_keys({
         "A": {"GameStateRequirements": [{"WeirdNewRequirements": 1}]},

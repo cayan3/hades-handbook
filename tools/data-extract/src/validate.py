@@ -371,22 +371,57 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     return report, fatal
 
 
+# Requirement-shaped keys that have been read and are not gates on obtaining a
+# trait. They match the census pattern -- they start "Required" or end
+# "Requirements" -- so without this they sit in the report forever, and a list
+# that always has nine entries cannot show anyone a tenth. Each was looked at
+# against the data rather than guessed from its name; the reason is what makes
+# a later reader able to disagree.
+#
+# Deliberately NOT here: `RequiresFalseTraits`, the one Hades I record that
+# misspells the negation key. That is a real finding about the game's data --
+# the engine must be ignoring it too -- and the census is where it is visible.
+CLAUSE_KEYS_THAT_ARE_NOT_GATES = {
+    # display surfaces
+    "CodexGameStateRequirements": "when the Codex entry shows, not when the trait is offered",
+    "BoonInfoIgnoreRequirements": "a flag telling the boon-info panel to skip requirements",
+    "CustomNameWithRequirements": "which display name to use, not whether the trait is reachable",
+    # offer weighting rather than eligibility
+    "PriorityRequirements": "reward weighting -- it prioritises a trait never seen before",
+    # conditions on an effect, not on obtaining
+    "EternalBurnRequirements": "a condition inside the trait's own effect",
+    "KeepsakeRarityGameStateRequirements": "which rarity tier an assist keepsake is at",
+    "DisableFishRequirements": "a flag about fishing points, which are not traits",
+    # save-file progression and run progress, both assumed or offer-time
+    "RequiredMinCompletedRuns": "save-file progression, which is assumed complete",
+    "RequiredSeenRooms": "how far the run has got, or which conversation has played",
+}
+
+
 def unconsumed_clause_keys(raw_defs, extra_tables=()):
-    """Requirement-shaped keys in the raw data that no classifier reads.
+    """Requirement-shaped keys in the raw data that nothing reads and nobody has judged.
 
     The population of clauses has twice been measured by listing the idioms
     somebody remembered, and been wrong both times -- once because a key was
     spelled differently and once because a whole clause family was never
     enumerated. This counts from the other direction: everything that looks
-    like a gate, minus everything the classifier actually consumes. A patch
-    that introduces a new gate key shows up here rather than as silence.
+    like a gate, minus everything the classifier consumes, minus everything
+    somebody has read and ruled out. A patch that introduces a new gate key
+    shows up here rather than as silence.
+
+    The last subtraction is what makes the first two useful. Reporting every
+    display-side and offer-weighting key alongside a genuinely unread one left
+    nine entries per game standing permanently, and a tenth arriving in that
+    list is not something anybody would notice. This is advisory rather than
+    fatal because the answer is a judgement -- but it can only be judged if the
+    list is short enough to read, which now it is.
     """
     counts = {}
 
     def scan(node):
         if isinstance(node, dict):
             for key, value in node.items():
-                if key not in requirements.CONSUMED_CLAUSE_KEYS and _looks_like_a_gate(key):
+                if _is_unjudged_gate(key):
                     counts[key] = counts.get(key, 0) + 1
                 scan(value)
         elif isinstance(node, list):
@@ -399,7 +434,7 @@ def unconsumed_clause_keys(raw_defs, extra_tables=()):
                 for key in ("GameStateRequirements", "ActivationRequirements", "LinkedUpgrades"):
                     scan(data.get(key))
                 for key, value in data.items():
-                    if _looks_like_a_gate(key) and key not in requirements.CONSUMED_CLAUSE_KEYS:
+                    if _is_unjudged_gate(key):
                         counts[key] = counts.get(key, 0) + 1
     return dict(sorted(counts.items()))
 
@@ -407,6 +442,12 @@ def unconsumed_clause_keys(raw_defs, extra_tables=()):
 def _looks_like_a_gate(key):
     return isinstance(key, str) and (key.startswith("Required") or key.startswith("Requires")
                                      or key.endswith("Requirements"))
+
+
+def _is_unjudged_gate(key):
+    return (_looks_like_a_gate(key)
+            and key not in requirements.CONSUMED_CLAUSE_KEYS
+            and key not in CLAUSE_KEYS_THAT_ARE_NOT_GATES)
 
 
 IDENTIFIER = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")

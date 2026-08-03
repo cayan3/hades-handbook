@@ -567,10 +567,6 @@
  "totalGodRecords": 13,
  "totalKeepsakeRecords": 38,
  "unconsumedClauseKeys": {
-  "DisableFishRequirements": 1,
-  "KeepsakeRarityGameStateRequirements": 6,
-  "RequiredMinCompletedRuns": 3,
-  "RequiredSeenRooms": 1,
   "RequiresFalseTraits": 1
  },
  "unresolvedSentinelKnown": [],

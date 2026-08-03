@@ -1,11 +1,11 @@
 """Tests for the clause classifier.
 
-The classifier is where a wrong reading of the game's data becomes a wrong
-catalog, and there is no downstream check that can see it: the app believes
-whatever the catalog says, and the golden snapshot only proves the output has
-not changed, not that it was ever right. So these test the two things the
-snapshot cannot -- that a recognised clause becomes the gate it means, and that
-an unrecognised one refuses rather than disappearing.
+The classifier is where a wrong reading of the game's data turns into a wrong
+catalog, and nothing downstream can see it happen (the app believes whatever the
+catalog says, and the golden snapshot only proves the output hasn't changed,
+never that it was yk correct to begin with/in the first place). These tests
+cover the two things the snapshot can't: that a recognised clause becomes the
+gate it means, and that an unrecognised one refuses instead of erm disappearing.
 """
 
 import sys
@@ -85,9 +85,9 @@ def test_one_from_each_set_becomes_a_conjunction_of_disjunctions():
 
 
 def test_a_met_god_is_a_boon_of_that_god_and_loses_the_table_suffix():
-    """The path names the god's loot table; every god record is keyed on the
-    bare name, and a god id that does not exist fails silently everywhere
-    downstream -- the member lookup just answers with an empty list."""
+    """The path names the god's loot table, while every god record is keyed on
+    the bare name. A god id that does not exist fails silently everywhere
+    downstream, since the member lookup just answers with an empty list."""
     out = classify({"PathTrue": ["CurrentRun", "Hero", "MetGods", "ApolloUpgrade"]})
     assert out.requirement() == {"kind": "hasBoonFrom", "god": "Apollo"}
 
@@ -117,7 +117,7 @@ def test_alternatives_become_one_anyOf():
     }
     assert not out.unclassified
     # The sibling key is dropped and recorded, not skipped. Every record with an
-    # alternation has one, so returning early hid nine of these.
+    # alternation has one, so returning early hid nine of these o_0.
     assert [d["reason"] for d in out.discarded] == [
         "a save-file unlock, which is assumed granted"]
 
@@ -267,8 +267,8 @@ def test_required_one_of_becomes_a_disjunction():
 
 def test_a_slot_gate_expands_into_what_can_fill_the_slot():
     """The clause names a slot rather than a trait, and there is no atom for
-    "anything in slot X" -- so it becomes the disjunction it means, built from
-    the slot's own members rather than from a list somebody maintains."""
+    "anything in slot X". So it becomes the disjunction it means, built from the
+    slot's own members rather than from a list somebody maintains."""
     assert classify_h1({"RequiredSlottedTrait": "Shout"}).requirement() == {
         "kind": "anyOf", "min": 1,
         "of": [{"kind": "hasTrait", "trait": "AresShoutTrait"},
@@ -358,10 +358,24 @@ def test_out_of_scope_content_is_dropped_whichever_way_the_edge_runs():
     assert groups == {} and blocked == {}
 
 
+def test_a_removable_member_stops_a_pair_becoming_a_mutual_exclusion():
+    """A group claims at most one is ever held, which is false when one of them
+    can be shed: swap the keepsake and take the other. The tripwire for this
+    reads only the one-directional field, so a group would carry the false
+    Impossible past every check there is."""
+    groups, blocked, _, dropped, _ = resolve({"A": ["B"], "B": ["A"]}, removable={"B"})
+    assert groups == {}
+    # The two directions stop agreeing, which is the finding instead of like a
+    # loss since holding A really does rule out B for the rest of the run, while
+    # holding B rules out nothing once it's swapped away :starry_eyed: :starry_eyed:.
+    assert blocked == {"B": ["A"]}
+    assert [(d["holder"], d["blocker"]) for d in dropped] == [("A", "B")]
+
+
 def test_a_weapon_form_is_not_a_blocker_it_is_its_own_conflict():
     """An aspect is equipped rather than picked up, so a block naming one would
-    look for it among the traits held and never find it there -- the constraint
-    would be real and permanently inert."""
+    hunt for it among the held traits and never find it there, leaving the
+    constraint real and permanently inert."""
     groups, blocked, aspects, _, _ = resolve({"A": ["B"]}, is_aspect=lambda t: t == "B")
     assert blocked == {} and groups == {}
     assert aspects == {"A": ["B"]}

@@ -722,10 +722,13 @@ def resolve_negations(declared, removable, is_out_of_scope, is_aspect):
         leaves both held -- which is a different feasibility verdict and must
         not be recorded as mutual.
 
-    A one-directional block may only be reported as permanent when the blocker
-    cannot leave the player's possession. `removable` names the blockers that
-    can, and their edges are dropped: reporting one would tell a player their
-    build is impossible because of a keepsake they can swap out next region.
+    A block may only be reported as permanent when the blocker cannot leave the
+    player's possession. `removable` names the blockers that can, and their
+    edges are dropped: reporting one would tell a player their build is
+    impossible because of a keepsake they can swap out next region. That test
+    runs before the symmetry test, so a pair with one removable member does not
+    become a group either -- a group makes the same permanent claim, in both
+    directions at once.
     """
     edges = set()
     self_gates = []
@@ -740,6 +743,17 @@ def resolve_negations(declared, removable, is_out_of_scope, is_aspect):
     blocked_by = {}
     aspect_conflicts = {}
     dropped = []
+
+    # Two passes, because symmetry is a question about the edges that survive
+    # rather than about the edges the game declared. Every test below removes
+    # an edge for a reason that holds whichever direction it runs in, so an
+    # edge whose counterpart has gone is no longer half of a mutual exclusion
+    # -- it is a one-directional block that happened to be declared twice.
+    # Judging symmetry against the raw declarations instead lets a dropped
+    # edge go on making its counterpart look mutual, which is how a pair with
+    # one shed-able member kept its group after the removability test was
+    # moved ahead of it.
+    live = set()
     for holder, blocker in sorted(edges):
         # Scope is tested before symmetry, not after. An edge on content the
         # release does not model is not a constraint whichever direction it
@@ -774,12 +788,22 @@ def resolve_negations(declared, removable, is_out_of_scope, is_aspect):
                 dropped.append({"holder": holder, "blocker": blocker,
                                 "reason": "a weapon form, which is chosen before anything is held"})
             continue
-        if (blocker, holder) in edges:
-            exclusive_groups.setdefault(holder, set()).update({holder, blocker})
-            continue
+        # A mutual exclusion says at most one of the group is ever held, which
+        # for a blocker the run can shed is simply false: swap the keepsake and
+        # take the other one. So this is decided here rather than after
+        # symmetry, where the pair would become a group and hand a player an
+        # Impossible they can undo -- and the tripwire that watches for exactly
+        # this reads only the one-directional field, so nothing would catch it.
         if blocker in removable:
             dropped.append({"holder": holder, "blocker": blocker,
                             "reason": "a blocker the run can shed, so it can never be permanent"})
+            continue
+        live.add((holder, blocker))
+
+    for holder, blocker in sorted(live):
+        # Both halves survived, so the exclusion really is mutual.
+        if (blocker, holder) in live:
+            exclusive_groups.setdefault(holder, set()).update({holder, blocker})
         else:
             blocked_by.setdefault(holder, set()).add(blocker)
 
