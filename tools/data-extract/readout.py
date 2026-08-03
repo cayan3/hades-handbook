@@ -10,6 +10,14 @@ It reads the extraction and invents nothing. Where a name is missing the id is
 shown in braces instead, because a record with no display name is usually
 either cut content or a template and that is worth seeing rather than hiding.
 
+That includes leaving out the hand-written corrections the catalog applies on
+top, so where the game's own files name the wrong god this prints the wrong god
+-- two Hades I records do, and the app shows them correctly. Folding those in
+here would make this agree with the game by construction for exactly the records
+someone has already corrected, and a correction that has since gone stale would
+read as a clean pass. The point of this file is to show what the tool worked
+out on its own.
+
     python3 readout.py                    both games, to stdout
     python3 readout.py hades2 > out.md    one game, to a file
 
