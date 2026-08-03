@@ -2335,7 +2335,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "BossProgressionMetaUpgrade",
-  "name": null,
+  "name": "Judgment",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -2360,7 +2360,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "BossShieldMetaUpgrade",
-  "name": null,
+  "name": "The Lovers",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -2917,7 +2917,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "CastDamageMetaUpgrade",
-  "name": null,
+  "name": "Eternity",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -3054,7 +3054,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "ChamberHealthMetaUpgrade",
-  "name": null,
+  "name": "The Centaur",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -3079,7 +3079,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "ChannelSlowMetaUpgrade",
-  "name": null,
+  "name": "The Sorceress",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -5333,7 +5333,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "DodgeBonusMetaUpgrade",
-  "name": null,
+  "name": "The Messenger",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -5383,7 +5383,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "DoorHealMetaUpgrade",
-  "name": null,
+  "name": "The Wayward Son",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -5461,7 +5461,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "DoorRerollMetaUpgrade",
-  "name": null,
+  "name": "The Enchantress",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -6059,7 +6059,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "DuoRarityBoostMetaUpgrade",
-  "name": null,
+  "name": "The Queen",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -6353,7 +6353,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "EffectVulnerabilityMetaUpgrade",
-  "name": null,
+  "name": "Origination",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -6836,7 +6836,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "EpicRarityBoostMetaUpgrade",
-  "name": null,
+  "name": "Divinity",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -8064,7 +8064,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "HealthManaBonusMetaUpgrade",
-  "name": null,
+  "name": "Persistence",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -8714,7 +8714,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "InsideCastBuffMetaUpgrade",
-  "name": null,
+  "name": "The Furies",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -9255,7 +9255,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "LastStandSlowTimeMetaUpgrade",
-  "name": null,
+  "name": "Death",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -9685,7 +9685,7 @@
   "godKind": null,
   "icon": "Shop_LimitedSwapTraitDrop",
   "id": "LimitedSwapBonusTrait",
-  "name": null,
+  "name": "Sacrificial Hymn",
   "prereq": null,
   "prereqSource": null,
   "rarity": [],
@@ -10264,7 +10264,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "LowHealthBuffMetaUpgrade",
-  "name": null,
+  "name": "Strength",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -10339,7 +10339,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "LowManaDamageMetaupgrade",
-  "name": null,
+  "name": "The Huntress",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -10482,7 +10482,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "MagicCritMetaUpgrade",
-  "name": null,
+  "name": "Night",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -10641,7 +10641,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "ManaOverTimeMetaUpgrade",
-  "name": null,
+  "name": "The Unseen",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -10691,7 +10691,7 @@
   "godKind": null,
   "icon": "Shop_LimitedManaRegenDrop",
   "id": "ManaOverTimeRefundTrait",
-  "name": null,
+  "name": "Mist Veil",
   "prereq": null,
   "prereqSource": null,
   "rarity": [],
@@ -11165,7 +11165,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "MetaToRunMetaUpgrade",
-  "name": null,
+  "name": "The Artificer",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -12468,7 +12468,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "PanelRerollMetaUpgrade",
-  "name": null,
+  "name": "The Champions",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -12518,7 +12518,7 @@
   "godKind": null,
   "icon": "Keepsake_55",
   "id": "PersistentDionysusSkipKeepsake",
-  "name": null,
+  "name": "Fig Leaf",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -13659,7 +13659,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "RarityBoostMetaUpgrade",
-  "name": null,
+  "name": "Excellence",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -13831,7 +13831,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "RerollTradeOffMetaUpgrade",
-  "name": null,
+  "name": "The Fates",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -14493,7 +14493,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "SorceryRegenMetaUpgrade",
-  "name": null,
+  "name": "The Moon",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -15073,7 +15073,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "SprintShieldMetaUpgrade",
-  "name": null,
+  "name": "The Swift Runner",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -15555,7 +15555,7 @@
   "godKind": null,
   "icon": "Membership_Card",
   "id": "StartingGoldMetaUpgrade",
-  "name": null,
+  "name": "The Boatman",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -17865,7 +17865,7 @@
   "godKind": null,
   "icon": "Boon_Selene_105",
   "id": "TransformLastStandRechargeTalent",
-  "name": null,
+  "name": "Contingency",
   "prereq": null,
   "prereqSource": null,
   "rarity": [

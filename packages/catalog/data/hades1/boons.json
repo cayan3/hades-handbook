@@ -28,9 +28,12 @@
  "AmmoBoltTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "AmmoBoltTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Artemis",
+   "Zeus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -333,7 +336,7 @@
    "ShieldLoadAmmoTrait"
   ],
   "boonCategory": "StandardOlympian",
-  "descriptionRef": null,
+  "descriptionRef": "AphroditeRangedBonusTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
@@ -341,7 +344,7 @@
   "godKind": "PoolSlot",
   "icon": "Boon_Aphrodite_13",
   "id": "AphroditeRangedBonusTrait",
-  "name": null,
+  "name": "Blown Kiss",
   "prereq": {
    "kind": "hasTrait",
    "trait": "AphroditeRangedTrait"
@@ -608,13 +611,13 @@
  "AresCursedRiftTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "AresCursedRiftTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Ares",
+  "godKind": "PoolSlot",
   "icon": "Boon_Ares_09",
   "id": "AresCursedRiftTrait",
   "name": "Vicious Cycle",
@@ -638,18 +641,18 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:10922",
-  "tier": null
+  "tier": 3
  },
  "AresDragTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "AresDragTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Ares",
+  "godKind": "PoolSlot",
   "icon": "Boon_Ares_08",
   "id": "AresDragTrait",
   "name": "Engulfing Vortex",
@@ -684,16 +687,19 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:10631",
-  "tier": null
+  "tier": 2
  },
  "AresHomingTrait": {
   "activation": null,
   "blockedBy": [
    "ShieldLoadAmmoTrait"
   ],
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "AresHomingTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Ares",
+   "Artemis"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": [
    "AresHomingTrait",
@@ -746,13 +752,13 @@
  "AresLoadCurseTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "AresLoadCurseTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Ares",
+  "godKind": "PoolSlot",
   "icon": "Boon_Ares_11",
   "id": "AresLoadCurseTrait",
   "name": "Dire Misfortune",
@@ -779,18 +785,18 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:10733",
-  "tier": null
+  "tier": 2
  },
  "AresLongCurseTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "AresLongCurseTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Ares",
+  "godKind": "PoolSlot",
   "icon": "Boon_Ares_13",
   "id": "AresLongCurseTrait",
   "name": "Impending Doom",
@@ -821,7 +827,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:10831",
-  "tier": null
+  "tier": 2
  },
  "AresRangedTrait": {
   "activation": null,
@@ -985,13 +991,13 @@
    "PoseidonAresProjectileTrait",
    "ShieldLoadAmmoTrait"
   ],
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ArtemisAmmoExitTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Artemis",
+  "godKind": "PoolSlot",
   "icon": "Boon_Artemis_10",
   "id": "ArtemisAmmoExitTrait",
   "name": "Exit Wounds",
@@ -1034,21 +1040,24 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:7207",
-  "tier": null
+  "tier": 1
  },
  "ArtemisBonusProjectileTrait": {
   "activation": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ArtemisBonusProjectileTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Artemis",
+   "Poseidon"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": [
    "ArtemisBonusProjectileTrait",
    "PoseidonAresProjectileTrait"
   ],
-  "god": "Artemis",
-  "godKind": "PoolSlot",
+  "god": null,
+  "godKind": null,
   "icon": "Poseidon_Artemis_01",
   "id": "ArtemisBonusProjectileTrait",
   "name": "Mirage Shot",
@@ -1124,13 +1133,13 @@
  "ArtemisCriticalTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ArtemisCriticalTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Artemis",
+  "godKind": "PoolSlot",
   "icon": "Boon_Artemis_05",
   "id": "ArtemisCriticalTrait",
   "name": "Clean Kill",
@@ -1169,7 +1178,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:6585",
-  "tier": null
+  "tier": 2
  },
  "ArtemisRangedTrait": {
   "activation": null,
@@ -1201,9 +1210,12 @@
  "ArtemisReflectBuffTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ArtemisReflectBuffTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Artemis",
+   "Athena"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -1369,13 +1381,13 @@
  "ArtemisSupportingFireTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ArtemisSupportingFireTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Artemis",
+  "godKind": "PoolSlot",
   "icon": "Boon_Artemis_12",
   "id": "ArtemisSupportingFireTrait",
   "name": "Support Fire",
@@ -1422,7 +1434,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:7301",
-  "tier": null
+  "tier": 2
  },
  "ArtemisWeaponTrait": {
   "activation": null,
@@ -1478,13 +1490,13 @@
  "AthenaBackstabDebuffTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "AthenaBackstabDebuffTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Athena",
+  "godKind": "PoolSlot",
   "icon": "Boon_Athena_14",
   "id": "AthenaBackstabDebuffTrait",
   "name": "Blinding Flash",
@@ -1523,7 +1535,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:2964",
-  "tier": null
+  "tier": 2
  },
  "AthenaRangedTrait": {
   "activation": null,
@@ -1726,9 +1738,12 @@
  "AutoRetaliateTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "AutoRetaliateTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Ares",
+   "Zeus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -1840,9 +1855,12 @@
   "blockedBy": [
    "ShieldLoadAmmoTrait"
   ],
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "BlizzardOrbTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Demeter",
+   "Poseidon"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": [
    "BlizzardOrbTrait",
@@ -1975,13 +1993,13 @@
  "BossDamageTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "BossDamageTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Poseidon",
+  "godKind": "PoolSlot",
   "icon": "Boon_Poseidon_12",
   "id": "BossDamageTrait",
   "name": "Wave Pounding",
@@ -2024,7 +2042,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:5264",
-  "tier": null
+  "tier": 2
  },
  "BouldyBlessing": {
   "activation": null,
@@ -2752,15 +2770,18 @@
    "ShieldLoadAmmoTrait"
   ],
   "boonCategory": "StandardOlympian",
-  "descriptionRef": null,
-  "duoGods": null,
+  "descriptionRef": "CastBackstabTrait",
+  "duoGods": [
+   "Aphrodite",
+   "Athena"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": "Aphrodite",
-  "godKind": "PoolSlot",
+  "god": null,
+  "godKind": null,
   "icon": "Aphrodite_Athena_01",
   "id": "CastBackstabTrait",
-  "name": null,
+  "name": "Parting Shot",
   "prereq": {
    "kind": "all",
    "of": [
@@ -3833,13 +3854,13 @@
  "CritVulnerabilityTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "CritVulnerabilityTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Artemis",
+  "godKind": "PoolSlot",
   "icon": "Boon_Artemis_14",
   "id": "CritVulnerabilityTrait",
   "name": "Hunter's Mark",
@@ -3878,7 +3899,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:7258",
-  "tier": null
+  "tier": 2
  },
  "CriticalBoltTrait": {
   "activation": null,
@@ -3905,13 +3926,13 @@
  "CriticalBufferMultiplierTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "CriticalBufferMultiplierTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Artemis",
+  "godKind": "PoolSlot",
   "icon": "Boon_Artemis_09",
   "id": "CriticalBufferMultiplierTrait",
   "name": "Hide Breaker",
@@ -3950,7 +3971,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:6628",
-  "tier": null
+  "tier": 2
  },
  "CriticalStunTrait": {
   "activation": null,
@@ -3980,13 +4001,13 @@
  "CriticalSuperGenerationTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "CriticalSuperGenerationTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Artemis",
+  "godKind": "PoolSlot",
   "icon": "Boon_Artemis_13",
   "id": "CriticalSuperGenerationTrait",
   "name": "Hunter Instinct",
@@ -4068,14 +4089,17 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:6651",
-  "tier": null
+  "tier": 2
  },
  "CurseSickTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "CurseSickTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Aphrodite",
+   "Ares"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -4231,7 +4255,7 @@
   "activation": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
-  "descriptionRef": null,
+  "descriptionRef": "DemeterRangedBonusTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
@@ -4239,7 +4263,7 @@
   "godKind": "PoolSlot",
   "icon": "Boon_Demeter_14",
   "id": "DemeterRangedBonusTrait",
-  "name": null,
+  "name": "Glacial Glare",
   "prereq": {
    "kind": "hasTrait",
    "trait": "DemeterRangedTrait"
@@ -4286,7 +4310,7 @@
   "activation": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
-  "descriptionRef": null,
+  "descriptionRef": "DemeterRetaliateTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
@@ -4294,7 +4318,7 @@
   "godKind": "PoolSlot",
   "icon": "Boon_Demeter_13",
   "id": "DemeterRetaliateTrait",
-  "name": null,
+  "name": "Frozen Touch",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -4435,9 +4459,12 @@
  "DionysusAphroditeStackIncreaseTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "DionysusAphroditeStackIncreaseTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Aphrodite",
+   "Dionysus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -5011,13 +5038,13 @@
  "DoubleCollisionTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "DoubleCollisionTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Poseidon",
+  "godKind": "PoolSlot",
   "icon": "Boon_Poseidon_07",
   "id": "DoubleCollisionTrait",
   "name": "Second Wave",
@@ -5072,7 +5099,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:5322",
-  "tier": null
+  "tier": 3
  },
  "DusaAssistTrait": {
   "activation": null,
@@ -5104,7 +5131,7 @@
   "activation": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
-  "descriptionRef": null,
+  "descriptionRef": "EncounterStartOffenseBuffTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
@@ -5112,7 +5139,7 @@
   "godKind": "PoolSlot",
   "icon": "Boon_Poseidon_14",
   "id": "EncounterStartOffenseBuffTrait",
-  "name": null,
+  "name": "Hydraulic Might",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -5153,13 +5180,13 @@
  "FishingTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "FishingTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Poseidon",
+  "godKind": "PoolSlot",
   "icon": "Boon_Poseidon_13",
   "id": "FishingTrait",
   "name": "Huge Catch",
@@ -5216,7 +5243,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:5374",
-  "tier": null
+  "tier": 2
  },
  "FistAttackDefenseTrait": {
   "activation": null,
@@ -5669,7 +5696,7 @@
   "activation": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
-  "descriptionRef": null,
+  "descriptionRef": "FountainDamageBonusTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
@@ -5677,7 +5704,7 @@
   "godKind": "PoolSlot",
   "icon": "Boon_Dionysus_13",
   "id": "FountainDamageBonusTrait",
-  "name": null,
+  "name": "Strong Drink",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -5753,7 +5780,7 @@
   "godKind": "PoolSlot",
   "icon": "Boon_Dionysus_05",
   "id": "GiftHealthTrait",
-  "name": "Strong Drink",
+  "name": "Premium Vintage",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -6416,16 +6443,16 @@
  "HarvestBoonTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "HarvestBoonTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Demeter",
+  "godKind": "PoolSlot",
   "icon": "Boon_Demeter_08",
   "id": "HarvestBoonTrait",
-  "name": null,
+  "name": "Rare Crop",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -6435,7 +6462,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:14766",
-  "tier": null
+  "tier": 1
  },
  "HealingPotencyTrait": {
   "activation": null,
@@ -6535,9 +6562,12 @@
  "HeartsickCritDamageTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "HeartsickCritDamageTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Aphrodite",
+   "Artemis"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -6847,9 +6877,12 @@
  "HomingLaserTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "HomingLaserTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Artemis",
+   "Demeter"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": [
    "HomingLaserTrait",
@@ -6903,9 +6936,12 @@
  "IceStrikeArrayTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "IceStrikeArrayTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Demeter",
+   "Dionysus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": [
    "BlizzardOrbTrait",
@@ -6968,9 +7004,12 @@
  "ImpactBoltTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ImpactBoltTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Poseidon",
+   "Zeus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -7050,9 +7089,12 @@
  "ImprovedPomTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ImprovedPomTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Aphrodite",
+   "Poseidon"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -7201,13 +7243,13 @@
  "InstantChillKill": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "InstantChillKill",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Demeter",
+  "godKind": "PoolSlot",
   "icon": "Boon_Demeter_10",
   "id": "InstantChillKill",
   "name": "Winter Harvest",
@@ -7264,14 +7306,17 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:15139",
-  "tier": null
+  "tier": 2
  },
  "JoltDurationTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "JoltDurationTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Demeter",
+   "Zeus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -7322,7 +7367,7 @@
   "activation": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
-  "descriptionRef": null,
+  "descriptionRef": "LastStandDamageBonusTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
@@ -7330,7 +7375,7 @@
   "godKind": "PoolSlot",
   "icon": "Boon_Ares_14",
   "id": "LastStandDamageBonusTrait",
-  "name": null,
+  "name": "Blood Frenzy",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -7346,13 +7391,13 @@
  "LastStandDurationTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "LastStandDurationTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Athena",
+  "godKind": "PoolSlot",
   "icon": "Boon_Athena_11",
   "id": "LastStandDurationTrait",
   "name": "Deathless Stand",
@@ -7366,18 +7411,18 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:3300",
-  "tier": null
+  "tier": 1
  },
  "LastStandHealTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "LastStandHealTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Athena",
+  "godKind": "PoolSlot",
   "icon": "Boon_Athena_12",
   "id": "LastStandHealTrait",
   "name": "Last Stand",
@@ -7391,14 +7436,17 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:3262",
-  "tier": null
+  "tier": 1
  },
  "LightningCloudTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "LightningCloudTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Dionysus",
+   "Zeus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -7498,8 +7546,8 @@
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Hermes",
+  "godKind": "NonPoolSlot",
   "icon": "Boon_Hermes_11",
   "id": "MagnetismTrait",
   "name": "Greater Recall",
@@ -7536,13 +7584,13 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:15291",
-  "tier": null
+  "tier": 1
  },
  "MarkedDropGoldTrait": {
   "activation": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
-  "descriptionRef": null,
+  "descriptionRef": "MarkedDropGoldTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
@@ -7550,7 +7598,7 @@
   "godKind": null,
   "icon": "Boon_Artemis_06",
   "id": "MarkedDropGoldTrait",
-  "name": null,
+  "name": "Wanted Dead",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -7694,13 +7742,13 @@
  "MoreAmmoTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "MoreAmmoTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Artemis",
+  "godKind": "PoolSlot",
   "icon": "Boon_Artemis_07",
   "id": "MoreAmmoTrait",
   "name": "Fully Loaded",
@@ -7757,7 +7805,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:6977",
-  "tier": null
+  "tier": 2
  },
  "MoveSpeedTrait": {
   "activation": null,
@@ -7812,9 +7860,12 @@
  "NoLastStandRegenerationTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "NoLastStandRegenerationTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Athena",
+   "Demeter"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -8035,7 +8086,7 @@
   "activation": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
-  "descriptionRef": null,
+  "descriptionRef": "PerfectDashBoltTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
@@ -8043,7 +8094,7 @@
   "godKind": "PoolSlot",
   "icon": "Boon_Zeus_15",
   "id": "PerfectDashBoltTrait",
-  "name": null,
+  "name": "Lightning Reflexes",
   "prereq": null,
   "prereqSource": null,
   "rarity": [
@@ -8059,9 +8110,12 @@
  "PoisonCritVulnerabilityTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "PoisonCritVulnerabilityTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Artemis",
+   "Dionysus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -8129,9 +8183,12 @@
  "PoisonTickRateTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "PoisonTickRateTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Ares",
+   "Dionysus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -8219,9 +8276,12 @@
   "blockedBy": [
    "BowLoadAmmoTrait"
   ],
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonAresProjectileTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Ares",
+   "Poseidon"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": [
    "ArtemisBonusProjectileTrait",
@@ -8285,13 +8345,13 @@
  "PoseidonPickedUpMinorLootTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Poseidon",
+  "godKind": "PoolSlot",
   "icon": null,
   "id": "PoseidonPickedUpMinorLootTrait",
   "name": null,
@@ -8305,7 +8365,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:5566",
-  "tier": null
+  "tier": 1
  },
  "PoseidonRangedTrait": {
   "activation": null,
@@ -8385,16 +8445,16 @@
  "PoseidonShoutDurationTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
-  "descriptionRef": null,
+  "boonCategory": "StandardOlympian",
+  "descriptionRef": "PoseidonShoutDurationTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Poseidon",
+  "godKind": "PoolSlot",
   "icon": "Boon_Poseidon_15",
   "id": "PoseidonShoutDurationTrait",
-  "name": null,
+  "name": "Rip Current",
   "prereq": {
    "kind": "hasTrait",
    "trait": "PoseidonShoutTrait"
@@ -8408,7 +8468,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:4781",
-  "tier": null
+  "tier": 2
  },
  "PoseidonShoutTrait": {
   "activation": null,
@@ -8609,9 +8669,12 @@
  "RaritySuperBoost": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "RaritySuperBoost",
-  "duoGods": null,
+  "duoGods": [
+   "Dionysus",
+   "Poseidon"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -8695,9 +8758,12 @@
  "ReboundingAthenaCastTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ReboundingAthenaCastTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Athena",
+   "Zeus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -8792,9 +8858,12 @@
  "RegeneratingCappedSuperTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "RegeneratingCappedSuperTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Aphrodite",
+   "Zeus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -9186,9 +9255,12 @@
  "SelfLaserTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "SelfLaserTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Aphrodite",
+   "Demeter"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": [
    "HomingLaserTrait",
@@ -9513,13 +9585,13 @@
  "ShieldHitTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ShieldHitTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Athena",
+  "godKind": "PoolSlot",
   "icon": "Boon_Athena_10",
   "id": "ShieldHitTrait",
   "name": "Divine Protection",
@@ -9533,7 +9605,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:3435",
-  "tier": null
+  "tier": 3
  },
  "ShieldLoadAmmoBoostTrait": {
   "activation": null,
@@ -10396,13 +10468,13 @@
  "SlipperyTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "SlipperyTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Poseidon",
+  "godKind": "PoolSlot",
   "icon": "Boon_Poseidon_11",
   "id": "SlipperyTrait",
   "name": "Razor Shoals",
@@ -10445,14 +10517,17 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:5074",
-  "tier": null
+  "tier": 2
  },
  "SlowProjectileTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "SlowProjectileTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Athena",
+   "Dionysus"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -11035,8 +11110,8 @@
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Hermes",
+  "godKind": "NonPoolSlot",
   "icon": "Boon_Hermes_15",
   "id": "SpeedDamageTrait",
   "name": "Rush Delivery",
@@ -11067,14 +11142,17 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:17161",
-  "tier": null
+  "tier": 1
  },
  "StationaryRiftTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "StationaryRiftTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Ares",
+   "Demeter"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": [
    "AresHomingTrait",
@@ -11137,9 +11215,12 @@
  "StatusImmunityTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "StatusImmunityTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Athena",
+   "Poseidon"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -11290,7 +11371,7 @@
   "godKind": null,
   "icon": "Shop_Nectar",
   "id": "SuperTemporaryBoonRarityTrait",
-  "name": null,
+  "name": "Refreshing Nectar",
   "prereq": null,
   "prereqSource": null,
   "rarity": [],
@@ -12499,9 +12580,12 @@
  "TriggerCurseTrait": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "TriggerCurseTrait",
-  "duoGods": null,
+  "duoGods": [
+   "Ares",
+   "Athena"
+  ],
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": null,
@@ -12560,8 +12644,8 @@
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Hermes",
+  "godKind": "NonPoolSlot",
   "icon": "Boon_Hermes_02",
   "id": "UnstoredAmmoDamageTrait",
   "name": "Bad News",
@@ -12594,7 +12678,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:7037",
-  "tier": null
+  "tier": 1
  },
  "UnusedWeaponBonusTrait": {
   "activation": null,
@@ -12924,13 +13008,13 @@
  "ZeusLightningDebuff": {
   "activation": null,
   "blockedBy": null,
-  "boonCategory": "NonStandard",
+  "boonCategory": "StandardOlympian",
   "descriptionRef": "ZeusLightningDebuff",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
-  "god": null,
-  "godKind": null,
+  "god": "Zeus",
+  "godKind": "PoolSlot",
   "icon": "Boon_Zeus_12",
   "id": "ZeusLightningDebuff",
   "name": "Static Discharge",
@@ -12981,7 +13065,7 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:288",
-  "tier": null
+  "tier": 2
  },
  "ZeusRangedTrait": {
   "activation": null,

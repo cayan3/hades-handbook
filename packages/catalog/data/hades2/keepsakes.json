@@ -212,7 +212,7 @@
   "associatedNpcId": null,
   "iconKey": "Keepsake_55",
   "id": "PersistentDionysusSkipKeepsake",
-  "name": null,
+  "name": "Fig Leaf",
   "source": "Scripts/TraitData_Keepsake.lua:2124"
  },
  "RandomBlessingKeepsake": {
