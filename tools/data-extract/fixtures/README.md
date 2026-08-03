@@ -169,6 +169,17 @@ the exact reasoning.
 >   exclusion at all; the string does not appear in `src/*.py`. Both
 >   `SableDebugTrait` and `CindraDebugOnlyBoon` are in their goldens. The
 >   fixtures hold the input the rule would need, and the rule is not written.
+> - **Pool-god status (H2), which no row asks for and which is worth naming
+>   anyway.** `h2_LootSetData.json` is `{}` — deliberate for row 14, which wants
+>   Orithia's non-pool status to come from an `InheritFrom` marker with no loot
+>   table anywhere. The side effect is that `pool_god_names` is *always empty*
+>   here, and three places read it: `classify_category`, and `godKind` in both
+>   record builders. All three are frozen on their else branch, so every god boon
+>   in this golden is `NonPoolSlot` / `NonStandard`. Against the real data that is
+>   the minority answer — 117 records are `PoolSlot`/`StandardOlympian`. Closing
+>   it needs a `LootSetData` section **and** a god table that recognises invented
+>   gods, which the Hades I side now has and this one does not; either alone
+>   achieves nothing.
 > - **Row 6's element-affinity half (H2)** — `CindraStrikeBoon` has
 >   `elementAffinity: null` in the golden. The affinity resolver matches against
 >   a hardcoded table of the real games' element bases, which the fixture's
