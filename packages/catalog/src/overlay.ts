@@ -8,16 +8,23 @@ import type { GameKey } from "./data.js";
  * can get outdated without being noticed (the extraction changes when the game
  * does while this file doesn't, and an entry naming an id that doesn't actually
  * exist anymore would otherwise just ermmm stop applying rip). The test beside
- * this file is what actually makes those discrepencies loud instead.
+ * this file is what actually makes those discrepancies loud instead.
  *
  * This should be kept small. Anything derivable from extracted data belongs in
  * the extractor itself, where it's recomputed instead of just yk "remembered".
  */
 export interface TraitOverlay {
   /**
-   * Weapon aspects this trait can't coexist with. Not in the game's data, which
-   * handles aspects that gate stuff through like logic instead of a declared
-   * field, so this is the one feasibility input that's created by hand.
+   * Weapon aspects this trait can't coexist with, ADDED to whatever the
+   * extraction already found.
+   *
+   * This used to say the game doesn't declare these & that the field was the
+   * one feasibility input made by hand. Both halves were wrong: the games state
+   * them as ordinary trait negations (the same key as boon-vs-boon exclusion),
+   * which is exactly why they were missed — the extractor read the key and not
+   * what was on the other end of it, so they were landing in `blockedBy`, where
+   * they'd never fire bc a run equips an aspect rather than holding one.
+   * They're extracted now, so this is for the ones the data doesn't state.
    */
   aspectConflicts?: readonly AspectId[];
 
