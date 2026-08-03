@@ -26,7 +26,13 @@ def parse_sjson_text_bundle(path):
         text = f.read()
 
     # locate each "Id = "..."" occurrence and slice the file into chunks (chop chop)
-    id_pattern = re.compile(r'^\s*Id\s*=\s*"((?:[^"\\]|\\.)*)"\s*$', re.MULTILINE)
+    # The trailing comma is optional bc the file punctuates itself inconsistently:
+    # Hades I writes `Id = "X",` twenty-three times & bare everywhere else. Those
+    # lines used to not start an entry at all, so the entry went missing AND its
+    # fields were read as part of the previous one -- which is worse than losing
+    # it, since a preceding entry w/ no DisplayName of its own would take this
+    # one's & report a real name against the wrong id (o_0).
+    id_pattern = re.compile(r'^\s*Id\s*=\s*"((?:[^"\\]|\\.)*)"\s*,?\s*$', re.MULTILINE)
     matches = list(id_pattern.finditer(text))
     out = {}
     for i, m in enumerate(matches):
@@ -51,6 +57,35 @@ def parse_sjson_text_bundle(path):
         # last one wins if an id repeats (shouldn't normally happen o_0)
         out[entry_id] = entry
     return out
+
+
+def resolve_display_name(bundle, entry_id, _depth=0, _seen=None):
+    """The name the game shows for an id, following the bundle's own InheritFrom.
+
+    Some entries carry no DisplayName of their own and an InheritFrom pointing
+    at the one they borrow. Reading DisplayName alone leaves those null, and a
+    null name downstream reads as cut content -- which is how thirty-odd
+    perfectly live records came to look like they had no name, when the name
+    was one hop away in the same file.
+
+    Depth-limited and cycle-guarded, because nothing stops the bundle pointing
+    two entries at each other.
+    """
+    if _depth > 8:
+        return None
+    _seen = _seen or set()
+    if entry_id in _seen:
+        return None
+    _seen.add(entry_id)
+    entry = bundle.get(entry_id)
+    if not isinstance(entry, dict):
+        return None
+    if entry.get("displayName"):
+        return entry["displayName"]
+    parent = entry.get("inheritFrom")
+    if isinstance(parent, str):
+        return resolve_display_name(bundle, parent, _depth + 1, _seen)
+    return None
 
 
 if __name__ == "__main__":
