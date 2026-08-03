@@ -1,6 +1,7 @@
 {
  "AgilityCostume": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AgilityCostume",
@@ -26,6 +27,7 @@
  },
  "AirEssence": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AirEssence",
@@ -46,6 +48,7 @@
  },
  "AllCloseBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AllCloseBoon",
@@ -115,6 +118,7 @@
  },
  "AllElementalBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AllElementalBoon",
@@ -195,6 +199,7 @@
  },
  "AloneDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AloneDamageBoon",
@@ -220,6 +225,7 @@
  },
  "AmplifyConeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AmplifyConeBoon",
@@ -300,6 +306,7 @@
  },
  "AntiArmorBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AntiArmorBoon",
@@ -325,6 +332,7 @@
  },
  "AphroditeCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AphroditeCastBoon",
@@ -350,6 +358,7 @@
  },
  "AphroditeManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AphroditeManaBoon",
@@ -375,6 +384,7 @@
  },
  "AphroditeSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AphroditeSpecialBoon",
@@ -400,6 +410,7 @@
  },
  "AphroditeSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AphroditeSprintBoon",
@@ -425,6 +436,7 @@
  },
  "AphroditeWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AphroditeWeaponBoon",
@@ -450,6 +462,7 @@
  },
  "ApolloBlindBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloBlindBoon",
@@ -496,6 +509,7 @@
  },
  "ApolloCastAreaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloCastAreaBoon",
@@ -521,6 +535,7 @@
  },
  "ApolloCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloCastBoon",
@@ -546,6 +561,7 @@
  },
  "ApolloExCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloExCastBoon",
@@ -612,6 +628,7 @@
  },
  "ApolloManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloManaBoon",
@@ -637,6 +654,7 @@
  },
  "ApolloRetaliateBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloRetaliateBoon",
@@ -662,6 +680,7 @@
  },
  "ApolloSecondStageCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloSecondStageCastBoon",
@@ -717,6 +736,7 @@
  },
  "ApolloSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloSpecialBoon",
@@ -742,6 +762,7 @@
  },
  "ApolloSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloSprintBoon",
@@ -767,6 +788,7 @@
  },
  "ApolloWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ApolloWeaponBoon",
@@ -792,6 +814,7 @@
  },
  "ArcanaRarityTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "ArcanaRarityTrait",
@@ -817,6 +840,7 @@
  },
  "AresCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AresCastBoon",
@@ -842,6 +866,7 @@
  },
  "AresExCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AresExCastBoon",
@@ -908,6 +933,7 @@
  },
  "AresManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AresManaBoon",
@@ -933,6 +959,7 @@
  },
  "AresSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AresSpecialBoon",
@@ -958,6 +985,7 @@
  },
  "AresSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AresSprintBoon",
@@ -983,6 +1011,7 @@
  },
  "AresStatusDoubleDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AresStatusDoubleDamageBoon",
@@ -1021,6 +1050,7 @@
  },
  "AresWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AresWeaponBoon",
@@ -1046,6 +1076,7 @@
  },
  "ArmorBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ArmorBoon",
@@ -1071,6 +1102,7 @@
  },
  "ArmorGainKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ArmorGainKeepsake",
@@ -1096,6 +1128,7 @@
  },
  "ArmorPenaltyCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "ArmorPenaltyCurse",
@@ -1121,6 +1154,7 @@
  },
  "AthenaEncounterKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AthenaEncounterKeepsake",
@@ -1146,6 +1180,7 @@
  },
  "AthenaProjectileBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AthenaProjectileBoon",
@@ -1171,6 +1206,7 @@
  },
  "AutoRevengeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "AutoRevengeBoon",
@@ -1258,6 +1294,7 @@
  },
  "AxeArmCastAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeArmCastAspect",
@@ -1285,6 +1322,7 @@
  },
  "AxeArmorTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeArmorTrait",
@@ -1305,6 +1343,7 @@
  },
  "AxeAttackRecoveryTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeAttackRecoveryTrait",
@@ -1328,6 +1367,7 @@
  },
  "AxeBlockEmpowerTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeBlockEmpowerTrait",
@@ -1351,6 +1391,7 @@
  },
  "AxeChargedSpecialTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeChargedSpecialTrait",
@@ -1374,6 +1415,7 @@
  },
  "AxeDashAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeDashAttackTrait",
@@ -1394,6 +1436,7 @@
  },
  "AxeFreeSpinTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeFreeSpinTrait",
@@ -1414,6 +1457,7 @@
  },
  "AxeHammerTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -1434,6 +1478,7 @@
  },
  "AxeMassiveThirdStrikeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeMassiveThirdStrikeTrait",
@@ -1454,6 +1499,7 @@
  },
  "AxePerfectCriticalAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxePerfectCriticalAspect",
@@ -1481,6 +1527,7 @@
  },
  "AxeRallyAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeRallyAspect",
@@ -1508,6 +1555,7 @@
  },
  "AxeRallyFirstStrikeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeRallyFirstStrikeTrait",
@@ -1528,6 +1576,7 @@
  },
  "AxeRallyFrenzyTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeRallyFrenzyTrait",
@@ -1548,6 +1597,7 @@
  },
  "AxeRangedWhirlwindTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeRangedWhirlwindTrait",
@@ -1571,6 +1621,7 @@
  },
  "AxeRecoveryAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeRecoveryAspect",
@@ -1598,6 +1649,7 @@
  },
  "AxeSecondStageTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeSecondStageTrait",
@@ -1618,6 +1670,7 @@
  },
  "AxeSpinSpeedTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeSpinSpeedTrait",
@@ -1641,6 +1694,7 @@
  },
  "AxeSturdyTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeSturdyTrait",
@@ -1664,6 +1718,7 @@
  },
  "AxeThirdStrikeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "AxeThirdStrikeTrait",
@@ -1687,6 +1742,7 @@
  },
  "BankBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BankBoon",
@@ -1712,6 +1768,7 @@
  },
  "BaseBoonUpgradeKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -1736,6 +1793,7 @@
  },
  "BaseCirce": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": null,
@@ -1761,6 +1819,7 @@
  },
  "BaseCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": null,
@@ -1786,6 +1845,7 @@
  },
  "BaseEcho": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": null,
@@ -1811,6 +1871,7 @@
  },
  "BaseIcarus": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": null,
@@ -1836,6 +1897,7 @@
  },
  "BaseStaffAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BaseStaffAspect",
@@ -1863,6 +1925,7 @@
  },
  "BaseSuitAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BaseSuitAspect",
@@ -1890,6 +1953,7 @@
  },
  "BlindChanceBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BlindChanceBoon",
@@ -1918,6 +1982,7 @@
  },
  "BlindClearBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BlindClearBoon",
@@ -1987,6 +2052,7 @@
  },
  "BlockDeathKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BlockDeathKeepsake",
@@ -2012,6 +2078,7 @@
  },
  "BloodDropRevengeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BloodDropRevengeBoon",
@@ -2037,6 +2104,7 @@
  },
  "BloodManaBurstBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BloodManaBurstBoon",
@@ -2106,6 +2174,7 @@
  },
  "BloodRetentionBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BloodRetentionBoon",
@@ -2175,6 +2244,7 @@
  },
  "BoltRetaliateBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BoltRetaliateBoon",
@@ -2200,6 +2270,7 @@
  },
  "BonusMoneyKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BonusMoneyKeepsake",
@@ -2225,6 +2296,7 @@
  },
  "BoonDecayBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BoonDecayBoon",
@@ -2250,6 +2322,7 @@
  },
  "BoonGrowthBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BoonGrowthBoon",
@@ -2275,6 +2348,7 @@
  },
  "BossMetaUpgradeKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BossMetaUpgradeKeepsake",
@@ -2300,6 +2374,7 @@
  },
  "BossPreDamageKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BossPreDamageKeepsake",
@@ -2325,6 +2400,7 @@
  },
  "BossProgressionMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BossProgressionMetaUpgrade",
@@ -2350,6 +2426,7 @@
  },
  "BossShieldMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BossShieldMetaUpgrade",
@@ -2375,6 +2452,7 @@
  },
  "BreakExplosiveArmorBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BreakExplosiveArmorBoon",
@@ -2400,6 +2478,7 @@
  },
  "BreakInvincibleArmorBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "BreakInvincibleArmorBoon",
@@ -2425,6 +2504,7 @@
  },
  "BurnArmorBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BurnArmorBoon",
@@ -2467,6 +2547,7 @@
  },
  "BurnConsumeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BurnConsumeBoon",
@@ -2532,6 +2613,7 @@
  },
  "BurnExplodeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BurnExplodeBoon",
@@ -2557,6 +2639,7 @@
  },
  "BurnRefreshBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BurnRefreshBoon",
@@ -2622,6 +2705,7 @@
  },
  "BurnSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BurnSprintBoon",
@@ -2702,6 +2786,7 @@
  },
  "BurnStackBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "BurnStackBoon",
@@ -2744,6 +2829,7 @@
  },
  "CastAnywhereBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "CastAnywhereBoon",
@@ -2816,6 +2902,7 @@
  },
  "CastAttachBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "CastAttachBoon",
@@ -2882,6 +2969,7 @@
  },
  "CastDamageCostume": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "CastDamageCostume",
@@ -2907,6 +2995,7 @@
  },
  "CastDamageMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "CastDamageMetaUpgrade",
@@ -2932,6 +3021,7 @@
  },
  "CastHazardBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "CastHazardBoon",
@@ -2957,6 +3047,7 @@
  },
  "CastLobBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "CastLobBoon",
@@ -2988,6 +3079,7 @@
  },
  "CastNovaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "CastNovaBoon",
@@ -3013,6 +3105,7 @@
  },
  "CastProjectileBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "CastProjectileBoon",
@@ -3044,6 +3137,7 @@
  },
  "ChamberHealthMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChamberHealthMetaUpgrade",
@@ -3069,6 +3163,7 @@
  },
  "ChannelSlowMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChannelSlowMetaUpgrade",
@@ -3094,6 +3189,7 @@
  },
  "ChaosBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -3119,6 +3215,7 @@
  },
  "ChaosCastBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosCastBlessing",
@@ -3144,6 +3241,7 @@
  },
  "ChaosCastCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosCastCurse",
@@ -3164,6 +3262,7 @@
  },
  "ChaosCommonCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosCommonCurse",
@@ -3184,6 +3283,7 @@
  },
  "ChaosCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -3204,6 +3304,7 @@
  },
  "ChaosCurseRemainingEncounters": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -3224,6 +3325,7 @@
  },
  "ChaosDamageCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosDamageCurse",
@@ -3244,6 +3346,7 @@
  },
  "ChaosDashCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosDashCurse",
@@ -3264,6 +3367,7 @@
  },
  "ChaosDeathWeaponCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosDeathWeaponCurse",
@@ -3284,6 +3388,7 @@
  },
  "ChaosDoorHealBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosDoorHealBlessing",
@@ -3309,6 +3414,7 @@
  },
  "ChaosElementalBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosElementalBlessing",
@@ -3334,6 +3440,7 @@
  },
  "ChaosExAttackCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosExAttackCurse",
@@ -3354,6 +3461,7 @@
  },
  "ChaosExSpeedBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosExSpeedBlessing",
@@ -3379,6 +3487,7 @@
  },
  "ChaosHarvestBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosHarvestBlessing",
@@ -3404,6 +3513,7 @@
  },
  "ChaosHealthBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosHealthBlessing",
@@ -3429,6 +3539,7 @@
  },
  "ChaosHealthCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosHealthCurse",
@@ -3449,6 +3560,7 @@
  },
  "ChaosHiddenRoomRewardCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosHiddenRoomRewardCurse",
@@ -3469,6 +3581,7 @@
  },
  "ChaosLastStandBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "buildFailure": [
@@ -3502,6 +3615,7 @@
  },
  "ChaosLegacyTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -3522,6 +3636,7 @@
  },
  "ChaosManaBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosManaBlessing",
@@ -3547,6 +3662,7 @@
  },
  "ChaosManaCostBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosManaCostBlessing",
@@ -3572,6 +3688,7 @@
  },
  "ChaosManaFocusCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosManaFocusCurse",
@@ -3592,6 +3709,7 @@
  },
  "ChaosManaOverTimeBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosManaOverTimeBlessing",
@@ -3617,6 +3735,7 @@
  },
  "ChaosMetaUpgradeCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "buildFailure": [
@@ -3648,6 +3767,7 @@
  },
  "ChaosMoneyBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosMoneyBlessing",
@@ -3673,6 +3793,7 @@
  },
  "ChaosNoMoneyCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosNoMoneyCurse",
@@ -3693,6 +3814,7 @@
  },
  "ChaosOmegaDamageBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosOmegaDamageBlessing",
@@ -3722,9 +3844,10 @@
  },
  "ChaosPrimaryAttackCurse": {
   "activation": null,
-  "blockedBy": [
+  "aspectConflicts": [
    "TorchAutofireAspect"
   ],
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosPrimaryAttackCurse",
   "duoGods": null,
@@ -3744,6 +3867,7 @@
  },
  "ChaosRarityBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosRarityBlessing",
@@ -3769,6 +3893,7 @@
  },
  "ChaosRestrictBoonCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosRestrictBoonCurse",
@@ -3789,9 +3914,10 @@
  },
  "ChaosSecondaryAttackCurse": {
   "activation": null,
-  "blockedBy": [
+  "aspectConflicts": [
    "TorchAutofireAspect"
   ],
+  "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosSecondaryAttackCurse",
   "duoGods": null,
@@ -3811,6 +3937,7 @@
  },
  "ChaosSpecialBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosSpecialBlessing",
@@ -3836,6 +3963,7 @@
  },
  "ChaosSpeedBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosSpeedBlessing",
@@ -3861,6 +3989,7 @@
  },
  "ChaosSpeedCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosSpeedCurse",
@@ -3881,6 +4010,7 @@
  },
  "ChaosStunCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosStunCurse",
@@ -3901,6 +4031,7 @@
  },
  "ChaosTimeCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosTimeCurse",
@@ -3921,6 +4052,7 @@
  },
  "ChaosWeaponBlessing": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChaosWeaponBlessing",
@@ -3946,6 +4078,7 @@
  },
  "ChargeRegenTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ChargeRegenTalent",
@@ -3971,6 +4104,7 @@
  },
  "CharmCrowdBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "CharmCrowdBoon",
@@ -4040,6 +4174,7 @@
  },
  "CirceEnlargeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "CirceEnlargeTrait",
@@ -4065,6 +4200,7 @@
  },
  "CirceShrinkTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "CirceShrinkTrait",
@@ -4090,6 +4226,7 @@
  },
  "CirceSorceryDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "CirceSorceryDamageBoon",
@@ -4115,6 +4252,7 @@
  },
  "ClearCastTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ClearCastTalent",
@@ -4141,6 +4279,7 @@
  },
  "ClearRootBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ClearRootBoon",
@@ -4206,6 +4345,7 @@
  },
  "CombatEncounterHealBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "CombatEncounterHealBoon",
@@ -4231,6 +4371,7 @@
  },
  "CommonGlobalDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "CommonGlobalDamageBoon",
@@ -4256,6 +4397,7 @@
  },
  "CooldownDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "CooldownDamageTalent",
@@ -4281,6 +4423,7 @@
  },
  "CooldownDefenseTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "CooldownDefenseTalent",
@@ -4306,6 +4449,7 @@
  },
  "CoverRegenerationBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "CoverRegenerationBoon",
@@ -4383,6 +4527,7 @@
  },
  "CritBonusBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "CritBonusBoon",
@@ -4408,6 +4553,7 @@
  },
  "CurrencyUseTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "CurrencyUseTalent",
@@ -4434,6 +4580,7 @@
  },
  "DaggerAttackFinisherTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerAttackFinisherTrait",
@@ -4457,6 +4604,7 @@
  },
  "DaggerBackstabAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerBackstabAspect",
@@ -4484,6 +4632,7 @@
  },
  "DaggerBackstabTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerBackstabTrait",
@@ -4507,6 +4656,7 @@
  },
  "DaggerBlinkAoETrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerBlinkAoETrait",
@@ -4530,6 +4680,7 @@
  },
  "DaggerBlockAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerBlockAspect",
@@ -4557,6 +4708,7 @@
  },
  "DaggerChargeStageSkipTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerChargeStageSkipTrait",
@@ -4580,6 +4732,7 @@
  },
  "DaggerDashAttackTripleTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerDashAttackTripleTrait",
@@ -4600,6 +4753,7 @@
  },
  "DaggerFinalHitTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerFinalHitTrait",
@@ -4623,6 +4777,7 @@
  },
  "DaggerHammerTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -4643,6 +4798,7 @@
  },
  "DaggerHomingThrowAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerHomingThrowAspect",
@@ -4670,6 +4826,7 @@
  },
  "DaggerRapidAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerRapidAttackTrait",
@@ -4693,6 +4850,7 @@
  },
  "DaggerSpecialConsecutiveTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerSpecialConsecutiveTrait",
@@ -4713,6 +4871,7 @@
  },
  "DaggerSpecialFanTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerSpecialFanTrait",
@@ -4736,6 +4895,7 @@
  },
  "DaggerSpecialJumpTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerSpecialJumpTrait",
@@ -4759,6 +4919,7 @@
  },
  "DaggerSpecialLineTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerSpecialLineTrait",
@@ -4782,6 +4943,7 @@
  },
  "DaggerSpecialReturnTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerSpecialReturnTrait",
@@ -4805,6 +4967,7 @@
  },
  "DaggerTripleAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerTripleAspect",
@@ -4832,6 +4995,7 @@
  },
  "DaggerTripleBuffTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerTripleBuffTrait",
@@ -4855,6 +5019,7 @@
  },
  "DaggerTripleHomingSpecialTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerTripleHomingSpecialTrait",
@@ -4878,6 +5043,7 @@
  },
  "DaggerTripleRepeatWomboTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DaggerTripleRepeatWomboTrait",
@@ -4901,6 +5067,7 @@
  },
  "DamageBuffTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DamageBuffTalent",
@@ -4927,6 +5094,7 @@
  },
  "DamageSharePotencyBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DamageSharePotencyBoon",
@@ -4973,6 +5141,7 @@
  },
  "DamageShareRetaliateBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DamageShareRetaliateBoon",
@@ -4998,6 +5167,7 @@
  },
  "DamagedDamageBoostKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DamagedDamageBoostKeepsake",
@@ -5023,6 +5193,7 @@
  },
  "DashOmegaBuffBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DashOmegaBuffBoon",
@@ -5048,6 +5219,7 @@
  },
  "DeathDefianceRefillBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DeathDefianceRefillBoon",
@@ -5073,6 +5245,7 @@
  },
  "DeathDefianceRetaliateCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "DeathDefianceRetaliateCurse",
@@ -5098,6 +5271,7 @@
  },
  "DeathVengeanceKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DeathVengeanceKeepsake",
@@ -5123,6 +5297,7 @@
  },
  "DecayingBoostKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DecayingBoostKeepsake",
@@ -5148,6 +5323,7 @@
  },
  "DemeterCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DemeterCastBoon",
@@ -5173,6 +5349,7 @@
  },
  "DemeterManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DemeterManaBoon",
@@ -5198,6 +5375,7 @@
  },
  "DemeterSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DemeterSpecialBoon",
@@ -5223,6 +5401,7 @@
  },
  "DemeterSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DemeterSprintBoon",
@@ -5248,6 +5427,7 @@
  },
  "DemeterWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DemeterWeaponBoon",
@@ -5273,6 +5453,7 @@
  },
  "DiminishingDodgeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "DiminishingDodgeBoon",
@@ -5298,6 +5479,7 @@
  },
  "DiminishingHealthAndManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "DiminishingHealthAndManaBoon",
@@ -5323,6 +5505,7 @@
  },
  "DodgeBonusMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DodgeBonusMetaUpgrade",
@@ -5348,6 +5531,7 @@
  },
  "DodgeChanceBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DodgeChanceBoon",
@@ -5373,6 +5557,7 @@
  },
  "DoorHealMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DoorHealMetaUpgrade",
@@ -5398,6 +5583,7 @@
  },
  "DoorHealReserveKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DoorHealReserveKeepsake",
@@ -5423,6 +5609,7 @@
  },
  "DoorHealToFullBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DoorHealToFullBoon",
@@ -5451,6 +5638,7 @@
  },
  "DoorRerollMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DoorRerollMetaUpgrade",
@@ -5476,6 +5664,7 @@
  },
  "DoubleBloodDropBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DoubleBloodDropBoon",
@@ -5556,6 +5745,7 @@
  },
  "DoubleBoltBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DoubleBoltBoon",
@@ -5614,6 +5804,7 @@
  },
  "DoubleExManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DoubleExManaBoon",
@@ -5694,6 +5885,7 @@
  },
  "DoubleFamiliarTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "DoubleFamiliarTrait",
@@ -5719,6 +5911,7 @@
  },
  "DoubleMassiveAttackBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DoubleMassiveAttackBoon",
@@ -5792,6 +5985,7 @@
  },
  "DoubleRewardBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DoubleRewardBoon",
@@ -5817,6 +6011,7 @@
  },
  "DoubleSplashBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DoubleSplashBoon",
@@ -5886,6 +6081,7 @@
  },
  "DoubleStrikeChanceBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DoubleStrikeChanceBoon",
@@ -5952,6 +6148,7 @@
  },
  "DoubleSwordBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DoubleSwordBoon",
@@ -6029,6 +6226,7 @@
  },
  "DummyBloodDisplayBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "DummyBloodDisplayBoon",
@@ -6049,6 +6247,7 @@
  },
  "DuoRarityBoostMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "DuoRarityBoostMetaUpgrade",
@@ -6074,6 +6273,7 @@
  },
  "EarthEssence": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "EarthEssence",
@@ -6094,6 +6294,7 @@
  },
  "EchoBurnBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "EchoBurnBoon",
@@ -6155,6 +6356,7 @@
  },
  "EchoDeathDefianceRefill": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "EchoDeathDefianceRefill",
@@ -6180,6 +6382,7 @@
  },
  "EchoDoubleLevelBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "EchoDoubleLevelBoon",
@@ -6205,6 +6408,7 @@
  },
  "EchoDoubleShop": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "EchoDoubleShop",
@@ -6230,6 +6434,7 @@
  },
  "EchoExpirationBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "EchoExpirationBoon",
@@ -6268,6 +6473,7 @@
  },
  "EchoLastReward": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "EchoLastReward",
@@ -6293,6 +6499,7 @@
  },
  "EchoLastRunBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "EchoLastRunBoon",
@@ -6318,6 +6525,7 @@
  },
  "EchoRepeatKeepsakeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "EchoRepeatKeepsakeBoon",
@@ -6343,6 +6551,7 @@
  },
  "EffectVulnerabilityMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "EffectVulnerabilityMetaUpgrade",
@@ -6369,6 +6578,7 @@
  "ElementalBaseDamageBoon": {
   "_godInferredFromComment": true,
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalBaseDamageBoon",
@@ -6396,6 +6606,7 @@
  "ElementalDamageBoon": {
   "_godInferredFromComment": true,
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalDamageBoon",
@@ -6427,6 +6638,7 @@
    "element": "Water",
    "kind": "hasElement"
   },
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalDamageCapBoon",
@@ -6460,6 +6672,7 @@
    "element": "Air",
    "kind": "hasElement"
   },
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalDamageFloorBoon",
@@ -6489,6 +6702,7 @@
  "ElementalDodgeBoon": {
   "_godInferredFromComment": true,
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalDodgeBoon",
@@ -6515,6 +6729,7 @@
  },
  "ElementalEssence": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ElementalEssence",
@@ -6536,6 +6751,7 @@
  "ElementalHealthBoon": {
   "_godInferredFromComment": true,
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalHealthBoon",
@@ -6567,6 +6783,7 @@
    "element": "Earth",
    "kind": "hasElement"
   },
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalOlympianDamageBoon",
@@ -6600,6 +6817,7 @@
    "element": "Fire",
    "kind": "hasElement"
   },
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalRallyBoon",
@@ -6653,6 +6871,7 @@
     }
    ]
   },
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalRarityUpgradeBoon",
@@ -6727,6 +6946,7 @@
     }
    ]
   },
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ElementalUnifiedBoon",
@@ -6776,6 +6996,7 @@
  },
  "EncounterStartDefenseBuffBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "EncounterStartDefenseBuffBoon",
@@ -6801,6 +7022,7 @@
  },
  "EncounterStartOffenseBuffBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "EncounterStartOffenseBuffBoon",
@@ -6826,6 +7048,7 @@
  },
  "EpicRarityBoostMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "EpicRarityBoostMetaUpgrade",
@@ -6851,6 +7074,7 @@
  },
  "EscalatingCostume": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "EscalatingCostume",
@@ -6876,6 +7100,7 @@
  },
  "EscalatingKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "EscalatingKeepsake",
@@ -6901,6 +7126,7 @@
  },
  "ExPolymorphBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "ExPolymorphBoon",
@@ -6926,6 +7152,7 @@
  },
  "ExtendedShopTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ExtendedShopTrait",
@@ -6946,6 +7173,7 @@
  },
  "FireEssence": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "FireEssence",
@@ -6966,6 +7194,7 @@
  },
  "FireballManaSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "FireballManaSpecialBoon",
@@ -6991,6 +7220,7 @@
  },
  "FireballRendBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "FireballRendBoon",
@@ -7060,6 +7290,7 @@
  },
  "FirstHangoverBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "FirstHangoverBoon",
@@ -7085,6 +7316,7 @@
  },
  "FirstHitHealTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "FirstHitHealTrait",
@@ -7105,6 +7337,7 @@
  },
  "FocusAttackDamageTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "FocusAttackDamageTrait",
@@ -7130,6 +7363,7 @@
  },
  "FocusCritBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "FocusCritBoon",
@@ -7155,6 +7389,7 @@
  },
  "FocusDamageShaveBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "FocusDamageShaveBoon",
@@ -7180,6 +7415,7 @@
  },
  "FocusLastStandBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "FocusLastStandBoon",
@@ -7205,6 +7441,7 @@
  },
  "FocusLightningBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "FocusLightningBoon",
@@ -7230,6 +7467,7 @@
  },
  "FocusRawDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "FocusRawDamageBoon",
@@ -7255,6 +7493,7 @@
  },
  "FocusSpecialDamageTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "FocusSpecialDamageTrait",
@@ -7280,6 +7519,7 @@
  },
  "FogDamageBonusBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "FogDamageBonusBoon",
@@ -7305,6 +7545,7 @@
  },
  "ForceAphroditeBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForceAphroditeBoonKeepsake",
@@ -7329,6 +7570,7 @@
  },
  "ForceApolloBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForceApolloBoonKeepsake",
@@ -7353,6 +7595,7 @@
  },
  "ForceAresBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForceAresBoonKeepsake",
@@ -7377,6 +7620,7 @@
  },
  "ForceDemeterBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForceDemeterBoonKeepsake",
@@ -7401,6 +7645,7 @@
  },
  "ForceHephaestusBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForceHephaestusBoonKeepsake",
@@ -7425,6 +7670,7 @@
  },
  "ForceHeraBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForceHeraBoonKeepsake",
@@ -7449,6 +7695,7 @@
  },
  "ForceHestiaBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForceHestiaBoonKeepsake",
@@ -7473,6 +7720,7 @@
  },
  "ForcePoseidonBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForcePoseidonBoonKeepsake",
@@ -7497,6 +7745,7 @@
  },
  "ForceZeusBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ForceZeusBoonKeepsake",
@@ -7521,6 +7770,7 @@
  },
  "FountainRarityKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "FountainRarityKeepsake",
@@ -7545,6 +7795,7 @@
  },
  "GiftTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -7570,6 +7821,7 @@
  },
  "GoldifyKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "GoldifyKeepsake",
@@ -7595,6 +7847,7 @@
  },
  "GoodStuffBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "GoodStuffBoon",
@@ -7698,6 +7951,7 @@
  },
  "HadesAndPersephoneKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesAndPersephoneKeepsake",
@@ -7723,6 +7977,7 @@
  },
  "HadesCastProjectileBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesCastProjectileBoon",
@@ -7754,6 +8009,7 @@
  },
  "HadesChronosDebuffBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesChronosDebuffBoon",
@@ -7779,6 +8035,7 @@
  },
  "HadesDashSweepBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesDashSweepBoon",
@@ -7804,6 +8061,7 @@
  },
  "HadesDeathDefianceDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesDeathDefianceDamageBoon",
@@ -7829,6 +8087,7 @@
  },
  "HadesInvisibilityRetaliateBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesInvisibilityRetaliateBoon",
@@ -7851,6 +8110,7 @@
  },
  "HadesLifestealBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesLifestealBoon",
@@ -7876,6 +8136,7 @@
  },
  "HadesManaUrnBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesManaUrnBoon",
@@ -7901,6 +8162,7 @@
  },
  "HadesPreDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HadesPreDamageBoon",
@@ -7926,6 +8188,7 @@
  },
  "HealAmountTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HealAmountTalent",
@@ -7952,6 +8215,7 @@
  },
  "HealAmplifyTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "HealAmplifyTrait",
@@ -7977,6 +8241,7 @@
  },
  "HealLastTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HealLastTalent",
@@ -8003,6 +8268,7 @@
  },
  "HealRetaliateTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HealRetaliateTalent",
@@ -8029,6 +8295,7 @@
  },
  "HealingOnDeathCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "HealingOnDeathCurse",
@@ -8054,6 +8321,7 @@
  },
  "HealthManaBonusMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HealthManaBonusMetaUpgrade",
@@ -8079,6 +8347,7 @@
  },
  "HealthRewardBonusBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HealthRewardBonusBoon",
@@ -8104,6 +8373,7 @@
  },
  "HeavyArmorBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HeavyArmorBoon",
@@ -8129,6 +8399,7 @@
  },
  "HephaestusCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HephaestusCastBoon",
@@ -8154,6 +8425,7 @@
  },
  "HephaestusManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HephaestusManaBoon",
@@ -8179,6 +8451,7 @@
  },
  "HephaestusSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HephaestusSpecialBoon",
@@ -8204,6 +8477,7 @@
  },
  "HephaestusSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HephaestusSprintBoon",
@@ -8229,6 +8503,7 @@
  },
  "HephaestusWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HephaestusWeaponBoon",
@@ -8254,6 +8529,7 @@
  },
  "HeraCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HeraCastBoon",
@@ -8279,6 +8555,7 @@
  },
  "HeraManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HeraManaBoon",
@@ -8304,6 +8581,7 @@
  },
  "HeraSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HeraSpecialBoon",
@@ -8329,6 +8607,7 @@
  },
  "HeraSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HeraSprintBoon",
@@ -8354,6 +8633,7 @@
  },
  "HeraWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HeraWeaponBoon",
@@ -8379,6 +8659,7 @@
  },
  "HermesCastDiscountBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HermesCastDiscountBoon",
@@ -8404,6 +8685,7 @@
  },
  "HermesSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HermesSpecialBoon",
@@ -8429,6 +8711,7 @@
  },
  "HermesWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HermesWeaponBoon",
@@ -8454,6 +8737,7 @@
  },
  "HestiaCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HestiaCastBoon",
@@ -8479,6 +8763,7 @@
  },
  "HestiaManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HestiaManaBoon",
@@ -8504,6 +8789,7 @@
  },
  "HestiaSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HestiaSpecialBoon",
@@ -8529,6 +8815,7 @@
  },
  "HestiaSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HestiaSprintBoon",
@@ -8554,6 +8841,7 @@
  },
  "HestiaWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HestiaWeaponBoon",
@@ -8579,6 +8867,7 @@
  },
  "HiddenMaxHealthBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HiddenMaxHealthBoon",
@@ -8604,6 +8893,7 @@
  },
  "HighArmorCostume": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HighArmorCostume",
@@ -8629,6 +8919,7 @@
  },
  "HighHealthCritBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "HighHealthCritBoon",
@@ -8654,6 +8945,7 @@
  },
  "HighHealthOffenseBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "HighHealthOffenseBoon",
@@ -8679,6 +8971,7 @@
  },
  "IncomeCostume": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "IncomeCostume",
@@ -8704,6 +8997,7 @@
  },
  "InsideCastBuffMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "InsideCastBuffMetaUpgrade",
@@ -8729,6 +9023,7 @@
  },
  "InsideCastCritBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "InsideCastCritBoon",
@@ -8754,6 +9049,7 @@
  },
  "InstantRootKill": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "InstantRootKill",
@@ -8834,6 +9130,7 @@
  },
  "InvulnerabilityCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "InvulnerabilityCastBoon",
@@ -8859,6 +9156,7 @@
  },
  "InvulnerabilityDashBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "InvulnerabilityDashBoon",
@@ -8884,6 +9182,7 @@
  },
  "KeepsakeLevelBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "KeepsakeLevelBoon",
@@ -8965,6 +9264,7 @@
  },
  "LaserAoETalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserAoETalent",
@@ -8991,6 +9291,7 @@
  },
  "LaserApolloTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserApolloTalent",
@@ -9039,6 +9340,7 @@
  },
  "LaserCrystalTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserCrystalTalent",
@@ -9065,6 +9367,7 @@
  },
  "LaserDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserDamageTalent",
@@ -9090,6 +9393,7 @@
  },
  "LaserDefenseTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserDefenseTalent",
@@ -9116,6 +9420,7 @@
  },
  "LaserDurationTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserDurationTalent",
@@ -9141,6 +9446,7 @@
  },
  "LaserFirstHitDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserFirstHitDamageTalent",
@@ -9167,6 +9473,7 @@
  },
  "LaserPenetrationTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserPenetrationTalent",
@@ -9193,6 +9500,7 @@
  },
  "LaserStartAoETalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserStartAoETalent",
@@ -9219,6 +9527,7 @@
  },
  "LaserTripleTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LaserTripleTalent",
@@ -9245,6 +9554,7 @@
  },
  "LastStandSlowTimeMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LastStandSlowTimeMetaUpgrade",
@@ -9270,6 +9580,7 @@
  },
  "LeapAoETalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapAoETalent",
@@ -9296,6 +9607,7 @@
  },
  "LeapArmorDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapArmorDamageTalent",
@@ -9322,6 +9634,7 @@
  },
  "LeapCooldownSpeedTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapCooldownSpeedTalent",
@@ -9348,6 +9661,7 @@
  },
  "LeapCritTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapCritTalent",
@@ -9374,6 +9688,7 @@
  },
  "LeapDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapDamageTalent",
@@ -9400,6 +9715,7 @@
  },
  "LeapHephaestusTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapHephaestusTalent",
@@ -9448,6 +9764,7 @@
  },
  "LeapLaunchAoETalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapLaunchAoETalent",
@@ -9474,6 +9791,7 @@
  },
  "LeapShieldTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapShieldTalent",
@@ -9500,6 +9818,7 @@
  },
  "LeapSprintTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapSprintTalent",
@@ -9526,6 +9845,7 @@
  },
  "LeapTwiceTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LeapTwiceTalent",
@@ -9552,6 +9872,7 @@
  },
  "LegendaryTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -9574,6 +9895,7 @@
  },
  "LightningDebuffGeneratorBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "LightningDebuffGeneratorBoon",
@@ -9602,6 +9924,7 @@
  },
  "LightningVulnerabilityBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "LightningVulnerabilityBoon",
@@ -9675,6 +9998,7 @@
  },
  "LimitedSwapBonusTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LimitedSwapBonusTrait",
@@ -9695,6 +10019,7 @@
  },
  "LinkedDeathDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "LinkedDeathDamageBoon",
@@ -9741,6 +10066,7 @@
  },
  "LobAmmoBoostAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobAmmoBoostAspect",
@@ -9768,6 +10094,7 @@
  },
  "LobAmmoMagnetismTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobAmmoMagnetismTrait",
@@ -9794,6 +10121,7 @@
  },
  "LobAmmoTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobAmmoTrait",
@@ -9817,6 +10145,7 @@
  },
  "LobCloseAttackAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobCloseAttackAspect",
@@ -9844,6 +10173,7 @@
  },
  "LobGrowthTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobGrowthTrait",
@@ -9867,6 +10197,7 @@
  },
  "LobGunAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobGunAspect",
@@ -9894,6 +10225,7 @@
  },
  "LobGunAttackDoublerTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobGunAttackDoublerTrait",
@@ -9914,6 +10246,7 @@
  },
  "LobGunAttackRangeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobGunAttackRangeTrait",
@@ -9937,6 +10270,7 @@
  },
  "LobGunBounceTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobGunBounceTrait",
@@ -9960,6 +10294,7 @@
  },
  "LobGunOverheatTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobGunOverheatTrait",
@@ -9983,6 +10318,7 @@
  },
  "LobGunSpecialBounceTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobGunSpecialBounceTrait",
@@ -10006,6 +10342,7 @@
  },
  "LobHammerTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -10026,6 +10363,7 @@
  },
  "LobImpulseAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobImpulseAspect",
@@ -10053,6 +10391,7 @@
  },
  "LobInOutSpecialExTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobInOutSpecialExTrait",
@@ -10073,6 +10412,7 @@
  },
  "LobOneSideTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobOneSideTrait",
@@ -10096,6 +10436,7 @@
  },
  "LobPulseAmmoCollectTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobPulseAmmoCollectTrait",
@@ -10119,6 +10460,7 @@
  },
  "LobPulseAmmoTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobPulseAmmoTrait",
@@ -10145,6 +10487,7 @@
  },
  "LobRushArmorTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobRushArmorTrait",
@@ -10165,6 +10508,7 @@
  },
  "LobSpecialSpeedTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobSpecialSpeedTrait",
@@ -10188,6 +10532,7 @@
  },
  "LobSpreadShotTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobSpreadShotTrait",
@@ -10208,6 +10553,7 @@
  },
  "LobStraightShotTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobStraightShotTrait",
@@ -10231,6 +10577,7 @@
  },
  "LobSturdySpecialTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LobSturdySpecialTrait",
@@ -10254,6 +10601,7 @@
  },
  "LowHealthBuffMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LowHealthBuffMetaUpgrade",
@@ -10279,6 +10627,7 @@
  },
  "LowHealthCritKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LowHealthCritKeepsake",
@@ -10304,6 +10653,7 @@
  },
  "LowHealthLifestealBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "LowHealthLifestealBoon",
@@ -10329,6 +10679,7 @@
  },
  "LowManaDamageMetaupgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LowManaDamageMetaupgrade",
@@ -10354,6 +10705,7 @@
  },
  "LuckyBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "LuckyBoon",
@@ -10472,6 +10824,7 @@
  },
  "MagicCritMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MagicCritMetaUpgrade",
@@ -10497,6 +10850,7 @@
  },
  "ManaBurstBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ManaBurstBoon",
@@ -10522,6 +10876,7 @@
  },
  "ManaBurstCountBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ManaBurstCountBoon",
@@ -10581,6 +10936,7 @@
  },
  "ManaCostume": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ManaCostume",
@@ -10606,6 +10962,7 @@
  },
  "ManaOverTimeCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "ManaOverTimeCurse",
@@ -10631,6 +10988,7 @@
  },
  "ManaOverTimeMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ManaOverTimeMetaUpgrade",
@@ -10656,6 +11014,7 @@
  },
  "ManaOverTimeRefundKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ManaOverTimeRefundKeepsake",
@@ -10681,6 +11040,7 @@
  },
  "ManaOverTimeRefundTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ManaOverTimeRefundTrait",
@@ -10701,6 +11061,7 @@
  },
  "ManaRestoreDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ManaRestoreDamageBoon",
@@ -10778,6 +11139,7 @@
  },
  "ManaShieldBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ManaShieldBoon",
@@ -10867,6 +11229,7 @@
  },
  "ManaSpearBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ManaSpearBoon",
@@ -10892,6 +11255,7 @@
  },
  "ManaToHealthBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ManaToHealthBoon",
@@ -10917,6 +11281,7 @@
  },
  "MassiveCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "MassiveCastBoon",
@@ -10990,6 +11355,7 @@
  },
  "MassiveDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "MassiveDamageBoon",
@@ -11032,6 +11398,7 @@
  },
  "MassiveKnockupBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "MassiveKnockupBoon",
@@ -11074,6 +11441,7 @@
  },
  "MaxHealthDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "MaxHealthDamageBoon",
@@ -11155,6 +11523,7 @@
  },
  "MetaToRunMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MetaToRunMetaUpgrade",
@@ -11180,6 +11549,7 @@
  },
  "MetaUpgradeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -11205,6 +11575,7 @@
  },
  "MeteorChargeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorChargeTalent",
@@ -11231,6 +11602,7 @@
  },
  "MeteorDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorDamageTalent",
@@ -11257,6 +11629,7 @@
  },
  "MeteorDoubleTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorDoubleTalent",
@@ -11283,6 +11656,7 @@
  },
  "MeteorExCastTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorExCastTalent",
@@ -11309,6 +11683,7 @@
  },
  "MeteorHestiaTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorHestiaTalent",
@@ -11357,6 +11732,7 @@
  },
  "MeteorInvulnerableChargeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorInvulnerableChargeTalent",
@@ -11383,6 +11759,7 @@
  },
  "MeteorShowerTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorShowerTalent",
@@ -11409,6 +11786,7 @@
  },
  "MeteorSizeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorSizeTalent",
@@ -11435,6 +11813,7 @@
  },
  "MeteorSlowDecalTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorSlowDecalTalent",
@@ -11461,6 +11840,7 @@
  },
  "MeteorVulnerabilityDecalTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MeteorVulnerabilityDecalTalent",
@@ -11487,6 +11867,7 @@
  },
  "MinorArmorBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -11512,6 +11893,7 @@
  },
  "MissingHealthCritBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "MissingHealthCritBoon",
@@ -11537,6 +11919,7 @@
  },
  "MoneyDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "MoneyDamageBoon",
@@ -11624,6 +12007,7 @@
  },
  "MoneyMultiplierBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoneyMultiplierBoon",
@@ -11649,6 +12033,7 @@
  },
  "MoneyOnDeathCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "MoneyOnDeathCurse",
@@ -11674,6 +12059,7 @@
  },
  "MoonBeamAresTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamAresTalent",
@@ -11722,6 +12108,7 @@
  },
  "MoonBeamConsecutiveDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamConsecutiveDamageTalent",
@@ -11748,6 +12135,7 @@
  },
  "MoonBeamCountTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamCountTalent",
@@ -11774,6 +12162,7 @@
  },
  "MoonBeamDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamDamageTalent",
@@ -11800,6 +12189,7 @@
  },
  "MoonBeamDefenseTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamDefenseTalent",
@@ -11826,6 +12216,7 @@
  },
  "MoonBeamExBeamBonusTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamExBeamBonusTalent",
@@ -11852,6 +12243,7 @@
  },
  "MoonBeamPrimaryTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamPrimaryTalent",
@@ -11878,6 +12270,7 @@
  },
  "MoonBeamTalentTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -11898,6 +12291,7 @@
  },
  "MoonBeamTargetTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamTargetTalent",
@@ -11924,6 +12318,7 @@
  },
  "MoonBeamVulnerabilityTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "MoonBeamVulnerabilityTalent",
@@ -11950,6 +12345,7 @@
  },
  "NarcissusA": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusA",
@@ -11975,6 +12371,7 @@
  },
  "NarcissusB": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusB",
@@ -12000,6 +12397,7 @@
  },
  "NarcissusC": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusC",
@@ -12025,6 +12423,7 @@
  },
  "NarcissusD": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusD",
@@ -12050,6 +12449,7 @@
  },
  "NarcissusE": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusE",
@@ -12075,6 +12475,7 @@
  },
  "NarcissusF": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusF",
@@ -12100,6 +12501,7 @@
  },
  "NarcissusG": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusG",
@@ -12125,6 +12527,7 @@
  },
  "NarcissusH": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusH",
@@ -12150,6 +12553,7 @@
  },
  "NarcissusI": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NarcissusI",
@@ -12175,6 +12579,7 @@
  },
  "NewStatusDamage": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "NewStatusDamage",
@@ -12200,6 +12605,7 @@
  },
  "OlympianSpellCountBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "OlympianSpellCountBoon",
@@ -12266,6 +12672,7 @@
  },
  "OlympianSpellCountTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "OlympianSpellCountTalent",
@@ -12291,6 +12698,7 @@
  },
  "OmegaCastVolleyBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "OmegaCastVolleyBoon",
@@ -12316,6 +12724,7 @@
  },
  "OmegaDelayedDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "OmegaDelayedDamageBoon",
@@ -12341,6 +12750,7 @@
  },
  "OmegaExplodeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "OmegaExplodeBoon",
@@ -12366,6 +12776,7 @@
  },
  "OmegaHeraProjectileBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "OmegaHeraProjectileBoon",
@@ -12391,6 +12802,7 @@
  },
  "OmegaPoseidonProjectileBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "OmegaPoseidonProjectileBoon",
@@ -12416,6 +12828,7 @@
  },
  "OmegaZeroBurnBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "OmegaZeroBurnBoon",
@@ -12458,6 +12871,7 @@
  },
  "PanelRerollMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PanelRerollMetaUpgrade",
@@ -12483,6 +12897,7 @@
  },
  "PerfectDamageBonusBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PerfectDamageBonusBoon",
@@ -12508,6 +12923,7 @@
  },
  "PersistentDionysusSkipKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PersistentDionysusSkipKeepsake",
@@ -12533,6 +12949,7 @@
  },
  "PlantHealthBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PlantHealthBoon",
@@ -12558,6 +12975,7 @@
  },
  "PolymorphBossDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphBossDamageTalent",
@@ -12583,6 +13001,7 @@
  },
  "PolymorphCurseTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphCurseTalent",
@@ -12609,6 +13028,7 @@
  },
  "PolymorphDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphDamageTalent",
@@ -12634,6 +13054,7 @@
  },
  "PolymorphDeathExplodeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphDeathExplodeTalent",
@@ -12659,6 +13080,7 @@
  },
  "PolymorphDurationTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphDurationTalent",
@@ -12684,6 +13106,7 @@
  },
  "PolymorphHealthCrushTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphHealthCrushTalent",
@@ -12710,6 +13133,7 @@
  },
  "PolymorphSandwichTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphSandwichTalent",
@@ -12736,6 +13160,7 @@
  },
  "PolymorphTauntTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphTauntTalent",
@@ -12761,6 +13186,7 @@
  },
  "PolymorphTeleportCastTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphTeleportCastTalent",
@@ -12787,6 +13213,7 @@
  },
  "PolymorphZeusTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PolymorphZeusTalent",
@@ -12831,6 +13258,7 @@
  },
  "PoseidonCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonCastBoon",
@@ -12856,6 +13284,7 @@
  },
  "PoseidonExCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonExCastBoon",
@@ -12922,6 +13351,7 @@
  },
  "PoseidonManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonManaBoon",
@@ -12947,6 +13377,7 @@
  },
  "PoseidonSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonSpecialBoon",
@@ -12972,6 +13403,7 @@
  },
  "PoseidonSplashSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonSplashSprintBoon",
@@ -13067,6 +13499,7 @@
  },
  "PoseidonSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonSprintBoon",
@@ -13092,6 +13525,7 @@
  },
  "PoseidonStatusBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonStatusBoon",
@@ -13130,6 +13564,7 @@
  },
  "PoseidonWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "PoseidonWeaponBoon",
@@ -13155,6 +13590,7 @@
  },
  "PotionExCastTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PotionExCastTalent",
@@ -13181,6 +13617,7 @@
  },
  "PotionManaRestoreTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PotionManaRestoreTalent",
@@ -13207,6 +13644,7 @@
  },
  "PotionPoseidonTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PotionPoseidonTalent",
@@ -13251,6 +13689,7 @@
  },
  "PotionUsesTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PotionUsesTalent",
@@ -13277,6 +13716,7 @@
  },
  "PowerDrinkBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PowerDrinkBoon",
@@ -13302,6 +13742,7 @@
  },
  "PreChargeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "PreChargeTalent",
@@ -13327,6 +13768,7 @@
  },
  "RaiseDeadBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "RaiseDeadBoon",
@@ -13392,6 +13834,7 @@
  },
  "RandomArcanaTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "RandomArcanaTrait",
@@ -13417,6 +13860,7 @@
  },
  "RandomBaseDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RandomBaseDamageBoon",
@@ -13442,6 +13886,7 @@
  },
  "RandomBlessingKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RandomBlessingKeepsake",
@@ -13467,6 +13912,7 @@
  },
  "RandomStatusBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "RandomStatusBoon",
@@ -13547,6 +13993,7 @@
  },
  "RapidSwordBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "RapidSwordBoon",
@@ -13624,6 +14071,7 @@
  },
  "RarifyKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RarifyKeepsake",
@@ -13649,6 +14097,7 @@
  },
  "RarityBoostMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RarityBoostMetaUpgrade",
@@ -13674,6 +14123,7 @@
  },
  "ReboundingSparkBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ReboundingSparkBoon",
@@ -13733,6 +14183,7 @@
  },
  "ReincarnationKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ReincarnationKeepsake",
@@ -13758,6 +14209,7 @@
  },
  "RemoveShrineTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "RemoveShrineTrait",
@@ -13783,6 +14235,7 @@
  },
  "RendBloodDropBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "RendBloodDropBoon",
@@ -13821,6 +14274,7 @@
  },
  "RerollTradeOffMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RerollTradeOffMetaUpgrade",
@@ -13846,6 +14300,7 @@
  },
  "ReserveManaHitShieldBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ReserveManaHitShieldBoon",
@@ -13871,6 +14326,7 @@
  },
  "RestockBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RestockBoon",
@@ -13896,6 +14352,7 @@
  },
  "RetaliateInvulnerabilityBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RetaliateInvulnerabilityBoon",
@@ -13921,6 +14378,7 @@
  },
  "RolloverUsesTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RolloverUsesTalent",
@@ -13947,6 +14405,7 @@
  },
  "RoomRewardBonusBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "RoomRewardBonusBoon",
@@ -13972,6 +14431,7 @@
  },
  "RootDurationBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "RootDurationBoon",
@@ -14014,6 +14474,7 @@
  },
  "RootStrikeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "RootStrikeBoon",
@@ -14087,6 +14548,7 @@
  },
  "SelfCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SelfCastBoon",
@@ -14166,6 +14628,7 @@
  },
  "ShieldTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "ShieldTalent",
@@ -14191,6 +14654,7 @@
  },
  "ShopTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -14211,6 +14675,7 @@
  },
  "SkipEncounterKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SkipEncounterKeepsake",
@@ -14236,6 +14701,7 @@
  },
  "SlamManaBurstBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SlamManaBurstBoon",
@@ -14309,6 +14775,7 @@
  },
  "SlowExAttackBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SlowExAttackBoon",
@@ -14375,6 +14842,7 @@
  },
  "SlowProjectileBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SlowProjectileBoon",
@@ -14400,6 +14868,7 @@
  },
  "SlowProjectileCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "SlowProjectileCurse",
@@ -14425,6 +14894,7 @@
  },
  "SorceryCritBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SorceryCritBoon",
@@ -14483,6 +14953,7 @@
  },
  "SorceryRegenMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SorceryRegenMetaUpgrade",
@@ -14508,6 +14979,7 @@
  },
  "SorcerySpeedBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SorcerySpeedBoon",
@@ -14533,6 +15005,7 @@
  },
  "SpawnCastDamageBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SpawnCastDamageBoon",
@@ -14599,6 +15072,7 @@
  },
  "SpawnDamageCurse": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "SpawnDamageCurse",
@@ -14624,6 +15098,7 @@
  },
  "SpawnKillBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SpawnKillBoon",
@@ -14716,6 +15191,7 @@
  },
  "SpellCostume": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellCostume",
@@ -14741,6 +15217,7 @@
  },
  "SpellLaserTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellLaserTrait",
@@ -14761,6 +15238,7 @@
  },
  "SpellLeapTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellLeapTrait",
@@ -14781,6 +15259,7 @@
  },
  "SpellMeteorTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellMeteorTrait",
@@ -14801,6 +15280,7 @@
  },
  "SpellMoonBeamTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellMoonBeamTrait",
@@ -14824,6 +15304,7 @@
  },
  "SpellPolymorphTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellPolymorphTrait",
@@ -14844,6 +15325,7 @@
  },
  "SpellPotionTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellPotionTrait",
@@ -14864,6 +15346,7 @@
  },
  "SpellSummonTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellSummonTrait",
@@ -14884,6 +15367,7 @@
  },
  "SpellTalentKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellTalentKeepsake",
@@ -14909,6 +15393,7 @@
  },
  "SpellTimeSlowTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellTimeSlowTrait",
@@ -14929,6 +15414,7 @@
  },
  "SpellTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -14949,6 +15435,7 @@
  },
  "SpellTransformTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SpellTransformTrait",
@@ -14969,6 +15456,7 @@
  },
  "SprintEchoBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SprintEchoBoon",
@@ -15038,6 +15526,7 @@
  },
  "SprintShieldBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SprintShieldBoon",
@@ -15063,6 +15552,7 @@
  },
  "SprintShieldMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SprintShieldMetaUpgrade",
@@ -15088,6 +15578,7 @@
  },
  "StaffAttackRecoveryTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffAttackRecoveryTrait",
@@ -15111,6 +15602,7 @@
  },
  "StaffClearCastAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffClearCastAspect",
@@ -15138,6 +15630,7 @@
  },
  "StaffDashAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffDashAttackTrait",
@@ -15158,6 +15651,7 @@
  },
  "StaffDoubleAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffDoubleAttackTrait",
@@ -15181,6 +15675,7 @@
  },
  "StaffExAoETrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffExAoETrait",
@@ -15204,6 +15699,7 @@
  },
  "StaffExHealTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffExHealTrait",
@@ -15227,6 +15723,7 @@
  },
  "StaffFastSpecialTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffFastSpecialTrait",
@@ -15250,6 +15747,7 @@
  },
  "StaffHammerTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -15270,6 +15768,7 @@
  },
  "StaffJumpSpecialTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffJumpSpecialTrait",
@@ -15293,6 +15792,7 @@
  },
  "StaffLoneShadeRallyTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffLoneShadeRallyTrait",
@@ -15316,6 +15816,7 @@
  },
  "StaffLoneShadeRespawnTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffLoneShadeRespawnTrait",
@@ -15339,6 +15840,7 @@
  },
  "StaffLongAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffLongAttackTrait",
@@ -15362,6 +15864,7 @@
  },
  "StaffOneWayAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffOneWayAttackTrait",
@@ -15382,6 +15885,7 @@
  },
  "StaffPowershotTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffPowershotTrait",
@@ -15405,6 +15909,7 @@
  },
  "StaffRaiseDeadAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffRaiseDeadAspect",
@@ -15432,6 +15937,7 @@
  },
  "StaffRaiseDeadBigTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffRaiseDeadBigTrait",
@@ -15455,6 +15961,7 @@
  },
  "StaffRaiseDeadDoubleTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffRaiseDeadDoubleTrait",
@@ -15475,6 +15982,7 @@
  },
  "StaffSecondStageTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffSecondStageTrait",
@@ -15498,6 +16006,7 @@
  },
  "StaffSelfHitAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffSelfHitAspect",
@@ -15525,6 +16034,7 @@
  },
  "StaffTripleShotTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StaffTripleShotTrait",
@@ -15545,6 +16055,7 @@
  },
  "StartingGoldMetaUpgrade": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "StartingGoldMetaUpgrade",
@@ -15570,6 +16081,7 @@
  },
  "SteamBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SteamBoon",
@@ -15643,6 +16155,7 @@
  },
  "StormSpawnBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "StormSpawnBoon",
@@ -15712,6 +16225,7 @@
  },
  "SuitArmorTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitArmorTrait",
@@ -15732,6 +16246,7 @@
  },
  "SuitAttackRangeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitAttackRangeTrait",
@@ -15755,6 +16270,7 @@
  },
  "SuitAttackSizeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitAttackSizeTrait",
@@ -15778,6 +16294,7 @@
  },
  "SuitAttackSpeedTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitAttackSpeedTrait",
@@ -15801,6 +16318,7 @@
  },
  "SuitComboAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitComboAspect",
@@ -15828,6 +16346,7 @@
  },
  "SuitComboBlockBuffTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitComboBlockBuffTrait",
@@ -15851,6 +16370,7 @@
  },
  "SuitComboDashAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitComboDashAttackTrait",
@@ -15874,6 +16394,7 @@
  },
  "SuitComboDoubleSpecialTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitComboDoubleSpecialTrait",
@@ -15897,6 +16418,7 @@
  },
  "SuitComboForwardRocketTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitComboForwardRocketTrait",
@@ -15920,6 +16442,7 @@
  },
  "SuitDashAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitDashAttackTrait",
@@ -15940,6 +16463,7 @@
  },
  "SuitFullChargeTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitFullChargeTrait",
@@ -15963,6 +16487,7 @@
  },
  "SuitHammerTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -15983,6 +16508,7 @@
  },
  "SuitHexAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitHexAspect",
@@ -16010,6 +16536,7 @@
  },
  "SuitMarkCritAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitMarkCritAspect",
@@ -16037,6 +16564,7 @@
  },
  "SuitPowershotTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitPowershotTrait",
@@ -16060,6 +16588,7 @@
  },
  "SuitSpecialAutoTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitSpecialAutoTrait",
@@ -16083,6 +16612,7 @@
  },
  "SuitSpecialBlockTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitSpecialBlockTrait",
@@ -16103,6 +16633,7 @@
  },
  "SuitSpecialConsecutiveHitTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitSpecialConsecutiveHitTrait",
@@ -16126,6 +16657,7 @@
  },
  "SuitSpecialDiscountTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitSpecialDiscountTrait",
@@ -16149,6 +16681,7 @@
  },
  "SuitSpecialJumpTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitSpecialJumpTrait",
@@ -16172,6 +16705,7 @@
  },
  "SuitSpecialStartUpTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SuitSpecialStartUpTrait",
@@ -16192,6 +16726,7 @@
  },
  "SummonDamageSplitTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SummonDamageSplitTalent",
@@ -16218,6 +16753,7 @@
  },
  "SummonDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SummonDamageTalent",
@@ -16243,6 +16779,7 @@
  },
  "SummonExplodeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SummonExplodeTalent",
@@ -16269,6 +16806,7 @@
  },
  "SummonHeraTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SummonHeraTalent",
@@ -16313,6 +16851,7 @@
  },
  "SummonPermanenceTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SummonPermanenceTalent",
@@ -16339,6 +16878,7 @@
  },
  "SummonRetaliateTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SummonRetaliateTalent",
@@ -16365,6 +16905,7 @@
  },
  "SummonSpeedTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SummonSpeedTalent",
@@ -16391,6 +16932,7 @@
  },
  "SummonTeleportTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SummonTeleportTalent",
@@ -16417,6 +16959,7 @@
  },
  "SuperSacrificeBoonHera": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SuperSacrificeBoonHera",
@@ -16498,6 +17041,7 @@
  },
  "SuperSacrificeBoonZeus": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "SuperSacrificeBoonZeus",
@@ -16579,6 +17123,7 @@
  },
  "SupplyDropBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "SupplyDropBoon",
@@ -16604,6 +17149,7 @@
  },
  "SupportingFireBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "SupportingFireBoon",
@@ -16629,6 +17175,7 @@
  },
  "TempHammerKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TempHammerKeepsake",
@@ -16654,6 +17201,7 @@
  },
  "TemporaryBoonRarityTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryBoonRarityTrait",
@@ -16674,6 +17222,7 @@
  },
  "TemporaryDiscountTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryDiscountTrait",
@@ -16694,6 +17243,7 @@
  },
  "TemporaryDoorHealTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryDoorHealTrait",
@@ -16714,6 +17264,7 @@
  },
  "TemporaryEmptySlotDamageTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryEmptySlotDamageTrait",
@@ -16734,6 +17285,7 @@
  },
  "TemporaryForcedSecretDoorTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryForcedSecretDoorTrait",
@@ -16754,6 +17306,7 @@
  },
  "TemporaryHealExpirationTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryHealExpirationTrait",
@@ -16774,6 +17327,7 @@
  },
  "TemporaryImprovedCastTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryImprovedCastTrait",
@@ -16794,6 +17348,7 @@
  },
  "TemporaryImprovedDefenseTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryImprovedDefenseTrait",
@@ -16814,6 +17369,7 @@
  },
  "TemporaryImprovedExTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryImprovedExTrait",
@@ -16834,6 +17390,7 @@
  },
  "TemporaryImprovedSecondaryTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryImprovedSecondaryTrait",
@@ -16854,6 +17411,7 @@
  },
  "TemporaryMoveSpeedTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TemporaryMoveSpeedTrait",
@@ -16874,6 +17432,7 @@
  },
  "TimeSlowAmountTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeSlowAmountTalent",
@@ -16900,6 +17459,7 @@
  },
  "TimeSlowCritTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeSlowCritTalent",
@@ -16926,6 +17486,7 @@
  },
  "TimeSlowCumulativeBuffTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeSlowCumulativeBuffTalent",
@@ -16952,6 +17513,7 @@
  },
  "TimeSlowDemeterTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeSlowDemeterTalent",
@@ -16996,6 +17558,7 @@
  },
  "TimeSlowDestroyProjectilesTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeSlowDestroyProjectilesTalent",
@@ -17022,6 +17585,7 @@
  },
  "TimeSlowFreezeTimeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeSlowFreezeTimeTalent",
@@ -17048,6 +17612,7 @@
  },
  "TimeSlowLastStandRechargeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeSlowLastStandRechargeTalent",
@@ -17074,6 +17639,7 @@
  },
  "TimeSlowSpeedTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeSlowSpeedTalent",
@@ -17100,6 +17666,7 @@
  },
  "TimeStopLastStandBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimeStopLastStandBoon",
@@ -17171,6 +17738,7 @@
  },
  "TimedBuffKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimedBuffKeepsake",
@@ -17196,6 +17764,7 @@
  },
  "TimedCritVulnerabilityBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimedCritVulnerabilityBoon",
@@ -17221,6 +17790,7 @@
  },
  "TimedKillBuffBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TimedKillBuffBoon",
@@ -17246,6 +17816,7 @@
  },
  "TorchAttackSpeedTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchAttackSpeedTrait",
@@ -17269,6 +17840,7 @@
  },
  "TorchAutofireAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchAutofireAspect",
@@ -17296,6 +17868,7 @@
  },
  "TorchAutofireSprintTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchAutofireSprintTrait",
@@ -17319,6 +17892,7 @@
  },
  "TorchDetonateAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchDetonateAspect",
@@ -17346,6 +17920,7 @@
  },
  "TorchDiscountExAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchDiscountExAttackTrait",
@@ -17366,6 +17941,7 @@
  },
  "TorchEnhancedAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchEnhancedAttackTrait",
@@ -17386,6 +17962,7 @@
  },
  "TorchExSpecialCountTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchExSpecialCountTrait",
@@ -17406,6 +17983,7 @@
  },
  "TorchHammerTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": null,
@@ -17426,6 +18004,7 @@
  },
  "TorchLongevityTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchLongevityTrait",
@@ -17449,6 +18028,7 @@
  },
  "TorchMoveSpeedTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchMoveSpeedTrait",
@@ -17472,6 +18052,7 @@
  },
  "TorchOrbitPointTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchOrbitPointTrait",
@@ -17495,6 +18076,7 @@
  },
  "TorchSpecialDurationAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchSpecialDurationAspect",
@@ -17522,6 +18104,7 @@
  },
  "TorchSpecialImpactTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchSpecialImpactTrait",
@@ -17545,6 +18128,7 @@
  },
  "TorchSpecialLineTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchSpecialLineTrait",
@@ -17565,6 +18149,7 @@
  },
  "TorchSpecialSpeedTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchSpecialSpeedTrait",
@@ -17585,6 +18170,7 @@
  },
  "TorchSpinAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchSpinAttackTrait",
@@ -17608,6 +18194,7 @@
  },
  "TorchSplitAttackTrait": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchSplitAttackTrait",
@@ -17628,6 +18215,7 @@
  },
  "TorchSprintRecallAspect": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TorchSprintRecallAspect",
@@ -17655,6 +18243,7 @@
  },
  "TransformAphroditeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformAphroditeTalent",
@@ -17699,6 +18288,7 @@
  },
  "TransformAttackSpeedTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformAttackSpeedTalent",
@@ -17725,6 +18315,7 @@
  },
  "TransformCastDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformCastDamageTalent",
@@ -17751,6 +18342,7 @@
  },
  "TransformCooldownDodgeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformCooldownDodgeTalent",
@@ -17777,6 +18369,7 @@
  },
  "TransformDamageTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformDamageTalent",
@@ -17803,6 +18396,7 @@
  },
  "TransformDurationTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformDurationTalent",
@@ -17829,6 +18423,7 @@
  },
  "TransformExCastTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformExCastTalent",
@@ -17855,6 +18450,7 @@
  },
  "TransformLastStandRechargeTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformLastStandRechargeTalent",
@@ -17881,6 +18477,7 @@
  },
  "TransformPrimaryTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformPrimaryTalent",
@@ -17907,6 +18504,7 @@
  },
  "TransformSpecialCritTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformSpecialCritTalent",
@@ -17933,6 +18531,7 @@
  },
  "TransformSpecialTalent": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "TransformSpecialTalent",
@@ -17959,6 +18558,7 @@
  },
  "UnpickedBoonKeepsake": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "UnpickedBoonKeepsake",
@@ -17984,6 +18584,7 @@
  },
  "UpgradeHammerBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NpcAlly",
   "descriptionRef": "UpgradeHammerBoon",
@@ -18009,6 +18610,7 @@
  },
  "VitalityCostume": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "VitalityCostume",
@@ -18034,6 +18636,7 @@
  },
  "WaterEssence": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "WaterEssence",
@@ -18054,6 +18657,7 @@
  },
  "WeakPotencyBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "WeakPotencyBoon",
@@ -18096,6 +18700,7 @@
  },
  "WeakVulnerabilityBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "NonStandard",
   "descriptionRef": "WeakVulnerabilityBoon",
@@ -18138,6 +18743,7 @@
  },
  "WeaponUpgradeBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "WeaponUpgradeBoon",
@@ -18218,6 +18824,7 @@
  },
  "ZeusCastBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ZeusCastBoon",
@@ -18243,6 +18850,7 @@
  },
  "ZeusManaBoltBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ZeusManaBoltBoon",
@@ -18268,6 +18876,7 @@
  },
  "ZeusManaBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ZeusManaBoon",
@@ -18293,6 +18902,7 @@
  },
  "ZeusSpecialBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ZeusSpecialBoon",
@@ -18318,6 +18928,7 @@
  },
  "ZeusSprintBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ZeusSprintBoon",
@@ -18343,6 +18954,7 @@
  },
  "ZeusWeaponBoon": {
   "activation": null,
+  "aspectConflicts": null,
   "blockedBy": null,
   "boonCategory": "StandardOlympian",
   "descriptionRef": "ZeusWeaponBoon",
