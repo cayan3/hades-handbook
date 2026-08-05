@@ -196,14 +196,24 @@ export interface TraitRecord {
 export interface BuildFailure {
   /** The clause as it was found, verbatim, so it can be read against the game. */
   clause: unknown;
-  /** Why it couldn't be used, in words rather than as a code. */
+  /** Why it couldn't be used, in words instead of as a code. */
   reason: string;
   /** Which part of the record was being built: `prereq`, `tier`, ... */
   stage: string;
 }
 
 export interface GodRecord {
-  id: GodId;
+  /**
+   * The god's *loot table* id (`ZeusUpgrade`), deliberately not typed as a god
+   * id. A god is addressed by the bare name that keys this table (`Zeus`), and
+   * that is what every requirement, member list and run god pool speaks. The
+   * two spaces don't overlap, so a god picker built out of this field produces
+   * a pool that matches nothing and gives no hint as to why. Read it the way
+   * `iconKey` is read: a fact about a god, not a name for one. A keepsake's
+   * `associatedGod` uses this space too, and that is the one place the
+   * translation is actually needed.
+   */
+  id: string;
   name: string;
   kind: "PoolSlot" | "NonPoolSlot";
   iconKey: string;
