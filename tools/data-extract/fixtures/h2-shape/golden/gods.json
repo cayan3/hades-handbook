@@ -1,1 +1,39 @@
-{}
+{
+ "Cindra": {
+  "iconKey": "BoonSymbolCindra",
+  "id": "CindraUpgrade",
+  "kind": "PoolSlot",
+  "name": "Cindra",
+  "source": "Scripts/LootData_Cindra.lua:12"
+ },
+ "Thren": {
+  "iconKey": "BoonSymbolThren",
+  "id": "WanderUpgrade",
+  "kind": "NonPoolSlot",
+  "name": "Thren",
+  "source": "Scripts/LootData_Thren.lua:18"
+ },
+ "Verdan": {
+  "iconKey": "BoonSymbolVerdan",
+  "id": "VerdanUpgrade",
+  "kind": "PoolSlot",
+  "name": "Verdan",
+  "source": "Scripts/LootData_Verdan.lua:11"
+ },
+ "__mechanic_StackUpgrade": {
+  "iconKey": null,
+  "id": "StackUpgrade",
+  "kind": "NonPoolSlot",
+  "name": null,
+  "note": "Not a god; a mechanical loot slot (Daedalus Hammer / stacked reward variants).",
+  "source": "Scripts/LootData.lua:35"
+ },
+ "__mechanic_WeaponUpgrade": {
+  "iconKey": "BoonSymbolAnvil",
+  "id": "WeaponUpgrade",
+  "kind": "NonPoolSlot",
+  "name": null,
+  "note": "Not a god; a mechanical loot slot (Daedalus Hammer / stacked reward variants).",
+  "source": "Scripts/LootData.lua:28"
+ }
+}

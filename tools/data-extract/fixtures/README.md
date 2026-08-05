@@ -64,6 +64,12 @@ fixtures/
       TraitData_Duo.lua       a cross-god duo
       TraitData_Elementals.lua an infusion boon
       TraitData_Orithia.lua   a narrative-cameo "god" (ADDED, see below)
+      LootData.lua            the loot base every offering table inherits, plus
+                              the mechanical slots that are not gods
+      LootData_Cindra.lua     a pool god who inherits the flag (ADDED)
+      LootData_Verdan.lua     a pool god who declares it (ADDED)
+      LootData_Thren.lua      a non-pool god whose table is named for the
+                              mechanic, and who owns no boons (ADDED)
     expected.json
   h1-shape/
     input/
@@ -81,6 +87,13 @@ needs two gods; an asymmetric negation needs a real (not dangling) target
 on the other side; the narrative-cameo case needs its own concrete
 boon. Both additions are minimal (3 boons, 1 boon respectively) and follow
 the same per-god-file convention as `TraitData_Cindra.lua`.
+
+The four `LootData*.lua` files came later and for a different reason: without
+them `LootSetData` was empty, and an empty `LootSetData` decides `godKind` and
+`boonCategory` for every record in the fixture without any of it being stated.
+That is the callout above the coverage matrix. `LootData_Thren.lua` introduces
+a fourth god, who owns no trait file at all — his whole job is to be recognised
+from a table named for the mechanic rather than for him.
 
 ## How the expected outputs were produced
 
@@ -162,6 +175,31 @@ the exact reasoning.
 >   through the `GodLoot = false` resolution the row describes, rather than
 >   through its boon's own `God` field.
 >
+> **Pool-god status (H2) has since closed as well**, by the same move on the
+> other game, and it is the one item here that no numbered row ever asked for.
+> `h2_LootSetData.json` was `{}` — deliberate, so that row 14's cameo marker was
+> the only thing that could make Orithia non-pool — and the side effect was that
+> `pool_god_names` was *always empty*. Three places read it (`classify_category`,
+> and `godKind` in both record builders), all three sat on their else branch, and
+> every god boon in the golden came out `NonPoolSlot` / `NonStandard`. Against
+> the installed game that pairing is the minority answer: 117 records are
+> `PoolSlot` / `StandardOlympian`, so the golden was freezing the least
+> representative result this code can produce. Both halves had to land together
+> and did — the section-to-table map is derived from `LootSetData`'s own shape
+> instead of being written out, and the fixture gained loot tables for it to
+> read. Sixteen records move, and the golden now agrees with `expected.json` on
+> `god`, `godKind` and `boonCategory` for all eighteen.
+>
+> The three gods split the recognition test between them, so that none of them
+> can pass it by accident: **Cindra** inherits `GodLoot` and declares nothing,
+> **Verdan** declares it, and **Thren** overrides it to false and keeps a
+> speaker — which is also the only thing separating him from the weapon upgrade,
+> since that overrides the same flag and has nobody. Thren's table is
+> additionally called `WanderUpgrade` rather than anything like his name, so the
+> god has to be read from the section that holds it. **Orithia still owns no
+> loot table**, which is what keeps row 14 honest: her `NonPoolSlot` used to be
+> the answer every single record gave, and it is now one of two.
+>
 > The rest still stand, verified by running both normalizers and reading
 > `golden/`:
 >
@@ -169,17 +207,6 @@ the exact reasoning.
 >   exclusion at all; the string does not appear in `src/*.py`. Both
 >   `SableDebugTrait` and `CindraDebugOnlyBoon` are in their goldens. The
 >   fixtures hold the input the rule would need, and the rule is not written.
-> - **Pool-god status (H2), which no row asks for and which is worth naming
->   anyway.** `h2_LootSetData.json` is `{}` — deliberate for row 14, which wants
->   Orithia's non-pool status to come from an `InheritFrom` marker with no loot
->   table anywhere. The side effect is that `pool_god_names` is *always empty*
->   here, and three places read it: `classify_category`, and `godKind` in both
->   record builders. All three are frozen on their else branch, so every god boon
->   in this golden is `NonPoolSlot` / `NonStandard`. Against the real data that is
->   the minority answer — 117 records are `PoolSlot`/`StandardOlympian`. Closing
->   it needs a `LootSetData` section **and** a god table that recognises invented
->   gods, which the Hades I side now has and this one does not; either alone
->   achieves nothing.
 > - **Row 6's element-affinity half (H2)** — `CindraStrikeBoon` has
 >   `elementAffinity: null` in the golden. The affinity resolver matches against
 >   a hardcoded table of the real games' element bases, which the fixture's
@@ -207,21 +234,25 @@ the exact reasoning.
 | 11 | Malformed negation (neither idiom) → fail build | `CindraMalformedBoon` (`HasNone` on an unrecognized `Path`) | — (one clean example is enough to prove the classifier's third bucket) |
 | 12 | Commented-out entry dropped by real Lua loading | `CindraObsoleteBoon` (commented out of `TraitRequirements`) | `SableCutContentTrait` (commented out of the flat `TraitData` table) |
 | 13 | `DebugOnly` → excluded | `CindraDebugOnlyBoon` | `SableDebugTrait` |
-| 14 | Narrative-cameo base → `godKind = NonPoolSlot` | `OrithiaBlessBoon` (via `CameoBoonBase` `InheritFrom` marker — no `LootData` exists in this fixture at all) | *(tested via a different, complementary mechanism instead — see below)* |
+| 14 | Narrative-cameo base → `godKind = NonPoolSlot` | `OrithiaBlessBoon` (via `CameoBoonBase` `InheritFrom` marker — Orithia is the one god with no loot table of her own) | *(tested via a different, complementary mechanism instead — see below)* |
 | 15 | Prereq referencing a non-existent id → validator reports dangling | `VerdanBriarBoon` → `VerdanPhantomBoon` | `SableMirageTrait` → `SablePhantomTrait` |
 
-**Note on #14 / `godKind` in general:** the two fixtures deliberately test
-*two different real signals* for the same `PoolSlot`/`NonPoolSlot`
-distinction, matching a genuine structural difference between the games'
-data (see `../out/clarifications.md` §2 for the real-data finding this
-mirrors): `h2-shape` has no `LootData` file at all, so `Orithia`'s
-`NonPoolSlot` status comes purely from the `CameoBoonBase` `InheritFrom`
-marker. `h1-shape` *does* have a `LootData.lua`, so `Fennick`'s
-`NonPoolSlot` status is tested via a real, resolved `GodLoot = false`
-field on `FennickUpgrade` (inherited-through-override from `BaseLoot`'s
-`GodLoot = true`) — the mechanism the real games actually use for their
-non-pool "gods" (Hermes in both games). Between the two fixtures, both
-real-world signals are exercised.
+**Note on #14 / `godKind` in general:** the games use *two different real
+signals* for the same `PoolSlot`/`NonPoolSlot` distinction (see
+`../out/clarifications.md` §2 for the real-data finding this mirrors), and both
+are exercised. One is the resolved `GodLoot = false` field, inherited-through-
+override from `BaseLoot`'s `GodLoot = true`, which is what the real games use
+for a god who hands boons out without taking a pool slot — Hermes in both, and
+Chaos in Hades II. `FennickUpgrade` carries it in `h1-shape` and
+`WanderUpgrade` carries it in `h2-shape`. The other is having no loot table at
+all and being marked a cameo by inheritance, which is `Orithia`: she is the one
+god in either fixture with nothing in the loot data, so her `NonPoolSlot`
+status can only come from the `CameoBoonBase` marker.
+
+This used to read as a deliberate split — `h2-shape` had no `LootData` file at
+all, so it could only test the marker. That was true and it was also why
+nothing in that fixture could distinguish a god the extractor recognised from
+one it did not.
 
 ## Fields in `expected.json`
 

@@ -116,14 +116,6 @@ with open(OUT + "text.json", "w") as f:
 # God records
 # ---------------------------------------------------------------------------
 
-# gods that actually appear in the standard boon pool this run (GodLoot == true)
-GOD_FILE_KEYS = {  # LootSetData top-level key -> <God>Upgrade id
-    "Aphrodite": "AphroditeUpgrade", "Apollo": "ApolloUpgrade", "Ares": "AresUpgrade",
-    "Demeter": "DemeterUpgrade", "Hephaestus": "HephaestusUpgrade", "Hera": "HeraUpgrade",
-    "Hermes": "HermesUpgrade", "Hestia": "HestiaUpgrade", "Poseidon": "PoseidonUpgrade",
-    "Zeus": "ZeusUpgrade",
-}
-
 # LootSetData is sectioned by god, but an `InheritFrom` entry names a bare id
 # that may live in any section: every <God>Upgrade inherits `BaseLoot`, which
 # sits under the `Loot` section and is where `GodLoot = true` is actually
@@ -156,6 +148,41 @@ def resolve_loot_field(entry_id, field, _visited=None, _depth=0):
             if v is not None:
                 return v
     return None
+
+
+def is_god_table(entry_id, entry):
+    """Whether a LootSetData entry is a god who hands out boons.
+
+    Every god's table inherits BaseLoot -- and so do the mechanical slots, so
+    that alone does not separate them. What does is that a god either keeps
+    BaseLoot's GodLoot flag or has an NPC who does the offering. Hermes turns
+    the flag off and has a speaker; the hammer turns it off and has nobody,
+    because nothing hands a hammer over.
+
+    This used to be the ten real god names written out, one per section. It
+    worked against the installed game and made the whole pass invisible to
+    anything else: the fixtures' gods are invented, and have to be, so nothing
+    matched, gods.json came out empty, and every fixture boon was filed
+    NonPoolSlot for a reason no test stated.
+    """
+    if not isinstance(entry, dict):
+        return False
+    if "BaseLoot" not in (entry.get("InheritFrom") or []):
+        return False
+    return bool(resolve_loot_field(entry_id, "GodLoot")) or bool(entry.get("Speaker"))
+
+
+# section name -> the <God>Upgrade id inside it. The section is what names the
+# god, which is worth taking over the entry id: Chaos hands its boons out
+# through a table called TrialUpgrade, and reading the section needs no
+# exception for that the way reading the id would.
+GOD_FILE_KEYS = {
+    section_name: entry_id
+    for section_name, section in sorted(LootSetData.items())
+    if isinstance(section, dict)
+    for entry_id, entry in sorted(section.items())
+    if is_god_table(entry_id, entry)
+}
 
 gods = {}
 pool_god_names = set()
@@ -193,9 +220,11 @@ if selene_spell is not None:
         "note": "Selene does not grant boons through the standard <God>Upgrade loot mechanism; she grants Hex/Arcana spells via a SpellDrop interactable.",
     }
 
-# Chaos and the mechanical "gods" (weapon upgrade, stack upgrade) also live
-# in LootSetData.Loot -- include them tagged distinctly, they are not
-# Olympians.
+# The mechanical "gods" (weapon upgrade, stack upgrade) also live in
+# LootSetData.Loot -- include them tagged distinctly, they are not Olympians.
+# Chaos is no longer written out beside them: its table is a god's by the test
+# above, which reads the section name and so needs no exception for a table
+# called TrialUpgrade.
 for key in ["WeaponUpgrade", "StackUpgrade", "StackUpgradeDouble", "StackUpgradeTriple"]:
     d = LootSetData.get("Loot", {}).get(key)
     if d:
@@ -208,16 +237,6 @@ for key in ["WeaponUpgrade", "StackUpgrade", "StackUpgradeDouble", "StackUpgrade
             "source": "%s%s:%d" % (REL_SCRIPTS, src[0], src[1]) if src else "%sLootData.lua" % REL_SCRIPTS,
             "note": "Not a god; a mechanical loot slot (Daedalus Hammer / stacked reward variants).",
         })
-trial_upgrade = LootSetData.get("Chaos", {}).get("TrialUpgrade")
-if trial_upgrade:
-    src = god_upgrade_source.get("TrialUpgrade")
-    gods["Chaos"] = {
-        "id": "TrialUpgrade",
-        "name": text_bundle_raw.get("Chaos", {}).get("displayName") or "Chaos",
-        "kind": "NonPoolSlot",
-        "iconKey": trial_upgrade.get("Icon"),
-        "source": "%sLootData_Chaos.lua:%d" % (REL_SCRIPTS, src[1]) if src else "%sLootData_Chaos.lua" % REL_SCRIPTS,
-    }
 
 with open(OUT + "gods.json", "w") as f:
     json.dump(gods, f, indent=1, sort_keys=True)
