@@ -59,6 +59,13 @@ GOD_DISAGREES_WITH_LOOT_TABLE_KNOWN = {
     "ShieldLoadAmmo_DemeterRangedTrait",
 }
 
+# One Godsent Hex per Hex per Olympian, and the game ships nine of each.
+# A number rather than a list of ids on purpose: the ids are derived, so listing
+# them would let a run that derived the wrong nine still match, and the check
+# would be agreeing with itself. Hades I has no equivalent mechanic and is not
+# checked for one.
+GODSENT_HEXES_HADES2 = 9
+
 # Hades I grants exactly one trait through another trait's SetupFunction, and
 # the granting trait is a keepsake -- so the block it declares can be undone by
 # swapping keepsakes and must not be reported as permanent. The edge is dropped
@@ -105,9 +112,47 @@ def inherit_chain(defs, trait_id, _visited=None, _depth=0):
     return chain
 
 
+def godsent_hexes(boons):
+    """Ids whose requirement has the paired-Hex shape: one Hex AND one god.
+
+    Written as a test of the emitted *shape* rather than of anything the
+    detector that produced it believes, which is the whole point -- a check that
+    asked "did the pairing pass find nine?" would answer nine every time the
+    pass was working and say nothing at all when it silently found none.
+
+    The shape is `all[ hasTrait(Hex), anyOf[ hasBoonFrom(god), hasKeepsake ] ]`
+    and every clause of it is load-bearing. The obvious looser test -- does the
+    requirement mention a Hex -- matches one record more than there are pairs:
+    a boon that asks for any of seven Hexes and has no paired-god half at all,
+    which is a different mechanic rather than a tenth pair. An assertion written
+    that way fails on a correct catalog, which is the kind most likely to get
+    deleted rather than fixed.
+
+    The Hex's own id is deliberately not part of the test. It follows a naming
+    convention today, and keying on that would trade a shape the requirement
+    genuinely has for a string a patch could rename.
+    """
+    found = []
+    for bid, b in sorted(boons.items()):
+        prereq = b.get("prereq")
+        if not isinstance(prereq, dict) or prereq.get("kind") != "all":
+            continue
+        children = [c for c in (prereq.get("of") or []) if isinstance(c, dict)]
+        if len(children) != 2:
+            continue
+        held = [c for c in children if c.get("kind") == "hasTrait"]
+        either = [c for c in children if c.get("kind") == "anyOf"]
+        if len(held) != 1 or len(either) != 1:
+            continue
+        alternatives = {c.get("kind") for c in (either[0].get("of") or []) if isinstance(c, dict)}
+        if alternatives == {"hasBoonFrom", "hasKeepsake"}:
+            found.append(bid)
+    return found
+
+
 def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                   raw_defs=None, loot_membership=None, external_references=None,
-                  aspect_ids=None):
+                  aspect_ids=None, godsent_hexes_expected=None):
     """Check one game's emitted catalog. Returns (report, fatal messages).
 
     The five trailing arguments are the inputs a check needs that the emitted
@@ -368,6 +413,31 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
         report["boonsNotReferencedOutsideTraitData"] = unreferenced
         report["boonsNotReferencedOutsideTraitDataCount"] = len(unreferenced)
 
+    # 14. the Godsent Hexes, counted. Their god and their Hex are the two
+    # things the game does not state outright, so both are derived -- and the
+    # derivation checks itself only once it has decided a record is one of
+    # these. Deciding that is three tests against the raw data, any of which a
+    # patch could silently break: a marker string, an inherited base, and the
+    # requirement block being written as a table rather than a list. Missing on
+    # any of them is not an error, it is a `continue`, and the result is a
+    # handful of records that keep no god and quietly lose half their
+    # requirement -- so a spell boon renders as reachable without the Hex it
+    # needs, which is the opposite of what it says.
+    #
+    # The population is fixed and small, so counting it turns that silence
+    # loud. Skipped where no expectation is supplied, since the fixtures have
+    # no such records and a check that cannot run is not a check that passed.
+    if godsent_hexes_expected is not None:
+        found = godsent_hexes(boons)
+        report["godsentHexes"] = found
+        report["godsentHexCount"] = len(found)
+        if len(found) != godsent_hexes_expected:
+            fatal.append(
+                "%s has %d requirements with the paired-Hex shape, expected %d: %s"
+                % (game_key, len(found), godsent_hexes_expected,
+                   ", ".join(found) or "none")
+            )
+
     return report, fatal
 
 
@@ -526,6 +596,7 @@ def main():
         raw_defs=h2_defs,
         external_references=_external_references("hades2"),
         aspect_ids=h2_aspects,
+        godsent_hexes_expected=GODSENT_HEXES_HADES2,
     )
     h2_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h2_defs)
 

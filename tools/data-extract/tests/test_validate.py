@@ -512,3 +512,94 @@ def test_the_asymmetric_fixture_negation_becomes_a_block_not_an_exclusion(shape,
     assert blocked
     for record in boons.values():
         assert not (record["blockedBy"] and record["exclusiveGroup"])
+
+
+# ---------------------------------------------------------------------------
+# The Godsent Hexs: counted, because missing them is silent
+# ---------------------------------------------------------------------------
+
+def paired(hex_id, god):
+    """A requirement with the paired-Hex shape: hold the Hex AND reach the god."""
+    return requirements.all_of([
+        requirements.has_trait(hex_id),
+        requirements.any_of([
+            requirements.has_boon_from(god),
+            requirements.has_keepsake("Force%sBoonKeepsake" % god),
+        ]),
+    ])
+
+
+def a_catalog_of_pairs(count):
+    # Attribution is left off on purpose: the check reads the requirement's
+    # shape and nothing else, so naming gods here would only be feeding a
+    # different check's vocabulary rule.
+    return {
+        "Pair%d" % n: boon(id="Pair%d" % n,
+                           prereq=paired("Spell%dTrait" % n, "God%d" % n))
+        for n in range(count)
+    }
+
+
+def test_the_expected_number_of_pairs_passes():
+    _, fatal = check(a_catalog_of_pairs(9), godsent_hexes_expected=9)
+    assert fatal == []
+
+
+def test_a_missing_pair_stops_the_run():
+    """The failure this exists for, and it never arrives as an error.
+
+    Deciding a record is one of these is three tests against the raw data, and
+    missing on any of them is a `continue`. The record then keeps no god and
+    silently loses the half of its requirement that names the Hex, so it renders
+    as reachable without the Hex it needs.
+    """
+    report, fatal = check(a_catalog_of_pairs(8), godsent_hexes_expected=9)
+    assert report["godsentHexCount"] == 8
+    assert any("expected 9" in f for f in fatal)
+
+
+def test_none_at_all_stops_the_run_rather_than_reading_as_nothing_to_check():
+    """A renamed marker string finds zero, which is the shape of the whole
+    detection breaking rather than of a catalog that has no pairs."""
+    _, fatal = check({}, godsent_hexes_expected=9)
+    assert any("has 0" in f for f in fatal)
+
+
+def test_a_boon_asking_for_any_of_several_hexes_is_not_counted_as_a_pair():
+    """Measured, not assumed: the looser test everyone reaches for first --
+    does the requirement mention a Hex -- matches one record more than there
+    are pairs. It asks for any of seven Hexes and has no paired-god half at
+    all, which is a different mechanic. An assertion written that way fails on
+    a correct catalog, which is the kind that gets deleted rather than fixed.
+    """
+    catalog = a_catalog_of_pairs(9)
+    catalog["WhisperedPrayerish"] = boon(
+        id="WhisperedPrayerish",
+        prereq=requirements.any_of([
+            requirements.has_trait("Spell%dTrait" % n) for n in range(7)
+        ]),
+    )
+    report, fatal = check(catalog, godsent_hexes_expected=9)
+    assert "WhisperedPrayerish" not in report["godsentHexes"]
+    assert fatal == []
+
+
+def test_a_pair_that_lost_its_hex_half_is_no_longer_a_pair():
+    """What the silent failure actually leaves behind: the god half survives
+    because it is a written clause, and the derived half is simply gone."""
+    catalog = a_catalog_of_pairs(9)
+    catalog["Pair0"]["prereq"] = requirements.any_of([
+        requirements.has_boon_from("Apollo"),
+        requirements.has_keepsake("ForceApolloBoonKeepsake"),
+    ])
+    report, fatal = check(catalog, godsent_hexes_expected=9)
+    assert report["godsentHexCount"] == 8
+    assert fatal
+
+
+def test_the_check_is_skipped_where_no_population_is_expected():
+    """The fixtures carry no such records, and a check that cannot run is
+    different from one that passed."""
+    report, fatal = check(a_catalog_of_pairs(3))
+    assert "godsentHexCount" not in report
+    assert fatal == []
