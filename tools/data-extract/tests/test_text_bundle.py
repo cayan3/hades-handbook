@@ -107,3 +107,78 @@ def test_a_skipped_entry_does_not_hand_its_name_to_the_one_before_it(tmp_path):
 ''')
     assert entries["Nameless"].get("displayName") is None
     assert entries["Named"]["displayName"] == "Root Ward"
+
+
+def test_every_field_takes_the_punctuation_the_id_line_takes(tmp_path):
+    """The Id line learned the comma and the value lines did not, which moved
+    the same silence one field over instead of ending it.
+
+    An entry punctuated the way twenty-three of Hades I's Id lines already are
+    parses its own boundary correctly and then loses everything inside it: the
+    name, the description, and -- worst of the three -- the InheritFrom, which
+    is what would otherwise have recovered the name a hop up. So both of the
+    ways this file has of naming an entry fail at once, and the record reaches
+    the catalog nameless with nothing raised.
+    """
+    entries = bundle_file(tmp_path, '''
+{
+  Id = "Parent"
+  DisplayName = "Ember Ward"
+}
+{
+  Id = "Comma'd",
+  DisplayName = "Root Ward",
+  Description = "every line punctuated the same way",
+  InheritFrom = "Parent",
+}
+''')
+    assert entries["Comma'd"]["displayName"] == "Root Ward"
+    assert entries["Comma'd"]["description"] == "every line punctuated the same way"
+    assert entries["Comma'd"]["inheritFrom"] == "Parent"
+
+
+def test_a_comma_does_not_cost_an_entry_the_name_it_inherits(tmp_path):
+    """The two fixes together: an entry with no name of its own, whose only
+    route to one is an InheritFrom line carrying the comma."""
+    entries = bundle_file(tmp_path, '''
+{
+  Id = "Parent"
+  DisplayName = "Ember Ward"
+}
+{
+  Id = "Child",
+  InheritFrom = "Parent",
+}
+''')
+    assert resolve_display_name(entries, "Child") == "Ember Ward"
+
+
+def test_a_bare_line_is_still_read_now_that_the_comma_is_allowed(tmp_path):
+    """The other direction, which is how nearly every entry in both games is
+    written -- loosening the grammar must not cost the common case."""
+    entries = bundle_file(tmp_path, '''
+{
+  Id = "Plain"
+  DisplayName = "Ember Ward"
+  Description = "no commas anywhere"
+  InheritFrom = "Elsewhere"
+}
+''')
+    assert entries["Plain"]["displayName"] == "Ember Ward"
+    assert entries["Plain"]["description"] == "no commas anywhere"
+    assert entries["Plain"]["inheritFrom"] == "Elsewhere"
+
+
+def test_a_value_that_is_not_alone_on_its_line_is_still_refused(tmp_path):
+    """The comma is optional; the rest of the anchoring is not. A line with a
+    second field after the comma is a shape nobody has read against the game,
+    and reading it as a name would be guessing at a grammar rather than
+    following one.
+    """
+    entries = bundle_file(tmp_path, '''
+{
+  Id = "Packed"
+  DisplayName = "Ember Ward", Description = "and more"
+}
+''')
+    assert entries["Packed"].get("displayName") is None

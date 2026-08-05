@@ -2,6 +2,36 @@ import os
 import re
 import json
 
+
+def _string_field(name):
+    """`Name = "value"` alone on a line, w/ the trailing comma optional.
+
+    One builder rather than a hand-written pattern per field, bc two of them
+    disagreeing is the exact bug this grammar has already produced once. The
+    trailing comma is optional here bc the file punctuates itself
+    inconsistently: Hades I writes `Id = "X",` twenty-three times & bare
+    everywhere else. When only the Id pattern knew that, a comma'd Id line
+    didn't start an entry at all, so the entry went missing AND its fields were
+    read as part of the previous one -- worse than losing it, since a preceding
+    entry w/ no DisplayName of its own would take this one's & report a real
+    name against the wrong id (o_0).
+
+    The value lines kept the stricter shape after that was fixed, which left
+    the same trap one field over: an entry punctuated the way those Id lines
+    already are parses its own boundary & then silently drops its name, its
+    description, AND the InheritFrom that would otherwise have recovered the
+    name a hop up. Same grammar for every field means the next punctuation
+    somebody's hand-maintained file invents lands on all of them or none.
+    """
+    return re.compile(r'^\s*%s\s*=\s*"((?:[^"\\]|\\.)*)"\s*,?\s*$' % name, re.MULTILINE)
+
+
+ID_LINE = _string_field("Id")
+DISPLAY_NAME_LINE = _string_field("DisplayName")
+DESCRIPTION_LINE = _string_field("Description")
+INHERIT_FROM_LINE = _string_field("InheritFrom")
+
+
 def parse_sjson_text_bundle(path):
     """Parse Supergiant's semi-JSON help/trait text files into
     {id: {"displayName":..., "description":..., "inheritFrom":..., "line":N}}.
@@ -26,14 +56,7 @@ def parse_sjson_text_bundle(path):
         text = f.read()
 
     # locate each "Id = "..."" occurrence and slice the file into chunks (chop chop)
-    # The trailing comma is optional bc the file punctuates itself inconsistently:
-    # Hades I writes `Id = "X",` twenty-three times & bare everywhere else. Those
-    # lines used to not start an entry at all, so the entry went missing AND its
-    # fields were read as part of the previous one -- which is worse than losing
-    # it, since a preceding entry w/ no DisplayName of its own would take this
-    # one's & report a real name against the wrong id (o_0).
-    id_pattern = re.compile(r'^\s*Id\s*=\s*"((?:[^"\\]|\\.)*)"\s*,?\s*$', re.MULTILINE)
-    matches = list(id_pattern.finditer(text))
+    matches = list(ID_LINE.finditer(text))
     out = {}
     for i, m in enumerate(matches):
         start = m.start()
@@ -42,9 +65,9 @@ def parse_sjson_text_bundle(path):
         entry_id = m.group(1)
         line_no = text.count("\n", 0, start) + 1
 
-        dn_m = re.search(r'^\s*DisplayName\s*=\s*"((?:[^"\\]|\\.)*)"\s*$', chunk, re.MULTILINE)
-        desc_m = re.search(r'^\s*Description\s*=\s*"((?:[^"\\]|\\.)*)"\s*$', chunk, re.MULTILINE)
-        inherit_m = re.search(r'^\s*InheritFrom\s*=\s*"((?:[^"\\]|\\.)*)"\s*$', chunk, re.MULTILINE)
+        dn_m = DISPLAY_NAME_LINE.search(chunk)
+        desc_m = DESCRIPTION_LINE.search(chunk)
+        inherit_m = INHERIT_FROM_LINE.search(chunk)
 
         entry = {"line": line_no}
         if dn_m:
