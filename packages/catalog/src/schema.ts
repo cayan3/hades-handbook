@@ -1,4 +1,14 @@
-import type { Element, GodId, KeepsakeId, Rarity, SetId, SlotId, TraitId } from "@repo/core";
+import type {
+  AspectId,
+  Element,
+  GodId,
+  KeepsakeId,
+  Rarity,
+  Requirement,
+  SetId,
+  SlotId,
+  TraitId,
+} from "@repo/core";
 
 /**
  * The shape of the extracted snapshot (as it's actually emitted).
@@ -9,9 +19,14 @@ import type { Element, GodId, KeepsakeId, Rarity, SetId, SlotId, TraitId } from 
  * were different "the schema says X, the data says Y" findings in like four
  * different passes :sobbing: :sobbing:).
  *
- * Fields the extractor doesn't emit yet are optional instead of simply being
- * absent, so a consumer written against the finished shape can compile now and
- * just see `undefined` for those fields until the emission catches up.
+ * A field is optional here only when the extractor genuinely writes it onto
+ * some records and not others. It is NOT a waiting room for fields the emission
+ * hadn't caught up to yet: three fields sat optional on that reasoning long
+ * after they started being emitted on every record, and a `?:` that says
+ * "sometimes absent" while the data says "always present" makes every consumer
+ * write a branch for a case that cannot happen. An absent *value* is written
+ * `null` throughout, so nullability and optionality mean different things and
+ * neither is a stand-in for the other.
  */
 export interface TraitRecord {
   id: TraitId;
@@ -73,7 +88,7 @@ export interface TraitRecord {
    * sorted. Kept as the member list instead of collapsed to like a group
    * identifier bc the list itself is what's needed by the view (i.e. naming the
    * specific conflicting trait is more useful than just like naming the
-   * conflict group lol); also, collapsing it would mean inventing ground
+   * conflict group lol); also, collapsing it would mean inventing group
    * identifiers that aren't actually in the game(s).
    *
    * Hades I's version currently mixes one-directional blocks into the
@@ -91,56 +106,100 @@ export interface TraitRecord {
    */
   elementAffinity: Element | null;
 
-  /** The gate for being offered this trait. Null if there yk isn't any gate. */
-  prereq: RawRequirement | null;
+  /**
+   * The gate for being offered this trait. Null if there yk isn't any gate.
+   *
+   * This is the engine's own `Requirement`, not a pass-through of the game's
+   * clause structure: the extractor normalises it now, so there's no conversion
+   * left to happen on this side. Typing it as anything looser would be claiming
+   * a step still exists when it doesn't.
+   */
+  prereq: Requirement | null;
 
   /**
-   * Longest prerequisite path within this trait's own god. Null for anything
-   * that considers multiple gods (e.g. Duos and Infusions).
-   *
-   * Optional because nothing emits it yet.
+   * `Scripts/<file>.lua:<line>` where the gate above is *written*, which is
+   * usually not where the trait itself is (Hades I keeps a god's gates in that
+   * god's loot table, nowhere near the trait's own definition). Null exactly
+   * when `prereq` is.
    */
-  tier?: number | null;
+  prereqSource: string | null;
+
+  /**
+   * Ladder depth within this trait's own god, counted along the *cheapest*
+   * prereq path (i.e. a disjunction costs its easiest branch, a conjunction its
+   * dearest, and a branch some other god can satisfy costs this ladder
+   * nothing). First rung is 1. Null for anything that doesn't sit on exactly
+   * one god's ladder — e.g. Duos, which consider two gods, and Infusions, which
+   * consider none.
+   *
+   * Cheapest and not longest, which this said until it was measured: tier N is
+   * supposed to mean "needs a tier N-1 boon of the same god", and a boon
+   * reachable through any one of three others doesn't have one.
+   */
+  tier: number | null;
 
   /**
    * Holding any of these makes this trait unobtainable. This is
    * one-directional, and every listed blocker must be something the run
-   * literally can't get rid of.
+   * literally can't get rid of. E.g. keepsakes are swappable between regions,
+   * so any blockers due to equipped keepsakes shouldn't be included here bc
+   * it'd tell a player their build is cooked when changing keepsakes would
+   * just yk fix it rip.
    *
-   * Optional because nothing emits it yet.
+   * A weapon aspect is excluded for a different reason than a keepsake: it's
+   * permanent for the run alright, but a run *equips* an aspect rather than
+   * holding it, so a blocker naming one would be looked for among the held
+   * traits and never found. Those live in `aspectConflicts` below. The games
+   * write both with the same key, which is exactly how they ended up in here.
    */
-  blockedBy?: readonly TraitId[];
+  blockedBy: readonly TraitId[] | null;
 
   /**
    * Hades II. The separate, higher threshold for an owned trait's effect to
    * actually "activate" (usually different from the original threshold required
    * to be offered the trait in the first place).
    *
-   * Optional because nothing emits it yet; seven records have the source field
-   * and zero emitted records have this one.
+   * Six records carry one. A seventh has the source field and doesn't emit
+   * this, and that isn't a gap: its activation gate is the same rarity-count
+   * predicate as its obtain gate, and that predicate is discarded from both
+   * alike bc rarity is upgradeable mid-run and so can never make a build
+   * impossible.
    */
-  activation?: RawRequirement | null;
+  activation: Requirement | null;
+
+  /**
+   * Weapon forms this trait is never offered alongside. Read against the
+   * equipped aspect, not against anything held — see `blockedBy` above for why
+   * the two can't be one field.
+   *
+   * The overlay may add to this; it's no longer the only source, which the
+   * comment there used to say it was.
+   */
+  aspectConflicts: readonly AspectId[] | null;
+
+  /**
+   * Present only where the extractor decided it could not build this record
+   * honestly and said so rather than emitting a quiet approximation. Two Hades
+   * II records carry one today, both Chaos boons whose prereq names a table
+   * that didn't resolve when the game data was dumped.
+   *
+   * Genuinely optional: nearly every record is built without incident, so this
+   * being absent is the normal case rather than an emission gap.
+   */
+  buildFailure?: readonly BuildFailure[];
 
   /** `Scripts/<file>.lua:<line>` where this trait is defined. */
-  source?: string;
+  source: string;
 }
 
-/**
- * The requirement expression as the extractor emits it (still raw).
- *
- * This is purposefully not the engine's requirement type bc what's being
- * shipped now is just a pass-through of the game's own clause structure, and
- * normalising it into the shape that's actually evaluated should happen on the
- * emitting side. Typing this as the actual finished type would be like saying
- * a conversion happened when it hasn't yet.
- */
-export interface RawRequirement {
-  expr?: unknown;
-  source?: string;
-  note?: string;
-  linkedUpgradesOccurrences?: readonly unknown[];
-  inline?: unknown;
-  inlineSource?: string;
+/** What the extractor couldn't build, kept on the record it happened to. */
+export interface BuildFailure {
+  /** The clause as it was found, verbatim, so it can be read against the game. */
+  clause: unknown;
+  /** Why it couldn't be used, in words rather than as a code. */
+  reason: string;
+  /** Which part of the record was being built: `prereq`, `tier`, ... */
+  stage: string;
 }
 
 export interface GodRecord {

@@ -29,9 +29,9 @@ export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
 export { traitsFor } from "./traits.js";
 export type {
+  BuildFailure,
   GodRecord,
   KeepsakeRecord,
-  RawRequirement,
   SetRecord,
   TraitRecord,
 } from "./schema.js";
