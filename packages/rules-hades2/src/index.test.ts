@@ -1,17 +1,17 @@
-import { type TraitRecord, traitsFor } from "@repo/catalog";
+import { type TraitRecord, poolGods, traitsFor } from "@repo/catalog";
 import type { HeldTrait, RunFacts, TraitId } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import { type RulesCatalog, createRules, shippedCatalog } from "./index.js";
 
 /**
- * Two halves, and they are testing different things.
+ * Two halves, testing two different things.
  *
  * The synthetic half states one small world per rule, so a verdict can be read
- * off the test rather than looked up in six hundred records. The shipped half
- * asks whether the rules fire on the data the game actually ships, which is the
- * question a synthetic world cannot answer and the one this seam has been
- * failing quietly: the aspect conflicts below were carried for a whole session
- * in a field that could never match them, and nothing failed.
+ * straight off the test instead of looked up in six hundred records. The
+ * shipped half asks whether the rules fire on the data the game really ships. A
+ * synthetic world cannot answer that, and it is the question this seam kept
+ * failing quietly: the aspect conflicts below sat for a whole session in a field
+ * that could never match them, and nothing went red.
  */
 
 function facts(over: Partial<RunFacts> = {}): RunFacts {
@@ -57,10 +57,17 @@ function record(over: Partial<TraitRecord> & { id: TraitId }): TraitRecord {
   };
 }
 
+/**
+ * Even in the synthetic world, the pool half of the catalog is the real one.
+ * The gods named below are this game's gods, and which of them hold a pool slot
+ * is the fact the cap is counted over — not something a test should be
+ * inventing.
+ */
 function world(records: readonly TraitRecord[], forcing: Record<string, string> = {}): RulesCatalog {
   return {
     traits: Object.fromEntries(records.map((r) => [r.id, r])),
     forcingKeepsakes: new Map(Object.entries(forcing)),
+    poolGods: poolGods("hades2"),
   };
 }
 
@@ -126,6 +133,26 @@ describe("the pool cap", () => {
     const f = facts({ godPool: full, progress: { region: 4, chamber: 1 } });
     expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
   });
+
+  it("does not count a god who takes no pool slot toward the cap", () => {
+    // A run's god pool is every god it took a reward from, and this game has
+    // five gods who grant boons without ever taking a slot: Hermes, Chaos,
+    // Selene and the cameos. Counting them would shut the door on a run with
+    // two slots still open.
+    const f = facts({
+      godPool: new Set(["Hera", "Ares", "Hermes", "Artemis"]),
+      progress: { region: 4, chamber: 1 },
+    });
+    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
+  });
+
+  it("still closes once four slot-taking gods are in, whoever else is", () => {
+    const f = facts({
+      godPool: new Set(["Hera", "Ares", "Demeter", "Hestia", "Hermes"]),
+      progress: { region: 4, chamber: 1 },
+    });
+    expect(rules.canGodEnterPool("Zeus", f)).toBe(false);
+  });
 });
 
 describe("feasibility for one trait", () => {
@@ -137,6 +164,21 @@ describe("feasibility for one trait", () => {
       record({ id: "Blocker" }),
       record({ id: "GroupA", exclusiveGroup: ["GroupA", "GroupB"] }),
       record({ id: "GroupB", exclusiveGroup: ["GroupA", "GroupB"] }),
+      // Records carrying two constraints at once, which is where the order the
+      // four cases are checked in becomes observable. This game states none of
+      // these pairs in its own data — it ships no blocks at all — so a world
+      // stated here is the only place the order can be pinned.
+      record({ id: "AspectAndBlocked", aspectConflicts: ["FormA"], blockedBy: ["Blocker"] }),
+      record({
+        id: "AspectAndGrouped",
+        aspectConflicts: ["FormA"],
+        exclusiveGroup: ["AspectAndGrouped", "GroupB"],
+      }),
+      record({
+        id: "BlockedAndGrouped",
+        blockedBy: ["Blocker"],
+        exclusiveGroup: ["BlockedAndGrouped", "GroupB"],
+      }),
     ]),
   );
 
@@ -151,6 +193,13 @@ describe("feasibility for one trait", () => {
 
   it("reports nothing for a trait this catalog does not carry", () => {
     expect(rules.isBlocked("NotARecord", facts())).toBeNull();
+  });
+
+  it("reports nothing for an id that only looks like a record", () => {
+    // Every plain object answers to `toString`, so a lookup that asks only
+    // whether it got undefined would take that for a record and start reading
+    // fields off a function.
+    expect(rules.isBlocked("toString", facts())).toBeNull();
   });
 
   it("reports the equipped aspect as a conflict", () => {
@@ -172,9 +221,9 @@ describe("feasibility for one trait", () => {
 
   it("answers an aspect conflict from the equipped kit and never from what is held", () => {
     // The regression that matters. A weapon form is equipped, not picked up,
-    // and in Hades I the form is itself a trait record -- so a run can hold the
+    // and in Hades I the form is itself a trait record, so a run can hold the
     // id while having equipped nothing. Reading `held` would pass every other
-    // test in this file and answer a different question.
+    // test in this file while answering a different question.
     const f = facts({ held: held("FormA") });
     expect(rules.isBlocked("Conflicted", f)).toBeNull();
   });
@@ -213,6 +262,35 @@ describe("feasibility for one trait", () => {
     const f = facts({ bans: new Set(["Blocked"]), held: held("Blocker") });
     expect(rules.isBlocked("Blocked", f)).toEqual({ kind: "banned", trait: "Blocked" });
   });
+
+  it("reports a ban on an id this catalog does not carry", () => {
+    // A ban is a fact about the run rather than about a record, so it gets
+    // answered before the catalog is consulted at all. An id nobody can look up
+    // is the shape a ban arrives in when the run and the snapshot disagree, and
+    // dropping it would throw away the one constraint that was known for sure.
+    const f = facts({ bans: new Set(["NotARecord"]) });
+    expect(rules.isBlocked("NotARecord", f)).toEqual({ kind: "banned", trait: "NotARecord" });
+  });
+
+  it("reports the ban ahead of an equipped aspect conflict", () => {
+    const f = facts({ bans: new Set(["Conflicted"]), equipped: { aspect: "FormA" } });
+    expect(rules.isBlocked("Conflicted", f)).toEqual({ kind: "banned", trait: "Conflicted" });
+  });
+
+  it("reports the equipped aspect ahead of a held blocker", () => {
+    const f = facts({ equipped: { aspect: "FormA" }, held: held("Blocker") });
+    expect(rules.isBlocked("AspectAndBlocked", f)).toMatchObject({ kind: "aspectConflict" });
+  });
+
+  it("reports the equipped aspect ahead of a held group member", () => {
+    const f = facts({ equipped: { aspect: "FormA" }, held: held("GroupB") });
+    expect(rules.isBlocked("AspectAndGrouped", f)).toMatchObject({ kind: "aspectConflict" });
+  });
+
+  it("reports a held blocker ahead of a held group member", () => {
+    const f = facts({ held: held("Blocker", "GroupB") });
+    expect(rules.isBlocked("BlockedAndGrouped", f)).toMatchObject({ kind: "blockedByTrait" });
+  });
 });
 
 describe("against the shipped Hades II catalog", () => {
@@ -229,6 +307,22 @@ describe("against the shipped Hades II catalog", () => {
     expect(count((r) => r.exclusiveGroup)).toEqual({ carriers: 7, edges: 29 });
   });
 
+  it("opens the pool on a keepsake id the game actually uses", () => {
+    // The pool tests above invent both halves of the mapping, so they pass
+    // whatever id space it happens to be keyed in. This one hands over the
+    // shipped map and the id a run really records — the same id the nine
+    // Godsent Hex gates use when they name a keepsake. If the two ever drift
+    // apart, the last-region rule stops seeing the keepsake that saves the run
+    // and answers impossible.
+    const f = facts({
+      godPool: new Set(["Hera", "Ares", "Demeter", "Hestia"]),
+      progress: { region: 4, chamber: 1 },
+      equipped: { keepsake: "ForceZeusBoonKeepsake" },
+    });
+    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
+    expect(rules.canGodEnterPool("Poseidon", f)).toBe(false);
+  });
+
   it("fires on the two aspect conflicts the game declares", () => {
     // Both are Chaos curses that the autofire Torch is not offered alongside.
     const f = facts({ equipped: { aspect: "TorchAutofireAspect" } });
@@ -241,8 +335,8 @@ describe("against the shipped Hades II catalog", () => {
   });
 
   it("leaves those two alone under another form of the same weapon", () => {
-    // A real aspect id rather than an invented one: an id this catalog does not
-    // carry would pass this test by matching nothing, which is the same way the
+    // A real aspect id rather than an invented one. An id this catalog does not
+    // carry would pass this test by matching nothing, which is exactly how the
     // conflicts went unnoticed in the first place.
     expect(traitsFor("hades2").TorchDetonateAspect).toBeDefined();
     const f = facts({ equipped: { aspect: "TorchDetonateAspect" } });

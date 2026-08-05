@@ -1,18 +1,18 @@
-import { type TraitRecord, traitsFor } from "@repo/catalog";
+import { type TraitRecord, poolGods, traitsFor } from "@repo/catalog";
 import type { HeldTrait, RunFacts, TraitId } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import { type RulesCatalog, createRules, shippedCatalog } from "./index.js";
 
 /**
  * The synthetic half states one small world per rule; the shipped half asks
- * whether those rules fire on what the game actually ships.
+ * whether those rules fire on what the game really ships.
  *
- * The second half carries more weight here than in the Hades II package,
- * because this is where the feasibility data is. Seventeen aspect conflicts and
- * twelve blocks were extracted and read by nothing, and before that the aspect
- * ones sat in the block field where they could not have fired at all. A rule
- * that is correct against invented records and silent against real ones is the
- * exact failure this file exists to catch.
+ * That second half carries more weight here than it does in the Hades II
+ * package, because this is where the feasibility data lives. Seventeen aspect
+ * conflicts and twelve blocks were extracted and then read by nothing, and
+ * before that the aspect ones sat in the block field, where they could not have
+ * fired at all. A rule that is right against invented records and silent
+ * against real ones is exactly the failure this file exists to catch.
  */
 
 function facts(over: Partial<RunFacts> = {}): RunFacts {
@@ -58,10 +58,17 @@ function record(over: Partial<TraitRecord> & { id: TraitId }): TraitRecord {
   };
 }
 
+/**
+ * Even in the synthetic world, the pool half of the catalog is the real one.
+ * The gods named below are this game's gods, and which of them hold a pool slot
+ * is the fact the cap is counted over — not something a test should be
+ * inventing.
+ */
 function world(records: readonly TraitRecord[], forcing: Record<string, string> = {}): RulesCatalog {
   return {
     traits: Object.fromEntries(records.map((r) => [r.id, r])),
     forcingKeepsakes: new Map(Object.entries(forcing)),
+    poolGods: poolGods("hades1"),
   };
 }
 
@@ -119,6 +126,25 @@ describe("the pool cap", () => {
     const f = facts({ godPool: new Set([...full(), "Zeus"]), progress: { region: 4, chamber: 1 } });
     expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
   });
+
+  it("does not count a god who takes no pool slot toward the cap", () => {
+    // A run's god pool is every god it took a reward from, and Hermes hands out
+    // sixteen boons in this game without ever taking a slot. Counting him would
+    // fill the pool a god early and shut the door while one was still open.
+    const f = facts({
+      godPool: new Set(["Aphrodite", "Ares", "Artemis", "Hermes"]),
+      progress: { region: 4, chamber: 1 },
+    });
+    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
+  });
+
+  it("still closes once four slot-taking gods are in, whoever else is", () => {
+    const f = facts({
+      godPool: new Set([...full(), "Hermes"]),
+      progress: { region: 4, chamber: 1 },
+    });
+    expect(rules.canGodEnterPool("Zeus", f)).toBe(false);
+  });
 });
 
 describe("feasibility for one trait", () => {
@@ -130,6 +156,21 @@ describe("feasibility for one trait", () => {
       record({ id: "Blocker" }),
       record({ id: "GroupA", exclusiveGroup: ["GroupA", "GroupB"] }),
       record({ id: "GroupB", exclusiveGroup: ["GroupA", "GroupB"] }),
+      // Records carrying two constraints at once, which is where the order the
+      // four cases are checked in becomes observable. The shipped data cannot
+      // pin all of it: no record in either game carries both a block and a
+      // group, so a world stated here is the only place that pair exists.
+      record({ id: "AspectAndBlocked", aspectConflicts: ["FormA"], blockedBy: ["Blocker"] }),
+      record({
+        id: "AspectAndGrouped",
+        aspectConflicts: ["FormA"],
+        exclusiveGroup: ["AspectAndGrouped", "GroupB"],
+      }),
+      record({
+        id: "BlockedAndGrouped",
+        blockedBy: ["Blocker"],
+        exclusiveGroup: ["BlockedAndGrouped", "GroupB"],
+      }),
     ]),
   );
 
@@ -144,6 +185,13 @@ describe("feasibility for one trait", () => {
 
   it("reports nothing for a trait this catalog does not carry", () => {
     expect(rules.isBlocked("NotARecord", facts())).toBeNull();
+  });
+
+  it("reports nothing for an id that only looks like a record", () => {
+    // Every plain object answers to `toString`, so a lookup that asks only
+    // whether it got undefined would take that for a record and start reading
+    // fields off a function.
+    expect(rules.isBlocked("toString", facts())).toBeNull();
   });
 
   it("reports the equipped aspect as a conflict", () => {
@@ -161,6 +209,14 @@ describe("feasibility for one trait", () => {
 
   it("reports nothing when a different aspect is equipped", () => {
     expect(rules.isBlocked("Conflicted", facts({ equipped: { aspect: "FormB" } }))).toBeNull();
+  });
+
+  it("answers an aspect conflict from the equipped kit and never from what is held", () => {
+    // The shipped half below states this with the real Beowulf id, which is the
+    // stronger form of it. This one holds whatever the extractor does, and the
+    // two files are meant to stay copies of each other.
+    const f = facts({ held: held("FormA") });
+    expect(rules.isBlocked("Conflicted", f)).toBeNull();
   });
 
   it("reports a one-directional block once the blocker is held", () => {
@@ -197,6 +253,35 @@ describe("feasibility for one trait", () => {
     const f = facts({ bans: new Set(["Blocked"]), held: held("Blocker") });
     expect(rules.isBlocked("Blocked", f)).toEqual({ kind: "banned", trait: "Blocked" });
   });
+
+  it("reports a ban on an id this catalog does not carry", () => {
+    // A ban is a fact about the run rather than about a record, so it gets
+    // answered before the catalog is consulted at all. An id nobody can look up
+    // is the shape a ban arrives in when the run and the snapshot disagree, and
+    // dropping it would throw away the one constraint that was known for sure.
+    const f = facts({ bans: new Set(["NotARecord"]) });
+    expect(rules.isBlocked("NotARecord", f)).toEqual({ kind: "banned", trait: "NotARecord" });
+  });
+
+  it("reports the ban ahead of an equipped aspect conflict", () => {
+    const f = facts({ bans: new Set(["Conflicted"]), equipped: { aspect: "FormA" } });
+    expect(rules.isBlocked("Conflicted", f)).toEqual({ kind: "banned", trait: "Conflicted" });
+  });
+
+  it("reports the equipped aspect ahead of a held blocker", () => {
+    const f = facts({ equipped: { aspect: "FormA" }, held: held("Blocker") });
+    expect(rules.isBlocked("AspectAndBlocked", f)).toMatchObject({ kind: "aspectConflict" });
+  });
+
+  it("reports the equipped aspect ahead of a held group member", () => {
+    const f = facts({ equipped: { aspect: "FormA" }, held: held("GroupB") });
+    expect(rules.isBlocked("AspectAndGrouped", f)).toMatchObject({ kind: "aspectConflict" });
+  });
+
+  it("reports a held blocker ahead of a held group member", () => {
+    const f = facts({ held: held("Blocker", "GroupB") });
+    expect(rules.isBlocked("BlockedAndGrouped", f)).toMatchObject({ kind: "blockedByTrait" });
+  });
 });
 
 describe("against the shipped Hades I catalog", () => {
@@ -219,6 +304,22 @@ describe("against the shipped Hades I catalog", () => {
     expect(count((r) => r.exclusiveGroup)).toEqual({ carriers: 9, edges: 21 });
   });
 
+  it("opens the pool on a keepsake id the game actually uses", () => {
+    // The pool tests above invent both halves of the mapping, so they pass
+    // whatever id space it happens to be keyed in. This one hands over the
+    // shipped map and the id a run really records — the same id a requirement
+    // naming this keepsake would use. If the two ever drift apart, the
+    // last-region rule stops seeing the keepsake that saves the run and answers
+    // impossible.
+    const f = facts({
+      godPool: new Set(["Aphrodite", "Ares", "Artemis", "Athena"]),
+      progress: { region: 4, chamber: 1 },
+      equipped: { keepsake: "ForceZeusBoonTrait" },
+    });
+    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
+    expect(rules.canGodEnterPool("Poseidon", f)).toBe(false);
+  });
+
   it("reports every aspect conflict the game declares, once the form is equipped", () => {
     const forms = new Set(all.flatMap((r) => r.aspectConflicts ?? []));
     const fired = [...forms].flatMap((form) =>
@@ -239,9 +340,9 @@ describe("against the shipped Hades I catalog", () => {
   });
 
   it("does not fire on a real aspect the run merely holds", () => {
-    // The regression, in the form the game actually offers it: this game's
-    // aspects are trait records, and a run holds the one it chose. Answering
-    // from `held` would look right and would be reading the wrong fact.
+    // The regression, in the form the game actually offers it. This game's
+    // aspects are trait records, and a run holds the one it chose, so answering
+    // from `held` would look right while reading the wrong fact.
     expect(traits[BEOWULF]).toBeDefined();
     const f = facts({ held: held(BEOWULF) });
     expect(rules.isBlocked("AphroditeRangedTrait", f)).toBeNull();
@@ -262,6 +363,15 @@ describe("against the shipped Hades I catalog", () => {
   it("reports the equipped form ahead of a held blocker where a record has both", () => {
     const f = facts({ equipped: { aspect: BEOWULF }, held: held("AresRangedTrait") });
     expect(rules.isBlocked("AmmoReclaimTrait", f)).toMatchObject({ kind: "aspectConflict" });
+  });
+
+  it("reports the equipped form ahead of a held group member where a record has both", () => {
+    // Three real records carry both an aspect conflict and an exclusive group,
+    // and the Blizzard orb is one of them: Beowulf is never offered it, and
+    // Poseidon's projectile boon excludes it. The form is the older fact, so
+    // the form is the answer.
+    const f = facts({ equipped: { aspect: BEOWULF }, held: held("PoseidonAresProjectileTrait") });
+    expect(rules.isBlocked("BlizzardOrbTrait", f)).toMatchObject({ kind: "aspectConflict" });
   });
 
   it("treats a group as the record's own neighbourhood, not as a clique", () => {
