@@ -24,6 +24,7 @@
 export { dataFor, gameData } from "./data.js";
 export type { GameData, GameKey } from "./data.js";
 export { createLookups } from "./lookups.js";
+export { forcingKeepsakes } from "./keepsakes.js";
 export { iconFor, textFor } from "./assets.js";
 export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
