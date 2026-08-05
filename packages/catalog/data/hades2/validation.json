@@ -622,6 +622,18 @@
   ]
  },
  "godNamesOutsideKnownVocabulary": [],
+ "godsentHexCount": 9,
+ "godsentHexes": [
+  "LaserApolloTalent",
+  "LeapHephaestusTalent",
+  "MeteorHestiaTalent",
+  "MoonBeamAresTalent",
+  "PolymorphZeusTalent",
+  "PotionPoseidonTalent",
+  "SummonHeraTalent",
+  "TimeSlowDemeterTalent",
+  "TransformAphroditeTalent"
+ ],
  "infusionsWithoutAnElementGate": [],
  "knownFindingsReverified": {
   "ApolloDamageLight_equals_AthenaDamageLight": true,

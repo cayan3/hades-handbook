@@ -17835,7 +17835,7 @@
    "Legendary"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Torch.lua:710",
+  "source": "Scripts/TraitData_Torch.lua:711",
   "tier": null
  },
  "TorchAutofireAspect": {
@@ -17887,7 +17887,7 @@
    "Legendary"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Torch.lua:783",
+  "source": "Scripts/TraitData_Torch.lua:784",
   "tier": null
  },
  "TorchDetonateAspect": {
@@ -18047,7 +18047,7 @@
    "Legendary"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Torch.lua:639",
+  "source": "Scripts/TraitData_Torch.lua:640",
   "tier": null
  },
  "TorchOrbitPointTrait": {
@@ -18071,7 +18071,7 @@
    "Legendary"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Torch.lua:567",
+  "source": "Scripts/TraitData_Torch.lua:568",
   "tier": null
  },
  "TorchSpecialDurationAspect": {
@@ -18144,7 +18144,7 @@
   "prereqSource": null,
   "rarity": [],
   "slot": null,
-  "source": "Scripts/TraitData_Torch.lua:612",
+  "source": "Scripts/TraitData_Torch.lua:613",
   "tier": null
  },
  "TorchSpecialSpeedTrait": {
@@ -18189,7 +18189,7 @@
    "Legendary"
   ],
   "slot": null,
-  "source": "Scripts/TraitData_Torch.lua:516",
+  "source": "Scripts/TraitData_Torch.lua:517",
   "tier": null
  },
  "TorchSplitAttackTrait": {
