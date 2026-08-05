@@ -39,12 +39,12 @@ LUA = TOOL / "lua"
 REFERENCE = TOOL / "reference"
 CATALOG = TOOL.parent.parent / "packages" / "catalog" / "data"
 
-# Produced by the normalizers; deliberately withheld from the catalog
+# Produced by the normalizers; purposefully withheld from the catalog
 # package bc the localized text bundle is literally the game's own copy (& it
 # waits to be given a takedown path before it actually ships anywhere).
-# The clause report is withheld for a different reason: it describes an
-# extraction rather than the game, so it is something a person reads after a
-# run and nothing the app has any use for.
+# The actual reason the clause report isn't shipped is bc it describes an
+# extraction instead of the game itself, so it's just something a player reads
+# after a run, not anything the app would need in the future.
 NOT_SHIPPED = {"text.json", "_clause_report.json"}
 
 GAMES = [("hades1", "h1"), ("hades2", "h2")]
@@ -53,6 +53,37 @@ GAMES = [("hades1", "h1"), ("hades2", "h2")]
 def fail(message):
     print(f"  FAIL  {message}")
     return False
+
+
+def uncommitted_extractor_sources():
+    """Extractor sources that differ from what is committed.
+
+    A clean result here is what lets "no drift" mean what it sounds like. The
+    default mode re-runs *this working tree's* normalizers and compares the
+    output against a stored extraction that this working tree may itself have
+    produced a minute ago, so if the code has uncommitted changes then both
+    sides of the comparison moved together and agreeing proves only that the
+    same code is deterministic. That has already happened once: a session
+    regenerated the reference tree and the shipped catalog with uncommitted
+    normalizer changes, and the check reported no drift over an extraction that
+    did not match the committed code.
+
+    Reported rather than fatal, on purpose. Editing a normalizer and then
+    running this to see what moved is the ordinary way to work, and a check that
+    refused to run in that situation would be a check nobody runs.
+    """
+    result = subprocess.run(
+        ["git", "status", "--porcelain", "--", str(SRC), str(LUA)],
+        cwd=str(TOOL),
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        # Either no git or not an actual repository. In either case, there's erm
+        # nothing else to really say tbh... & this check shouldn't be the one
+        # to start failing over it anyway.
+        return None
+    return [line for line in result.stdout.splitlines() if line.strip()]
 
 
 def redump(raw_out):
@@ -165,6 +196,14 @@ def main():
             "run a full extraction locally first."
         )
 
+    dirty = uncommitted_extractor_sources()
+    if dirty:
+        print("the extractor has uncommitted changes:")
+        for line in dirty:
+            print(f"    {line}")
+        print("so whatever this reports is about the working tree, not about "
+              "what is committed\n")
+
     with tempfile.TemporaryDirectory() as tmp:
         tmp = Path(tmp)
         if args.redump:
@@ -195,8 +234,16 @@ def main():
     shipped_ok = compare_shipped()
 
     if raw_ok and norm_ok and shipped_ok:
-        print("\nno drift: the extraction reproduces the reference exactly, "
-              "and the catalog package ships it")
+        if dirty:
+            print("\nno drift against the working tree: these uncommitted "
+                  "normalizers reproduce the reference exactly, and the catalog "
+                  "package ships it. That is not the same as agreeing with the "
+                  "committed extractor -- if this tree is what produced the "
+                  "reference, both sides of the comparison moved together. "
+                  "Re-run once the changes are committed.")
+        else:
+            print("\nno drift: the extraction reproduces the reference exactly, "
+                  "and the catalog package ships it")
         return 0
     print("\ndrift detected — read the diffs above before regenerating anything")
     return 1
