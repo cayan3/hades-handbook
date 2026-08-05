@@ -15,7 +15,7 @@ import type { AspectId, Element, GodId, KeepsakeId, TalentId, TraitId } from "./
  *  1) symmetric trait-vs-trait (i.e. both traits name each other which is just
  *     yk mutual exclusion, covered in this project by "Exclusive Group");
  *  2) one-way trait-vs-trait, where the blocker can never actually be unblocked
- *     (e.g. weapon aspect);
+ *     (e.g. another boon that replaces the same Cast);
  *  3) one-way trait-vs-trait, where the blocker can actually leave/be unblocked
  *     (e.g. a benefit given by a keepsake since keepsakes can yk be swapped
  *     between regions)
