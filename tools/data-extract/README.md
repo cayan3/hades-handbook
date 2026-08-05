@@ -213,19 +213,29 @@ The order matters at step 1: two of the twenty-eight Duos also declare a single
   when set, it's parsed from a leading `-- <God>, all elements`-style
   comment, not a structured field (marked with `"_godInferredFromComment":
   true` on the record itself).
-- **Godsent Hex / Selene's Hex-Infusion mechanic**: half located, and the
-  missing half isn't the half the earlier search reported. The nine Hexes
-  themselves are extracted and are ordinary records in `boons.json`, from
+- **Godsent Hex / Selene's Hex-Infusion mechanic**: fully located now, in two
+  halves found a session apart. The nine Hexes themselves are extracted and are
+  ordinary records in `boons.json`, from
   `Scripts/TraitData_Spell.lua`, each `slot: "Spell"` with a `Boon_Selene_*`
   icon: `SpellTimeSlowTrait`, `SpellPolymorphTrait`, `SpellLaserTrait`,
   `SpellLeapTrait`, `SpellPotionTrait`, `SpellSummonTrait`, `SpellMeteorTrait`,
   `SpellTransformTrait`, `SpellMoonBeamTrait`. The earlier search missed them by
   looking for structural names the game doesn't actually use (`Godsent`,
   `SeleneHex`, `HexUpgrade`) instead of display names that are in the text bundle.
-  **Still missing: the paired Godsent-Hex boons**: Hex-mechanic doesn't exist
-  for Hades I, and Hades II doesn't seem to have any records with the "hold the
-  Hex AND a boon-or-keepsake of the paired Olympian" shape. Selene's own loot is
-  also represented, via her `LootData_Selene.lua` `SpellDrop` table (irregular
+  **The paired Godsent-Hex boons are located too**, and this bullet used to say
+  they weren't: there are nine, one per Olympian, in `Scripts/TraitData_Talent.lua`
+  — `LaserApolloTalent`, `LeapHephaestusTalent`, `MeteorHestiaTalent`,
+  `MoonBeamAresTalent`, `PolymorphZeusTalent`, `PotionPoseidonTalent`,
+  `SummonHeraTalent`, `TimeSlowDemeterTalent`, `TransformAphroditeTalent`. Each
+  one is exactly the "hold the Hex AND a boon-or-keepsake of the paired Olympian"
+  shape: `all[ hasTrait(<the Hex>), anyOf[ hasBoonFrom(<god>),
+  hasKeepsake(Force<God>BoonKeepsake) ] ]`. The Hex mechanic still doesn't exist
+  for Hades I. **Careful counting these by prereq**: *Whispered Prayer*
+  (`SorceryCritBoon`, from `TraitData_Artemis.lua`) also names Hexes, but it asks
+  for *any* of seven rather than one specific one and has no paired-god half — so
+  a search for "prereq mentions a Hex" returns ten records and only nine of them
+  are pairs. Selene's own loot is also represented, via her
+  `LootData_Selene.lua` `SpellDrop` table (irregular
   structure compared to the other gods; see `gods.json`'s note field).
 - **`RequiredSlottedTrait` (Hades I)** is a *slot name* (e.g. `"Shout"`),
   not a trait id; confirmed by this extraction's own validation pass
