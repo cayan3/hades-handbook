@@ -47,6 +47,18 @@ running the real dumpers over `input/` with `EXTRACT_RAW` and
 `EXTRACT_SCRIPTS_*` pointed here. It's committed so the test doesn't need a Lua
 interpreter, which is what lets it run in CI.
 
+**Dump to a scratch directory and copy across, rather than pointing `EXTRACT_RAW`
+straight at `raw/`.** The dumpers read Steam's app manifest before they load any
+game data and write a `h{1,2}_provenance.json` beside the dump, so aiming them
+here deposits a real app id and the installed build id into a tree whose whole
+premise is that it contains nothing real — and it would then churn on every game
+patch. Nothing catches it: the fixtures carry no provenance file, the golden test
+constrains the *emitted* file set rather than the raw one, and the synthetic-
+identifier check scans for god names rather than build ids. Copy over only the
+files that actually changed, and check the rest came back byte-identical while
+you are there — the dump is deterministic, so anything else moving is its own
+finding.
+
 Where the golden output already differs from `expected.json`, the difference is
 a finding about the tool instead of about the fixture: `h1-shape` keeps three
 base templates and a `DebugOnly` trait that `expected.json` excludes, and
