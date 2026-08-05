@@ -1,6 +1,7 @@
 import json, re, os, sys
 from parse_text_bundle import parse_sjson_text_bundle, resolve_display_name
 from line_index import index_keys_at_depth, find_key_anywhere
+import build_guard
 import requirements
 
 from config import out_dir, raw_dir, scripts_dir, text_dir
@@ -9,6 +10,14 @@ RAW = raw_dir()
 OUT = out_dir("hades1")
 SCRIPTS = scripts_dir("hades1")
 TEXT_EN = text_dir("hades1")
+
+# Before anything is read, and certainly before anything is written: the data
+# below comes from a stored dump while the citations come from the installed
+# game, so those two have to be the same build or the output describes neither.
+try:
+    build_guard.check("hades1")
+except build_guard.BuildMismatch as mismatch:
+    sys.exit("normalize_h1: %s" % mismatch)
 
 os.makedirs(OUT, exist_ok=True)
 

@@ -18,6 +18,37 @@ local SCRIPTS = envdir("EXTRACT_SCRIPTS_HADES1", STEAM .. "common/Hades/Game.mac
 -- fallback resolves relative to the tool rather than to the shell's cwd.
 local OUT = envdir("EXTRACT_RAW", arg[1] .. "../reference/raw/")
 
+-- Steam's per-app manifest is the only place the installed build id is written.
+-- It is read here, before any game data is loaded, so that a run which cannot
+-- identify the build fails immediately rather than after doing all the work.
+local APPMANIFEST = os.getenv("EXTRACT_APPMANIFEST_HADES1")
+if APPMANIFEST == nil or APPMANIFEST == "" then
+	APPMANIFEST = STEAM .. "appmanifest_1145360.acf"
+end
+
+local function readBuildId(path)
+	local f = io.open(path, "r")
+	if f == nil then return nil end
+	local id = nil
+	for line in f:lines() do
+		-- Steam writes one `"key"<tab>"value"` pair per line.
+		local key, value = line:match('^%s*"([^"]+)"%s*"([^"]*)"%s*$')
+		if key == "buildid" then id = value end
+	end
+	f:close()
+	return id
+end
+
+local BUILD_ID = readBuildId(APPMANIFEST)
+if BUILD_ID == nil then
+	error("no build id in " .. APPMANIFEST .. "\n" ..
+		"The normalizer reads its file:line citations from the live install " ..
+		"while its data comes from this dump, so it has to be able to tell " ..
+		"whether the two are the same build. A dump that cannot say which " ..
+		"build it came from is one nothing downstream can check, so this " ..
+		"stops rather than writing one.")
+end
+
 dofile(arg[1] .. "engine_stub.lua")
 dofile(arg[1] .. "json_encode.lua")
 
@@ -52,4 +83,14 @@ writeFile("h1_LootData.json", json_encode_object(LootData or {}))
 writeFile("h1_Color.json", json_encode_object(Color or {}))
 writeFile("h1_GiftData.json", json_encode_object(GiftData or {}))
 writeFile("h1_GiftOrdering.json", json_encode(GiftOrdering or {}))
-print("done")
+-- Which build this data came from. Carries no timestamp and no paths: a
+-- timestamp would make two dumps of the same build differ, which would cost the
+-- drift check its byte comparison over this file, and a path would put somebody's
+-- home directory into the tree. What is left changes exactly when the game does,
+-- so this file showing up in a drift diff is itself the news that a patch landed.
+writeFile("h1_provenance.json", json_encode_object({
+	game = "hades1",
+	steamAppId = "1145360",
+	steamBuildId = BUILD_ID,
+}))
+print("done, build " .. BUILD_ID)

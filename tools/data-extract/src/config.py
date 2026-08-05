@@ -81,3 +81,21 @@ def text_dir(game):
 def info_plist(game):
     """The app bundle's Info.plist, read for the shipped version string."""
     return str(_resolve(f"EXTRACT_PLIST_{game.upper()}", _INSTALL[game] / "Info.plist"))
+
+
+def appmanifest(game):
+    """Steam's per-app manifest, read for the build id of what is installed."""
+    return str(_resolve(f"EXTRACT_APPMANIFEST_{game.upper()}", APPMANIFEST[game]))
+
+
+def reads_the_installed_game(game):
+    """Whether this run's citations point at the real install.
+
+    Situations 1 and 2 above read the game's own `Scripts/` for `file:line`, so
+    the build that is installed right now is a fact about their output. Situation
+    3 points that variable at committed fixtures, where there is no install, no
+    build id, and nothing a build id could be checked against. Anything that
+    wants to compare the two has to know which of those it is in, and an
+    overridden scripts directory is the only signal that separates them.
+    """
+    return not os.environ.get(f"EXTRACT_SCRIPTS_{game.upper()}")
