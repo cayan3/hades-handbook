@@ -131,12 +131,54 @@ def test_the_guard_stands_down_when_nothing_is_being_cited(monkeypatch, tmp_path
 
     They point the scripts directory at committed synthetic input, so there is
     no installed build for a dump to disagree with. The guard has to be a no-op
-    there or the golden tests could not run at all -- including in CI, which has
-    neither game.
+    there or the golden tests could not run at all, CI included, since CI has
+    neither game. What makes these runs recognisable is that they name no
+    manifest, which is the same thing as saying there is no install in play.
     """
     monkeypatch.setenv("EXTRACT_SCRIPTS_HADES1", str(tmp_path) + os.sep)
     monkeypatch.setenv("EXTRACT_RAW", str(tmp_path) + os.sep)
-    monkeypatch.setenv("EXTRACT_APPMANIFEST_HADES1", str(tmp_path / "nope.acf"))
+    monkeypatch.delenv("EXTRACT_APPMANIFEST_HADES1", raising=False)
+
+    build_guard.check("hades1")
+
+
+def test_an_install_somewhere_other_than_the_default_is_still_checked(monkeypatch, tmp_path):
+    """The hole this closed, and it was the shape of a real setup rather than a
+    contrived one.
+
+    A Steam library on a second drive has to override the scripts directory —
+    the normalizers say so by name when they cannot find it — and the guard used
+    to read any override at all as "not citing an install" and stand down.
+    So the one configuration that most needs checking got none, silently, while
+    the operator had also pointed the manifest variable at the same library
+    specifically so the build could be read.
+
+    `appmanifest_*.acf` sits in the `steamapps/` directory of whichever library
+    holds the game, so naming one is what says an install is in play.
+    """
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    manifest = write_manifest(tmp_path / "appmanifest_1145360.acf", "24556151")
+    write_provenance(raw, "hades1", "24432219")
+    monkeypatch.setenv("EXTRACT_SCRIPTS_HADES1", str(tmp_path / "elsewhere") + os.sep)
+    monkeypatch.setenv("EXTRACT_RAW", str(raw) + os.sep)
+    monkeypatch.setenv("EXTRACT_APPMANIFEST_HADES1", str(manifest))
+
+    with pytest.raises(build_guard.BuildMismatch) as refusal:
+        build_guard.check("hades1")
+    assert "24432219" in str(refusal.value) and "24556151" in str(refusal.value)
+
+
+def test_a_relocated_install_whose_dump_agrees_still_passes(monkeypatch, tmp_path):
+    """The other half of the same case: closing the hole must not turn every
+    non-default install into a refusal."""
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    manifest = write_manifest(tmp_path / "appmanifest_1145360.acf", "24556151")
+    write_provenance(raw, "hades1", "24556151")
+    monkeypatch.setenv("EXTRACT_SCRIPTS_HADES1", str(tmp_path / "elsewhere") + os.sep)
+    monkeypatch.setenv("EXTRACT_RAW", str(raw) + os.sep)
+    monkeypatch.setenv("EXTRACT_APPMANIFEST_HADES1", str(manifest))
 
     build_guard.check("hades1")
 

@@ -24,8 +24,11 @@ seven weeks ago.
 
 None of this applies when the citations do not point at an installed game. The
 fixture tests set the scripts directory to committed synthetic input, where
-there is no build id and nothing to disagree with, so the guard stands down —
-see `reads_the_installed_game`.
+there is no build id and nothing to disagree with, so the guard stands down.
+What decides that is whether a manifest was named, not whether a scripts
+directory was — an install that lives anywhere but the default Steam library
+has to override both, and keying on the scripts directory stood the guard down
+on precisely that run. See `reads_the_installed_game`.
 """
 
 import json
@@ -49,8 +52,8 @@ def installed_build_id(game):
     """The build id Steam records for what is installed right now.
 
     Returns None when the manifest cannot be read at all, which the caller
-    treats as a failure rather than as a pass -- an unreadable manifest means
-    the comparison cannot be made, not that it succeeded.
+    treats as a failure rather than as a pass: an unreadable manifest means the
+    comparison could not be made, not that it succeeded.
     """
     try:
         with open(appmanifest(game), encoding="utf-8") as f:
@@ -95,10 +98,12 @@ def check(game):
             "%s: cannot read the installed build id from %s.\n"
             "The citations on every record are about to be read from this "
             "install, so a run that cannot identify it cannot say which build "
-            "it described. Point EXTRACT_APPMANIFEST_%s at the right manifest, "
-            "or point EXTRACT_SCRIPTS_%s away from the install if this is not "
-            "meant to be citing one."
-            % (game, appmanifest(game), game.upper(), game.upper())
+            "it described. Point EXTRACT_APPMANIFEST_%s at the right manifest. "
+            "If this run is not meant to be citing an install at all, unset "
+            "EXTRACT_APPMANIFEST_%s and point EXTRACT_SCRIPTS_%s at the input "
+            "it does cite -- naming a manifest is what says there is an "
+            "install here to disagree with."
+            % (game, appmanifest(game), game.upper(), game.upper(), game.upper())
         )
 
     if dumped is None:

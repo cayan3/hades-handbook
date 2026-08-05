@@ -92,10 +92,24 @@ def reads_the_installed_game(game):
     """Whether this run's citations point at the real install.
 
     Situations 1 and 2 above read the game's own `Scripts/` for `file:line`, so
-    the build that is installed right now is a fact about their output. Situation
-    3 points that variable at committed fixtures, where there is no install, no
-    build id, and nothing a build id could be checked against. Anything that
-    wants to compare the two has to know which of those it is in, and an
-    overridden scripts directory is the only signal that separates them.
+    the build installed right now is a fact about their output. Situation 3
+    points that variable at committed fixtures, where there is no install, no
+    build id, and nothing a build id could be checked against. Anything wanting
+    to compare the two has to know which of those it is in.
+
+    An overridden scripts directory used to be the whole test. That got
+    situation 3 right and situation 1 wrong, bc a Steam library anywhere but the
+    default has to override it too -- so the guard stood down on exactly the run
+    it exists for, & the two scripts above tell people to set that variable at
+    the game's own Scripts directory (o_0).
+
+    An overridden *manifest* separates them instead. `appmanifest_*.acf` lives
+    in the `steamapps/` directory of whichever library holds the game, so a
+    relocated install can't be cited without pointing this at it, while a
+    fixture run has no manifest to point at & never sets it. That makes it a
+    positive signal for "there is an install here" rather than a flag anybody
+    has to remember.
     """
+    if os.environ.get(f"EXTRACT_APPMANIFEST_{game.upper()}"):
+        return True
     return not os.environ.get(f"EXTRACT_SCRIPTS_{game.upper()}")
