@@ -66,6 +66,24 @@ GOD_DISAGREES_WITH_LOOT_TABLE_KNOWN = {
 # checked for one.
 GODSENT_HEXES_HADES2 = 9
 
+# How many boons belong to two gods. Both numbers are what the games ship, but
+# only one of them has a reason: Hades I's 28 is every pair of its eight pool
+# Olympians, so the set is provably complete and a 29th is not a Duo somebody
+# missed, it is a misattribution. Hades II's 37 is just a count -- not every
+# pair has one, and two of its Zeus/Hera pair are distinct boons rather than
+# one filed twice.
+#
+# Worth pinning because attribution is decided by *arithmetic*: a boon offered
+# by two loot tables is a Duo, which is the only statement either game makes.
+# The rule is right, and it is right in a way that no single record can be read
+# to confirm -- so an ordinary boon that drifts into a second god's table would
+# be filed as a Duo, lose its god, its ladder rung and its category all at
+# once, and surface under two gods with nothing raised. Counting is the cheapest
+# thing that notices. A number rather than a list of ids for the same reason
+# the Hexes are: the ids are derived, so listing them would let a run that
+# derived the wrong set still match.
+DUO_BOONS = {"hades1": 28, "hades2": 37}
+
 # Hades I grants exactly one trait through another trait's SetupFunction, and
 # the granting trait is a keepsake -- so the block it declares can be undone by
 # swapping keepsakes and must not be reported as permanent. The edge is dropped
@@ -152,10 +170,11 @@ def godsent_hexes(boons):
 
 def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                   raw_defs=None, loot_membership=None, external_references=None,
-                  aspect_ids=None, godsent_hexes_expected=None):
+                  aspect_ids=None, godsent_hexes_expected=None,
+                  duo_boons_expected=None):
     """Check one game's emitted catalog. Returns (report, fatal messages).
 
-    The five trailing arguments are the inputs a check needs that the emitted
+    The six trailing arguments are the inputs a check needs that the emitted
     catalog does not carry. Each is optional, and the checks that need it are
     skipped when it is absent -- the fixtures do not have a whole game's
     scripts to scan, and a check that cannot run is different from one that
@@ -438,6 +457,38 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                    ", ".join(found) or "none")
             )
 
+    # 15. the boons belonging to two gods, counted, for the same reason as 14
+    # and against a different silence. Who grants a Hades I boon is settled by
+    # arithmetic -- two loot tables offering it is what a Duo *is*, since
+    # neither game marks one on the record -- so the rule cannot be confirmed
+    # by reading any single record, and a record that arrives at the wrong
+    # answer looks exactly like one that arrived at the right one.
+    #
+    # Both directions cost something real. A boon that gains a second owning
+    # table is filed as a Duo and loses its god, its ladder rung and its
+    # category together; one that loses an owner stops being a Duo and lands
+    # on one god's ladder claiming a rung it does not have. The counts are
+    # fixed, so counting is the cheapest thing that can tell either apart from
+    # a correct run.
+    if duo_boons_expected is not None:
+        duos = sorted(bid for bid, b in boons.items() if b.get("duoGods"))
+        report["duoBoons"] = duos
+        report["duoBoonCount"] = len(duos)
+        wrong_arity = sorted(bid for bid in duos if len(boons[bid]["duoGods"]) != 2)
+        report["duoBoonsNotNamingTwoGods"] = wrong_arity
+        if len(duos) != duo_boons_expected:
+            fatal.append(
+                "%s has %d boons belonging to two gods, expected %d"
+                % (game_key, len(duos), duo_boons_expected)
+            )
+        for bid in wrong_arity:
+            # A Duo names two gods by construction, so anything else is the
+            # attribution arriving at a shape the field cannot mean.
+            fatal.append(
+                "%s %s has duoGods naming %d gods, and a Duo names two"
+                % (game_key, bid, len(boons[bid]["duoGods"]))
+            )
+
     return report, fatal
 
 
@@ -597,6 +648,7 @@ def main():
         external_references=_external_references("hades2"),
         aspect_ids=h2_aspects,
         godsent_hexes_expected=GODSENT_HEXES_HADES2,
+        duo_boons_expected=DUO_BOONS["hades2"],
     )
     h2_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h2_defs)
 
@@ -674,6 +726,7 @@ def main():
         loot_membership=h1_membership,
         external_references=_external_references("hades1"),
         aspect_ids=aspects_by_inheritance(h1_defs, "WeaponEnchantmentTrait"),
+        duo_boons_expected=DUO_BOONS["hades1"],
     )
     h1_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h1_defs, (h1_loot,))
 

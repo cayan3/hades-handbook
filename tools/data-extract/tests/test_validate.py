@@ -603,3 +603,75 @@ def test_the_check_is_skipped_where_no_population_is_expected():
     report, fatal = check(a_catalog_of_pairs(3))
     assert "godsentHexCount" not in report
     assert fatal == []
+
+
+# ---------------------------------------------------------------------------
+# The boons belonging to two gods, counted for the same reason
+# ---------------------------------------------------------------------------
+
+def a_catalog_of_duos(count):
+    return {
+        "Duo%d" % n: boon(id="Duo%d" % n, duoGods=["God%d" % n, "Other%d" % n])
+        for n in range(count)
+    }
+
+
+def gods_named_by(catalog):
+    """Every god the catalog attributes to, as the god roster.
+
+    Unlike the paired-Hex catalogs above, these cannot leave attribution off --
+    the field under test *is* the attribution -- so the invented names have to
+    be declared or they trip the separate check that a god a boon names is a
+    god the game has.
+    """
+    return {g: {} for b in catalog.values() for g in (b.get("duoGods") or [])}
+
+
+def check_duos(catalog, **kw):
+    return check(catalog, gods=gods_named_by(catalog), **kw)
+
+
+def test_the_expected_number_of_duos_passes():
+    _, fatal = check_duos(a_catalog_of_duos(28), duo_boons_expected=28)
+    assert fatal == []
+
+
+def test_an_ordinary_boon_that_gained_a_second_owner_stops_the_run():
+    """The direction that costs the most. Ownership is decided by arithmetic --
+    two loot tables offering a boon is the only statement either game makes
+    that one is a Duo -- so a boon that drifts into a second god's table is
+    filed as one, and loses its god, its ladder rung and its category together.
+    Nothing about the record itself reads as wrong afterwards.
+    """
+    catalog = a_catalog_of_duos(28)
+    catalog["OrdinaryBoon"] = boon(id="OrdinaryBoon", duoGods=["Zeus", "Demeter"])
+    report, fatal = check_duos(catalog, duo_boons_expected=28)
+    assert report["duoBoonCount"] == 29
+    assert any("expected 28" in f for f in fatal)
+
+
+def test_a_duo_that_lost_an_owner_stops_the_run_too():
+    """The other direction, which is quieter: it stops being a Duo, lands on
+    one god's ladder, and claims a rung it does not stand on."""
+    catalog = a_catalog_of_duos(28)
+    catalog["Duo0"]["duoGods"] = None
+    catalog["Duo0"]["god"] = "God0"
+    report, fatal = check_duos(catalog, duo_boons_expected=28)
+    assert report["duoBoonCount"] == 27
+    assert any("expected 28" in f for f in fatal)
+
+
+def test_a_duo_naming_a_number_of_gods_that_is_not_two_stops_the_run():
+    """A Duo names two gods by construction. Three is the attribution reaching
+    a shape the field cannot mean, and the count alone would not see it."""
+    catalog = a_catalog_of_duos(28)
+    catalog["Duo0"]["duoGods"] = ["A", "B", "C"]
+    report, fatal = check_duos(catalog, duo_boons_expected=28)
+    assert report["duoBoonsNotNamingTwoGods"] == ["Duo0"]
+    assert any("naming 3 gods" in f for f in fatal)
+
+
+def test_the_duo_count_is_skipped_where_no_population_is_expected():
+    report, fatal = check_duos(a_catalog_of_duos(3))
+    assert "duoBoonCount" not in report
+    assert fatal == []
