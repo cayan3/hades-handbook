@@ -1,1 +1,10 @@
-{}
+{
+ "FennickPlumeTrait": {
+  "associatedGod": null,
+  "associatedNpcId": null,
+  "iconKey": "Keepsake_Fennick_Plume",
+  "id": "FennickPlumeTrait",
+  "name": null,
+  "source": "Scripts/TraitData.lua:193"
+ }
+}

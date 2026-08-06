@@ -77,6 +77,45 @@
   "source": "Scripts/TraitData.lua:115",
   "tier": 1
  },
+ "FennickHasteTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "exclusiveGroup": null,
+  "god": "Fennick",
+  "godKind": "NonPoolSlot",
+  "icon": "Boon_Fennick_02",
+  "id": "FennickHasteTrait",
+  "name": null,
+  "prereq": {
+   "kind": "anyOf",
+   "min": 1,
+   "of": [
+    {
+     "kind": "hasTrait",
+     "trait": "FennickSwiftTrait"
+    },
+    {
+     "keepsake": "FennickPlumeTrait",
+     "kind": "hasKeepsake"
+    }
+   ]
+  },
+  "prereqSource": "Scripts/TraitData.lua:206",
+  "rarity": [
+   "Common",
+   "Epic",
+   "Heroic",
+   "Rare"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:206",
+  "tier": 1
+ },
  "FennickSwiftTrait": {
   "activation": null,
   "aspectConflicts": null,
@@ -102,6 +141,27 @@
   "slot": null,
   "source": "Scripts/TraitData.lua:145",
   "tier": 1
+ },
+ "GiftTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Keepsake_Base",
+  "id": "GiftTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:186",
+  "tier": null
  },
  "SableAuricBloomTrait": {
   "activation": null,

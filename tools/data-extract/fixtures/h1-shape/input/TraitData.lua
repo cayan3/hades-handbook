@@ -180,4 +180,34 @@ TraitData =
 		LootSource = "SableUpgrade",
 		Icon = "Boon_Sable_88",
 	},
+
+	-- The base every keepsake inherits, which is the only thing that marks
+	-- one: a keepsake is an ordinary trait record in this game's files.
+	GiftTrait =
+	{
+		Icon = "Keepsake_Base",
+	},
+
+	-- A keepsake. It goes to keepsakes.json rather than to the boon
+	-- catalog, so its id is in the keepsake table and in no other.
+	FennickPlumeTrait =
+	{
+		InheritFrom = { "GiftTrait" },
+		Icon = "Keepsake_Fennick_Plume",
+	},
+
+	-- Coverage #16: a gate naming a keepsake beside a boon. Four real Hades
+	-- I boons do this -- two of Hermes' and one of Poseidon's read the
+	-- keepsake as an alternative to holding a particular boon. Which atom
+	-- each alternative becomes is decided by which table the id is in, so
+	-- this record's requirement has to come out as one of each. Naming it
+	-- through hasTrait would ask after the keepsake among the traits a run
+	-- holds, where a keepsake is never recorded.
+	FennickHasteTrait =
+	{
+		InheritFrom = { "ShopTier1Trait" },
+		God = "Fennick",
+		Icon = "Boon_Fennick_02",
+		RequiredOneOfTraits = { "FennickSwiftTrait", "FennickPlumeTrait" },
+	},
 }

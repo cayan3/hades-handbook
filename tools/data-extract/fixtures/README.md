@@ -200,7 +200,11 @@ the exact reasoning.
 > and did — the section-to-table map is derived from `LootSetData`'s own shape
 > instead of being written out, and the fixture gained loot tables for it to
 > read. Sixteen records move, and the golden now agrees with `expected.json` on
-> `god`, `godKind` and `boonCategory` for all eighteen.
+> `god`, `godKind` and `boonCategory` for **all seventeen it states**. This said
+> "all eighteen" and the target file holds seventeen boons: the eighteenth is
+> `CindraDebugOnlyBoon`, which the target lists under `excludedFromCatalog`
+> rather than among the records it makes a claim about, so agreement about it is
+> not a thing that can be true either way.
 >
 > The three gods split the recognition test between them, so that none of them
 > can pass it by accident: **Cindra** inherits `GodLoot` and declares nothing,
@@ -248,6 +252,7 @@ the exact reasoning.
 | 13 | `DebugOnly` → excluded | `CindraDebugOnlyBoon` | `SableDebugTrait` |
 | 14 | Narrative-cameo base → `godKind = NonPoolSlot` | `OrithiaBlessBoon` (via `CameoBoonBase` `InheritFrom` marker — Orithia is the one god with no loot table of her own) | *(tested via a different, complementary mechanism instead — see below)* |
 | 15 | Prereq referencing a non-existent id → validator reports dangling | `VerdanBriarBoon` → `VerdanPhantomBoon` | `SableMirageTrait` → `SablePhantomTrait` |
+| 16 | Gate naming a keepsake beside a boon → `hasKeepsake` for the one, `hasTrait` for the other | *(the nine Godsent Hexes do this in the real data; no fixture case yet)* | `FennickHasteTrait` → `FennickSwiftTrait` (a boon) and `FennickPlumeTrait` (a keepsake, via `GiftTrait`) |
 
 **Note on #14 / `godKind` in general:** the games use *two different real
 signals* for the same `PoolSlot`/`NonPoolSlot` distinction (see

@@ -11,9 +11,10 @@ OUT = out_dir("hades1")
 SCRIPTS = scripts_dir("hades1")
 TEXT_EN = text_dir("hades1")
 
-# Before anything is read, and certainly before anything is written: the data
-# below comes from a stored dump while the citations come from the installed
-# game, so those two have to be the same build or the output describes neither.
+# This comes before anything's read (& definitely before anything's written).
+# Since the data below comes from a stored dump while the citations come from
+# the actual installed game, those two have to be the same build or the output
+# would describe neither.
 try:
     build_guard.check("hades1")
 except build_guard.BuildMismatch as mismatch:
@@ -40,9 +41,10 @@ def is_unresolved(v):
 # ---------------------------------------------------------------------------
 
 # Stop here if the scripts directory is not the scripts directory. A missing
-# file makes `index_keys_at_depth` answer `{}` rather than raise, so without
-# this the run would carry on with no citations at all. It currently happens to
-# die a few lines below on the text bundle instead, which is luck, not a check.
+# file makes `index_keys_at_depth` answer `{}` instead of raise, so without
+# this the run would carry on with no citations at all :pensive: :pensive:. It
+# currently happens to die a few lines below on the text bundle instead o_0
+# (which is luck, not a check 0_o).
 _missing = [f for f in ("TraitData.lua", "LootData.lua") if not os.path.isfile(SCRIPTS + f)]
 if _missing:
     sys.exit(
@@ -54,9 +56,9 @@ if _missing:
 boon_source = index_keys_at_depth(SCRIPTS + "TraitData.lua", 1)          # trait id -> line, in TraitData.lua
 god_upgrade_source = index_keys_at_depth(SCRIPTS + "LootData.lua", 1)     # <God>Upgrade id -> line
 
-# A handful of TraitData.lua entries use 2-space indent instead of a tab
-# (an inconsistency in the source file itself); recover their line numbers
-# individually rather than loosening the main scan (which produced false
+# Several TraitData.lua entries use two-space indent instead of a tab (seems
+# like an inconsistency in the source file itself lol); this gets their line
+# numbers individually instead of changing the main scan (which gives false
 # positives on unrelated nested fields at coincidentally-matching indent).
 for _tid in TraitData.keys():
     if _tid not in boon_source:
@@ -64,19 +66,20 @@ for _tid in TraitData.keys():
         if _line:
             boon_source[_tid] = _line
 
-# LinkedUpgrades entries are nested 3 tabs deep inside each god's LootData
+# LinkedUpgrades entries are nested three tabs deep inside each god's LootData
 # block (see the earlier spike: `\t\t\tKeyName =\n\t\t\t{\n\t\t\t\tOneOf = ...`).
 linked_upgrade_source = index_keys_at_depth(SCRIPTS + "LootData.lua", 3)
 
 # ---------------------------------------------------------------------------
-# Text bundle -- Hades I has no dedicated TraitText file; boon/god names and
-# descriptions live in HelpText.en.sjson (confirmed directly, not assumed).
+# Text bundle~ Hades I doesn't have a dedicated TraitText file; boon/god names
+# and descriptions live in HelpText.en.sjson (actually confirmed, not assumed).
 # ---------------------------------------------------------------------------
 
 text_bundle_raw = parse_sjson_text_bundle(TEXT_EN + "HelpText.en.sjson")
-# Warned about rather than required, because the synthetic fixtures deliberately
-# ship no text bundle and must still run. A real extraction that reaches here
-# empty would emit a whole catalog of `name: null`, which looks like data.
+# This is a warning instead of being required bc the synthetic fixtures
+# purposefully don't ship any text bundle but should still yk run. An actual
+# extraction that reaches here empty would ermmm emit a whole catalog of
+# `name: null`, which looks like data (albeit somewhat silly data lol).
 if not text_bundle_raw:
     print("WARNING: no text bundle read from %s -- every name and descriptionRef "
           "will be null. Check EXTRACT_TEXT_HADES1." % TEXT_EN, file=sys.stderr)
@@ -129,16 +132,16 @@ def god_name_of(upgrade_id):
 def is_god_table(upgrade_id, data):
     """Whether a LootData entry is a god who hands out boons.
 
-    Every god's table inherits BaseLoot -- but so do the mechanical slots, so
-    that alone does not separate them. What does is that a god either keeps
-    BaseLoot's GodLoot flag or has an NPC who does the offering. Hermes turns
-    the flag off and has a speaker; the Daedalus hammer turns it off and has
-    nobody, because nothing hands a hammer over.
+    Every god's table inherits BaseLoot, but so do the mechanical slots, so that
+    alone does not separate them. What does is that a god either keeps BaseLoot's
+    GodLoot flag or has an NPC doing the offering. Hermes turns the flag off and
+    has a speaker; the Daedalus hammer turns it off and has nobody, since nothing
+    hands a hammer over.
 
-    This used to be the ten names written out. That worked against the real
-    files and made the entire pass invisible to anything else, so every
-    fixture -- whose gods are invented, and have to be -- ran the LootData half
-    of this file as a no-op and froze the silence into the golden as correct.
+    This used to be the ten names written out. That worked against the real files
+    and made the entire pass invisible to everything else, so every fixture —
+    whose gods are invented, and have to be — ran the LootData half of this file
+    as a no-op and froze the silence into the golden as correct.
     """
     if not isinstance(data, dict):
         return False
@@ -155,10 +158,10 @@ GOD_UPGRADE_IDS = {
 
 gods = {}
 pool_god_names = set()
-god_trait_membership = {}  # trait id -> god name, from each god's Traits/WeaponUpgrades/PriorityUpgrades lists
-# trait id -> every god whose table offers it. Membership above keeps the first
-# god only, which is all the mislabelling check wants; ownership has to keep
-# them all, because being offered by two tables is precisely what a Duo is.
+god_trait_membership = {}  # trait id maps to god name (from each god's Traits/WeaponUpgrades/PriorityUpgrades lists)
+# trait id maps to every god whose table offers it. Membership above only keeps
+# the first god, which is all the mislabelling check wants; ownership has to keep
+# them all bc being offered by two tables is yk literally what a Duo is.
 god_trait_owners = {}
 for godname, upgradeId in GOD_UPGRADE_IDS.items():
     data = LootData.get(upgradeId)
@@ -172,10 +175,9 @@ for godname, upgradeId in GOD_UPGRADE_IDS.items():
             if isinstance(tid, str):
                 god_trait_membership.setdefault(tid, godname)
                 god_trait_owners.setdefault(tid, set()).add(godname)
-    # A gated boon is listed under the god who gates it rather than in any of
-    # the lists above, so LinkedUpgrades is the other half of ownership -- and
-    # the half that carries every Duo and every boon a god sells behind a
-    # prerequisite.
+    # A gated boon is listed under the god who gates it instead of in any of the
+    # above lists, so LinkedUpgrades is the other half of ownership and carries
+    # every boon (including Duos) with a prerequisite that's offered by the god.
     for tid in data.get("LinkedUpgrades") or {}:
         if isinstance(tid, str):
             god_trait_owners.setdefault(tid, set()).add(godname)
@@ -189,10 +191,11 @@ for godname, upgradeId in GOD_UPGRADE_IDS.items():
         "source": "%sLootData.lua:%d" % (REL_SCRIPTS, line) if line else "%sLootData.lua" % REL_SCRIPTS,
     }
 
-# The same claim stated from the other end: a handful of traits name the table
-# that grants them rather than being listed in it. It is the only signal for
-# six of them, it agrees with the tables wherever both speak, and no trait it
-# names is claimed by a second god -- so it fills gaps without inventing Duos.
+# This is just the same claim but from the other end: several traits name the
+# table that grants them instead of being listed in the table itself. It's the
+# only signal for six of them & agrees with the tables wherever both methods
+# are used & no trait it names is claimed by a second god, so this fills in the
+# gaps without like inventing Duos or something.
 _KNOWN_GOD_TABLES = set(GOD_UPGRADE_IDS.values())
 for tid, data in TraitData.items():
     if not isinstance(data, dict):
@@ -231,9 +234,10 @@ for godname, upgradeId in GOD_UPGRADE_IDS.items():
 
 keepsake_to_npc = {}
 # A dump whose input never defined GiftData carries the engine stub's
-# "<unresolved:...>" placeholder rather than a table, which is deliberate --
-# it records that the reference existed without inventing its contents. Nothing
-# here can be derived from it, so the keepsake/NPC association is simply empty.
+# "<unresolved:...>" placeholder instead of a table; this is on purpose in order
+# to denote that the reference existed without like inventing its contents.
+# Since nothing here can be derived from it, the keepsake/NPC association is
+# just yk empty :shrug: :shrug:.
 for npc_id, npc_data in (GiftData.items() if isinstance(GiftData, dict) else ()):
     if not isinstance(npc_data, dict):
         continue
@@ -268,13 +272,13 @@ with open(OUT + "keepsakes.json", "w") as f:
 # ---------------------------------------------------------------------------
 # Named prerequisite sets
 # ---------------------------------------------------------------------------
-# Hades I has no LinkedTraitData-style pre-declared "core boons" constant the
-# way Hades II does (confirmed during the spike: it repeats id lists inline
-# instead of factoring them into a named set). So there is nothing directly
-# equivalent to emit here. We still emit each god's LootData.lua trait-
-# membership lists (PriorityUpgrades / WeaponUpgrades / Traits), since those
-# ARE literal named groupings present in the data, just serving a different
-# purpose (menu ordering / weapon-slot pool) than a prerequisite-set alias.
+# Hades I doesn't have any LinkedTraitData-style pre-declared "core boons"
+# constant the way Hades II does (confirmed during the spike: it repeats id
+# lists inline instead of factoring them into a named set), so there's nothing
+# directly equivalent to emit here. We still emit each god's LootData.lua trait-
+# membership lists (PriorityUpgrades/WeaponUpgrades/Traits) since those *are*
+# literally named groupings seen in the data, just serving a different
+# purpose (e.g. menu ordering/weapon-slot pool) than a prerequisite-set alias.
 
 named_sets = {}
 for godname, upgradeId in GOD_UPGRADE_IDS.items():
@@ -298,11 +302,11 @@ print("H1 gods:", len(gods), "keepsakes:", len(keepsakes), "named_sets:", len(na
 # ---------------------------------------------------------------------------
 # Prerequisite index: every LinkedUpgrades entry across every god's LootData
 # block, keyed by trait id (a trait id can appear in more than one god's
-# LinkedUpgrades block, e.g. Duo-flavoured requirements offered from either
-# parent's pool -- collect all occurrences).
+# LinkedUpgrades block (e.g. Duo-flavoured requirements offered from either
+# parent's pool) so must collect all occurrences).
 # ---------------------------------------------------------------------------
 
-prereq_occurrences = {}  # trait id -> list of {expr, definingGod, source}
+prereq_occurrences = {}  # trait id maps to list of {expr, definingGod, source}
 for godname, upgradeId in GOD_UPGRADE_IDS.items():
     data = LootData.get(upgradeId, {})
     linked = data.get("LinkedUpgrades")
@@ -361,27 +365,27 @@ def inherit_chain_h1(trait_id, _visited=None, _depth=0):
         chain.extend(inherit_chain_h1(p, _visited, _depth + 1))
     return chain
 
-# A Daedalus hammer upgrade. Its pool is derived from the weapon rather than
-# listed in any loot table, and hammers are not modelled in the first release,
-# so a negation edge touching one is not a constraint this catalog carries.
+# A Daedalus hammer upgrade. Its pool is derived from the weapon itself instead
+# of listed in any loot table & hammers aren't actually modelled in v1, so a
+# negation edge that touches one isn't actually a constraint this catalog
+# carries (at least rn).
 def is_hammer(trait_id):
     return "WeaponTrait" in inherit_chain_h1(trait_id)
 
 # A weapon aspect. Two aspects of the same weapon already exclude each other
-# by construction -- a run has exactly one -- so an edge between them records
-# nothing the model does not already know.
+# since a run uses exactly one weapon/aspect, so an edge between them wouldn't
+# record anything the model doesn't already know.
 def is_aspect(trait_id):
     return "WeaponEnchantmentTrait" in inherit_chain_h1(trait_id)
 
-# What can be held in each slot, for the clause that asks whether a slot is
-# filled rather than naming a trait. Built from the data so a patch that adds
-# a god's Call widens the disjunction without anyone editing a list.
-#
+# What can be held in each slot (for the clause that asks if a slot is filled
+# instead of just naming a trait). This is built from the data itself yay (even
+# though game code isn't likely to be dramatically changed in the future lol).
 # Records with no display name are left out where a text bundle was read at
-# all: they are templates and support traits the player never picks up, and
+# all: they're templates and support traits the player never picks up, so
 # putting one in a requirement would show the player a branch with no name on
-# it. The condition matters because the synthetic fixtures ship no text bundle
-# on purpose, and there every record is nameless.
+# it. This condition matters bc the synthetic fixtures don't ship any text
+# bundle on purpose and every record there is in fact nameless.
 slot_members = {}
 for _tid, _data in sorted(TraitData.items()):
     if not isinstance(_data, dict):
@@ -400,7 +404,7 @@ classified = {}
 
 # A keepsake swaps out between regions, so nothing a keepsake is or grants can
 # block a build for the rest of a run. Hades I grants exactly one trait this
-# way; the edge it produces is dropped, and the validator watches for a second.
+# way; the edge it produces is dropped and the validator watches for a second.
 REMOVABLE_BLOCKERS = set(keepsakes)
 for _tid, _data in TraitData.items():
     if isinstance(_data, dict):
@@ -421,24 +425,23 @@ for tid, data in TraitData.items():
         skipped_keepsakes_in_main_catalog.append(tid)
         continue  # already emitted in keepsakes.json
 
-    # Who grants it. Three signals, and they are not equally trustworthy.
+    # Who grants it. There are three signals (some are better than others lol).
     #
-    # Two tables offering the same boon is what a Hades I Duo *is* -- the game
-    # has no separate Duo id space, so being gated by both Ares and Artemis is
-    # the only thing that makes a boon theirs jointly. That beats a declared
-    # `God`, because the two Duos that declare one name a single god for a
-    # boon that plainly needs two; the same collapse the Hades II side turned
-    # out to be a reader artifact rather than a rule.
+    # Two tables offering the same boon is what a Hades I Duo *is*. The game
+    # doesn't have a separate Duo id space, so e.g. being gated by both Ares and
+    # Artemis is the only thing that makes a boon both of "theirs".
     #
-    # Failing that the declared field wins, and it is left alone even where it
-    # is wrong: two records name Zeus for boons Demeter's table offers, and
-    # correcting that here would put the extraction permanently at odds with
-    # its source. The mislabelling check reports them and the overlay fixes
-    # them, which keeps the disagreement visible instead of absorbed.
+    # If that signal isn't in the code, the declared field wins (it's just left
+    # alone even where it's wrong; e.g. two records name Zeus for boons
+    # Demeter's table offers and correcting that here would put the extraction
+    # permanently at odds with its source rip). The mislabelling check reports
+    # them and the overlay fixes them, which keeps the disagreement visible
+    # instead of just yk quietly absorbed into the void rip.
     #
-    # Only then does a single owning table fill the gap -- which is most of
-    # this file's reach, since a boon sold behind a prerequisite is listed
-    # under the god who gates it and carries no `God` field at all.
+    # If both of those signals aren't there, there's a single owning table that
+    # can fill the gap, which covers most of this file's actual reach: a boon
+    # offered behind a prerequisite is listed under the god who gates it and
+    # carries no `God` field at all.
     declared = data.get("God")
     owners = sorted(god_trait_owners.get(tid, ()))
     if len(owners) == 2:
@@ -450,8 +453,7 @@ for tid, data in TraitData.items():
     boon_category = None
     m = ASSIST_RE.match(tid)
     if duo_gods:
-        # Between them a Duo is two pool gods' content, which is the reading
-        # the Hades II side already takes for the same shape.
+        # A Duo is listed under both (i.e. exactly two) pool gods.
         boon_category = ("StandardOlympian" if all(g in pool_god_names for g in duo_gods)
                          else "NonStandard")
     elif m and god is None:
@@ -464,20 +466,19 @@ for tid, data in TraitData.items():
         boon_category = "NonStandard"
 
     clauses = requirements.Classified()
-    requirements.classify_h1_inline(data, clauses, slot_members)
+    requirements.classify_h1_inline(data, clauses, slot_members, keepsakes)
 
-    # A trait can be offered from more than one god's pool, and each pool
+    # A trait can be offered from more than one god's pool and each pool
     # states its own condition. Twenty-eight traits are listed twice and every
-    # one of them repeats the same condition verbatim, so today this always
-    # collapses to a single requirement -- but if two pools ever disagreed,
-    # meeting either one is what earns the offer, so they are ORed rather than
-    # ANDed. Getting that backwards would turn an alternative into an
-    # additional demand.
+    # one of them repeats the same condition verbatim, so this always collapses
+    # to a single requirement. If two pools ever disagreed, meeting either one
+    # is what earns the offer so they're OR-ed instead of AND-ed. Getting that
+    # backwards would turn an alternative into an additional demand :pensive: :pensive:.
     linked_occurrences = prereq_occurrences.get(tid) or []
     branches = []
     for occurrence in linked_occurrences:
         branch = requirements.Classified()
-        requirements.classify_h1_linked(occurrence.get("expr"), branch)
+        requirements.classify_h1_linked(occurrence.get("expr"), branch, keepsakes)
         clauses.discarded.extend(branch.discarded)
         clauses.unclassified.extend(branch.unclassified)
         if branch.requirement() is not None:
@@ -509,8 +510,8 @@ for tid, data in TraitData.items():
     record = {
         "id": tid,
         "god": god,
-        # Hades I has no distinct Duo-boon id space, so the pair of tables
-        # offering a boon is what names its two gods.
+        # Hades I doesn't have a distinct Duo-boon id space, so the pair of
+        # tables offering a boon is what names its two gods.
         "duoGods": duo_gods,
         "name": resolve_display_name(text_bundle_raw, tid),
         "descriptionRef": tid if tid in text_bundle_raw else None,
@@ -523,10 +524,10 @@ for tid, data in TraitData.items():
         "exclusiveGroup": None,
         "blockedBy": None,
         "aspectConflicts": None,
-        "elementAffinity": None,   # Hades I has no elemental-infusion mechanic (confirmed absent during the spike)
+        "elementAffinity": None,   # Hades I doesn't yk have an elemental-infusion mechanic
         "prereq": prereq,
         "prereqSource": prereq_citation,
-        "activation": None,        # and no Infusions either, so nothing has a second threshold
+        "activation": None,        # Hades I also has no Infusions lol (so no boons have like a second threshold to meet or anything)
         "source": "%sTraitData.lua:%d" % (REL_SCRIPTS, line),
     }
     if build_failures:
@@ -534,7 +535,7 @@ for tid, data in TraitData.items():
     boons[tid] = record
 
 # ---------------------------------------------------------------------------
-# What a negation actually is, decided once every declaration is known
+# What a negation actually is (decided once every declaration is known)
 # ---------------------------------------------------------------------------
 
 exclusive_groups, blocked_by, aspect_conflicts, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
@@ -554,8 +555,8 @@ for tid, aspects in aspect_conflicts.items():
 # Ladder depth
 # ---------------------------------------------------------------------------
 
-# Hades I marks a duo by inheritance rather than by rarity, and a duo belongs
-# to two gods, so it stands on neither god's ladder.
+# Hades I marks a duo by inheritance instead of by rarity and a duo belongs
+# to two gods, so it's actually on neither god's ladder.
 LADDER_IDS = {
     tid for tid, rec in boons.items()
     if rec["god"] and "SynergyTrait" not in inherit_chain_h1(tid)

@@ -1,1 +1,165 @@
-{"AuricBarkTrait":{"God":"Auric","Icon":"Boon_Auric_02","InheritFrom":["ShopTier1Trait"],"Slot":"Secondary"},"AuricGroveTrait":{"God":"Auric","Icon":"Boon_Auric_03","InheritFrom":["ShopTier1Trait"],"Slot":"Ranged"},"AuricRootTrait":{"God":"Auric","Icon":"Boon_Auric_01","InheritFrom":["ShopTier1Trait"],"Slot":"Melee"},"FennickSwiftTrait":{"God":"Fennick","Icon":"Boon_Fennick_01","InheritFrom":["ShopTier1Trait"]},"SableAuricBloomTrait":{"Icon":"Boon_SableAuric_01","InheritFrom":["SynergyTraitTemplate"]},"SableDebugTrait":{"DebugOnly":true,"God":"Sable","Icon":"Boon_Sable_66","InheritFrom":["ShopTier1Trait"]},"SableEmberComboTrait":{"God":"Sable","Icon":"Boon_Sable_12","InheritFrom":["ShopTier1Trait"],"RequiredFalseTrait":"AuricBarkTrait"},"SableEmberTrait":{"God":"Sable","Icon":"Boon_Sable_01","InheritFrom":["ShopTier1Trait"],"Slot":"Melee"},"SableFlareTrait":{"God":"Sable","Icon":"Boon_Sable_02","InheritFrom":["ShopTier1Trait"],"Slot":"Secondary"},"SableMirageTrait":{"God":"Sable","Icon":"Boon_Sable_77","InheritFrom":["ShopTier1Trait"],"RequiredOneOfTraits":["SableEmberTrait","SablePhantomTrait"]},"SablePyreTrait":{"God":"Sable","Icon":"Boon_Sable_09","InheritFrom":["ShopTier3Trait"]},"SableTideTrait":{"Icon":"Boon_Sable_88","InheritFrom":["ShopTier1Trait"],"LootSource":"SableUpgrade"},"SableWardenTrait":{"God":"Sable","Icon":"Boon_Sable_03","InheritFrom":["ShopTier1Trait"],"Slot":"Ranged"},"ShopTier1Trait":{"Cost":30,"RarityLevels":{"Common":{"MaxMultiplier":1.0,"MinMultiplier":1.0},"Epic":{"MaxMultiplier":2.0,"MinMultiplier":1.8},"Heroic":{"MaxMultiplier":2.5,"MinMultiplier":2.3},"Rare":{"MaxMultiplier":1.5,"MinMultiplier":1.3}}},"ShopTier3Trait":{"Cost":120,"RarityLevels":{"Legendary":{"MaxMultiplier":1,"MinMultiplier":1}}},"SynergyTraitTemplate":{"Frame":"Duo","IsDuoBoon":true,"RarityLevels":{"Legendary":{"MaxMultiplier":1,"MinMultiplier":1}},"RequiredFalseRewardType":"TradeOffReward"}}
+{
+ "AuricBarkTrait": {
+  "God": "Auric",
+  "Icon": "Boon_Auric_02",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "Slot": "Secondary"
+ },
+ "AuricGroveTrait": {
+  "God": "Auric",
+  "Icon": "Boon_Auric_03",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "Slot": "Ranged"
+ },
+ "AuricRootTrait": {
+  "God": "Auric",
+  "Icon": "Boon_Auric_01",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "Slot": "Melee"
+ },
+ "FennickHasteTrait": {
+  "God": "Fennick",
+  "Icon": "Boon_Fennick_02",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "RequiredOneOfTraits": [
+   "FennickSwiftTrait",
+   "FennickPlumeTrait"
+  ]
+ },
+ "FennickPlumeTrait": {
+  "Icon": "Keepsake_Fennick_Plume",
+  "InheritFrom": [
+   "GiftTrait"
+  ]
+ },
+ "FennickSwiftTrait": {
+  "God": "Fennick",
+  "Icon": "Boon_Fennick_01",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ]
+ },
+ "GiftTrait": {
+  "Icon": "Keepsake_Base"
+ },
+ "SableAuricBloomTrait": {
+  "Icon": "Boon_SableAuric_01",
+  "InheritFrom": [
+   "SynergyTraitTemplate"
+  ]
+ },
+ "SableDebugTrait": {
+  "DebugOnly": true,
+  "God": "Sable",
+  "Icon": "Boon_Sable_66",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ]
+ },
+ "SableEmberComboTrait": {
+  "God": "Sable",
+  "Icon": "Boon_Sable_12",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "RequiredFalseTrait": "AuricBarkTrait"
+ },
+ "SableEmberTrait": {
+  "God": "Sable",
+  "Icon": "Boon_Sable_01",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "Slot": "Melee"
+ },
+ "SableFlareTrait": {
+  "God": "Sable",
+  "Icon": "Boon_Sable_02",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "Slot": "Secondary"
+ },
+ "SableMirageTrait": {
+  "God": "Sable",
+  "Icon": "Boon_Sable_77",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "RequiredOneOfTraits": [
+   "SableEmberTrait",
+   "SablePhantomTrait"
+  ]
+ },
+ "SablePyreTrait": {
+  "God": "Sable",
+  "Icon": "Boon_Sable_09",
+  "InheritFrom": [
+   "ShopTier3Trait"
+  ]
+ },
+ "SableTideTrait": {
+  "Icon": "Boon_Sable_88",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "LootSource": "SableUpgrade"
+ },
+ "SableWardenTrait": {
+  "God": "Sable",
+  "Icon": "Boon_Sable_03",
+  "InheritFrom": [
+   "ShopTier1Trait"
+  ],
+  "Slot": "Ranged"
+ },
+ "ShopTier1Trait": {
+  "Cost": 30,
+  "RarityLevels": {
+   "Common": {
+    "MaxMultiplier": 1.0,
+    "MinMultiplier": 1.0
+   },
+   "Epic": {
+    "MaxMultiplier": 2.0,
+    "MinMultiplier": 1.8
+   },
+   "Heroic": {
+    "MaxMultiplier": 2.5,
+    "MinMultiplier": 2.3
+   },
+   "Rare": {
+    "MaxMultiplier": 1.5,
+    "MinMultiplier": 1.3
+   }
+  }
+ },
+ "ShopTier3Trait": {
+  "Cost": 120,
+  "RarityLevels": {
+   "Legendary": {
+    "MaxMultiplier": 1,
+    "MinMultiplier": 1
+   }
+  }
+ },
+ "SynergyTraitTemplate": {
+  "Frame": "Duo",
+  "IsDuoBoon": true,
+  "RarityLevels": {
+   "Legendary": {
+    "MaxMultiplier": 1,
+    "MinMultiplier": 1
+   }
+  },
+  "RequiredFalseRewardType": "TradeOffReward"
+ }
+}
