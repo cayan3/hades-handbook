@@ -11,9 +11,10 @@ OUT = out_dir("hades2")
 SCRIPTS = scripts_dir("hades2")
 TEXT_EN = text_dir("hades2")
 
-# Before anything is read, and certainly before anything is written: the data
-# below comes from a stored dump while the citations come from the installed
-# game, so those two have to be the same build or the output describes neither.
+# This comes before anything's read (& definitely before anything's written).
+# Since the data below comes from a stored dump while the citations come from
+# the actual installed game, those two have to be the same build or the output
+# would describe neither.
 try:
     build_guard.check("hades2")
 except build_guard.BuildMismatch as mismatch:
@@ -40,24 +41,24 @@ REL_SCRIPTS = "Scripts/"  # cited paths are relative to the game's Scripts dir, 
 # ---------------------------------------------------------------------------
 
 # Discovered from the directory rather than listed, so a patch that adds a god
-# is absorbed by re-running the extractor -- which is the whole premise of
-# extracting instead of transcribing. A hardcoded list would silently emit
-# nothing for a new god's boons while every validation check still passed,
-# because an id nobody looked for cannot dangle. Sorted for determinism: later
-# files overwrite earlier keys in the source index, so the order is part of the
-# output.
+# (not that there like ever would be one lol) is absorbed by re-running the
+# extractor, which is the whole premise of extracting instead of transcribing.
+# A hardcoded list would quietly emit nothing for a new god's boons while every
+# validation check still passed, because an id nobody looked for cannot dangle.
+# Sorted for determinism: later files overwrite earlier keys in the source
+# index, so the order is part of the output.
 TRAIT_FILES = sorted(os.path.basename(p) for p in glob.glob(SCRIPTS + "TraitData_*.lua"))
 LOOT_FILES = sorted(os.path.basename(p) for p in glob.glob(SCRIPTS + "LootData_*.lua"))
 
 # Stop here if the scripts directory is not the scripts directory.
-# `index_keys_at_depth` answers `{}` for a file that is not there, which is the
-# right answer for an optional per-god file -- a game shipping none of them is
-# not an error -- but it is silently fatal for the ones every citation depends
-# on. Without this check a mistyped path produces an empty source index, every
-# trait then fails its `src is None` test and is reclassified as a base
-# archetype, and the run writes `{}` over the catalog and exits 0. An empty
+# `index_keys_at_depth` answers `{}` for a file that isn't actually there, which
+# is the right answer for an optional per-god file (a game shipping none of them
+# isn't like an error) but it's silently fatal for the ones every citation
+# depends on. Without this check, a mistyped path produces an empty source
+# index, every trait then fails its `src is None` test and is reclassified as a
+# base archetype, and the run writes `{}` over the catalog and exits 0. An empty
 # glob is the same failure seen from the other side: the directory exists but
-# holds no per-god trait files, so nothing would be read from it.
+# holds no per-god trait files, so nothing would actually be read from it.
 _missing = [f for f in ("TraitData.lua",) if not os.path.isfile(SCRIPTS + f)]
 if _missing or not TRAIT_FILES:
     sys.exit(
@@ -67,7 +68,7 @@ if _missing or not TRAIT_FILES:
            else "missing " + ", ".join(_missing), SCRIPTS)
     )
 
-# id -> (file, line)  (base TraitData.lua covers base archetypes, tracked separately)
+# id maps to (file, line)  (base TraitData.lua covers base archetypes, tracked separately)
 boon_source = {}
 for fname in TRAIT_FILES:
     for key, line in index_keys_at_depth(SCRIPTS + fname, 1).items():
@@ -81,21 +82,23 @@ for fname in ["LootData.lua"] + LOOT_FILES:
         if key.endswith("Upgrade"):
             god_upgrade_source[key] = (fname, line)
 
-# TraitRequirements entries: all live inside TraitData.lua's `TraitRequirements = { ... }`
-# table, at 1-tab indent, same as base_trait_source scan (same file/depth) --
-# reuse that same index (it already covers every 1-tab key in TraitData.lua,
-# TraitRequirements' entries included, since they live in the same physical
-# tab-indentation level as the base archetypes, just a different section).
+# TraitRequirements entries all live inside TraitData.lua's
+# `TraitRequirements = { ... }` table at 1-tab indent, which is the same file and
+# depth the base_trait_source scan already covers. So we'll just yk reuse that
+# index; it catches every 1-tab key in TraitData.lua, TraitRequirements' entries
+# included (since they sit at the same tab-indentation level as the base archetypes and
+# only differ by like section).
 prereq_source = base_trait_source
 
 # ---------------------------------------------------------------------------
-# Text bundle (names + descriptions) -- kept as a SEPARATE output file
+# Text bundle (names + descriptions) — kept as a SEPARATE output file
 # ---------------------------------------------------------------------------
 
 text_bundle_raw = parse_sjson_text_bundle(TEXT_EN + "TraitText.en.sjson")
-# Warned about rather than required, because the synthetic fixtures deliberately
-# ship no text bundle and must still run. A real extraction that reaches here
-# empty would emit a whole catalog of `name: null`, which looks like data.
+# This is a warning instead of being required bc the synthetic fixtures
+# purposefully don't ship any text bundle but should still yk run. An actual
+# extraction that reaches here empty would ermmm emit a whole catalog of
+# `name: null`, which looks like data (albeit somewhat silly data lol).
 if not text_bundle_raw:
     print("WARNING: no text bundle read from %s -- every name and descriptionRef "
           "will be null. Check EXTRACT_TEXT_HADES2." % TEXT_EN, file=sys.stderr)
@@ -117,12 +120,12 @@ with open(OUT + "text.json", "w") as f:
 # ---------------------------------------------------------------------------
 
 # LootSetData is sectioned by god, but an `InheritFrom` entry names a bare id
-# that may live in any section: every <God>Upgrade inherits `BaseLoot`, which
-# sits under the `Loot` section and is where `GodLoot = true` is actually
-# declared. Resolution therefore walks a flat union of every section's entries.
-# This matters -- Poseidon and Zeus carry no literal `GodLoot` of their own and
+# that can live in any section lol. Every <God>Upgrade inherits `BaseLoot`,
+# which is under the `Loot` section and is where `GodLoot = true` is actually
+# declared, so resolution goes through a union of every section's entries. This
+# matters bc Poseidon and Zeus carry no literal `GodLoot` of their own rip and
 # are pool gods purely through that inheritance, so reading the field directly
-# off the record answers None for two of the nine.
+# off the record would show None for those two of the nine total gods here.
 LOOT_ENTRIES = {}
 for _section in LootSetData.values():
     if isinstance(_section, dict):
@@ -150,32 +153,58 @@ def resolve_loot_field(entry_id, field, _visited=None, _depth=0):
     return None
 
 
+def inherits_from(entry_id, base, _visited=None, _depth=0):
+    """Whether an entry inherits `base`, however many steps away it is.
+
+    Walked rather than read off `InheritFrom` directly, to match how the flag it
+    is tested beside gets resolved. The real file already nests one level deep —
+    the stacked reward variants reach BaseLoot through StackUpgrade — so a god's
+    table nesting the same way is a shape this data already has, and a direct
+    read answers "no" for it. Answering "no" would be survivable. The near miss
+    would not: the intermediate template passes instead and becomes the god,
+    carrying its own id and no source.
+    """
+    if _depth > 6:
+        return False
+    _visited = _visited or set()
+    if entry_id in _visited:
+        return False
+    _visited.add(entry_id)
+    entry = LOOT_ENTRIES.get(entry_id)
+    if not isinstance(entry, dict):
+        return False
+    parents = [p for p in (entry.get("InheritFrom") or []) if isinstance(p, str)]
+    if base in parents:
+        return True
+    return any(inherits_from(p, base, _visited, _depth + 1) for p in parents)
+
+
 def is_god_table(entry_id, entry):
     """Whether a LootSetData entry is a god who hands out boons.
 
-    Every god's table inherits BaseLoot -- and so do the mechanical slots, so
-    that alone does not separate them. What does is that a god either keeps
-    BaseLoot's GodLoot flag or has an NPC who does the offering. Hermes turns
-    the flag off and has a speaker; the hammer turns it off and has nobody,
-    because nothing hands a hammer over.
+    Every god's table inherits BaseLoot, and so do the mechanical slots, so that
+    alone does not separate them. What does is that a god either keeps BaseLoot's
+    GodLoot flag or has an NPC doing the offering. Hermes turns the flag off and
+    has a speaker; the hammer turns it off and has nobody, since nothing hands a
+    hammer over.
 
-    This used to be the ten real god names written out, one per section. It
+    This used to be the ten real god names written out, one per section. That
     worked against the installed game and made the whole pass invisible to
-    anything else: the fixtures' gods are invented, and have to be, so nothing
+    everything else: the fixtures' gods are invented, and have to be, so nothing
     matched, gods.json came out empty, and every fixture boon was filed
-    NonPoolSlot for a reason no test stated.
+    NonPoolSlot for a reason no test ever stated.
     """
     if not isinstance(entry, dict):
         return False
-    if "BaseLoot" not in (entry.get("InheritFrom") or []):
+    if not inherits_from(entry_id, "BaseLoot"):
         return False
     return bool(resolve_loot_field(entry_id, "GodLoot")) or bool(entry.get("Speaker"))
 
 
-# section name -> the <God>Upgrade id inside it. The section is what names the
-# god, which is worth taking over the entry id: Chaos hands its boons out
-# through a table called TrialUpgrade, and reading the section needs no
-# exception for that the way reading the id would.
+# section name maps to the <God>Upgrade id inside it. The section is what
+# actually names the god, which is worth taking over the entry id; Chaos hands
+# gives their boons through the `TrialUpgrade` table and reading the section
+# doesn't need any exception for that like reading the id would.
 GOD_FILE_KEYS = {
     section_name: entry_id
     for section_name, section in sorted(LootSetData.items())
@@ -192,8 +221,8 @@ for godname, upgradeId in GOD_FILE_KEYS.items():
     if data is None:
         continue
     src = god_upgrade_source.get(upgradeId)
-    # Resolved rather than read: Hermes overrides BaseLoot's `true` with `false`,
-    # and the rest either declare it or inherit it.
+    # This is resolved instead of read; Hermes overrides BaseLoot's `true` with
+    # `false` lol, and the rest either declare it or inherit it.
     is_pool = bool(resolve_loot_field(upgradeId, "GodLoot"))
     if is_pool:
         pool_god_names.add(godname)
@@ -206,8 +235,8 @@ for godname, upgradeId in GOD_FILE_KEYS.items():
         "source": "%s%s:%d" % (REL_SCRIPTS, src[0], src[1]) if src else None,
     }
 
-# Selene is a special case: grants Hexes via a SpellDrop interactable, not a
-# standard <God>Upgrade table (see the Hades II token-pass finding).
+# Selene is a special case :moon: :moon:; grants Hexes via a SpellDrop
+# interactable, not a standard <God>Upgrade table (see the Hades II token-pass finding).
 selene_spell = LootSetData.get("Selene", {}).get("SpellDrop")
 if selene_spell is not None:
     src = god_upgrade_source.get("SpellDrop")  # likely absent; SpellDrop isn't named "...Upgrade"
@@ -220,12 +249,12 @@ if selene_spell is not None:
         "note": "Selene does not grant boons through the standard <God>Upgrade loot mechanism; she grants Hex/Arcana spells via a SpellDrop interactable.",
     }
 
-# The mechanical "gods" (weapon upgrade, stack upgrade) also live in
-# LootSetData.Loot -- include them tagged distinctly, they are not Olympians.
-# Chaos is no longer written out beside them: its table is a god's by the test
-# above, which reads the section name and so needs no exception for a table
-# called TrialUpgrade.
-for key in ["WeaponUpgrade", "StackUpgrade", "StackUpgradeDouble", "StackUpgradeTriple"]:
+# The mechanical "gods" (weapon upgrade, stack upgrade) are also in
+# LootSetData.Loot. We'll include them but tag them distinctly bc they're yk not
+# Olympians lol. Chaos isn't included here anymore bc their table counts as a
+# god's under the test above, which reads the section name and so doesn't need
+# an exception for the `TrialUpgrade` table.
+for key in ["WeaponUpgrade", "StackUpgrade", "StackUpgradeBig", "StackUpgradeTriple"]:
     d = LootSetData.get("Loot", {}).get(key)
     if d:
         src = god_upgrade_source.get(key)
@@ -246,8 +275,8 @@ with open(OUT + "gods.json", "w") as f:
 # Keepsake records
 # ---------------------------------------------------------------------------
 
-# NPC id -> god/character name, derived from each LootData_<God>.lua's
-# `Speaker = "NPC_X_01"` field (a real, read field, not invented).
+# NPC id maps to god/character name, derived from each LootData_<God>.lua's
+# `Speaker = "NPC_X_01"` field (a real field from game code lol, not invented).
 npc_to_god = {}
 for godname in GOD_FILE_KEYS:
     d = LootSetData.get(godname, {}).get(GOD_FILE_KEYS[godname], {})
@@ -261,9 +290,10 @@ if selene_speaker:
 # keepsake id -> NPC id, from GiftData's `[n] = { Gift = "X" }` entries
 keepsake_to_npc = {}
 # A dump whose input never defined GiftData carries the engine stub's
-# "<unresolved:...>" placeholder rather than a table, which is deliberate --
-# it records that the reference existed without inventing its contents. Nothing
-# here can be derived from it, so the keepsake/NPC association is simply empty.
+# "<unresolved:...>" placeholder instead of a table; this is on purpose in order
+# to denote that the reference existed without like inventing its contents.
+# Since nothing here can be derived from it, the keepsake/NPC association is
+# just yk empty :shrug: :shrug:.
 for npc_id, npc_data in (GiftData.items() if isinstance(GiftData, dict) else ()):
     if not isinstance(npc_data, dict):
         continue
@@ -374,17 +404,16 @@ MECHANIC_ONLY_FILES = {
     "TraitData_Spell.lua", "TraitData_Store.lua", "TraitData_Talent.lua", "TraitData_Chaos.lua",
     "TraitData_Elementals.lua", "TraitData_Essence.lua",
 }
-# Files named for a god but holding no single god's boons: duos belong to two and
+# Files named for a god but holding no single god's boons; duos belong to two and
 # read their pair from a source comment, keepsakes belong to whoever gives them.
 CROSS_GOD_TRAIT_FILES = {"TraitData_Duo.lua", "TraitData_Keepsake.lua"}
 
-# `TraitData_<Name>.lua` names its god, so derive the map from the files actually
-# present rather than listing them. Listing was the older form and it left a new
-# god silently unattributed -- a patch adding `TraitData_Chronos.lua` would emit
-# its boons with `god: null` and `boonCategory: NonStandard` and say nothing,
-# which is the same failure the file glob above already exists to prevent. Every
-# `TraitData_*` file must fall in exactly one of the four buckets; anything the
-# three exclusion sets do not claim is a god's file by construction.
+# `TraitData_<Name>.lua` names its god, so derive the map from the files that
+# are actually present instead of like listing them. Listing was the older form;
+# there won't be any new gods added in either game ofc, but if they were they'd
+# be unattributed, which is the failure the file glob above already prevents.
+# Every `TraitData_*` file has to fall in exactly one of the four buckets, so
+# anything the three exclusion sets don't claim must be a god's file.
 FILE_TO_GOD = {
     fname: fname[len("TraitData_"):-len(".lua")]
     for fname in TRAIT_FILES
@@ -395,13 +424,13 @@ FILE_TO_GOD = {
 
 # Every god name the extractor is willing to attribute a boon to. Both readers
 # below recover a name from a hand-written source comment, which is the only
-# place the data records these associations at all -- but a comment is prose,
-# and the patterns match any capitalised word. Without this set, a comment that
+# place the data records these associations at all. A comment is prose and
+# the patterns match any capitalised word, so without this set, a comment that
 # happens to read `-- Deprecated: replaced in 1.3` yields `god = "Deprecated"`,
 # which then decides godKind and boonCategory as confidently as a real name
-# would. An unrecognised name must become an absent god, not a plausible one:
+# would. An unrecognised name must become an absent god, not a plausible one;
 # an unattributed boon renders as unattributed, whereas an invented god renders
-# as somebody's, and only the second is silently wrong.
+# as somebody's (only the latter is silently wrong).
 KNOWN_GOD_NAMES = set(GOD_FILE_KEYS) | set(FILE_TO_GOD.values()) | {"Selene", "Chaos"}
 
 DUO_COMMENT_RE = re.compile(r'--\s*([A-Z][a-zA-Z]+)\s*(?:x|×)\s*([A-Z][a-zA-Z]+)')
@@ -447,8 +476,8 @@ def get_element_affinities(trait_id):
     The resolver this replaces returned on its first match, so a trait
     inheriting two affinity bases would have kept one and lost the other in
     silence. No shipped trait has two, which is precisely why the loss would
-    never have been noticed -- so every match is returned and the caller fails
-    the run rather than picking one.
+    never have been noticed. So every match comes back, and the caller fails the
+    run rather than picking one.
     """
     chain = [trait_id] + inherit_chain(trait_id)
     return [ELEMENT_BASE_TRAITS[c] for c in chain if c in ELEMENT_BASE_TRAITS]
@@ -469,7 +498,7 @@ def classify_category(trait_id, god, fname, data, chain):
     if fname in NPC_MARKER_FILES:
         return "NpcAlly"
     if fname == "TraitData_Duo.lua":
-        return "StandardOlympian"  # duo boons combine two pool gods; still pantheon-sourced
+        return "StandardOlympian"  # duo boons combine two pool gods
     if "InPersonOlympianTrait" in chain or "LegacyTrait" in chain:
         return "NonStandard"  # one-off narrative cameo boon (Athena/Artemis/Dionysus), not pool content
     if fname == "TraitData_Elementals.lua":
@@ -485,11 +514,9 @@ def classify_category(trait_id, god, fname, data, chain):
 boons = {}
 skipped_base_archetypes = []
 
-# Which ids the player cannot shed once the run has them. A keepsake swaps
-# between regions, so anything a keepsake is or grants is temporary -- and a
-# negation whose blocker is temporary must never be reported as permanent,
-# because that renders as an impossible build to a player who only has the
-# wrong keepsake equipped right now.
+# Which ids the player can't shed once the run has them. A keepsake swaps
+# between regions, so anything a keepsake is or grants is temporary (and
+# temporary blockers shouldn't be displayed as permanent ones).
 REMOVABLE_BLOCKERS = set(keepsakes)
 for _tid, _data in ALL_DEFS.items():
     if isinstance(_data, dict):
@@ -499,25 +526,25 @@ for _tid, _data in ALL_DEFS.items():
             REMOVABLE_BLOCKERS.add(_args["TraitName"])
 
 
-# Which ids are a weapon form rather than something the run picks up. The
-# aspects have their own table, which is the test used here; the resolved
-# `Slot` field is not, because it reaches the two templates the aspects
-# inherit from and none of the aspects themselves.
+# Which ids are a weapon form instead of something the run picks up. The aspects
+# have their own table, which is the test used here; the resolved `Slot` field
+# isn't bc it reaches the two templates the aspects inherit from and none of the
+# aspects themselves.
 def is_aspect(trait_id):
     return trait_id in ASPECT_DEFS
 
-declared_negations = {}   # trait id -> ids it declares itself incompatible with
-classified = {}           # trait id -> what its clauses came to
+declared_negations = {}   # trait id map to ids it declares itself incompatible with
+classified = {}           # trait id map to what its clauses came to
 
 for trait_id, data in ALL_DEFS.items():
     if not isinstance(data, dict):
         continue
     src = boon_source.get(trait_id)
     if src is None:
-        # only defined in the base TraitData.lua -> a template/archetype
-        # (BaseTrait, FireBoon, LegendaryTrait, SynergyTrait, UnityTrait, ...),
-        # not itself an offerable boon. Exclude from the catalog, but keep a
-        # record of what we excluded, for the validation report.
+        # Only defined in the base TraitData.lua; a template/archetype
+        # (BaseTrait, FireBoon, LegendaryTrait, SynergyTrait, UnityTrait, ...)
+        # isn't actually an offerable boon itself, so exclude from the catalog
+        # but keep a record of what's been excluded (for the validation report).
         base_line = base_trait_source.get(trait_id)
         skipped_base_archetypes.append({"id": trait_id, "source": "Scripts/TraitData.lua:%d" % base_line if base_line else None})
         continue
@@ -533,12 +560,13 @@ for trait_id, data in ALL_DEFS.items():
         elemental_god_comment = parse_elemental_god_comment(fname, line)
         god = elemental_god_comment  # best-effort, sourced from a comment, flagged below
 
-    # Both halves are read and ANDed. The reader this replaces took the
-    # central entry when there was one and never looked at the record's own
-    # `GameStateRequirements`, so nine records had a gate suppressed by
-    # another gate -- and it also required the inline half to be a list, which
-    # a dozen records write as a bare table instead. Between them those two
-    # tests dropped every Selene-duo gate in the game.
+    # Both halves are read and AND-ed. The old reader that was replaced by this
+    # one just took the central entry when there was one and never looked at the
+    # record's own `GameStateRequirements`, so nine records had one gate
+    # suppressed by another. It also required the inline half to be a list,
+    # which a dozen records actually write as a bare table instead. Between
+    # them, those two tests dropped every Selene-duo gate in the game :pensive:
+    # :pensive:.
     prereq_line = prereq_source.get(trait_id)
     central = requirements.classify_h2(TraitRequirements.get(trait_id), keepsakes)
     inline = requirements.classify_h2(data.get("GameStateRequirements"), keepsakes)
@@ -561,9 +589,9 @@ for trait_id, data in ALL_DEFS.items():
         dict(f, stage="prereq") for f in clauses.unclassified
     ]
     if clauses.unclassified:
-        # A record whose clauses did not all classify must not ship a
-        # requirement at all: half a gate reads as a weaker gate, and the run
-        # is going to fail anyway. The marker replaces it so nothing can
+        # A record whose clauses didn't all get classified shouldn't ship a
+        # requirement at all; half a gate just looks like a weaker gate, and the
+        # run is going to fail anyway. The marker replaces it so nothing can
         # mistake the remains for a requirement.
         prereq = {"type": requirements.UNCLASSIFIED_MARKER}
 
@@ -571,9 +599,10 @@ for trait_id, data in ALL_DEFS.items():
     activation_clauses = requirements.classify_h2(data.get("ActivationRequirements"), keepsakes)
     build_failures += [dict(f, stage="activation") for f in activation_clauses.unclassified]
     # The activation gate's own discards belong in the report as much as the
-    # prerequisite's do. Uncommon Grace carries the same rarity clause on both,
-    # and only one of the two was being counted -- so the report said the class
-    # was smaller than it is, which is the one question it exists to answer.
+    # prerequisite's do. Uncommon Grace carries the same rarity clause on both
+    # and only one of the two was being counted, so the report said the class was
+    # smaller than it is; which is yk bad bc that's the one question the report
+    # literally exists to answer :sobbing: :sobbing:.
     clauses.discarded.extend(activation_clauses.discarded)
     if not activation_clauses.unclassified:
         activation = activation_clauses.requirement()
@@ -606,10 +635,10 @@ for trait_id, data in ALL_DEFS.items():
         "aspectConflicts": None,
         "elementAffinity": affinities[0] if affinities else None,
         "prereq": prereq,
-        # Where the gate was written, which is not where the trait was. Hades
+        # Where the gate was written, which isn't where the trait was. Hades
         # II keeps most prerequisites in one central table and the rest inline
         # on the record, so a citation that always named the record would be
-        # wrong for the majority of them.
+        # wrong for most of them.
         "prereqSource": prereq_citation,
         "activation": activation,
         "source": "Scripts/%s:%d" % (fname, line),
@@ -624,14 +653,14 @@ for trait_id, data in ALL_DEFS.items():
 # Selene's paired boons
 # ---------------------------------------------------------------------------
 
-# Nine records pair one of Selene's Hexes with one Olympian, and the game files
-# them under Talents rather than beside the Hexes -- which is why they read as
-# god-less mechanic content. Two halves of their requirement are real clauses
-# and one is not: the gate on the Olympian is written out, while holding the
-# matching Hex is carried by the inheritance and the name. That half is derived
-# here, and the derivation checks itself -- the god read from the name must
-# agree with the god read from the gate, and the Hex id must exist -- so a
-# renamed record fails the run instead of quietly losing half its gate.
+# Nine records pair one of Selene's Hexes with one Olympian; the game files list
+# them under Talents instead of beside the Hexes (which is why they read as
+# god-less mechanic content). One half of their requirement is a real clause and
+# one isn't; the gate on the Olympian is written out, while holding the matching
+# Hex is carried by the inheritance and the name. That second half is derived
+# here and the derivation actually checks itself (the god read from the name
+# must agree with the god read from the gate, and the Hex id must exist) so a
+# renamed record fails the run instead of likee quietly losing half its gate oops.
 SELENE_PAIRED_MARKER = "SeleneDuosUnlocked"
 SELENE_PAIRED_BASE = "SpellTalentTrait"
 
@@ -668,19 +697,19 @@ for trait_id, record in boons.items():
     ])
 
 # ---------------------------------------------------------------------------
-# What a negation actually is, decided once every declaration is known
+# What a negation actually is (decided once every declaration is known)
 # ---------------------------------------------------------------------------
 
 exclusive_groups, blocked_by, aspect_conflicts, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
     declared_negations,
     removable=REMOVABLE_BLOCKERS,
-    # Nothing is out of scope here, where Hades I drops anything touching a
-    # Daedalus hammer. That is an asymmetry rather than a difference between
-    # the games: this game's weapon-upgrade traits are the same mechanic under
-    # another name, and one pair of them does ship a real exclusive group. Both
-    # of its members are out of scope themselves, so nothing renders wrongly,
-    # and the filter is left unwritten until something depends on it rather
-    # than guessed at now.
+    # Nothing is out of scope here (whereas Hades I drops anything touching a
+    # Daedalus hammer). That's an asymmetry instead of a difference between
+    # the games; Hades II's weapon-upgrade traits are the same mechanic under
+    # another name and one pair of them does actually ship a real exclusive
+    # group. Both of its members are out of scope themselves (so nothing renders
+    # wrongly yay) and the filter is left unwritten until something depends on
+    # it instead of like just idk guessing it rn ig o_0.
     is_out_of_scope=lambda tid: False,
     is_aspect=is_aspect,
 )
@@ -695,10 +724,10 @@ for trait_id, aspects in aspect_conflicts.items():
 # Ladder depth
 # ---------------------------------------------------------------------------
 
-# A duo belongs to two gods, an element-gated boon to none of the ladders, and
-# one of Selene's paired boons hangs off an Olympian's page the way a duo does
-# rather than standing on a rung of that god's ladder. Everything else with a
-# god sits on one.
+# A duo belongs to two gods, an element-gated boon belongs to none of the
+# ladders, and one of Selene's paired boons is connected to an Olympian's page
+# the way a duo does instead of like just yk standing on a rung of that god's
+# ladder like the others. Everything else with a god sits on one.
 LADDER_IDS = {
     tid for tid, rec in boons.items()
     if rec["god"] and not rec["duoGods"] and tid not in selene_paired

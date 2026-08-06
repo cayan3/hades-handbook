@@ -66,12 +66,12 @@ def test_a_god_who_declares_the_pool_flag_is_in_the_pool(tmp_path):
 
 
 def test_a_god_who_declares_no_pool_flag_inherits_one(tmp_path):
-    """Cindra says nothing about the pool anywhere on her own table -- she is in
-    it through the base every offering table inherits. Two of the installed
-    game's Olympians are in exactly that position, so a reader that took the
-    field off the table would answer nothing for them and drop them out of the
-    pool. Verdan is the same fact declared rather than inherited, and the pair
-    is what separates a resolver from a lookup that got lucky."""
+    """Cindra says nothing about the pool anywhere on her own table. She is in it
+    through the base every offering table inherits. Two of the installed game's
+    Olympians sit in exactly that position, so a reader taking the field off the
+    table would answer nothing for them and drop them out of the pool. Verdan is
+    the same fact declared rather than inherited, and the pair is what separates
+    a resolver from a lookup that got lucky."""
     assert "GodLoot" not in raw_loot()["Cindra"]["CindraUpgrade"], (
         "fixture no longer states the case: Cindra now declares her own flag"
     )
@@ -88,18 +88,25 @@ def test_a_god_who_gives_up_the_pool_flag_is_still_a_god(tmp_path):
 
 def test_the_mechanical_slots_are_not_mistaken_for_gods(tmp_path):
     """They inherit the same base a god's table does, and one of them gives up
-    the pool flag exactly as Thren does, so neither test on its own keeps them
-    out -- inheritance alone would invent a god called Weapon."""
+    the pool flag exactly as Thren does, so neither half of the test on its own
+    keeps them out.
+
+    The assertion is about the section they sit in, because that is what names
+    a god here: a mechanical slot mistaken for one is emitted under `Loot`, not
+    under anything resembling its own id. This test asserted `"Weapon" not in
+    gods` until the section rule arrived, and both spellings were unreachable
+    after it: a slot promoted to a god passed this test, and was caught only by
+    the shape test next to it."""
     _, gods = run_h2(tmp_path)
-    assert "Weapon" not in gods and "Stack" not in gods
+    assert "Loot" not in gods
     assert gods["__mechanic_WeaponUpgrade"]["kind"] == "NonPoolSlot"
 
 
 def test_a_god_is_named_by_its_section_and_not_by_its_table(tmp_path):
     """One god in the installed game hands boons out through a table named for
-    the mechanic rather than for him. Read from the table id, that god drops
-    out of the emitted records entirely -- and a god who was never read looks
-    exactly like a god the game does not have."""
+    the mechanic rather than for him. Read from the table id, that god drops out
+    of the emitted records entirely, and a god who was never read looks exactly
+    like a god the game does not have."""
     assert "ThrenUpgrade" not in raw_loot()["Thren"], (
         "fixture no longer states the case: Thren's table now matches his name"
     )
@@ -125,8 +132,8 @@ def test_a_cameo_gods_boons_are_not_standard_content(tmp_path):
     """The same two fields taking the other branch. Orithia is not in the loot
     data at all; her boon is marked a cameo by what it inherits, which is the
     other of the two signals the game uses to keep a god out of the pool. Both
-    assertions held before any god was recognised, when every record in this
-    fixture answered this way -- they only say something now that some other
+    assertions held before any god was recognised, back when every record in
+    this fixture answered this way. They only say something now that some other
     god takes the opposite branch."""
     boons, gods = run_h2(tmp_path)
     assert "Orithia" not in gods
