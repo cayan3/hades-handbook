@@ -10,6 +10,7 @@
   "HermesPlannedRushTrait"
  ],
  "boonsNotReferencedOutsideTraitDataCount": 5,
+ "boonsWhoseCategoryOutranksTheirGod": [],
  "boonsWithNoDescriptionRef": [
   "AmmoFieldTrait",
   "ArtemisShoutBuffTrait",
@@ -579,6 +580,7 @@
   }
  ],
  "godNamesOutsideKnownVocabulary": [],
+ "godRecordsWithoutASource": [],
  "infusionsWithoutAnElementGate": [],
  "raritiesNeverUsedByAnyBoon": [
   "Duo"

@@ -5385,8 +5385,8 @@
        "trait": "PoseidonPickedUpMinorLootTrait"
       },
       {
-       "kind": "hasTrait",
-       "trait": "ForcePoseidonBoonTrait"
+       "keepsake": "ForcePoseidonBoonTrait",
+       "kind": "hasKeepsake"
       }
      ]
     },
@@ -5399,8 +5399,8 @@
        "trait": "RoomRewardBonusTrait"
       },
       {
-       "kind": "hasTrait",
-       "trait": "ForcePoseidonBoonTrait"
+       "keepsake": "ForcePoseidonBoonTrait",
+       "kind": "hasKeepsake"
       }
      ]
     }
@@ -7825,8 +7825,8 @@
        "trait": "AmmoReclaimTrait"
       },
       {
-       "kind": "hasTrait",
-       "trait": "FastClearDodgeBonusTrait"
+       "keepsake": "FastClearDodgeBonusTrait",
+       "kind": "hasKeepsake"
       }
      ]
     }
@@ -11501,8 +11501,8 @@
      "trait": "RushSpeedBoostTrait"
     },
     {
-     "kind": "hasTrait",
-     "trait": "FastClearDodgeBonusTrait"
+     "keepsake": "FastClearDodgeBonusTrait",
+     "kind": "hasKeepsake"
     }
    ]
   },
@@ -13099,8 +13099,8 @@
        "trait": "AmmoReloadTrait"
       },
       {
-       "kind": "hasTrait",
-       "trait": "FastClearDodgeBonusTrait"
+       "keepsake": "FastClearDodgeBonusTrait",
+       "kind": "hasKeepsake"
       }
      ]
     }
