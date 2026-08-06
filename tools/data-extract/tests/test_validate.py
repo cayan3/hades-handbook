@@ -1,16 +1,16 @@
 """Tests for the checks that decide whether an extraction may ship.
 
-Until now this file did not exist, and the validator had no coverage of any
-kind -- including the three checks that were added specifically because
-something had already gone wrong in silence. A check nobody exercises is a
-check that has never been observed to fire, which is most of the way back to
-not having it.
+This file used to ermmm not exist lol!, so the validator didn't have any
+coverage like at all rip (including the three checks that were added
+specifically bc something already gone wrong w/o being loud abt it). A check
+that nobody actually uses is a check that has never actually been proved to like
+fire correctly (which issss most of the way back to not having it at all o_0).
 
 Each test states the failure the rule exists to catch, builds the smallest
 catalog that exhibits it, and asserts the run stops. The catalogs are tiny and
-invented on purpose: a rule tested against the real extraction only proves the
-real extraction currently passes, which is the thing that was already true when
-these defects shipped.
+invented on purpose since a rule tested against the real extraction only proves
+that the real extraction currently passes (which is literally the thing that was
+already true when these defects were yk shipped :persevere: :persevere:).
 """
 
 import json
@@ -42,19 +42,27 @@ def boon(**fields):
 
 
 def check(boons, gods=None, keepsakes=None, **kw):
-    """Validate one invented catalog, returning (report, fatal messages)."""
-    return validate.validate_game(
-        "hades1", boons, gods if gods is not None else {}, keepsakes or {}, **kw
-    )
+    """Validate one invented catalog, returning (report, fatal messages).
+
+    God records are filled in with a source, because a real one always has one
+    and a check now says so. Tests that care about the citation state it
+    themselves; the rest would otherwise be asserting against a shape the
+    extractor cannot emit.
+    """
+    gods = {
+        name: {"source": "Scripts/LootData.lua:1", **record}
+        for name, record in (gods if gods is not None else {}).items()
+    }
+    return validate.validate_game("hades1", boons, gods, keepsakes or {}, **kw)
 
 
 # ---------------------------------------------------------------------------
-# Emission integrity: a field holding something that is not data
+# Emission integrity: a field holding something that isn't data
 # ---------------------------------------------------------------------------
 
 def test_an_unresolved_placeholder_anywhere_in_a_record_stops_the_run():
     """The dumper writes a placeholder wherever a table reached for a global
-    that was not loaded yet. Reaching an emitted field, it is a value -- and
+    that was not loaded yet. Once it reaches an emitted field it is a value, and
     the field it reached was never one anybody thought to guard, which is why
     the check walks the whole record rather than a list of fields."""
     _, fatal = check({"A": boon(id="A", icon="<unresolved:G.Something>")})
@@ -126,8 +134,8 @@ def test_a_clause_that_did_not_classify_stops_the_run():
 # ---------------------------------------------------------------------------
 
 def test_asking_for_more_branches_than_exist_stops_the_run():
-    """Evaluation is obliged to answer for whatever it is handed, so it reports
-    this as impossible with no reason to show the player -- a boon that renders
+    """Evaluation has to answer for whatever it is handed, so it reports this as
+    impossible with no reason to show the player: a boon that renders
     unobtainable for everyone, forever. This is the only place that can refuse
     it."""
     _, fatal = check({"A": boon(id="A", prereq={
@@ -170,9 +178,23 @@ def test_a_mirror_talent_is_not_expected_to_be_a_catalog_record():
     assert report["danglingPrereqReferenceCount"] == 0
 
 
-def test_a_keepsake_counts_as_present_for_that_check():
+def test_a_gate_naming_a_keepsake_through_the_trait_atom_is_a_finding():
+    """This assertion used to run the other way, and that is what the check was
+    getting wrong. Resolving both atoms against both tables answers "does this
+    id exist somewhere", which is not the question: a run holds traits and
+    equips keepsakes, so asking after a keepsake among the held traits is a
+    prerequisite nobody can ever meet. Four real gates sat in this state and
+    the union reported them clean."""
     report, _ = check(
         {"A": boon(id="A", prereq={"kind": "hasTrait", "trait": "K"})},
+        keepsakes={"K": {}},
+    )
+    assert report["danglingPrereqReferences"] == {"A": ["K"]}
+
+
+def test_a_keepsake_gate_naming_a_real_keepsake_is_clean():
+    report, _ = check(
+        {"A": boon(id="A", prereq={"kind": "hasKeepsake", "keepsake": "K"})},
         keepsakes={"K": {}},
     )
     assert report["danglingPrereqReferenceCount"] == 0
@@ -183,10 +205,10 @@ def test_a_keepsake_counts_as_present_for_that_check():
 # ---------------------------------------------------------------------------
 
 def test_a_mutual_exclusion_nobody_names_back_stops_the_run():
-    """The classifier only records one when both records name each other, so
-    this can no longer find anything in practice -- which is the point. It is
-    now a check on the classifier, and nobody checking is exactly how the field
-    came to be wrong in two thirds of Hades I's records."""
+    """The classifier only records one when both records name each other, so in
+    practice this can no longer find anything, which is the point. It is now a
+    check on the classifier, and nobody checking is exactly how the field came
+    to be wrong in two thirds of Hades I's records."""
     _, fatal = check({
         "A": boon(id="A", exclusiveGroup=["A", "B"]),
         "B": boon(id="B", exclusiveGroup=None),
@@ -217,10 +239,10 @@ def test_a_block_whose_blocker_is_keepsake_granted_stops_the_run():
 
 
 def test_a_block_naming_a_weapon_form_stops_the_run():
-    """A run never holds an aspect -- it equips one -- so a block naming an
-    aspect looks for it among the held traits and never finds it. The
-    constraint is real and permanently inert, which reads as the boon being
-    reachable. Two thirds of every block edge in the catalog were this."""
+    """A run never holds an aspect, it equips one, so a block naming an aspect
+    hunts for it among the held traits and never finds it. The constraint is
+    real and permanently inert, which reads as the boon being reachable. Two
+    thirds of every block edge in the catalog were this."""
     _, fatal = check({"A": boon(id="A", blockedBy=["Asp"])}, aspect_ids={"Asp"})
     assert any("names the aspect Asp in blockedBy" in f for f in fatal)
 
@@ -285,8 +307,8 @@ def test_another_gods_prerequisite_does_not_raise_the_rung():
 # ---------------------------------------------------------------------------
 
 def test_a_record_whose_declared_god_contradicts_the_table_offering_it_stops_the_run():
-    """Cheap, because the extractor holds both sides -- and it is the check
-    that would have caught the two records the overlay corrects by hand."""
+    """Cheap, because the extractor holds both sides, and it is the check that
+    would have caught the two records the overlay corrects by hand."""
     _, fatal = check(
         {"A": boon(id="A", god="Demeter")},
         gods={"Demeter": {}},
@@ -394,8 +416,8 @@ def test_a_misspelled_gate_key_is_counted_too():
 
 def test_a_key_somebody_has_read_and_ruled_out_is_not_reported():
     """Every display-side and offer-weighting key matches the census pattern, so
-    reporting them left nine standing per game -- and a tenth arriving in a list
-    of nine is not something anybody notices."""
+    reporting them left nine standing per game, and nobody notices a tenth
+    arriving in a list of nine."""
     judged = sorted(validate.CLAUSE_KEYS_THAT_ARE_NOT_GATES)[0]
     counts = validate.unconsumed_clause_keys({"A": {judged: True, "RequiredBrandNew": 1}})
     assert counts == {"RequiredBrandNew": 1}
@@ -530,7 +552,7 @@ def paired(hex_id, god):
 
 
 def a_catalog_of_pairs(count):
-    # Attribution is left off on purpose: the check reads the requirement's
+    # Attribution is excluded on purpose; the check reads the requirement's
     # shape and nothing else, so naming gods here would only be feeding a
     # different check's vocabulary rule.
     return {
@@ -566,11 +588,12 @@ def test_none_at_all_stops_the_run_rather_than_reading_as_nothing_to_check():
 
 
 def test_a_boon_asking_for_any_of_several_hexes_is_not_counted_as_a_pair():
-    """Measured, not assumed: the looser test everyone reaches for first --
-    does the requirement mention a Hex -- matches one record more than there
-    are pairs. It asks for any of seven Hexes and has no paired-god half at
-    all, which is a different mechanic. An assertion written that way fails on
-    a correct catalog, which is the kind that gets deleted rather than fixed.
+    """Measured, not assumed. The looser test everyone reaches for first — does
+    the requirement mention a Hex — matches one record more than there are
+    pairs. That record asks for any of seven Hexes and has no paired-god half at
+    all, which makes it a different mechanic. An assertion written that way
+    fails on a correct catalog, which is the kind that gets deleted rather than
+    fixed.
     """
     catalog = a_catalog_of_pairs(9)
     catalog["WhisperedPrayerish"] = boon(
@@ -619,9 +642,9 @@ def a_catalog_of_duos(count):
 def gods_named_by(catalog):
     """Every god the catalog attributes to, as the god roster.
 
-    Unlike the paired-Hex catalogs above, these cannot leave attribution off --
-    the field under test *is* the attribution -- so the invented names have to
-    be declared or they trip the separate check that a god a boon names is a
+    Unlike the paired-Hex catalogs above, these cannot leave attribution off,
+    since the field under test *is* the attribution. So the invented names have
+    to be declared, or they trip the separate check that a god a boon names is a
     god the game has.
     """
     return {g: {} for b in catalog.values() for g in (b.get("duoGods") or [])}
@@ -637,11 +660,11 @@ def test_the_expected_number_of_duos_passes():
 
 
 def test_an_ordinary_boon_that_gained_a_second_owner_stops_the_run():
-    """The direction that costs the most. Ownership is decided by arithmetic --
-    two loot tables offering a boon is the only statement either game makes
-    that one is a Duo -- so a boon that drifts into a second god's table is
-    filed as one, and loses its god, its ladder rung and its category together.
-    Nothing about the record itself reads as wrong afterwards.
+    """The direction that costs the most. Ownership is decided by arithmetic —
+    two loot tables offering a boon is the only statement either game makes that
+    one is a Duo — so a boon that drifts into a second god's table gets filed as
+    one, and loses its god, its ladder rung and its category together. Nothing
+    about the record itself reads as wrong afterwards.
     """
     catalog = a_catalog_of_duos(28)
     catalog["OrdinaryBoon"] = boon(id="OrdinaryBoon", duoGods=["Zeus", "Demeter"])

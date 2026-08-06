@@ -1,24 +1,26 @@
-"""Everything that must be true of an extraction before it is allowed to ship.
+"""Everything that must be true of an extraction before it's allowed to ship.
 
 This runs at the end of an extraction, which is the only moment that can
-refuse. Nothing downstream can audit this output: the app reads whatever the
-catalog says, and the drift check compares this code's output against this
-code's previous output, so a defect that is *stable* reproduces perfectly. The
-checks here are the last place a wrong catalog can be caught.
+actually refuse. Nothing downstream can audit this output (the app reads
+whatever the catalog says and the drift check compares this code's output
+against this code's previous output, so a defect that's stable would be
+perfectly reproduced :no_mouth: :no_mouth:). The checks here are the last place
+a wrong catalog can be caught.
 
-Two kinds of finding live side by side and the difference matters:
+Two kinds of findings live side-by-side (the difference matters :salute: :salute:):
 
-  * **advisory** -- a description of the catalog that a human reads and judges.
-    Which rarities nobody uses, which boons no source file offers, which clause
-    keys nothing consumes. These do not fail the run, because the right answer
+  * **advisory**: a description of the catalog that a human reads and judges.
+    E.g. which rarities nobody uses, which boons no source file offers, which
+    clause keys nothing consumes. These don't fail the run bc the right answer
     is often "yes, that's correct".
-  * **fatal** -- a statement that some field holds a value that is not data, or
-    that some invariant the app relies on is broken. A clause nobody
-    classified, a requirement that asks for more branches than it has, a god
-    nobody has heard of, an unresolved dumper placeholder. These exit non-zero,
-    so a run that produced one cannot be mistaken for a clean run.
+  * **fatal**: a statement that some field holds a value that isn't data, or
+    that some invariant the app relies on is broken. E.g. a clause nobody
+    classified, a requirement asking for more branches than it has, a god
+    that nobody's heard of, an unresolved dumper placeholder. These exit
+    non-zero, so a run that produced one can't be mistaken for a clean run.
 
-Splitting them that way is what lets the fatal list stay short enough to read.
+Splitting them that way is what ermmm lets the fatal list stay short enough to
+read lol.
 """
 
 import glob, json, os, re
@@ -29,66 +31,79 @@ from config import out_dir, raw_dir, scripts_dir
 UNRESOLVED_PREFIX = "<unresolved:"
 
 # Records already known to ship an unresolved sentinel, exempted from the leak
-# check so that a genuinely new one is not lost in the noise of an old one.
+# check so that a genuinely new one isn't lost in the noise of an old one.
 # Both are Chaos boons whose prereq reaches `G.LootData.TrialUpgrade
-# .PermanentTraits`: Hades II keeps its loot tables in LootSetData, so the
+# .PermanentTraits`; Hades II keeps its loot tables in LootSetData, so the
 # global LootData that TraitData.lua reaches for is never populated and the
 # reference falls through to the dumper's proxy. The data is present in the
 # LootSetData dump, so this is a load-order defect and not a gap in the game's
-# own files. It is recorded rather than repaired because Chaos boons are out of
-# scope for the first release; anything appearing here that is NOT on this list
-# is a new leak and fails the run.
+# own files. It's recorded instead of repaired bc Chaos boons are out of scope
+# (at least for now); anything appearing here that is *not* on this list is a
+# new leak and would fail the run :pensive: :pensive:.
 UNRESOLVED_SENTINEL_KNOWN = {
     "ChaosLastStandBlessing",
     "ChaosMetaUpgradeCurse",
 }
 
-# Gods who appear as a boon's attributed god but own no <God>Upgrade loot table
-# and therefore get no record in gods.json -- the other game's Olympians making
-# a cameo appearance. A name outside the union of these and the emitted god
-# records is not an attribution, it is a parse accident.
+# Gods who appear as a boon's attributed god but own no <God>Upgrade loot table,
+# and so get no record in gods.json (e.g. the other game's Olympians making a
+# cameo appearance). A name outside the union of these and the emitted god
+# records is just a parse accident, not an actual attribution.
 CAMEO_GOD_NAMES = {"Artemis", "Athena", "Dionysus", "Hades"}
 
-# Two Hades I records name the wrong god in the game's own files: both are
-# Demeter's and both declare Zeus, almost certainly cloned from Electric Shot
-# and never corrected. The extraction is faithful and the overlay carries the
-# correction, so they are exempted here rather than repaired -- what the rule
-# is for is the *third* one, which nobody would otherwise notice.
+# Two Hades I records name the wrong god in the game's own files; both are
+# Demeter's but declare Zeus lol. The extraction is faithful and the overlay
+# carries the correction over, so they are exempted here instead of like
+# "repaired". What the rule is really for is a future potential third one, which
+# nobody would otherwise notice.
 GOD_DISAGREES_WITH_LOOT_TABLE_KNOWN = {
     "DemeterRangedTrait",
     "ShieldLoadAmmo_DemeterRangedTrait",
 }
 
+# Tall Order, Hermes' Infusion in Hades II, and the one record in either game
+# filed StandardOlympian under a god who takes no pool slot. It reaches the
+# category through the Elementals file instead of through its god, which is
+# right for what it is despite being wrong-looking when compared to like every
+# other Hermes record rip. This is listed here instead of corrected bc whether
+# something is an Infusion that belongs to its god's category or to its
+# mechanic's is a taxonomy call that hasn't really been made, and the check
+# beside this exists so that the second such record is a decision instead of
+# a discovery.
+CATEGORY_OUTRANKS_GOD_KNOWN = {
+    "ElementalUnifiedBoon",
+}
+
 # One Godsent Hex per Hex per Olympian, and the game ships nine of each.
-# A number rather than a list of ids on purpose: the ids are derived, so listing
-# them would let a run that derived the wrong nine still match, and the check
-# would be agreeing with itself. Hades I has no equivalent mechanic and is not
+# This is a number instead of a list of ids bc the ids are derived, so listing
+# them would let a run that derived the wrong nine still match while the check
+# would be agreeing with itself. Hades I has no equivalent mechanic and isn't yk
 # checked for one.
 GODSENT_HEXES_HADES2 = 9
 
 # How many boons belong to two gods. Both numbers are what the games ship, but
-# only one of them has a reason: Hades I's 28 is every pair of its eight pool
-# Olympians, so the set is provably complete and a 29th is not a Duo somebody
-# missed, it is a misattribution. Hades II's 37 is just a count -- not every
-# pair has one, and two of its Zeus/Hera pair are distinct boons rather than
-# one filed twice.
+# only one of them has a reason here: Hades I's 28 is every pair of its eight
+# pool Olympians, so the set is provably complete and a 29th isn't a Duo
+# somebody missed but just a misattribution. Hades II's 37 is just a count; not
+# every pair has one, and two of its Zeus/Hera pair are distinct boons instead
+# of one single boon like filed twice or something.
 #
-# Worth pinning because attribution is decided by *arithmetic*: a boon offered
-# by two loot tables is a Duo, which is the only statement either game makes.
-# The rule is right, and it is right in a way that no single record can be read
-# to confirm -- so an ordinary boon that drifts into a second god's table would
-# be filed as a Duo, lose its god, its ladder rung and its category all at
-# once, and surface under two gods with nothing raised. Counting is the cheapest
-# thing that notices. A number rather than a list of ids for the same reason
-# the Hexes are: the ids are derived, so listing them would let a run that
-# derived the wrong set still match.
+# Worth pinning bc attribution is decided by ermmm arithmetic lol: specifically,
+# a boon offered by two loot tables must be a Duo. That rule is verified and
+# extra important bc no single record can independently confirm. (e.g. so an
+# ordinary boon that drifted into a second god's table would be filed as a
+# Duo, lose its god, its ladder rung, and its category all at once, and surface
+# under two gods with nothing actually raised). Counting is ermmm the cheapest
+# thing that notices. A number instead of a list of ids for the same reason as
+# Hexes: the ids are derived, so listing them would let a run that derived the
+# wrong set still match :no_mouth: :no_mouth:.
 DUO_BOONS = {"hades1": 28, "hades2": 37}
 
-# Hades I grants exactly one trait through another trait's SetupFunction, and
-# the granting trait is a keepsake -- so the block it declares can be undone by
+# Hades I grants exactly one trait through another trait's SetupFunction and the
+# granting trait is a keepsake, so the block it declares can be undone by
 # swapping keepsakes and must not be reported as permanent. The edge is dropped
-# during normalization; this list is what makes a second one visible instead of
-# silently joining it.
+# during normalization. This list is what makes a second one visible instead of
+# ermmm letting it join the first in silence lol.
 REMOVABLE_BLOCKER_KNOWN = {
     "HadesShoutTrait",
 }
@@ -134,17 +149,17 @@ def godsent_hexes(boons):
     """Ids whose requirement has the paired-Hex shape: one Hex AND one god.
 
     Written as a test of the emitted *shape* rather than of anything the
-    detector that produced it believes, which is the whole point -- a check that
-    asked "did the pairing pass find nine?" would answer nine every time the
-    pass was working and say nothing at all when it silently found none.
+    detector that produced it believes, which is the whole point. A check asking
+    "did the pairing pass find nine?" would answer nine every time the pass was
+    working, and say nothing at all when it silently found none.
 
-    The shape is `all[ hasTrait(Hex), anyOf[ hasBoonFrom(god), hasKeepsake ] ]`
-    and every clause of it is load-bearing. The obvious looser test -- does the
-    requirement mention a Hex -- matches one record more than there are pairs:
-    a boon that asks for any of seven Hexes and has no paired-god half at all,
-    which is a different mechanic rather than a tenth pair. An assertion written
-    that way fails on a correct catalog, which is the kind most likely to get
-    deleted rather than fixed.
+    The shape is `all[ hasTrait(Hex), anyOf[ hasBoonFrom(god), hasKeepsake ] ]`,
+    and every clause of it is load-bearing. The obvious looser test — does the
+    requirement mention a Hex — matches one record more than there are pairs: a
+    boon asking for any of seven Hexes with no paired-god half at all, which is
+    a different mechanic rather than a tenth pair. An assertion written that way
+    fails on a correct catalog, which is the kind most likely to get deleted
+    rather than fixed.
 
     The Hex's own id is deliberately not part of the test. It follows a naming
     convention today, and keying on that would trade a shape the requirement
@@ -175,12 +190,11 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     """Check one game's emitted catalog. Returns (report, fatal messages).
 
     The six trailing arguments are the inputs a check needs that the emitted
-    catalog does not carry. Each is optional, and the checks that need it are
-    skipped when it is absent -- the fixtures do not have a whole game's
-    scripts to scan, and a check that cannot run is different from one that
+    catalog does not carry. Each is optional, and the checks that need one are
+    skipped when it is absent: the fixtures do not have a whole game's scripts
+    to scan, and a check that could not run is a different thing from one that
     passed.
     """
-    all_ids = set(boons.keys()) | set(keepsakes.keys())
     report = {
         "totalBoonRecords": len(boons),
         "totalKeepsakeRecords": len(keepsakes),
@@ -192,30 +206,43 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     report["boonsWithNoNameCount"] = len(report["boonsWithNoName"])
     fatal = []
 
-    # 1. dangling references: an id named by a requirement, an exclusion or a
-    # block that is not in the catalog. A requirement pointing at nothing can
-    # never be satisfied, so it renders the boon impossible for every player.
+    # 1. dangling references: an id named by a requirement, an exclusion, or a
+    # block that's not in the catalog. A requirement pointing at nothing can yk
+    # never be satisfied lol, so it always shows the boon as impossible.
+    #
+    # Each id is resolved against the table its atom reads, not against the two
+    # tables put together. Both games keep keepsakes in the same id space as
+    # boons, so a union answers "does this id exist somewhere", whichhhh is not
+    # actually the question fun fact :smile: :smile:. A gate saying `hasTrait`
+    # about a keepsake would resolve cleanly under a union while asking after
+    # the keepsake among the traits a run holds, where it's ermm never actually
+    # recorded lol :smile: :smile:. Four Hades I gates do exactly this, and this
+    # check reported nothing about them.
     dangling = {}
     for bid, b in sorted(boons.items()):
-        referenced = requirements.referenced_catalog_ids(b.get("prereq"))
-        referenced |= requirements.referenced_catalog_ids(b.get("activation"))
-        referenced |= set(b.get("exclusiveGroup") or [])
-        referenced |= set(b.get("blockedBy") or [])
-        referenced |= set(b.get("aspectConflicts") or [])
-        missing = sorted(r for r in referenced if r not in all_ids)
+        missing = set()
+        for field in ("prereq", "activation"):
+            expr = b.get(field)
+            missing |= {r for r in requirements.referenced_trait_ids(expr) if r not in boons}
+            missing |= {r for r in requirements.referenced_keepsake_ids(expr) if r not in keepsakes}
+        # The exclusion fields are trait-space throughout: a group, a block, and
+        # an aspect conflict all name something the run holds or equips as a
+        # trait record.
+        for field in ("exclusiveGroup", "blockedBy", "aspectConflicts"):
+            missing |= {r for r in (b.get(field) or []) if r not in boons}
         if missing:
-            dangling[bid] = missing
+            dangling[bid] = sorted(missing)
     report["danglingPrereqReferences"] = dangling
     report["danglingPrereqReferenceCount"] = sum(len(v) for v in dangling.values())
 
-    # 2. boons with no prereq at all (expected for core/starter boons, but
-    # worth surfacing the full list so it can be sanity-checked)
+    # 2. boons with no prereq at all (expected for core/starter boons; giving
+    # the full list here is mostly so it can be sanity-checked)
     no_prereq = sorted(bid for bid, b in boons.items() if not b.get("prereq"))
     report["boonsWithNoPrereq"] = no_prereq
     report["boonsWithNoPrereqCount"] = len(no_prereq)
 
-    # 3. rarities with no consumer: rarity levels that appear in NO boon's
-    # `rarity` list at all (declared somewhere as a concept, never used)
+    # 3. rarities with no consumer: rarity levels that appear in *no* boon's
+    # `rarity` list at all (i.e. declared somewhere as a concept but never used)
     all_rarities_seen = set()
     for b in boons.values():
         all_rarities_seen.update(b.get("rarity") or [])
@@ -225,11 +252,11 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     report["raritiesNeverUsedByAnyBoon"] = sorted(known_rarity_universe - all_rarities_seen)
     report["raritiesSeenInData"] = sorted(all_rarities_seen)
 
-    # 4. exclusiveGroup symmetry. The classifier only records a mutual
-    # exclusion when both records name each other, so this can no longer find
-    # anything -- which is exactly why it stays, and why it is fatal. It is now
-    # a check on the classifier rather than on the game's data, and the whole
-    # reason the field was wrong before was that nobody was checking.
+    # 4. exclusiveGroup symmetry. The classifier only records a mutual exclusion
+    # when both records name each other, so this can ermmm no longer find
+    # anything lol, which is yk exactly why it stays and why it's fatal. It's
+    # become a check on the classifier instead of on the game's data; the reason
+    # the field was wrong before is that nobody was actually checking that rip.
     asymmetric = []
     for bid, b in sorted(boons.items()):
         grp = b.get("exclusiveGroup")
@@ -251,14 +278,14 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                      % (game_key, entry["from"], entry["expectedBackReferenceIn"]))
 
     # 5. unresolved-sentinel leaks. The dumper writes "<unresolved:X>" wherever
-    # a Lua table reached for a global that had not been loaded yet, and those
+    # a Lua table reached for a global that hadn't been loaded yet, and those
     # markers are expected in the raw dumps. What must never happen is one
-    # surviving into a normalized field, because there it is a *value*: a
+    # surviving into a normalized field bc there it's an actual *value*; a
     # `prereq` whose member list is the string "<unresolved:...>" instead of a
     # list of trait ids has lost its whole clause, and it does so invisibly.
-    # Normalization now refuses such a clause rather than passing it through,
-    # so the evidence arrives as a build failure instead of as a leak -- and
-    # both count as carrying, otherwise normalizing the value away would look
+    # Normalization now refuses a clause like this instead of passing it
+    # through, so we get a build failure instead of a leak. Both count as
+    # carrying though bc otherwise, normalizing the value would make it look
     # like the defect being fixed.
     leaks = []
     for scope, records in (("boon", boons), ("god", gods), ("keepsake", keepsakes)):
@@ -271,9 +298,9 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     for leak in report["unresolvedSentinelLeaks"]:
         fatal.append("%s %s %s.%s = %s" % (game_key, leak["scope"], leak["id"], leak["field"], leak["value"]))
 
-    # 6. inferred gods that are not gods. Attribution from a source comment is
-    # a guess by construction; this asserts the guess landed inside the known
-    # vocabulary rather than on an arbitrary capitalised word.
+    # 6. inferred gods that aren't uh actually gods lol. Attribution from a
+    # source comment is a guess by construction, so this checks that the guess
+    # landed inside the known vocab instead of on an arbitrary capitalised word.
     known_gods = {g for g in gods if not g.startswith("__")} | CAMEO_GOD_NAMES
     attributed = {b["god"] for b in boons.values() if b.get("god") is not None}
     attributed |= {g for b in boons.values() for g in (b.get("duoGods") or [])}
@@ -281,11 +308,11 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     for name in report["godNamesOutsideKnownVocabulary"]:
         fatal.append("%s attributes a boon to %r, which is not a known god" % (game_key, name))
 
-    # 7. clauses that did not classify. The requirement grammar is only safe to
-    # model without negation because anything that does not fit the model is
-    # supposed to stop the build -- otherwise an unrecognised gate is silently
-    # kept as something it is not, or silently dropped, and a boon that needs
-    # something appears free.
+    # 7. clauses that didn't actually classify. The requirement grammar is only
+    # safe to model without negation bc anything that doesn't fit the model is
+    # supposed to stop the build. Otherwise, an unrecognised gate is quietly
+    # kept as something it isn't (there is.. an imposter.. amo--), or just yk
+    # quietly dropped, and a boon that needs something would appear free.
     failures = (clause_report or {}).get("buildFailures") or []
     report["buildFailures"] = failures
     report["buildFailureCount"] = len(failures)
@@ -296,9 +323,9 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                                          json.dumps(failure.get("clause"))))
 
     # A known carrier that stopped carrying means the exemption outlived the
-    # defect and should be deleted rather than quietly kept. Only records this
-    # game actually has can say anything about it -- the exemption list spans
-    # both games, and an id absent from this catalog is simply the other game's.
+    # defect and should be deleted instead of quietly kept. Only records this
+    # game actually has can say anything about it since the exemption list spans
+    # both games and an id absent from this catalog is simply the other game's.
     present_here = set(boons) | set(gods) | set(keepsakes)
     still_carrying = {l["id"] for l in leaks} | {f.get("id") for f in failures}
     report["unresolvedSentinelKnownNoLongerPresent"] = sorted(
@@ -306,10 +333,10 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     )
 
     # 8. requirement arity. An `anyOf` asking for more branches than it has can
-    # never be satisfied by anything the run does, and evaluation is obliged to
-    # answer for whatever it is handed -- so it reports "impossible" with no
-    # reason to show the player. That is an authoring error, and this is the
-    # only place that can refuse it.
+    # never be satisfied by anything the run does rip, and evaluation still has
+    # to answer for whatever it's handed, so it reports "impossible" with no
+    # actual reason to show the player. That's erm an authoring error rip, and
+    # this is the only place that can actually refuse it.
     over_arity = []
     for bid, b in sorted(boons.items()):
         for field in ("prereq", "activation"):
@@ -323,9 +350,9 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                      % (game_key, entry["id"], entry["field"], entry["min"], entry["branches"]))
 
     # 9. ladder depth agrees with the prerequisites it was derived from. Depth
-    # is stored rather than recomputed by the app, so a wrong one is wrong
-    # everywhere and forever; it is cheap to check it here against the same
-    # prereqs the view will read.
+    # is stored instead of recomputed by the app, so a wrong one is wrong
+    # everywhere and forever :sparkles: :sparkles:; it's cheap to check it here
+    # against the same prereqs the view would read.
     god_of = {bid: b.get("god") for bid, b in boons.items()}
     stored = {bid: b["tier"] for bid, b in boons.items() if b.get("tier") is not None}
     recomputed, _ = requirements.compute_tiers(
@@ -341,9 +368,9 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                      % (game_key, entry["id"], entry["tier"], entry["expected"]))
 
     # 10. a block whose blocker can be shed. Reporting one tells a player their
-    # build is impossible because of something they can swap out, which is the
-    # most damaging verdict this engine can give. Normalization drops the one
-    # known case; this is the tripwire for the next.
+    # build is impossible because of something they can swap out, which is only
+    # yk the most damaging verdict that this engine can give :smile: :smile:.
+    # Normalization drops the one known case; this is the tripwire for the next.
     removable_blocks = []
     for bid, b in sorted(boons.items()):
         for blocker in b.get("blockedBy") or []:
@@ -354,14 +381,14 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
         fatal.append("%s %s is blocked by %s, which the run can shed"
                      % (game_key, entry["id"], entry["blocker"]))
 
-    # 10b. a weapon aspect named as though it were a held trait. The two fields
-    # below both mean "the run picked this up", and a run never picks up an
-    # aspect -- it is equipped before the run and answered from a different
-    # fact. An aspect named in either one is a constraint that quietly never
-    # fires, which reads as a boon being reachable when it is not, and that is
-    # the direction of error nothing downstream can notice. This is the check
-    # that was missing while two thirds of every block edge in the catalog was
-    # an aspect.
+    # 10b. a weapon aspect named as if it were a held trait. The two fields
+    # below both mean "the run picked this up" and a run never picks up an
+    # aspect; it's equipped before the run and answered from a different fact.
+    # An aspect named in either one is a constraint that quietly never fires,
+    # which reads as a boon being reachable when it isn't (the direction of
+    # error nothing downstream can notice :no_mouth: :no_mouth:). This is the
+    # check that was missing while two thirds of every block edge in the
+    # catalog was an aspect :sobbing: :sobbing:.
     if aspect_ids is not None:
         misfiled = []
         for bid, b in sorted(boons.items()):
@@ -378,7 +405,7 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
 
     # 11. Infusions. An element-gated boon carries its gate in the requirement
     # and carries no affinity of its own; one with neither is a boon whose
-    # whole cost has gone missing.
+    # whole cost has gone missing :no_mouth: :no_mouth:.
     if raw_defs is not None:
         infusion_problems = []
         for bid, b in sorted(boons.items()):
@@ -394,7 +421,7 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
             fatal.append("%s %s is element-gated but has %s" % (game_key, entry["id"], entry["problem"]))
 
     # 12. a record whose declared god disagrees with the loot table that offers
-    # it. Cheap, because the extractor holds both sides, and it is the check
+    # it. Cheap to check rn bc the extractor holds both sides and it's the check
     # that would have caught the two records the overlay now corrects by hand.
     if loot_membership is not None and raw_defs is not None:
         disagreements = []
@@ -410,16 +437,16 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
             fatal.append("%s %s declares %s but %s offers it"
                          % (game_key, entry["id"], entry["declared"], entry["offeredBy"]))
 
-    # 13. records nothing offers. A trait is reachable in play only if some
-    # file outside the trait definitions references it -- loot tables, the
-    # store, quests, characters. A definition on its own is not a source, so a
-    # named record nobody references is cut content that kept its text, and a
-    # view iterating the catalog would render it as a real boon.
+    # 13. records nothing offers. A trait is reachable in play only if some file
+    # outside the trait definitions references it: loot tables, the store,
+    # quests, characters, etc. A definition on its own isn't a source, so a
+    # named record nobody references is cut content that kept its text and a
+    # view iterating the catalog would render it as yk a real boon lol.
     #
-    # Daedalus hammers are excluded first and on purpose: their pool is derived
-    # from the weapon rather than listed anywhere, so the test says nothing
-    # about them. Advisory, because the answer is a judgement -- the list is
-    # short enough to read, and every entry in it so far has been real.
+    # Daedalus hammers are excluded first (and on purpose) since their pool is
+    # derived from the weapon instead of listed anywhere, so the test says
+    # nothing about them. Advisory here bc the answer is a judgement. The list
+    # is short enough to read, and every entry in it so far has been real yay.
     if external_references is not None:
         unreferenced = []
         for bid, b in sorted(boons.items()):
@@ -432,20 +459,19 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
         report["boonsNotReferencedOutsideTraitData"] = unreferenced
         report["boonsNotReferencedOutsideTraitDataCount"] = len(unreferenced)
 
-    # 14. the Godsent Hexes, counted. Their god and their Hex are the two
-    # things the game does not state outright, so both are derived -- and the
-    # derivation checks itself only once it has decided a record is one of
-    # these. Deciding that is three tests against the raw data, any of which a
-    # patch could silently break: a marker string, an inherited base, and the
-    # requirement block being written as a table rather than a list. Missing on
-    # any of them is not an error, it is a `continue`, and the result is a
-    # handful of records that keep no god and quietly lose half their
-    # requirement -- so a spell boon renders as reachable without the Hex it
-    # needs, which is the opposite of what it says.
+    # 14. the Godsent Hexes, counted. Their god and their Hex are the two things
+    # the game doesn't state outright, so both are derived and the derivation
+    # only checks itself once it's decided a record is one of these. Deciding
+    # that takes three tests against the raw data: a marker string, an inherited
+    # base, and the requirement block being written as a table instead of a
+    # list. Missing on any of them isn't an error, it's just a `continue`, and
+    # the result is a handful of records that don't keep any god and just
+    # quietly lose half their requirement meep. A spell boon then renders as
+    # reachable without its Hex, which is yk the opposite of what it says.
     #
     # The population is fixed and small, so counting it turns that silence
-    # loud. Skipped where no expectation is supplied, since the fixtures have
-    # no such records and a check that cannot run is not a check that passed.
+    # loud. Skipped where no expectation is supplied since the fixtures have
+    # no such records and a check that can't run is erm not a check that passed.
     if godsent_hexes_expected is not None:
         found = godsent_hexes(boons)
         report["godsentHexes"] = found
@@ -457,19 +483,19 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                    ", ".join(found) or "none")
             )
 
-    # 15. the boons belonging to two gods, counted, for the same reason as 14
-    # and against a different silence. Who grants a Hades I boon is settled by
-    # arithmetic -- two loot tables offering it is what a Duo *is*, since
-    # neither game marks one on the record -- so the rule cannot be confirmed
-    # by reading any single record, and a record that arrives at the wrong
-    # answer looks exactly like one that arrived at the right one.
+    # 15. the boons belonging to two gods, counted, for the same reason as 14 and
+    # against a different silence. Who grants a Hades I boon is settled by
+    # arithmetic (two loot tables offering it is what a Duo *is* since neither
+    # game marks one on the record) so the rule can't be confirmed by reading
+    # any single record and a record that gets to the wrong answer looks exactly
+    # like one that actually arrived at the correct one.
     #
-    # Both directions cost something real. A boon that gains a second owning
-    # table is filed as a Duo and loses its god, its ladder rung and its
-    # category together; one that loses an owner stops being a Duo and lands
-    # on one god's ladder claiming a rung it does not have. The counts are
-    # fixed, so counting is the cheapest thing that can tell either apart from
-    # a correct run.
+    # Both directions are costly since a boon that gains a second owning table
+    # is filed as a Duo and loses its god, its ladder rung, and its
+    # category together; on the other hand, one that loses an owner stops being
+    # a Duo and lands on one god's ladder claiming a rung it doesn't actually
+    # have. The counts are fixed, so counting is the cheapest thing that can
+    # tell either apart from a correct run.
     if duo_boons_expected is not None:
         duos = sorted(bid for bid, b in boons.items() if b.get("duoGods"))
         report["duoBoons"] = duos
@@ -483,25 +509,61 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
             )
         for bid in wrong_arity:
             # A Duo names two gods by construction, so anything else is the
-            # attribution arriving at a shape the field cannot mean.
+            # attribution getting to a shape the field can't actually mean.
             fatal.append(
                 "%s %s has duoGods naming %d gods, and a Duo names two"
                 % (game_key, bid, len(boons[bid]["duoGods"]))
             )
 
+    # 16. a god record with no source. Cheap, and has the shape two different
+    # near misses in the god derivation both get to: an intermediate
+    # template passing the god test instead of the table that inherits it, and
+    # a section holding two god-shaped entries so that the sorted-last one
+    # overwrites the first. Both emit a record built from an id the source index
+    # has never seen, and both are otherwise silent: the god still has a name,
+    # still lands in the pool set, and every count downstream still adds up. The
+    # citation is the one field that can't survive either.
+    sourceless = sorted(g for g, record in gods.items() if not record.get("source"))
+    report["godRecordsWithoutASource"] = sourceless
+    for name in sourceless:
+        fatal.append(
+            "%s god %r was emitted with no source, so it was built from an id "
+            "the loot tables do not index" % (game_key, name)
+        )
+
+    # 17. a boon whose category disagrees with the pool standing of its god.
+    # `StandardOlympian` is the category for a god who takes a pool slot, so a
+    # record pairing it with `NonPoolSlot` is asserting both at once. One real
+    # record does (Hermes' Tall Order), which reaches the category through the
+    # file it lives in instead of through its god; it's listed here instead of
+    # being fixed bc the pairing is a taxonomy question and this check exists
+    # for the second one arriving unnoticed.
+    contradictions = sorted(
+        bid for bid, b in boons.items()
+        if b.get("godKind") == "NonPoolSlot" and b.get("boonCategory") == "StandardOlympian"
+    )
+    report["boonsWhoseCategoryOutranksTheirGod"] = contradictions
+    for bid in contradictions:
+        if bid in CATEGORY_OUTRANKS_GOD_KNOWN:
+            continue
+        fatal.append(
+            "%s %s is filed StandardOlympian under a god who takes no pool slot"
+            % (game_key, bid)
+        )
+
     return report, fatal
 
 
-# Requirement-shaped keys that have been read and are not gates on obtaining a
-# trait. They match the census pattern -- they start "Required" or end
-# "Requirements" -- so without this they sit in the report forever, and a list
-# that always has nine entries cannot show anyone a tenth. Each was looked at
-# against the data rather than guessed from its name; the reason is what makes
-# a later reader able to disagree.
+# Requirement-shaped keys that were already read and aren't gates on obtaining a
+# trait. They match the census pattern (they start "Required" or end
+# "Requirements"), so without this they would sit in the report forever, which
+# means a list that always has nine entries can't show anyone a tenth. Each was
+# looked at against the data instead of guessed from its name, and the reason
+# recorded beside it is what lets a later reader disagree.
 #
-# Deliberately NOT here: `RequiresFalseTraits`, the one Hades I record that
-# misspells the negation key. That is a real finding about the game's data --
-# the engine must be ignoring it too -- and the census is where it is visible.
+# `RequiresFalseTraits` is purposefully not here bc it's the one Hades I record
+# that misspells the negation key rip. That's a real finding about the game's
+# data since the engine must be ignoring it too; the census is where it shows.
 CLAUSE_KEYS_THAT_ARE_NOT_GATES = {
     # display surfaces
     "CodexGameStateRequirements": "when the Codex entry shows, not when the trait is offered",
@@ -523,19 +585,19 @@ def unconsumed_clause_keys(raw_defs, extra_tables=()):
     """Requirement-shaped keys in the raw data that nothing reads and nobody has judged.
 
     The population of clauses has twice been measured by listing the idioms
-    somebody remembered, and been wrong both times -- once because a key was
-    spelled differently and once because a whole clause family was never
-    enumerated. This counts from the other direction: everything that looks
+    somebody remembered, and been wrong both times: once because a key was
+    spelled differently, once because a whole clause family was never
+    enumerated. So this counts from the other direction — everything that looks
     like a gate, minus everything the classifier consumes, minus everything
-    somebody has read and ruled out. A patch that introduces a new gate key
-    shows up here rather than as silence.
+    somebody has read and ruled out. A patch introducing a new gate key shows up
+    here instead of as silence.
 
     The last subtraction is what makes the first two useful. Reporting every
     display-side and offer-weighting key alongside a genuinely unread one left
-    nine entries per game standing permanently, and a tenth arriving in that
-    list is not something anybody would notice. This is advisory rather than
-    fatal because the answer is a judgement -- but it can only be judged if the
-    list is short enough to read, which now it is.
+    nine entries per game standing permanently, and nobody would notice a tenth
+    arriving in a list like that. Advisory rather than fatal, because the answer
+    is a judgement — but it can only be judged if the list is short enough to
+    read, which now it is.
     """
     counts = {}
 
@@ -583,8 +645,8 @@ def referenced_outside_trait_data(scripts):
     identifiers rather than substrings, so one trait is not counted as
     referenced because another trait's name contains it.
 
-    Returns None when there is nothing to scan, which is different from an
-    empty answer -- a check that could not run must not read as one that
+    Returns None when there is nothing to scan, which is a different thing from
+    an empty answer: a check that could not run must never read as one that
     passed.
     """
     if not os.path.isdir(scripts):
@@ -637,8 +699,8 @@ def main():
     h2_gods = load(OUT + "hades2/gods.json")
     h2_keepsakes = load(OUT + "hades2/keepsakes.json")
     h2_defs = load(RAW + "h2_TraitData.json")
-    # Hades II keeps its weapon forms in a table of their own, so membership is
-    # the test. Inheritance is not: every aspect inherits the same two
+    # Hades II keeps its weapon forms in a table of their own, so membership *is*
+    # the test. Inheritance is not; every aspect inherits the same two
     # templates, and those templates are what carries the `Slot` field.
     h2_aspects = set(load(RAW + "h2_TraitSetData.json").get("Aspects", {}))
     h2_report, h2_fatal = validate_game(
@@ -666,9 +728,9 @@ def main():
         ),
     }
 
-    # Selene / Ares / Hephaestus+Hermes loot-color duplicates: re-check straight
+    # Selene/Ares/Hephaestus + Hermes loot-color duplicates: re-check straight
     # from the LootSetData raw dump (these are god-frame colors, not in the boon
-    # catalog schema, so we check the raw source directly).
+    # catalog schema, so we check the raw source directly :salute: :salute:).
     h2_loot = load(RAW + "h2_LootSetData.json")
     def loot_color(god, upgrade_id, field):
         d = h2_loot.get(god, {}).get(upgrade_id, {})
