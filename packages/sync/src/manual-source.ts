@@ -108,7 +108,16 @@ export interface ManualSource extends RunStateSource {
    */
   finishRun(): Promise<void>;
 
-  /** Resolves once every edit made so far has reached the store. */
+  /**
+   * The last storage failure, or null. A view showing this is the difference
+   * between a run that is not being saved and a run that looks fine.
+   */
+  readonly storageError: Error | null;
+
+  /**
+   * Resolves once every edit made so far has reached the store, and rejects
+   * with the last failure if one did not.
+   */
   flush(): Promise<void>;
 }
 
@@ -176,12 +185,33 @@ function createSource(
    * the loser is a run one edit out of date that nothing will ever correct.
    * Chaining costs a tap nothing — the promise is never awaited by the caller —
    * and makes the last edit the last write.
+   *
+   * The chain must survive a failure, which is the part that is easy to get
+   * wrong and impossible to notice. A rejected promise skips every `then` after
+   * it, so chaining the naive way means one failed write — a quota prompt, a
+   * private window, a database the browser took away — silently ends
+   * persistence for the life of the page: edits keep being accepted, the screen
+   * keeps looking right, and the run is gone at the next reload. So each link
+   * absorbs its own failure and records it instead of poisoning the chain.
+   *
+   * Recorded rather than thrown, because the caller is a tap. Nobody awaits
+   * `mark`, so a throw here would surface as an unhandled rejection and be seen
+   * by no one; `storageError` is a fact about the run a view can show, and it
+   * clears the moment a write gets through.
    */
   let writes: Promise<void> = Promise.resolve();
+  let storageError: Error | null = null;
 
   function persist(): void {
     const snapshot = toPersisted({ state, quarantine });
-    writes = writes.then(() => store.save(catalog.game, "active", snapshot));
+    writes = writes.then(async () => {
+      try {
+        await store.save(catalog.game, "active", snapshot);
+        storageError = null;
+      } catch (cause) {
+        storageError = cause instanceof Error ? cause : new Error(String(cause));
+      }
+    });
   }
 
   /**
@@ -485,15 +515,32 @@ function createSource(
       notice = null;
       const fresh = toPersisted({ state, quarantine });
       writes = writes.then(async () => {
-        await store.save(catalog.game, "last", finished);
-        await store.save(catalog.game, "active", fresh);
+        try {
+          await store.save(catalog.game, "last", finished);
+          await store.save(catalog.game, "active", fresh);
+          storageError = null;
+        } catch (cause) {
+          storageError = cause instanceof Error ? cause : new Error(String(cause));
+        }
       });
       await writes;
       for (const listener of listeners) listener(state.facts);
+      if (storageError !== null) throw storageError;
     },
 
+    get storageError() {
+      return storageError;
+    },
+
+    /**
+     * Resolves once every edit made so far has reached the store, and rejects
+     * with the last failure if one of them did not. Whoever wants to know
+     * asks; nothing is thrown at the tap that caused it.
+     */
     flush(): Promise<void> {
-      return writes;
+      return writes.then(() => {
+        if (storageError !== null) throw storageError;
+      });
     },
   };
 }

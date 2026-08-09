@@ -366,6 +366,79 @@ describe("persistence", () => {
   });
 });
 
+describe("a store that fails a write", () => {
+  /**
+   * A write can fail for reasons that pass — a quota prompt, a private window,
+   * a tab that lost its database. What must not happen is the failure taking
+   * every later write with it: edits keep being accepted, nothing reaches
+   * storage, and the run is silently lost at the next reload. That is the exact
+   * shape this package exists to prevent, one layer down from the migration.
+   */
+  function flakyStore(): RunStore & { failNext: boolean } {
+    const inner = createMemoryStore();
+    const store = {
+      failNext: false,
+      load: inner.load.bind(inner),
+      clear: inner.clear.bind(inner),
+      save(game: Parameters<RunStore["save"]>[0], slot: Parameters<RunStore["save"]>[1], run: Parameters<RunStore["save"]>[2]) {
+        if (store.failNext) {
+          store.failNext = false;
+          return Promise.reject(new Error("quota exceeded"));
+        }
+        return inner.save(game, slot, run);
+      },
+    };
+    return store;
+  }
+
+  it("keeps persisting after the failure, and the next write recovers the lost one", async () => {
+    const store = flakyStore();
+    const source = await open(store);
+
+    store.failNext = true;
+    source.mark("HeraAttack");
+    await source.flush().catch(() => undefined);
+
+    source.mark("HeraSpecial");
+    await source.flush();
+
+    // Both, not just the second. Each write stores the whole run, so a write
+    // that gets through carries everything the failed one would have — the
+    // failure costs nothing as long as the chain is still running. Chained the
+    // naive way it would not be: a rejected promise skips every `then` after
+    // it, so this would read empty and go on reading empty for the life of the
+    // page while every tap kept being accepted.
+    const reopened = await open(store);
+    expect([...reopened.getFacts().held.keys()].sort()).toEqual(["HeraAttack", "HeraSpecial"]);
+  });
+
+  it("reports the failure rather than throwing it at whoever tapped", async () => {
+    const store = flakyStore();
+    const source = await open(store);
+
+    store.failNext = true;
+    expect(() => {
+      source.mark("HeraAttack");
+    }).not.toThrow();
+
+    await expect(source.flush()).rejects.toThrow(/quota/);
+    expect(source.storageError?.message).toMatch(/quota/);
+  });
+
+  it("clears the reported failure once a write gets through", async () => {
+    const store = flakyStore();
+    const source = await open(store);
+    store.failNext = true;
+    source.mark("HeraAttack");
+    await source.flush().catch(() => undefined);
+
+    source.mark("HeraSpecial");
+    await source.flush();
+
+    expect(source.storageError).toBeNull();
+  });
+});
+
 describe("opening a run stored against an older build", () => {
   async function storeOldRun(): Promise<RunStore> {
     const store = createMemoryStore();
