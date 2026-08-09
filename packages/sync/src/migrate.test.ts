@@ -28,20 +28,40 @@ function oldRun() {
 }
 
 describe("a run stamped with the shipped build", () => {
-  it("is not scanned at all", () => {
+  /**
+   * This used to be skipped, on the reasoning that ids checked against the
+   * catalog they came out of could only ever agree. They didn't come out of
+   * *this* catalog; they came out of one reporting the same `dataVersion`,
+   * which is the game's build id and moves only when the game does. A
+   * re-extraction, extractor fix, or overlay correction each change the
+   * catalog underneath a stamp that can't actually move; and the overlay is
+   * code, so nothing abt it is even capable of moving one lol. Both have
+   * happened in this repo already :pensive: :pensive:.
+   */
+  it("is scanned anyway, because an equal stamp is not the same catalog", () => {
     const catalog = currentCatalog();
     const state = runOn("hades2", "build-2");
     state.facts.held.set("GoneInBuild2", { rarity: "Common", level: 1 });
 
     const outcome = migrate(state, catalog);
 
-    expect(outcome.scanned).toBe(false);
+    expect(outcome.quarantine).toEqual([
+      { path: "held", key: "GoneInBuild2", value: { rarity: "Common", level: 1 } },
+    ]);
+    expect(outcome.state.facts.held.has("GoneInBuild2")).toBe(false);
+  });
+
+  it("costs a matching run nothing but the walk", () => {
+    const catalog = currentCatalog();
+    const state = runOn("hades2", "build-2");
+    state.facts.held.set("HeraAttack", { rarity: "Common", level: 1 });
+
+    const outcome = migrate(state, catalog);
+
     expect(outcome.quarantine).toEqual([]);
-    expect(outcome.restamped).toBe(false);
-    // Handed back untouched, which is the claim: the ids came out of this
-    // catalog, so re-checking them could only ever agree.
-    expect(outcome.state).toBe(state);
-    expect(outcome.state.facts.held.has("GoneInBuild2")).toBe(true);
+    expect(outcome.restamped).toBe(true);
+    expect(outcome.state.facts.dataVersion).toBe("build-2");
+    expect(outcome.state.facts.held.has("HeraAttack")).toBe(true);
   });
 });
 
@@ -59,7 +79,6 @@ describe("a run whose every id survives the update", () => {
 
     const outcome = migrate(state, catalog);
 
-    expect(outcome.scanned).toBe(true);
     expect(outcome.quarantine).toEqual([]);
     expect(outcome.restamped).toBe(true);
     expect(outcome.state.facts.dataVersion).toBe("build-2");

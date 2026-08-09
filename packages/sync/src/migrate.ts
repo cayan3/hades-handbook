@@ -2,13 +2,7 @@ import type { RunFacts, RunIntent, RunState, TraitId } from "@repo/core";
 import type { SyncCatalog } from "./catalog-view.js";
 import type { QuarantinedEntry } from "./quarantine.js";
 
-/**
- * What a load did to a stored run before anything was allowed to evaluate it.
- *
- * `scanned` is false when the stored build matched the shipped one, which is
- * the ordinary case and skips the whole pass: the ids came out of this catalog,
- * so re-checking them against it can only ever agree.
- */
+/** What a load did to a stored run before anything was allowed to evaluate it. */
 export interface MigrationOutcome {
   /** The run with every unidentifiable id removed. Safe to evaluate. */
   state: RunState;
@@ -16,7 +10,6 @@ export interface MigrationOutcome {
   quarantine: readonly QuarantinedEntry[];
   /** Whether `facts.dataVersion` now names the shipped snapshot. */
   restamped: boolean;
-  scanned: boolean;
 }
 
 export interface MigrateOptions {
@@ -39,6 +32,23 @@ export interface MigrateOptions {
  * Dropping such ids quietly would look identical from the outside. So every
  * one of them is moved somewhere it can be counted and named, and the run is
  * only re-stamped once there's literally nothing left to say.
+ *
+ * **Every load scans, including one whose stamp already matches.** The pass
+ * used to skip that case on the grounds that ids checked against the catalog
+ * they came out of can only ever agree. They didn't come out of *this* catalog,
+ * but instead out of the one that reported the same `dataVersion`, which is the
+ * game's `steamBuildId` and moves only when the actual game does. A
+ * re-extraction, extractor fix, or overlay correction all change what's in the
+ * catalog with the stamp untouched; and the overlay is code, so a change there
+ * can't move it even in principle. Both have already happened here: Hades I
+ * has carried a single stamp across every catalog this repo has shipped, while
+ * the records under it changed. The skip was an optimization over a walk of
+ * the run itself (a few dozen lookups, once, at load), so it was defending
+ * literally nothing while costing the one guarantee this function literally
+ * exists to give :skull: :skull:.
+ *
+ * The stamp is still worth carrying though, and is what the "this run predates
+ * a game update" notice means. It's honest to record but wrong to branch on.
  *
  * Unchecked on purpose, and worth naming so the omissions don't read as
  * oversights. **Resources** and the **equipped weapon** have no table in the
@@ -69,10 +79,6 @@ export function migrate(
     );
   }
 
-  if (stored.facts.dataVersion === catalog.dataVersion) {
-    return { state: stored, quarantine: [], restamped: false, scanned: false };
-  }
-
   const quarantine: QuarantinedEntry[] = [];
   const facts = scanFacts(stored.facts, catalog, quarantine);
   const intent = scanIntent(stored.intent, catalog, quarantine);
@@ -80,7 +86,7 @@ export function migrate(
   const restamped = quarantine.length === 0 || (options.acceptQuarantine ?? false);
   if (restamped) facts.dataVersion = catalog.dataVersion;
 
-  return { state: { facts, intent }, quarantine, restamped, scanned: true };
+  return { state: { facts, intent }, quarantine, restamped };
 }
 
 /**
