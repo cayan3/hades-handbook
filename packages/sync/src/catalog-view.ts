@@ -28,17 +28,20 @@ export interface SyncCatalog {
   traits: Readonly<Record<TraitId, TraitRecord>>;
 
   /**
-   * Every name that addresses a god, which is a wider set than the god table's
-   * keys and is emphatically not the loot table ids those records carry inside.
-   * The two spaces do not overlap, so a pool built out of the wrong one matches
-   * no requirement and no member list and gives no hint why.
+   * Every name that addresses a god, which is emphatically *not* the loot table
+   * ids those records carry inside. The two spaces don't overlap, so a pool
+   * built out of the wrong one wouldn't match any requirement or member list
+   * while not even giving any hints as to why.
    *
-   * Wider than the table because a god can grant boons without having a table
-   * entry at all: Hades II attributes records to four gods who only make a
-   * cameo — Artemis, Athena, Dionysus and Hades — and a run that takes one of
-   * those rewards has genuinely met that god. Checking a pool against the table
-   * alone would quarantine them on the next update, which is a real fact being
-   * thrown away by a check meant to protect facts.
+   * It's also not the same as the god table's keys (in either direction).
+   * This is actually **wider** bc a god can grant boons without having a table
+   * entry at all; e.g. Hades II gives records to four who only make "cameos"
+   * (Artemis, Athena, Dionysus, Hades), and a run that takes one of those
+   * rewards has yk genuinely met that god lolol, so checking against the table
+   * alone would quarantine a real one at the next update. Also **narrower** bc
+   * the table is a loot table and carries reward slots that aren't gods at all.
+   *
+   * Eleven names for Hades I and sixteen for Hades II.
    */
   gods: ReadonlySet<GodId>;
 
@@ -80,6 +83,9 @@ interface VersionStamp {
   steamBuildId: string;
 }
 
+/** What the extractor prefixes a loot-table entry with when it isn't a god. */
+const MECHANIC_PREFIX = "__mechanic_";
+
 /**
  * Walks a requirement collecting the gods and talents it names.
  *
@@ -120,7 +126,26 @@ function build(game: GameId): SyncCatalog {
   const data = dataFor(game);
   const traits = traitsFor(game);
 
-  const gods = new Set<GodId>(Object.keys(data.gods as Record<string, unknown>));
+  /**
+   * The god table is a dump of the game's loot table, which actually enumerates
+   * reward *slots* instead of like just deities. This means it also includes
+   * the Daedalus Hammer and Pom of Power variants under keys that the extractor
+   * prefixes. They aren't yk gods lol and no run ever takes a reward from one,
+   * so they're dropped here instead of somewhere upstream, where removing them
+   * would make the extraction unfaithful to the file it reads :no_mouth: :no_mouth:.
+   *
+   * The prefix is the only thing that separates them. `kind` doesn't since
+   * Hermes, Chaos, and Selene are `NonPoolSlot` too bc they grant boons without
+   * ever claiming a slot (that's abt the "god pool cap", not about whether
+   * they're yk "gods" in the first place). All three should (& do) stay bc a
+   * Hermes boon ermmm really is a reward taken from Hermes lol???, so a pool
+   * may (& should in fact) name him and the check here has to agree.
+   */
+  const gods = new Set<GodId>(
+    Object.keys(data.gods as Record<string, unknown>).filter(
+      (name) => !name.startsWith(MECHANIC_PREFIX),
+    ),
+  );
   const keepsakes = new Set<KeepsakeId>(Object.keys(data.keepsakes as Record<string, unknown>));
 
   const slots = new Set<SlotId>();

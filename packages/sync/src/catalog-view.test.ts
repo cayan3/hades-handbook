@@ -57,10 +57,56 @@ describe("the two god id spaces", () => {
       expect(table.has(god)).toBe(false);
       expect(shippedCatalog("hades2").gods.has(god)).toBe(true);
     }
-    expect(shippedCatalog("hades2").gods.size).toBe(table.size + cameos.length);
+    const realGods = (game: GameId) =>
+      Object.keys(dataFor(game).gods as Record<string, unknown>).filter(
+        (name) => !name.startsWith("__mechanic_"),
+      ).length;
+    expect(shippedCatalog("hades2").gods.size).toBe(realGods("hades2") + cameos.length);
+    expect(shippedCatalog("hades1").gods.size).toBe(realGods("hades1"));
+  });
 
-    const hades1Table = new Set(Object.keys(dataFor("hades1").gods as Record<string, unknown>));
-    expect(shippedCatalog("hades1").gods.size).toBe(hades1Table.size);
+  /**
+   * The table is a dump of the game's *loot* table, so it enumerates reward
+   * slots and not deities, i.e. the Daedalus Hammer and the Pom variants sit
+   * in it under a prefixed key. They stay in the table, which has to stay
+   * faithful to the file it came from, and they aren't names a run can address.
+   *
+   * `kind` cannot do this filtering and it is worth pinning why. Hermes, Chaos
+   * and Selene are `NonPoolSlot` exactly as the mechanical entries are — that
+   * flag is about the cap, not about being a god — so a filter written against
+   * it would throw away three real gods, and a pool naming Hermes would then be
+   * quarantined despite D212 saying it must not be.
+   */
+  it("leaves out the loot slots that are not gods, and keeps the gods that take no slot", () => {
+    expect([...shippedCatalog("hades1").gods].sort()).toEqual([
+      "Aphrodite",
+      "Ares",
+      "Artemis",
+      "Athena",
+      "Chaos",
+      "Demeter",
+      "Dionysus",
+      "Hades",
+      "Hermes",
+      "Poseidon",
+      "Zeus",
+    ]);
+    expect(shippedCatalog("hades2").gods.size).toBe(16);
+
+    for (const game of GAMES) {
+      const gods = shippedCatalog(game).gods;
+      expect([...gods].filter((name) => name.startsWith("__mechanic_"))).toEqual([]);
+      // The three that share the mechanical entries' `kind` and aren't
+      // mechanical, which is what stops that flag being usable here.
+      const table = dataFor(game).gods as Record<string, { kind: string } | undefined>;
+      for (const god of ["Hermes", "Chaos"]) {
+        expect(table[god]?.kind).toBe("NonPoolSlot");
+        expect(gods.has(god)).toBe(true);
+      }
+    }
+    const hades2Table = dataFor("hades2").gods as Record<string, { kind: string } | undefined>;
+    expect(hades2Table.Selene?.kind).toBe("NonPoolSlot");
+    expect(shippedCatalog("hades2").gods.has("Selene")).toBe(true);
   });
 
   it("holds every god a trait record names", () => {
