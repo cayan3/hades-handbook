@@ -13,7 +13,13 @@ import type {
 } from "@repo/core";
 import { type SyncCatalog, shippedCatalog } from "./catalog-view.js";
 import { migrate } from "./migrate.js";
-import { type StoredRun, emptyRun, fromPersisted, toPersisted } from "./persisted.js";
+import {
+  type PersistedNotice,
+  type StoredRun,
+  emptyRun,
+  fromPersisted,
+  toPersisted,
+} from "./persisted.js";
 import type { RunStateSource, Unsub } from "./port.js";
 import type { QuarantinedEntry } from "./quarantine.js";
 import { type RunStore, createMemoryStore } from "./store.js";
@@ -190,30 +196,86 @@ export async function openManualSource(
   const outcome = migrate(stored.state, catalog);
   const quarantine = [...stored.quarantine, ...outcome.quarantine];
 
-  const notice: MigrationNotice | null =
-    outcome.quarantine.length === 0
+  /**
+   * What is still owed carries across loads, because it cannot be re-derived.
+   *
+   * The pass that raises a notice is also the pass that removes the ids it is
+   * about, so by the next load there is nothing left to notice — which is why
+   * the owing has to be stored rather than recomputed, and why holding the
+   * build stamp back instead did not work. Entries accumulate: two updates
+   * before anyone acknowledges either is one notice about both, and `playedOn`
+   * stays the build the run was on when the first of them turned up.
+   */
+  const carried = stored.pendingNotice ?? null;
+  const owed = [...(carried?.entries ?? []), ...outcome.quarantine];
+  const pendingNotice: PersistedNotice | null =
+    owed.length === 0
       ? null
-      : {
-          count: outcome.quarantine.length,
-          entries: outcome.quarantine,
-          playedOn: stored.state.facts.dataVersion,
-          now: catalog.dataVersion,
-        };
+      : { playedOn: carried?.playedOn ?? stored.state.facts.dataVersion, entries: owed };
 
-  return createSource(catalog, store, outcome.state, quarantine, notice, unreadable);
+  const source = createSource({
+    catalog,
+    store,
+    state: outcome.state,
+    quarantine,
+    pendingNotice,
+    rewardedWithoutBoon: stored.rewardedWithoutBoon ?? new Set(),
+    unreadableRun: unreadable,
+  });
+
+  /**
+   * A load that changed something writes it back before handing the source over.
+   *
+   * Without this the migration only ever reached storage on the back of the
+   * user's next tap — which meant the stripped run was persisted while the
+   * *reason* it was stripped was not, so the following load found a clean run
+   * and re-stamped it with nobody having been told. Skipped when the load
+   * changed nothing, so an ordinary start still costs no write.
+   */
+  const changed =
+    outcome.quarantine.length > 0 ||
+    unreadable !== null ||
+    outcome.state.facts.dataVersion !== stored.state.facts.dataVersion;
+  if (changed) source.persistNow();
+
+  return source;
 }
 
-function createSource(
-  catalog: SyncCatalog,
-  store: RunStore,
-  initial: RunState,
-  initialQuarantine: readonly QuarantinedEntry[],
-  initialNotice: MigrationNotice | null,
-  unreadableRun: Error | null,
-): ManualSource {
-  let state = initial;
-  let quarantine = initialQuarantine;
-  let notice = initialNotice;
+interface SourceSeed {
+  catalog: SyncCatalog;
+  store: RunStore;
+  state: RunState;
+  quarantine: readonly QuarantinedEntry[];
+  pendingNotice: PersistedNotice | null;
+  rewardedWithoutBoon: ReadonlySet<GodId>;
+  unreadableRun: Error | null;
+}
+
+function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
+  const { catalog, store, unreadableRun } = seed;
+  let state = seed.state;
+  let quarantine = seed.quarantine;
+  let pending = seed.pendingNotice;
+  let notice: MigrationNotice | null =
+    pending === null
+      ? null
+      : {
+          count: pending.entries.length,
+          entries: pending.entries,
+          playedOn: pending.playedOn,
+          now: catalog.dataVersion,
+        };
+  /**
+   * Gods the pool holds for a reason other than a boon currently in `held`.
+   *
+   * Written by the three rules that deliberately leave a god behind — recording
+   * one directly, purging their boon, and displacing it with another — and read
+   * only by the correction, which is the one removal entitled to take a god out
+   * of the pool. Kept here rather than in `RunFacts` because it is bookkeeping
+   * about how the pool was built, not a fact about the run, and nothing in the
+   * engine has any business reading it.
+   */
+  const rewardedWithoutBoon = new Set(seed.rewardedWithoutBoon);
   const listeners = new Set<(facts: RunFacts) => void>();
 
   /**
@@ -241,7 +303,7 @@ function createSource(
   let storageError: Error | null = null;
 
   function persist(): void {
-    const snapshot = toPersisted({ state, quarantine });
+    const snapshot = toPersisted({ state, quarantine, pendingNotice: pending, rewardedWithoutBoon });
     writes = writes.then(async () => {
       try {
         await store.save(catalog.game, "active", snapshot);
@@ -283,6 +345,21 @@ function createSource(
       if (found?.god === god) return true;
     }
     return false;
+  }
+
+  /**
+   * Any god the loaded pool holds without a held boon to account for them is
+   * standing on their own, whatever put them there.
+   *
+   * The migration is the case that needs this and cannot be handled at the
+   * write: it removes a held boon and deliberately keeps its god, but the
+   * record it removed is exactly the one the catalog can no longer identify,
+   * so there is nothing left to ask which god it belonged to. Reading the pool
+   * itself asks the question the other way round and gets a complete answer —
+   * and doubles as a repair for any run stored before this was recorded.
+   */
+  for (const god of state.facts.godPool) {
+    if (!stillHoldsBoonOf(state.facts.held, god)) rewardedWithoutBoon.add(god);
   }
 
   /** Removes a trait from `held` and empties whatever slot it was sitting in. */
@@ -334,9 +411,20 @@ function createSource(
       };
     },
 
+    /**
+     * Clearing the notice is what makes it stop being owed, and that fact is
+     * persisted here. It used to be inferred from the build stamp, which could
+     * not work: the stamp advances on its own once the offending ids are gone,
+     * so the notice went with it whether or not anybody had read it.
+     */
     acceptMigration(): void {
       notice = null;
+      pending = null;
       commit({ ...state.facts, dataVersion: catalog.dataVersion });
+    },
+
+    persistNow(): void {
+      persist();
     },
 
     /**
@@ -370,6 +458,13 @@ function createSource(
       const held = new Map(state.facts.held);
       if (displaced !== undefined && displaced !== null && displaced !== trait) {
         held.delete(displaced);
+        // The displaced boon's god stays in the pool, so the pool now holds them
+        // for a reason `held` no longer shows. Recorded, or the next correction
+        // anywhere else in the run would take them back out.
+        const gone = Object.hasOwn(catalog.traits, displaced)
+          ? catalog.traits[displaced]?.god
+          : undefined;
+        if (gone != null) rewardedWithoutBoon.add(gone);
       }
       held.set(trait, {
         rarity: options.rarity ?? found.rarity[0] ?? "Common",
@@ -395,6 +490,14 @@ function createSource(
     /**
      * A correction. The reward was never taken, so the god goes back out of the
      * pool if this was the only thing holding them there.
+     *
+     * "The only thing" is the whole difficulty, and `held` alone cannot answer
+     * it. Three other rules deliberately leave a god in the pool with no boon to
+     * show for it — recorded directly, purged, or displaced — and each of those
+     * is a reward that really was taken. Asking `held` treats all three as
+     * though they never happened, so correcting an unrelated mis-tap quietly
+     * deleted them; the run then under-reports the pool, which reads as a god
+     * nobody has met.
      */
     remove(trait: TraitId): void {
       if (!state.facts.held.has(trait)) return;
@@ -403,7 +506,9 @@ function createSource(
 
       const godPool = new Set(state.facts.godPool);
       const god = found?.god ?? null;
-      if (god !== null && !stillHoldsBoonOf(held, god)) godPool.delete(god);
+      if (god !== null && !stillHoldsBoonOf(held, god) && !rewardedWithoutBoon.has(god)) {
+        godPool.delete(god);
+      }
 
       commit({ ...state.facts, held, slots, godPool });
     },
@@ -415,6 +520,8 @@ function createSource(
      */
     purge(trait: TraitId): void {
       if (!state.facts.held.has(trait)) return;
+      const found = Object.hasOwn(catalog.traits, trait) ? catalog.traits[trait] : undefined;
+      if (found?.god != null) rewardedWithoutBoon.add(found.god);
       const { held, slots } = drop(trait);
       commit({ ...state.facts, held, slots });
     },
@@ -436,7 +543,14 @@ function createSource(
             "gods are addressed by the bare name, not by their loot table id",
         );
       }
-      if (state.facts.godPool.has(god)) return;
+      // Nothing in `held` will ever account for this one, so it is recorded as
+      // standing on its own — otherwise the next correction removes it.
+      const known = rewardedWithoutBoon.has(god);
+      rewardedWithoutBoon.add(god);
+      if (state.facts.godPool.has(god)) {
+        if (!known) persist();
+        return;
+      }
       commit({ ...state.facts, godPool: new Set(state.facts.godPool).add(god) });
     },
 
@@ -591,7 +705,7 @@ function createSource(
      * but only this one leaves a partial write easy to read.
      */
     async finishRun(): Promise<void> {
-      const finished = toPersisted({ state, quarantine });
+      const finished = toPersisted({ state, quarantine, pendingNotice: pending, rewardedWithoutBoon });
       const fresh = toPersisted({
         state: emptyRun(catalog.game, catalog.dataVersion),
         quarantine: [],
@@ -617,6 +731,8 @@ function createSource(
       state = emptyRun(catalog.game, catalog.dataVersion);
       quarantine = [];
       notice = null;
+      pending = null;
+      rewardedWithoutBoon.clear();
       for (const listener of listeners) listener(state.facts);
     },
 

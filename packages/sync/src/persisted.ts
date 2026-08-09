@@ -49,6 +49,38 @@ export interface PersistedRun {
    * tab, which is the only kind of recoverable worth claiming.
    */
   quarantine: QuarantinedEntry[];
+  /**
+   * What a load still owes the user an explanation for, absent once they have
+   * had it.
+   *
+   * Stored rather than re-derived, because it cannot be re-derived: the whole
+   * point of the migration is that the offending ids are gone from the run by
+   * the time it finishes, so the next load has nothing left to notice. Trying
+   * to carry the owing in `facts.dataVersion` instead was the defect this
+   * replaces — one field cannot mean both "which build this run was played on"
+   * and "somebody still has to be told", because the first has to advance and
+   * the second has to wait.
+   */
+  pendingNotice?: PersistedNotice;
+  /**
+   * Gods whose place in the pool does not depend on a boon being held: put
+   * there directly, left behind by a purge, or left behind when a later boon
+   * displaced theirs.
+   *
+   * A correction asks whether anything else still holds the god there, and
+   * `held` is the wrong place to ask — every one of these was recorded
+   * deliberately by a rule that says losing the boon does not undo the pickup.
+   * Without this, correcting an unrelated mis-tap deleted them.
+   */
+  godsRewardedWithoutBoon?: GodId[];
+}
+
+/** A notice that has outlived the load that raised it. */
+export interface PersistedNotice {
+  /** The build the run was played on when the first unmatched id turned up. */
+  playedOn: string;
+  /** Everything still unacknowledged, across however many loads it took. */
+  entries: QuarantinedEntry[];
 }
 
 interface PersistedFacts {
@@ -74,10 +106,19 @@ interface PersistedIntent {
   notes: [TraitId, string][];
 }
 
-/** A run and the entries an earlier load set aside, which travel together. */
+/**
+ * A run and the bookkeeping that travels with it.
+ *
+ * The last two are optional so that a caller building a record by hand — every
+ * test here, and the fresh run a load starts — says only what it means. Absent
+ * reads back as "nothing owed" and "no such god", which is what an older record
+ * written before these existed also means.
+ */
 export interface StoredRun {
   state: RunState;
   quarantine: readonly QuarantinedEntry[];
+  pendingNotice?: PersistedNotice | null;
+  rewardedWithoutBoon?: ReadonlySet<GodId>;
 }
 
 export function toPersisted(run: StoredRun): PersistedRun {
@@ -115,6 +156,12 @@ export function toPersisted(run: StoredRun): PersistedRun {
       notes: [...intent.notes],
     },
     quarantine: [...run.quarantine],
+    // Both written only when they carry something, so an ordinary run's record
+    // looks exactly as it did before either existed.
+    ...(run.pendingNotice == null ? {} : { pendingNotice: run.pendingNotice }),
+    ...(run.rewardedWithoutBoon === undefined || run.rewardedWithoutBoon.size === 0
+      ? {}
+      : { godsRewardedWithoutBoon: [...run.rewardedWithoutBoon] }),
   };
 }
 
@@ -161,6 +208,34 @@ function readQuarantine(raw: unknown): QuarantinedEntry[] {
     }
   }
   return raw as QuarantinedEntry[];
+}
+
+/**
+ * Checks a notice that outlived the load that raised it.
+ *
+ * Held to the same standard as the quarantine it names, and for a sharper
+ * reason: this is the only record that somebody is still owed an explanation.
+ * A malformed one read as absent would be the apology going missing quietly,
+ * which is the failure the notice exists to prevent, one level up.
+ */
+function readNotice(raw: unknown): PersistedNotice | null {
+  if (raw === undefined || raw === null) return null;
+  if (typeof raw !== "object") throw new Error("stored notice is not an object");
+  const { playedOn, entries } = raw as { playedOn?: unknown; entries?: unknown };
+  if (typeof playedOn !== "string") {
+    throw new Error("stored notice does not say which build the run was played on");
+  }
+  return { playedOn, entries: readQuarantine(entries) };
+}
+
+/** The god list is checked for the same reason the quarantine's keys are. */
+function readGodList(raw: unknown): GodId[] {
+  if (raw === undefined) return [];
+  if (!Array.isArray(raw)) throw new Error("stored god list is not a list");
+  for (const god of raw as unknown[]) {
+    if (typeof god !== "string") throw new Error("stored god list holds something that is not a name");
+  }
+  return raw as GodId[];
 }
 
 /**
@@ -220,6 +295,8 @@ export function fromPersisted(record: unknown): StoredRun {
       },
     },
     quarantine: readQuarantine(raw.quarantine),
+    pendingNotice: readNotice(raw.pendingNotice),
+    rewardedWithoutBoon: new Set(readGodList(raw.godsRewardedWithoutBoon)),
   };
 }
 

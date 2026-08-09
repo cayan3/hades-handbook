@@ -171,6 +171,122 @@ describe("removal, which is two different actions", () => {
     expect(source.getFacts().slots.get("Melee")).toBeNull();
   });
 
+  /**
+   * A correction asks whether anything still holds the god in the pool, and
+   * `held` on its own gives the wrong answer four ways. Three rules put a god
+   * there and deliberately leave them with no boon to show for it — recorded
+   * directly, purged, displaced — and the migration removes a boon while
+   * keeping its god for the same reason. Reading `held` treats every one of
+   * those as though it never happened, so a correction *somewhere else in the
+   * run* silently deleted a god who really was met.
+   *
+   * The direction is the merciful one — an under-reported pool reads as more
+   * reachable, never less — which is exactly why it would never have been
+   * noticed from the outside.
+   */
+  it("keeps a god who was recorded without a boon", async () => {
+    const source = await open();
+    source.addGod("Hera");
+    source.mark("HeraAttack");
+
+    source.remove("HeraAttack");
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(true);
+  });
+
+  it("keeps a god whose other boon was purged", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.purge("HeraAttack");
+    source.mark("HeraSpecial");
+
+    source.remove("HeraSpecial");
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(true);
+  });
+
+  it("keeps a god whose other boon was displaced", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.mark("ZeusAttack"); // displaces Hera's, and the pool keeps her
+    source.mark("HeraSpecial");
+
+    source.remove("HeraSpecial");
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(true);
+  });
+
+  it("still drops a god whose only boon really was a mis-tap", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    source.remove("HeraAttack");
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(false);
+  });
+
+  /**
+   * A pool god with no held boon at all is standing on their own whatever put
+   * them there, so the load can work that out by looking rather than by being
+   * told. This is what repairs a run stored before any of this was recorded.
+   */
+  it("works out which gods stand alone from a record that never said", async () => {
+    const store = createMemoryStore();
+    const old = emptyRun("hades2", "build-1");
+    old.facts.godPool.add("Hera"); // forced in by a keepsake, three builds ago
+    old.facts.held.set("ZeusAttack", { rarity: "Common", level: 1 });
+    old.facts.godPool.add("Zeus");
+    await store.save("hades2", "active", toPersisted({ state: old, quarantine: [] }));
+
+    const source = await open(store);
+    source.mark("HeraAttack");
+    source.remove("HeraAttack");
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(true);
+  });
+
+  /**
+   * The one case this cannot get right, pinned so it is a known limit rather
+   * than a surprise. A migration removes a held boon and keeps its god — but
+   * the record it removed is precisely the one the catalog can no longer
+   * identify, so nothing anywhere can say whose boon it was. If the god still
+   * has another boon held, the load cannot tell this apart from an ordinary
+   * one-boon god, and a later correction drops them.
+   *
+   * Left alone deliberately. The alternative — treating every pool god as
+   * standing once any held id is quarantined — would switch off the correction
+   * rule for the rest of the run on the strength of an unrelated event, which
+   * trades a rare wrong answer for a permanent one. The error runs in the
+   * forgiving direction: an under-reported pool reads as more reachable, never
+   * less.
+   */
+  it("cannot keep a god whose only other boon was quarantined, and does not pretend to", async () => {
+    const store = createMemoryStore();
+    const old = emptyRun("hades2", "build-0");
+    old.facts.held.set("HeraBoonGoneInBuild1", { rarity: "Common", level: 1 });
+    old.facts.held.set("HeraAttack", { rarity: "Common", level: 1 });
+    old.facts.godPool.add("Hera");
+    await store.save("hades2", "active", toPersisted({ state: old, quarantine: [] }));
+
+    const source = await open(store);
+    source.remove("HeraAttack");
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(false);
+  });
+
+  it("remembers which gods stand on their own across a reload", async () => {
+    const store = createMemoryStore();
+    const first = await open(store);
+    first.addGod("Hera");
+    first.mark("HeraAttack");
+    await first.flush();
+
+    const second = await open(store);
+    second.remove("HeraAttack");
+
+    expect(second.getFacts().godPool.has("Hera")).toBe(true);
+  });
+
   it("does nothing for a boon that was never held", async () => {
     const source = await open();
     const before = source.getFacts();
@@ -641,6 +757,83 @@ describe("opening a run stored against an older build", () => {
 
     expect(second.quarantine).toEqual(first.quarantine);
     expect(second.quarantine).toHaveLength(1);
+  });
+
+  /**
+   * The notice is owed until somebody has read it, not until somebody taps
+   * something else.
+   *
+   * This is the failure the stamp-holdback could not prevent: the pass that
+   * raises the notice also removes the ids it is about, so the *first* edit
+   * persisted a run whose offending ids were already gone, and the next load
+   * scanned it clean and re-stamped it with nobody told. Owing it is now its
+   * own stored fact, which is the only place it can live — it cannot be
+   * re-derived from a run the migration has already cleaned.
+   */
+  it("still owes the notice after an edit and a reload", async () => {
+    const store = await storeOldRun();
+    const first = await open(store);
+    expect(first.migrationNotice?.count).toBe(1);
+
+    first.mark("HeraSpecial");
+    await first.flush();
+    const second = await open(store);
+
+    expect(second.migrationNotice?.count).toBe(1);
+    expect(second.migrationNotice?.playedOn).toBe("build-0");
+    expect(second.migrationNotice?.now).toBe("build-1");
+  });
+
+  it("keeps owing it across several reloads with no acceptance", async () => {
+    const store = await storeOldRun();
+    await (await open(store)).flush();
+    const second = await open(store);
+    second.mark("HeraSpecial");
+    await second.flush();
+
+    const third = await open(store);
+
+    expect(third.migrationNotice?.count).toBe(1);
+  });
+
+  it("stops owing it once accepted, permanently", async () => {
+    const store = await storeOldRun();
+    const first = await open(store);
+
+    first.acceptMigration();
+    await first.flush();
+    const second = await open(store);
+    second.mark("HeraSpecial");
+    await second.flush();
+    const third = await open(store);
+
+    expect(second.migrationNotice).toBeNull();
+    expect(third.migrationNotice).toBeNull();
+    // Accepting is not forgetting: the entries stay recoverable.
+    expect(third.quarantine).toHaveLength(1);
+  });
+
+  /**
+   * Two updates before anyone acknowledges either is one notice about both.
+   * Reporting only the newer would leave the first update's losses unmentioned
+   * for good, since the run no longer contains anything to notice them by.
+   */
+  it("gathers what a second update sets aside into the same unacknowledged notice", async () => {
+    const store = await storeOldRun();
+    await (await open(store)).flush();
+
+    // A later catalog that has also forgotten HeraAttack, the one thing the
+    // first migration left the run holding.
+    const later = testCatalog({
+      ...world(),
+      dataVersion: "build-2",
+      traits: traitTable(testTrait("ZeusAttack", { god: "Zeus", slot: "Melee" })),
+    });
+    const second = await openManualSource({ game: "hades2", catalog: later, store });
+
+    expect(second.migrationNotice?.count).toBe(2);
+    expect(second.migrationNotice?.playedOn).toBe("build-0");
+    expect(second.migrationNotice?.now).toBe("build-2");
   });
 
   it("stops re-checking once the user accepts the migration", async () => {
