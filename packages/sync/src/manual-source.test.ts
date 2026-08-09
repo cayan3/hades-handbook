@@ -234,6 +234,46 @@ describe("the equipped kit", () => {
       source.equipKeepsake("NotAKeepsake");
     }).toThrow(/no keepsake/);
   });
+
+  /**
+   * The other half of the rule `mark` enforces. Forms go in the equipped kit
+   * and boons go in `held`, and until now only one direction was checked — a
+   * boon written here was accepted, where it would sit in the field aspect
+   * conflicts are read from and match none of them, which is inert rather than
+   * loud.
+   */
+  it("refuses a boon where a weapon form belongs", async () => {
+    const source = await open();
+
+    expect(() => {
+      source.equipAspect("HeraAttack");
+    }).toThrow(/not a weapon form/);
+    expect(source.getFacts().equipped.aspect).toBeUndefined();
+  });
+
+  /**
+   * And is silent where the data is. Hades I marks none of its forms, so the
+   * check is written against the marker rather than a list of ids: it declines
+   * to judge a catalog that never says which records are forms, and starts
+   * working the moment one does. Same partiality `mark` has, for the same
+   * reason, and it closes itself the same way.
+   */
+  it("says nothing about a catalog that marks no forms at all", async () => {
+    const unmarked = testCatalog({
+      ...world(),
+      traits: traitTable(testTrait("ShieldLoadAmmoTrait"), testTrait("HeraAttack", { god: "Hera" })),
+      slots: new Set(["Melee", "Secondary"]),
+    });
+    const source = await openManualSource({
+      game: "hades2",
+      catalog: unmarked,
+      store: createMemoryStore(),
+    });
+
+    source.equipAspect("ShieldLoadAmmoTrait");
+
+    expect(source.getFacts().equipped.aspect).toBe("ShieldLoadAmmoTrait");
+  });
 });
 
 describe("answering a Mirror row", () => {
@@ -280,6 +320,56 @@ describe("answering a Mirror row", () => {
     expect(() => {
       source.answerMirrorRow("Presence", null);
     }).toThrow(/no Mirror row/);
+  });
+});
+
+describe("intent", () => {
+  it("refuses a pin or a plan on an id the catalog does not have", async () => {
+    const source = await open();
+
+    expect(() => {
+      source.pin("NotATrait");
+    }).toThrow(/no trait/);
+    expect(() => {
+      source.plan("NotATrait");
+    }).toThrow(/no trait/);
+  });
+
+  /**
+   * A note is the one thing in a run the player wrote, so an unmatched id costs
+   * more here than anywhere else: the next update quarantines it, and what gets
+   * quarantined is their sentence.
+   */
+  it("refuses a note on an id the catalog does not have", async () => {
+    const source = await open();
+
+    expect(() => {
+      source.setNote("NotATrait", "save this for the Hera duo");
+    }).toThrow(/no trait/);
+    expect(source.getState().intent.notes.size).toBe(0);
+  });
+
+  it("clears a note without asking whether the trait is still there", async () => {
+    const source = await open();
+
+    expect(() => {
+      source.setNote("NotATrait", "");
+    }).not.toThrow();
+  });
+
+  it("removes a pin, a plan and a note it was given", async () => {
+    const source = await open();
+    source.pin("HeraAttack");
+    source.plan("HeraSpecial");
+    source.setNote("HeraAttack", "upgrade this");
+
+    source.unpin("HeraAttack");
+    source.unplan("HeraSpecial");
+    source.setNote("HeraAttack", "");
+
+    expect(source.getState().intent.pins.size).toBe(0);
+    expect(source.getState().intent.planned.size).toBe(0);
+    expect(source.getState().intent.notes.size).toBe(0);
   });
 });
 
@@ -440,73 +530,6 @@ describe("a store that fails a write", () => {
   });
 });
 
-describe("opening a run stored against an older build", () => {
-  async function storeOldRun(): Promise<RunStore> {
-    const store = createMemoryStore();
-    const old = emptyRun("hades2", "build-0");
-    old.facts.held.set("HeraAttack", { rarity: "Common", level: 1 });
-    old.facts.held.set("RenamedSinceBuild0", { rarity: "Epic", level: 1 });
-    await store.save("hades2", "active", toPersisted({ state: old, quarantine: [] }));
-    return store;
-  }
-
-  it("surfaces a notice naming what could not be matched", async () => {
-    const source = await open(await storeOldRun());
-
-    expect(source.migrationNotice).toEqual({
-      count: 1,
-      entries: [{ path: "held", key: "RenamedSinceBuild0", value: { rarity: "Epic", level: 1 } }],
-      playedOn: "build-0",
-      now: "build-1",
-    });
-    expect(source.getFacts().held.has("HeraAttack")).toBe(true);
-    expect(source.getFacts().held.has("RenamedSinceBuild0")).toBe(false);
-  });
-
-  it("keeps the quarantined entries recoverable across another reload", async () => {
-    const store = await storeOldRun();
-    const first = await open(store);
-    await first.flush();
-
-    const second = await open(store);
-
-    expect(second.quarantine).toEqual(first.quarantine);
-    expect(second.quarantine).toHaveLength(1);
-  });
-
-  it("stops re-checking once the user accepts the migration", async () => {
-    const store = await storeOldRun();
-    const first = await open(store);
-
-    first.acceptMigration();
-    await first.flush();
-    const second = await open(store);
-
-    expect(first.migrationNotice).toBeNull();
-    expect(second.migrationNotice).toBeNull();
-    expect(second.getFacts().dataVersion).toBe("build-1");
-    // Accepting is not forgetting: the entries are still there to restore.
-    expect(second.quarantine).toHaveLength(1);
-  });
-});
-
-describe("run progress", () => {
-  /**
-   * There is deliberately no method that sets it. The counter has one consumer
-   * in the whole model, that consumer is reached only through a requirement
-   * atom no shipped catalog produces, and its absence is already handled in the
-   * safe direction. This test exists so that adding a setter is a decision
-   * somebody makes on purpose rather than a helpful-looking patch.
-   */
-  it("is never collected by manual entry", async () => {
-    const source = await open();
-    source.mark("HeraAttack");
-    source.equipKeepsake("ForceHeraBoonKeepsake");
-
-    expect(source.getFacts().progress).toBeUndefined();
-    expect(Object.keys(source)).not.toContain("setProgress");
-  });
-});
 describe("finishing a run when a write fails", () => {
   /**
    * The two records move together or not at all. Ending a run is the one edit
@@ -586,6 +609,56 @@ describe("finishing a run when a write fails", () => {
   });
 });
 
+describe("opening a run stored against an older build", () => {
+  async function storeOldRun(): Promise<RunStore> {
+    const store = createMemoryStore();
+    const old = emptyRun("hades2", "build-0");
+    old.facts.held.set("HeraAttack", { rarity: "Common", level: 1 });
+    old.facts.held.set("RenamedSinceBuild0", { rarity: "Epic", level: 1 });
+    await store.save("hades2", "active", toPersisted({ state: old, quarantine: [] }));
+    return store;
+  }
+
+  it("surfaces a notice naming what could not be matched", async () => {
+    const source = await open(await storeOldRun());
+
+    expect(source.migrationNotice).toEqual({
+      count: 1,
+      entries: [{ path: "held", key: "RenamedSinceBuild0", value: { rarity: "Epic", level: 1 } }],
+      playedOn: "build-0",
+      now: "build-1",
+    });
+    expect(source.getFacts().held.has("HeraAttack")).toBe(true);
+    expect(source.getFacts().held.has("RenamedSinceBuild0")).toBe(false);
+  });
+
+  it("keeps the quarantined entries recoverable across another reload", async () => {
+    const store = await storeOldRun();
+    const first = await open(store);
+    await first.flush();
+
+    const second = await open(store);
+
+    expect(second.quarantine).toEqual(first.quarantine);
+    expect(second.quarantine).toHaveLength(1);
+  });
+
+  it("stops re-checking once the user accepts the migration", async () => {
+    const store = await storeOldRun();
+    const first = await open(store);
+
+    first.acceptMigration();
+    await first.flush();
+    const second = await open(store);
+
+    expect(first.migrationNotice).toBeNull();
+    expect(second.migrationNotice).toBeNull();
+    expect(second.getFacts().dataVersion).toBe("build-1");
+    // Accepting is not forgetting: the entries are still there to restore.
+    expect(second.quarantine).toHaveLength(1);
+  });
+});
+
 describe("a stored run this build cannot read", () => {
   /**
    * Refusing to decode is right; refusing to *start* is not. The record is not
@@ -660,5 +733,23 @@ describe("a stored run this build cannot read", () => {
 
   it("reports nothing on an ordinary load", async () => {
     expect((await open(createMemoryStore())).unreadableRun).toBeNull();
+  });
+});
+
+describe("run progress", () => {
+  /**
+   * There is deliberately no method that sets it. The counter has one consumer
+   * in the whole model, that consumer is reached only through a requirement
+   * atom no shipped catalog produces, and its absence is already handled in the
+   * safe direction. This test exists so that adding a setter is a decision
+   * somebody makes on purpose rather than a helpful-looking patch.
+   */
+  it("is never collected by manual entry", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.equipKeepsake("ForceHeraBoonKeepsake");
+
+    expect(source.getFacts().progress).toBeUndefined();
+    expect(Object.keys(source)).not.toContain("setProgress");
   });
 });

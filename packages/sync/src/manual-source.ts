@@ -454,9 +454,22 @@ function createSource(
      * Checked against the trait table because that is where a form lives in
      * both games — Hades II gives it a record of its own, and in Hades I a form
      * simply is an ordinary trait record.
+     *
+     * A boon is refused here for the same reason a form is refused by `mark`:
+     * they are the two halves of one rule, and a boon written into this field
+     * would sit where aspect conflicts are read from and match none of them —
+     * wrong in the direction that produces no error and no verdict, just a
+     * weapon form the run does not have. Only asked where the catalog says
+     * which records are forms, since a catalog that marks none cannot tell a
+     * form from a boon and neither can this.
      */
     equipAspect(aspect: AspectId | null): void {
-      if (aspect !== null) record(aspect);
+      if (aspect !== null) {
+        const found = record(aspect);
+        if (catalog.slots.has("Aspect") && found.slot !== "Aspect") {
+          throw new Error(`"${aspect}" is not a weapon form; a boon is recorded with mark`);
+        }
+      }
       const equipped = { ...state.facts.equipped };
       if (aspect === null) delete equipped.aspect;
       else equipped.aspect = aspect;
@@ -537,10 +550,24 @@ function createSource(
       commit(state.facts, { ...state.intent, planned });
     },
 
+    /**
+     * Checked on the way in, the way a pin and a plan are. A note is the only
+     * thing in a run the player wrote themselves, so it is the worst one to
+     * attach to an id the catalog cannot name: the next game update quarantines
+     * it, and what is quarantined is the text.
+     *
+     * Clearing asks nothing. Removing a note about a trait that has gone is
+     * exactly what somebody tidying up would want to do, and refusing it would
+     * leave the entry with no way out.
+     */
     setNote(trait: TraitId, text: string): void {
       const notes = new Map(state.intent.notes);
-      if (text === "") notes.delete(trait);
-      else notes.set(trait, text);
+      if (text === "") {
+        notes.delete(trait);
+      } else {
+        record(trait);
+        notes.set(trait, text);
+      }
       commit(state.facts, { ...state.intent, notes });
     },
 
@@ -585,6 +612,11 @@ function createSource(
         }
       });
       await writes;
+      if (failed.cause !== null) throw failed.cause;
+
+      state = emptyRun(catalog.game, catalog.dataVersion);
+      quarantine = [];
+      notice = null;
       for (const listener of listeners) listener(state.facts);
     },
 
@@ -611,11 +643,6 @@ function createSource(
  *
  * It has exactly one consumer in the whole model: the question of whether a god
  * can still be forced into a full pool late in a run. That question is asked by
-      if (failed.cause !== null) throw failed.cause;
-
-      state = emptyRun(catalog.game, catalog.dataVersion);
-      quarantine = [];
-      notice = null;
  * one requirement atom which no shipped catalog produces, in either game, so
  * the counter would today buy a precision nothing can reach. Against that it
  * costs a phone-first player a number to maintain by hand for the length of
