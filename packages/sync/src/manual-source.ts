@@ -74,6 +74,14 @@ export interface ManualSource extends RunStateSource {
    */
   acceptMigration(): void;
 
+  /**
+   * Why the stored run could not be decoded, when it could not be. The run was
+   * set aside rather than deleted and a fresh one took its place, so this is
+   * the difference between a player being told their save was unreadable and a
+   * player finding an empty run with no explanation. Null on an ordinary load.
+   */
+  readonly unreadableRun: Error | null;
+
   /** Marks a boon held, with everything that implies. */
   mark(trait: TraitId, options?: MarkOptions): void;
 
@@ -145,10 +153,39 @@ export async function openManualSource(
   const store = options.store ?? createMemoryStore();
 
   const loaded = await store.load(game, "active");
-  const stored: StoredRun =
-    loaded === null
-      ? { state: emptyRun(game, catalog.dataVersion), quarantine: [] }
-      : fromPersisted(loaded);
+  const fresh = (): StoredRun => ({
+    state: emptyRun(game, catalog.dataVersion),
+    quarantine: [],
+  });
+
+  let stored: StoredRun;
+  let unreadable: Error | null = null;
+  if (loaded === null) {
+    stored = fresh();
+  } else {
+    try {
+      stored = fromPersisted(loaded);
+    } catch (cause) {
+      /**
+       * Refusing to read the record is right. Refusing to start is not.
+       *
+       * Nothing clears the record, so a decoder that throws on the way in
+       * throws again on every load after it, for as long as it exists — and
+       * the player's only way out is clearing site data, which takes both runs
+       * with it. So the record is set aside and a fresh run starts over the
+       * top, which is the same bargain the id-level quarantine makes: keep
+       * what cannot be understood, and let the rest of the product work.
+       *
+       * Set aside *first*. Starting fresh over a record that could not be
+       * copied would be this build deleting the only version of a run on the
+       * strength of not being able to read it, so a failure here fails the
+       * load rather than being absorbed.
+       */
+      await store.save(game, "unreadable", loaded);
+      unreadable = cause instanceof Error ? cause : new Error(String(cause));
+      stored = fresh();
+    }
+  }
 
   const outcome = migrate(stored.state, catalog);
   const quarantine = [...stored.quarantine, ...outcome.quarantine];
@@ -163,7 +200,7 @@ export async function openManualSource(
           now: catalog.dataVersion,
         };
 
-  return createSource(catalog, store, outcome.state, quarantine, notice);
+  return createSource(catalog, store, outcome.state, quarantine, notice, unreadable);
 }
 
 function createSource(
@@ -172,6 +209,7 @@ function createSource(
   initial: RunState,
   initialQuarantine: readonly QuarantinedEntry[],
   initialNotice: MigrationNotice | null,
+  unreadableRun: Error | null,
 ): ManualSource {
   let state = initial;
   let quarantine = initialQuarantine;
@@ -275,6 +313,10 @@ function createSource(
 
     get migrationNotice() {
       return notice;
+    },
+
+    get unreadableRun() {
+      return unreadableRun;
     },
 
     getFacts(): RunFacts {
@@ -504,28 +546,46 @@ function createSource(
 
     /**
      * The finished run moves into the second record and a fresh one takes its
-     * place. Quarantine does not travel with it: those entries belong to the
-     * run they came out of, and carrying them into a run that never had them
-     * would produce a notice about ids the new run never held.
+     * place. Quarantine does not travel into the fresh run: those entries
+     * belong to the run they came out of, which is where they are written, and
+     * carrying them forward would produce a notice about ids the new run never
+     * held.
+     *
+     * Nothing in memory is cleared until both records are written. This is the
+     * one edit that throws away what it is holding, so the usual "record the
+     * failure and carry on" shape is not enough here: clearing first leaves the
+     * run in exactly one place — the `active` record — and the next tap writes
+     * the empty run over it. The run is then gone, having survived the failure
+     * that was reported and not the one that was not.
+     *
+     * The finished record is written first for the same reason. If it fails
+     * nothing has moved and the caller can retry; if the fresh one fails the
+     * run is in both records and a retry converges. Neither order can lose it,
+     * but only this one leaves a partial write easy to read.
      */
     async finishRun(): Promise<void> {
       const finished = toPersisted({ state, quarantine });
-      state = emptyRun(catalog.game, catalog.dataVersion);
-      quarantine = [];
-      notice = null;
-      const fresh = toPersisted({ state, quarantine });
+      const fresh = toPersisted({
+        state: emptyRun(catalog.game, catalog.dataVersion),
+        quarantine: [],
+      });
+
+      // Held on an object rather than a plain binding: the assignment happens
+      // inside the chained callback, and reading `storageError` instead would
+      // race an edit made while this was in flight.
+      const failed: { cause: Error | null } = { cause: null };
       writes = writes.then(async () => {
         try {
           await store.save(catalog.game, "last", finished);
           await store.save(catalog.game, "active", fresh);
           storageError = null;
         } catch (cause) {
-          storageError = cause instanceof Error ? cause : new Error(String(cause));
+          failed.cause = cause instanceof Error ? cause : new Error(String(cause));
+          storageError = failed.cause;
         }
       });
       await writes;
       for (const listener of listeners) listener(state.facts);
-      if (storageError !== null) throw storageError;
     },
 
     get storageError() {
@@ -551,6 +611,11 @@ function createSource(
  *
  * It has exactly one consumer in the whole model: the question of whether a god
  * can still be forced into a full pool late in a run. That question is asked by
+      if (failed.cause !== null) throw failed.cause;
+
+      state = emptyRun(catalog.game, catalog.dataVersion);
+      quarantine = [];
+      notice = null;
  * one requirement atom which no shipped catalog produces, in either game, so
  * the counter would today buy a precision nothing can reach. Against that it
  * costs a phone-first player a number to maintain by hand for the length of

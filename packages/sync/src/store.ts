@@ -2,13 +2,18 @@ import type { GameId } from "@repo/core";
 import { type PersistedRun, STORE_VERSION } from "./persisted.js";
 
 /**
- * Which of the two runs a record is.
+ * Which record this is.
  *
- * Two, not a list: the run being played and the one before it. A saved-run
+ * Two runs, not a list: the one being played and the one before it. A saved-run
  * library is a different product and a different set of questions, and every
- * view that reads a run reads exactly one of these.
+ * view that reads a run reads one of those two.
+ *
+ * The third is not a run. It holds a record that could not be decoded, kept
+ * because the alternative is deleting the only copy of somebody's run on the
+ * word of the build that could not read it. Nothing loads it and no view shows
+ * it; it exists so that a later build has something to try.
  */
-export type RunSlot = "active" | "last";
+export type RunSlot = "active" | "last" | "unreadable";
 
 /**
  * Where persisted runs live, as an interface so that the browser is not the

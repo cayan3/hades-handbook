@@ -1,8 +1,9 @@
+import type { GameId } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import type { SyncCatalog } from "./catalog-view.js";
 import { openManualSource } from "./manual-source.js";
-import { emptyRun, toPersisted } from "./persisted.js";
-import { type RunStore, createMemoryStore } from "./store.js";
+import { STORE_VERSION, emptyRun, toPersisted } from "./persisted.js";
+import { type RunSlot, type RunStore, createMemoryStore } from "./store.js";
 import { testCatalog, testRow, testTrait, traitTable } from "./test-support.js";
 
 /**
@@ -504,5 +505,160 @@ describe("run progress", () => {
 
     expect(source.getFacts().progress).toBeUndefined();
     expect(Object.keys(source)).not.toContain("setProgress");
+  });
+});
+describe("finishing a run when a write fails", () => {
+  /**
+   * The two records move together or not at all. Ending a run is the one edit
+   * that throws away what is in memory, so doing it before the write lands
+   * leaves the run in exactly one place — the record the next tap overwrites.
+   */
+  function storeFailing(slot: RunSlot | null): RunStore & { failOn: RunSlot | null } {
+    const inner = createMemoryStore();
+    const store = {
+      failOn: slot,
+      load: inner.load.bind(inner),
+      clear: inner.clear.bind(inner),
+      save(game: GameId, target: RunSlot, run: Parameters<RunStore["save"]>[2]) {
+        if (target === store.failOn) return Promise.reject(new Error("quota exceeded"));
+        return inner.save(game, target, run);
+      },
+    };
+    return store;
+  }
+
+  it("keeps the run when the finished record cannot be written", async () => {
+    const store = storeFailing("last");
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.flush();
+
+    await expect(source.finishRun()).rejects.toThrow(/quota/);
+
+    // Still the run that was being played, in memory and in storage. Cleared
+    // here, the only surviving copy would be the `active` record, and the very
+    // next tap would write the empty run over it.
+    expect(source.getFacts().held.has("HeraAttack")).toBe(true);
+    expect(await store.load("hades2", "last")).toBeNull();
+    expect((await store.load("hades2", "active"))?.facts.held).toHaveLength(1);
+  });
+
+  it("does not lose the run to the next tap after a failed finish", async () => {
+    const store = storeFailing("last");
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.flush();
+    await source.finishRun().catch(() => undefined);
+
+    source.mark("HeraSpecial");
+    await source.flush();
+
+    const active = await store.load("hades2", "active");
+    expect(active?.facts.held.map(([trait]) => trait).sort()).toEqual(["HeraAttack", "HeraSpecial"]);
+  });
+
+  it("keeps the run in memory when only the fresh record fails, so a retry finishes it", async () => {
+    // Set after the run is under way, so the failure lands on the second of
+    // the two writes rather than on the ordinary saves before it.
+    const store = storeFailing(null);
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.flush();
+
+    store.failOn = "active";
+    await expect(source.finishRun()).rejects.toThrow(/quota/);
+    expect(source.getFacts().held.has("HeraAttack")).toBe(true);
+
+    store.failOn = null;
+    await source.finishRun();
+
+    expect(source.getFacts().held.size).toBe(0);
+    expect((await store.load("hades2", "last"))?.facts.held).toHaveLength(1);
+    expect((await store.load("hades2", "active"))?.facts.held).toHaveLength(0);
+  });
+
+  it("reports the failure the same way an ordinary write does", async () => {
+    const store = storeFailing("last");
+    const source = await open(store);
+
+    await expect(source.finishRun()).rejects.toThrow(/quota/);
+    expect(source.storageError?.message).toMatch(/quota/);
+  });
+});
+
+describe("a stored run this build cannot read", () => {
+  /**
+   * Refusing to decode is right; refusing to *start* is not. The record is not
+   * cleared by anything, so a decoder that throws on the way in throws again on
+   * every load after it, for as long as the record exists — the player's way
+   * out is clearing site data, which destroys both runs. The store version has
+   * no upgrade path yet and the first bump is the obvious way in, but a
+   * truncated record gets there today.
+   */
+  async function storeHolding(record: unknown): Promise<RunStore> {
+    const store = createMemoryStore();
+    await store.save("hades2", "active", record as Parameters<RunStore["save"]>[2]);
+    return store;
+  }
+
+  async function unreadableRecord(): Promise<RunStore> {
+    const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
+    record.storeVersion = STORE_VERSION + 1;
+    return storeHolding(record);
+  }
+
+  it("starts a fresh run instead of refusing to open", async () => {
+    const source = await open(await unreadableRecord());
+
+    expect(source.getFacts().held.size).toBe(0);
+    expect(source.unreadableRun?.message).toMatch(/store version/);
+  });
+
+  it("sets the record aside rather than writing over it", async () => {
+    const store = await unreadableRecord();
+
+    await open(store);
+
+    // Kept, in full and unread. Whatever a later build can make of it, this one
+    // must not be the reason it stopped existing.
+    expect(await store.load("hades2", "unreadable")).not.toBeNull();
+  });
+
+  it("does the same for a record that fails any other decoder check", async () => {
+    const source = await open(await storeHolding({ storeVersion: STORE_VERSION }));
+
+    expect(source.unreadableRun?.message).toMatch(/facts or intent/);
+  });
+
+  it("keeps going once the fresh run is under way", async () => {
+    const store = await unreadableRecord();
+    const source = await open(store);
+
+    source.mark("HeraAttack");
+    await source.flush();
+    const reopened = await open(store);
+
+    expect(reopened.getFacts().held.has("HeraAttack")).toBe(true);
+    expect(reopened.unreadableRun).toBeNull();
+  });
+
+  it("refuses to start when the record it cannot read also cannot be preserved", async () => {
+    const inner = await unreadableRecord();
+    const store: RunStore = {
+      load: inner.load.bind(inner),
+      clear: inner.clear.bind(inner),
+      save: (game, slot, run) =>
+        slot === "unreadable"
+          ? Promise.reject(new Error("quota exceeded"))
+          : inner.save(game, slot, run),
+    };
+
+    // Starting fresh over a record that could not be copied is the loss this
+    // whole path exists to avoid, so the failure is the honest answer.
+    await expect(open(store)).rejects.toThrow(/quota/);
+  });
+
+  it("reports nothing on an ordinary load", async () => {
+    expect((await open(createMemoryStore())).unreadableRun).toBeNull();
   });
 });
