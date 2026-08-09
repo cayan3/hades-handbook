@@ -144,6 +144,32 @@ describe("a second tab opening", () => {
   });
 });
 
+describe("a message that is not a heartbeat", () => {
+  /**
+   * The channel arrives as a parameter, so this file doesn't own the name it
+   * was opened under and can't assume that it's the only thing talking on it.
+   * The `kind` tag is everything that separates a tab from anything else the
+   * app might broadcast later; without it, one unrelated message carrying a
+   * string field registers a tab that erm doesn't exist rip, and the user is
+   * told to close a window they don't actually have open lol.
+   */
+  it("registers no company", () => {
+    const bus = new Bus();
+    const clock = new Clock();
+    const only = tab(bus, clock, "a");
+    const stranger = bus.open();
+
+    stranger.postMessage({ tabId: "b" });
+    stranger.postMessage({ kind: "something/else", tabId: "b" });
+    stranger.postMessage({ kind: "hades-handbook/tab" });
+    stranger.postMessage({ kind: "hades-handbook/tab", tabId: 7 });
+    stranger.postMessage("hello");
+    stranger.postMessage(null);
+
+    expect(only.otherTabOpen).toBe(false);
+  });
+});
+
 describe("a tab that goes away", () => {
   /**
    * Presence has to expire, or a tab that was closed would leave a warning
