@@ -27,11 +27,16 @@ import { DB_NAME, DB_VERSION, STORE_NAME } from "./store.js";
  */
 class FakeIdb implements IdbFactoryLike {
   readonly records = new Map<string, string>();
+  readonly live: IdbDatabaseLike[] = [];
   opens = 0;
   upgrades = 0;
+  closes = 0;
   lastMode: string | null = null;
   failNextRequest = false;
   failOpen = false;
+  blockNextOpen = false;
+  /** Set to make opening a transaction throw, the way a dead connection does. */
+  breakNextTransaction = false;
 
   private stores = new Set<string>();
 
@@ -43,11 +48,18 @@ class FakeIdb implements IdbFactoryLike {
       onsuccess: null,
       onerror: null,
       onupgradeneeded: null,
+      onblocked: null,
     };
+    const blocked = this.blockNextOpen;
+    this.blockNextOpen = false;
     void Promise.resolve().then(() => {
       if (this.failOpen) {
         request.error = new Error(`refused to open ${name} v${String(version)}`);
         request.onerror?.();
+        return;
+      }
+      if (blocked) {
+        request.onblocked?.();
         return;
       }
       if (!this.stores.has(STORE_NAME)) {
@@ -59,19 +71,36 @@ class FakeIdb implements IdbFactoryLike {
     return request;
   }
 
+  /** Fires `versionchange` on every connection, the way an upgrade elsewhere does. */
+  requestVersionChange(): void {
+    for (const db of this.live) db.onversionchange?.();
+  }
+
   private database(): IdbDatabaseLike {
-    return {
+    const db: IdbDatabaseLike = {
       objectStoreNames: { contains: (name: string) => this.stores.has(name) },
       createObjectStore: (name: string) => {
         this.stores.add(name);
         return null;
       },
       transaction: (name: string, mode: "readonly" | "readwrite") => {
+        if (this.breakNextTransaction) {
+          this.breakNextTransaction = false;
+          throw new Error("the connection is closing");
+        }
         this.lastMode = mode;
         if (name !== STORE_NAME) throw new Error(`no object store "${name}"`);
         return { objectStore: () => this.objectStore() };
       },
+      close: () => {
+        this.closes++;
+        const at = this.live.indexOf(db);
+        if (at >= 0) this.live.splice(at, 1);
+      },
+      onversionchange: null,
     };
+    this.live.push(db);
+    return db;
   }
 
   private objectStore(): IdbObjectStoreLike {
@@ -209,6 +238,68 @@ describe("the IndexedDB store", () => {
    * for the life of the page, so the failed open is dropped and the next call
    * tries again.
    */
+  /**
+   * The store version and the database version move together, so a build that
+   * changes the persisted shape upgrades the database — and a tab left open on
+   * the old build holds that upgrade back for as long as it keeps its
+   * connection. IndexedDB gives the waiting tab no error for this, so the two
+   * pages sit there over a database neither is using. Yielding is what a page
+   * that expects a second tab has to do, and this package expects one hard
+   * enough to ship a warning about it.
+   */
+  it("closes its connection when something else needs a new version", async () => {
+    const idb = new FakeIdb();
+    const store = createIdbStore(idb);
+    await store.save("hades2", "active", RUN);
+
+    idb.requestVersionChange();
+
+    expect(idb.closes).toBe(1);
+  });
+
+  it("opens again for the next call after yielding", async () => {
+    const idb = new FakeIdb();
+    const store = createIdbStore(idb);
+    await store.save("hades2", "active", RUN);
+    idb.requestVersionChange();
+
+    expect(await store.load("hades2", "active")).toEqual(RUN);
+    expect(idb.opens).toBe(2);
+  });
+
+  /**
+   * The mirror image: somebody else is holding the old version open and this
+   * request is the one waiting. Without a handler the wait never ends and never
+   * errors, which reads to a user as a page that simply does not load.
+   */
+  it("reports a blocked open rather than waiting forever", async () => {
+    const idb = new FakeIdb();
+    idb.blockNextOpen = true;
+    const store = createIdbStore(idb);
+
+    await expect(store.load("hades2", "active")).rejects.toThrow(/holding .* open/);
+
+    // And recovers, once whoever was in the way has gone.
+    expect(await store.load("hades2", "active")).toBeNull();
+  });
+
+  /**
+   * A connection can stop working without this code being told. Cached, the
+   * dead one would be handed back for the life of the page, so one evicted
+   * database would end storage until the tab was reloaded.
+   */
+  it("drops a connection that has stopped working, so the next call opens a new one", async () => {
+    const idb = new FakeIdb();
+    const store = createIdbStore(idb);
+    await store.save("hades2", "active", RUN);
+    idb.breakNextTransaction = true;
+
+    await expect(store.load("hades2", "active")).rejects.toThrow(/closing/);
+
+    expect(await store.load("hades2", "active")).toEqual(RUN);
+    expect(idb.opens).toBe(2);
+  });
+
   it("retries the open after a failure instead of caching it", async () => {
     const idb = new FakeIdb();
     idb.failOpen = true;

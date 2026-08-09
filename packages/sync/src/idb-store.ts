@@ -31,12 +31,17 @@ export interface IdbRequestLike<T> {
 
 export interface IdbOpenRequestLike extends IdbRequestLike<IdbDatabaseLike> {
   onupgradeneeded: (() => void) | null;
+  /** Fired when an older connection elsewhere is holding this open back. */
+  onblocked: (() => void) | null;
 }
 
 export interface IdbDatabaseLike {
   objectStoreNames: { contains(name: string): boolean };
   createObjectStore(name: string): unknown;
   transaction(name: string, mode: "readonly" | "readwrite"): IdbTransactionLike;
+  close(): void;
+  /** Fired when something else wants to open this database at a new version. */
+  onversionchange: (() => void) | null;
 }
 
 export interface IdbTransactionLike {
@@ -75,9 +80,10 @@ function asError(cause: unknown): Error {
  * A store backed by IndexedDB.
  *
  * The database is opened once and the promise is kept, so concurrent saves
- * share one connection rather than racing to create it. The connection is never
- * closed: this store lives as long as the page does, and closing it between
- * writes would trade a real cost for nothing.
+ * share one connection rather than racing to create it. It stays open for the
+ * life of the page, because closing it between writes would trade a real cost
+ * for nothing — but it yields the moment something else needs the database at
+ * a different version, which is not the same thing as never closing.
  *
  * Origin-shared, which is what makes the multi-tab warning necessary — two tabs
  * writing here is last-write-wins and neither of them is told.
@@ -89,14 +95,53 @@ export function createIdbStore(factory: IdbFactoryLike): RunStore {
     if (opened !== null) return opened;
     opened = new Promise<IdbDatabaseLike>((resolve, reject) => {
       const request = factory.open(DB_NAME, DB_VERSION);
+      let settled = false;
+
       request.onupgradeneeded = () => {
         const db = request.result;
         if (!db.objectStoreNames.contains(STORE_NAME)) db.createObjectStore(STORE_NAME);
       };
-      request.onsuccess = () => {
-        resolve(request.result);
+
+      /**
+       * Something else is holding an older connection open and this request is
+       * waiting on it. Left alone the wait has no end and no error — the page
+       * simply never finishes loading its run — so it is reported as a failure
+       * the caller can act on. Dropping the cached promise means the next call
+       * tries again, which is what makes this recoverable once the other tab
+       * goes away.
+       */
+      request.onblocked = () => {
+        if (settled) return;
+        settled = true;
+        reject(new Error(`another tab is holding ${DB_NAME} open at an older version`));
       };
+
+      request.onsuccess = () => {
+        const db = request.result;
+        if (settled) {
+          // Blocked, then unblocked: this promise already failed, so hand the
+          // connection back rather than leaving it open with no owner.
+          db.close();
+          return;
+        }
+        settled = true;
+        /**
+         * Yield to whoever wants the new version. A connection kept open past
+         * a version change blocks that other tab indefinitely — it gets no
+         * error either, so the two pages deadlock over a database neither is
+         * using. The store version and the database version move together
+         * here, so this fires on exactly the upgrade a new build performs.
+         */
+        db.onversionchange = () => {
+          db.close();
+          opened = null;
+        };
+        resolve(db);
+      };
+
       request.onerror = () => {
+        if (settled) return;
+        settled = true;
         reject(asError(request.error));
       };
     });
@@ -117,7 +162,22 @@ export function createIdbStore(factory: IdbFactoryLike): RunStore {
     body: (store: IdbObjectStoreLike) => IdbRequestLike<T>,
   ): Promise<T> {
     const db = await open();
-    return settle(body(db.transaction(STORE_NAME, mode).objectStore(STORE_NAME)));
+    let store: IdbObjectStoreLike;
+    try {
+      store = db.transaction(STORE_NAME, mode).objectStore(STORE_NAME);
+    } catch (cause) {
+      /**
+       * Opening a transaction is the point at which a connection that has
+       * stopped working says so. A browser can close one without asking —
+       * storage evicted, the database deleted from another tab — and the
+       * cached promise would go on handing back the dead one for the life of
+       * the page, turning a passing problem into a permanent one. Dropped
+       * here for the same reason a failed open is not remembered.
+       */
+      opened = null;
+      throw asError(cause);
+    }
+    return settle(body(store));
   }
 
   return {
