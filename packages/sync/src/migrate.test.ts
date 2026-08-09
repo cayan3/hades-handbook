@@ -53,6 +53,8 @@ describe("a run whose every id survives the update", () => {
     state.facts.godPool.add("Hera");
     state.facts.slots.set("Melee", "HeraAttack");
     state.facts.equipped.keepsake = "ForceHeraBoonKeepsake";
+    state.facts.elements.set("Fire", 3);
+    state.facts.elements.set("Water", 1);
     state.intent.pins.add("ZeusAttack");
 
     const outcome = migrate(state, catalog);
@@ -64,6 +66,28 @@ describe("a run whose every id survives the update", () => {
     expect(outcome.state.facts.held.get("HeraAttack")).toEqual({ rarity: "Epic", level: 3 });
     expect(outcome.state.facts.slots.get("Melee")).toBe("HeraAttack");
     expect(outcome.state.intent.pins.has("ZeusAttack")).toBe(true);
+  });
+
+  /**
+   * Elements are the one field with no table to check them against, so they're
+   * also the one field where losing everything produces no quarantine entry,
+   * no notice, and no dangling id (e.g. a run that reads as a clean migration
+   * and is short every element it had counted). There isn't any second guard
+   * here like there is for a trait, which is why the carry-through is asserted
+   * on its own instead of just being left to the sweep above.
+   */
+  it("carries the element counts, which nothing else in the pass would notice", () => {
+    const state = oldRun();
+    state.facts.elements.set("Fire", 3);
+    state.facts.elements.set("Earth", 2);
+
+    const outcome = migrate(state, currentCatalog());
+
+    expect([...outcome.state.facts.elements].sort()).toEqual([
+      ["Earth", 2],
+      ["Fire", 3],
+    ]);
+    expect(outcome.quarantine).toEqual([]);
   });
 });
 
@@ -276,6 +300,25 @@ describe("Mirror talents", () => {
 
     expect(outcome.state.facts.equipped.talents).toBeUndefined();
     expect(outcome.quarantine).toHaveLength(1);
+  });
+
+  /**
+   * The other half of the same rule, and the one that runs the other way. A map
+   * that arrived empty already *was* the answer "asked, and none selected", and
+   * this pass did nothing to it, so deleting it would be the migration turning
+   * a real answer back into "nobody asked" (silently and with nothing
+   * quarantined to say so). The codec beside this keeps the distinction; the
+   * scan has to keep it too, or one reload would undo what the other preserved.
+   */
+  it("keeps a map that arrived empty, having taken nothing out of it", () => {
+    const state = oldRun();
+    state.facts.equipped.talents = new Map();
+
+    const outcome = migrate(state, currentCatalog());
+
+    expect(outcome.state.facts.equipped.talents).toBeDefined();
+    expect(outcome.state.facts.equipped.talents?.size).toBe(0);
+    expect(outcome.quarantine).toEqual([]);
   });
 });
 

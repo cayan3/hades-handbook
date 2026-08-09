@@ -169,6 +169,12 @@ function scanFacts(
    * is selected, which makes every talent-gated trait impossible for the run,
    * and that's not something a migration is entitled to conclude on the
    * player's behalf.
+   *
+   * Which cuts both ways, and the second way is easy to miss. A map that
+   * arrived empty already carried that answer, and this pass took nothing out
+   * of it. Deleting it would turn a real "none selected" back into "nobody
+   * asked", with no entry quarantined to say a thing had changed. So the test
+   * is whether the scan is what emptied it, not whether it's empty now.
    */
   if (facts.equipped.talents !== undefined) {
     const talents = new Map(facts.equipped.talents);
@@ -177,7 +183,8 @@ function scanFacts(
       quarantine.push({ path: "talents", key: talent, value: selection });
       talents.delete(talent);
     }
-    if (talents.size > 0) equipped.talents = talents;
+    const emptiedHere = talents.size === 0 && facts.equipped.talents.size > 0;
+    if (!emptiedHere) equipped.talents = talents;
   }
 
   return {
