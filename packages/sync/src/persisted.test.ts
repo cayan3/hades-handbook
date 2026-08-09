@@ -93,4 +93,35 @@ describe("a record this build cannot read", () => {
 
     expect(() => fromPersisted(record)).toThrow(/unknown game/);
   });
+
+  /**
+   * The quarantine is the one field here whose whole purpose is to be read back
+   * later, by something that will put the values where they came from. Handing
+   * it through unchecked is the one place this decoder would repair by
+   * omission: an entry with a path nothing recognises survives every reload,
+   * counts toward the notice, and cannot be restored by anybody.
+   */
+  it("is refused when the quarantine is not a list of entries", () => {
+    const withQuarantine = (quarantine: unknown) => {
+      const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
+      return { ...record, quarantine } as never;
+    };
+
+    expect(() => fromPersisted(withQuarantine({}))).toThrow(/quarantine/);
+    expect(() => fromPersisted(withQuarantine([null]))).toThrow(/quarantine/);
+    expect(() => fromPersisted(withQuarantine([{ path: "nowhere", key: "x" }]))).toThrow(
+      /quarantine/,
+    );
+    expect(() => fromPersisted(withQuarantine([{ path: "held" }]))).toThrow(/quarantine/);
+    expect(() => fromPersisted(withQuarantine([{ path: "held", key: 7 }]))).toThrow(/quarantine/);
+  });
+
+  it("reads a record that carries no quarantine at all", () => {
+    const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
+    const { quarantine: _dropped, ...withoutIt } = record;
+
+    // Absent is a shape this build can read — an empty one. Present and wrong
+    // is not, which is the distinction above.
+    expect(fromPersisted(withoutIt).quarantine).toEqual([]);
+  });
 });

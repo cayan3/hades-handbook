@@ -118,6 +118,51 @@ export function toPersisted(run: StoredRun): PersistedRun {
   };
 }
 
+const QUARANTINE_PATHS: ReadonlySet<string> = new Set([
+  "held",
+  "godPool",
+  "slots",
+  "bans",
+  "equipped",
+  "talents",
+  "pins",
+  "planned",
+  "notes",
+]);
+
+/**
+ * Checks the entries an earlier load set aside, which is the one field in the
+ * record that exists to be read by something else later.
+ *
+ * Waved through, it is where this decoder would repair by omission. An entry
+ * naming a path nothing recognises survives every reload, counts toward the
+ * notice the user is shown, and can be restored by nobody — which is the shape
+ * of the failure quarantine exists to prevent, reproduced inside quarantine
+ * itself. Only the path and the key are checked: they are what says where a
+ * value goes back, and a wrong one is unrecoverable in a way a malformed value
+ * beside a good path is not.
+ *
+ * Absent is allowed and means none. That is a shape this build can read; a
+ * present one of the wrong shape is not, and the two get different answers.
+ */
+function readQuarantine(raw: unknown): QuarantinedEntry[] {
+  if (raw === undefined) return [];
+  if (!Array.isArray(raw)) throw new Error("stored quarantine is not a list");
+  for (const entry of raw as unknown[]) {
+    if (typeof entry !== "object" || entry === null) {
+      throw new Error("stored quarantine holds an entry that is not an object");
+    }
+    const { path, key } = entry as { path?: unknown; key?: unknown };
+    if (typeof path !== "string" || !QUARANTINE_PATHS.has(path)) {
+      throw new Error(`stored quarantine names an unknown path: ${String(path)}`);
+    }
+    if (typeof key !== "string") {
+      throw new Error(`stored quarantine holds a ${path} entry with no id`);
+    }
+  }
+  return raw as QuarantinedEntry[];
+}
+
 /**
  * Turns a stored record back into a run, or refuses.
  *
@@ -174,7 +219,7 @@ export function fromPersisted(record: unknown): StoredRun {
         notes: new Map(intent.notes),
       },
     },
-    quarantine: raw.quarantine ?? [],
+    quarantine: readQuarantine(raw.quarantine),
   };
 }
 
