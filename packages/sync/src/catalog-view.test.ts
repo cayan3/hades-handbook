@@ -1,5 +1,5 @@
 import { dataFor, poolGods, traitsFor } from "@repo/catalog";
-import type { GameId } from "@repo/core";
+import type { GameId, Requirement } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import { shippedCatalog } from "./catalog-view.js";
 
@@ -70,6 +70,91 @@ describe("the two god id spaces", () => {
         .flatMap((record) => [record.god, ...(record.duoGods ?? [])])
         .filter((god): god is string => god !== null && !gods.has(god));
       expect(missing).toEqual([]);
+    }
+  });
+
+  /**
+   * The test above can't fail on this data, which is worth actually noting down
+   * instead of having to discover it again later.
+   *
+   * Every god named in a `duoGods` list is already named by some record's own
+   * `god` or by the god table (8 duo gods in Hades I and 9 in Hades II, all
+   * of them reachable by some other way too). So the walk that collects them is
+   * redundant today, and dropping it wouldn't actually change anything that
+   * the assertion can see.
+   *
+   * The walk stays bc even though a duo whose second god grants no boons of
+   * their own isn't something a patch would add (a duo's prerequisite is
+   * holding boons from both gods; all 28 Hades I and 37 Hades II duo records
+   * match this, so a duo naming a god with no boons could never be obtained),
+   * there could be a extraction fault. A god drops out of the record-attributed
+   * set when their records are misattributed, which this repo has already seen
+   * (e.g. two Demeter records carried Zeus until the overlay corrected them).
+   * The game was unchanged and the god was real, and the duo list is a second
+   * route to the name while that lasts. This is the assertion that makes that
+   * visible; when it fails, the branch has become load-bearing and the failure
+   * says so, instead of the first symptom being a real god quarantined out of
+   * somebody's pool.
+   */
+  it("names every duo god by some other route as well, for now", () => {
+    for (const game of GAMES) {
+      const records = Object.values(traitsFor(game));
+      const otherwise = new Set<string>(Object.keys(dataFor(game).gods as Record<string, unknown>));
+      for (const record of records) if (record.god !== null) otherwise.add(record.god);
+
+      const duoGods = new Set(records.flatMap((record) => record.duoGods ?? []));
+      expect(duoGods.size).toBeGreaterThan(0);
+      expect([...duoGods].filter((god) => !otherwise.has(god))).toEqual([]);
+    }
+  });
+
+  /**
+   * This is the same shape one level down. `collectNames` recurses through
+   * `anyOf` instead of matching the shapes the data happens to use so that a
+   * gate nested deeper than expected still yields its identifier. This has
+   * actually been measured: 110 `anyOf` nodes in Hades I and 141 in Hades II,
+   * and every god under one is named elsewhere while no talent sits under one
+   * at all. This means the recursion is unobservable on this data, and this
+   * records that instead of leaving the next reader (hiii) to just like wonder
+   * whether it's tested or not lol.
+   */
+  it("finds no identifier that only an anyOf branch reaches, for now", () => {
+    for (const game of GAMES) {
+      const under = { anyOf: 0, only: [] as string[] };
+      const reachable = new Set<string>();
+      const beneath = new Set<string>();
+
+      const walk = (req: Requirement, inAnyOf: boolean): void => {
+        switch (req.kind) {
+          case "anyOf":
+            under.anyOf++;
+            for (const child of req.of) walk(child, true);
+            return;
+          case "all":
+            for (const child of req.of) walk(child, inAnyOf);
+            return;
+          case "hasTalent":
+            (inAnyOf ? beneath : reachable).add(req.talent);
+            return;
+          case "hasBoonFrom":
+          case "godInPool":
+            (inAnyOf ? beneath : reachable).add(req.god);
+            return;
+          default:
+            return;
+        }
+      };
+
+      for (const record of Object.values(traitsFor(game))) {
+        if (record.god !== null) reachable.add(record.god);
+        for (const god of record.duoGods ?? []) reachable.add(god);
+        if (record.prereq !== null) walk(record.prereq, false);
+        if (record.activation !== null) walk(record.activation, false);
+      }
+      for (const name of beneath) if (!reachable.has(name)) under.only.push(name);
+
+      expect(under.anyOf).toBeGreaterThan(0);
+      expect(under.only).toEqual([]);
     }
   });
 
