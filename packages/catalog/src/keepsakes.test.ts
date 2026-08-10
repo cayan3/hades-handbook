@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { type GameKey, dataFor } from "./data.js";
-import { forcingKeepsakes } from "./keepsakes.js";
+import { forcingKeepsakes, keepsakesFor } from "./keepsakes.js";
 import { createLookups } from "./lookups.js";
 import type { GodRecord, KeepsakeRecord } from "./schema.js";
 
@@ -77,5 +77,17 @@ describe.each(GAMES)("%s forcing keepsakes", (game) => {
 
   it("hands back the same map every call", () => {
     expect(forcingKeepsakes(game)).toBe(forcing);
+  });
+
+  it("gives every forcing keepsake a display name to put in the copy", () => {
+    // The full-pool verdict names the keepsake to equip, so a record without a
+    // name would leave that sentence pointing at nothing. Asserted over the
+    // shipped data rather than assumed: the text bundle is missing for plenty
+    // of records in both games, and these are the eight and nine it cannot be
+    // missing for.
+    const records = keepsakesFor(game);
+    for (const keepsake of forcing.keys()) {
+      expect(records[keepsake]?.name).toEqual(expect.any(String));
+    }
   });
 });

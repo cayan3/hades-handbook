@@ -68,3 +68,18 @@ const FORCING: Readonly<Record<GameKey, ReadonlyMap<KeepsakeId, GodId>>> = Objec
 export function forcingKeepsakes(game: GameKey): ReadonlyMap<KeepsakeId, GodId> {
   return FORCING[game];
 }
+
+/**
+ * The keepsake records, typed. `dataFor` hands the extraction back as `unknown`,
+ * so without this every caller writes the same cast, and a cast in four places
+ * is four places to get it wrong. Mirrors `traitsFor` minus the overlay, which
+ * has no keepsake entries to fold in.
+ *
+ * The one caller today is the copy on a full-pool verdict, naming the keepsake
+ * that would still pull the absent god in — looked up in the keepsake space on
+ * purpose, since in Hades II all 35 keepsakes are *also* trait records under the
+ * same id, while in Hades I the two spaces share nothing.
+ */
+export function keepsakesFor(game: GameKey): Readonly<Record<KeepsakeId, KeepsakeRecord>> {
+  return dataFor(game).keepsakes as Readonly<Record<KeepsakeId, KeepsakeRecord>>;
+}
