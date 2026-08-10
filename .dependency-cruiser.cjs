@@ -72,6 +72,21 @@ module.exports = {
       to: { path: "^tools/" },
     },
     {
+      name: "framework-stays-above-the-port",
+      severity: "error",
+      comment:
+        "Only the components package and the app may import the rendering " +
+        "framework. The rules above say which repo packages may import which; " +
+        "this one says the same thing about the one external dependency that " +
+        "would otherwise let rendering leak downward, since a flat " +
+        "node_modules makes react resolve just as happily from the domain " +
+        "package as from a component.",
+      from: {
+        path: "^packages/(core|catalog|rules-hades1|rules-hades2|sync)/",
+      },
+      to: { path: "(^|/)node_modules/react(-dom)?/" },
+    },
+    {
       name: "no-circular",
       severity: "error",
       comment: "A cycle means the layering above has been broken.",
@@ -84,8 +99,15 @@ module.exports = {
     // violation that imports only a type would be invisible.
     tsPreCompilationDeps: true,
     tsConfig: { fileName: "tsconfig.json" },
+    // Installed packages stay in the graph as leaves: followed no further, but
+    // still visible as the target of an import. Excluding them outright — which
+    // is the obvious setting and was the one here — drops the edge as well, and
+    // a rule written about an installed package then matches nothing and
+    // reports success. Measured: with node_modules excluded, a react import
+    // added to the domain package produced no violation and did not move the
+    // module count either.
     doNotFollow: { path: "node_modules" },
-    exclude: { path: "(^|/)(node_modules|dist)/" },
+    exclude: { path: "(^|/)dist/" },
     moduleSystems: ["es6", "cjs"],
   },
 };
