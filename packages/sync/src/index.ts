@@ -31,6 +31,9 @@ export { emptyOverlay, factKey, fieldKey, mergeFacts, overlayOf, overrideKeyOf }
 export type { OverrideLayer, OverrideLayerOptions } from "./override-layer.js";
 export { createOverrideLayer } from "./override-layer.js";
 
+export type { RunSession } from "./run-session.js";
+export { openRunSession } from "./run-session.js";
+
 export type { PersistedRun, StoredRun } from "./persisted.js";
 export { STORE_VERSION, emptyRun, fromPersisted, toPersisted } from "./persisted.js";
 
