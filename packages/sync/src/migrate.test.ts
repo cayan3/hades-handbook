@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { migrate } from "./migrate.js";
+import { migrate, scanOverrides } from "./migrate.js";
 import { runOn, testCatalog, testRow, testTrait, traitTable } from "./test-support.js";
 
 /**
@@ -412,5 +412,82 @@ describe("a run belonging to the other game", () => {
 
     expect(() => migrate(state, currentCatalog())).toThrow(/hades1.*hades2/s);
     expect(state.facts.held.size).toBe(1);
+  });
+});
+
+/**
+ * Overrides are stored state naming catalog ids, so the rule that no
+ * unidentifiable id reaches evaluation covers them (and covers them more
+ * urgently than it covers the facts bc the overlay is laid back over the
+ * facts *after* the pass that cleaned them). A renamed trait quarantined out of
+ * `held` and left standing in an override is put straight back by the merge,
+ * in the one place nothing was looking.
+ */
+describe("the fields the user was holding by hand", () => {
+  it("keeps the ones the catalog still names", () => {
+    const scan = scanOverrides(
+      [
+        { path: "held", key: "HeraAttack", value: null },
+        { path: "godPool", god: "Zeus", present: true },
+        { path: "slots", slot: "Melee", value: "ZeusAttack" },
+        { path: "bans", trait: "HeraAttack", present: true },
+        { path: "talents", talent: "AmmoMetaUpgrade", selection: "selected" },
+        { path: "equipped", field: "keepsake", value: "ForceHeraBoonKeepsake" },
+      ],
+      currentCatalog(),
+    );
+
+    expect(scan.overrides).toHaveLength(6);
+    expect(scan.quarantine).toEqual([]);
+  });
+
+  /**
+   * Quarantined whole where a fact of the same shape is sometimes repaired: a
+   * slot whose occupant has gone keeps the slot and is emptied bc the
+   * run still has that slot. Half an override isn't a weaker statement about a
+   * field; it's just a different one, so the field goes back to the source
+   * instead.
+   */
+  it("sets aside the ones naming something that has gone, entry and all", () => {
+    const gone = { path: "held", key: "RenamedSinceBuild1", value: null } as const;
+
+    const scan = scanOverrides([gone, { path: "godPool", god: "Hera", present: true }], currentCatalog());
+
+    expect(scan.overrides).toEqual([{ path: "godPool", god: "Hera", present: true }]);
+    expect(scan.quarantine).toEqual([
+      { path: "overrides", key: "held:RenamedSinceBuild1", value: gone },
+    ]);
+  });
+
+  it("checks the occupant a slot override names, not only the slot", () => {
+    const scan = scanOverrides(
+      [
+        { path: "slots", slot: "Melee", value: "RenamedSinceBuild1" },
+        { path: "slots", slot: "Melee", value: null },
+        { path: "slots", slot: "Ranged", value: null },
+      ],
+      currentCatalog(),
+    );
+
+    expect(scan.overrides).toEqual([{ path: "slots", slot: "Melee", value: null }]);
+    expect(scan.quarantine).toHaveLength(2);
+  });
+
+  /**
+   * Unchecked here for the reasons the fact scan gives instead of new ones:
+   * there's no resource table or weapon table to check against, and an
+   * element is a closed set the type already fixes.
+   */
+  it("lets the fields no table can answer for through", () => {
+    const scan = scanOverrides(
+      [
+        { path: "resources", resource: "AnythingAtAll", value: 3 },
+        { path: "equipped", field: "weapon", value: "WeaponNobodyEmits" },
+        { path: "elements", element: "Fire", value: 1 },
+      ],
+      currentCatalog(),
+    );
+
+    expect(scan.quarantine).toEqual([]);
   });
 });

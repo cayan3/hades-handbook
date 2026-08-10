@@ -1,5 +1,6 @@
 import type { RunFacts, RunIntent, RunState, TraitId } from "@repo/core";
 import type { SyncCatalog } from "./catalog-view.js";
+import { type FactOverride, factKey } from "./overrides.js";
 import type { QuarantinedEntry } from "./quarantine.js";
 
 /** What a load did to a stored run before anything was allowed to evaluate it. */
@@ -87,6 +88,65 @@ export function migrate(
   if (restamped) facts.dataVersion = catalog.dataVersion;
 
   return { state: { facts, intent }, quarantine, restamped };
+}
+
+/** A stored overlay brought forward, and whatever it couldn't keep. */
+export interface OverrideScan {
+  overrides: readonly FactOverride[];
+  quarantine: readonly QuarantinedEntry[];
+}
+
+/**
+ * Scans the fields the user was holding by hand, on the same terms as the run
+ * itself.
+ *
+ * These are stored state naming catalog ids, so the rule that no unidentifiable
+ * id reaches evaluation covers them too, and covers them more urgently than it
+ * covers the facts bc an override is merged over the facts *after* the
+ * pass that cleans them. A renamed trait quarantined out of `held` and left
+ * standing in an override would be put straight back by the merge, in the one
+ * place nothing was actually looking.
+ *
+ * Unchecked here for the reasons the fact scan gives instead of for new ones:
+ * resources and the equipped weapon have no table to check against, and an
+ * element is a closed set the type already fixes.
+ */
+export function scanOverrides(
+  stored: Iterable<FactOverride>,
+  catalog: SyncCatalog,
+): OverrideScan {
+  const overrides: FactOverride[] = [];
+  const quarantine: QuarantinedEntry[] = [];
+
+  for (const o of stored) {
+    if (survives(o, catalog)) overrides.push(o);
+    else quarantine.push({ path: "overrides", key: factKey(o), value: o });
+  }
+
+  return { overrides, quarantine };
+}
+
+function survives(o: FactOverride, catalog: SyncCatalog): boolean {
+  switch (o.path) {
+    case "held":
+      return knownTrait(catalog, o.key);
+    case "bans":
+      return knownTrait(catalog, o.trait);
+    case "godPool":
+      return catalog.gods.has(o.god);
+    case "slots":
+      return catalog.slots.has(o.slot) && (o.value === null || knownTrait(catalog, o.value));
+    case "talents":
+      return catalog.talents.has(o.talent);
+    case "equipped":
+      if (o.value === null) return true;
+      if (o.field === "aspect") return knownTrait(catalog, o.value);
+      if (o.field === "keepsake") return catalog.keepsakes.has(o.value);
+      return true;
+    case "elements":
+    case "resources":
+      return true;
+  }
 }
 
 /**

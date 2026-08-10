@@ -74,6 +74,53 @@ describe("the absent-versus-empty distinction for talents", () => {
   });
 });
 
+describe("the fields the user is holding by hand", () => {
+  const overrides = [
+    { path: "held", key: "HeraAttack", value: null },
+    { path: "godPool", god: "Zeus", present: true },
+    { path: "slots", slot: "Melee", value: null },
+    { path: "elements", element: "Fire", value: 0 },
+    { path: "resources", resource: "Ash", value: 3 },
+    { path: "bans", trait: "ZeusAttack", present: false },
+    { path: "equipped", field: "keepsake", value: null },
+    { path: "talents", talent: "AmmoMetaUpgrade", selection: "notSelected" },
+  ] as const;
+
+  it("survives the round trip in the shape they went in", () => {
+    const state = emptyRun("hades2", "build-1");
+
+    const back = fromPersisted(
+      JSON.parse(JSON.stringify(toPersisted({ state, quarantine: [], overrides: [...overrides] }))),
+    );
+
+    expect(back.overrides).toEqual(overrides);
+  });
+
+  /**
+   * The route the store version does not have to move for: the field is
+   * optional and additive, so a record written before it existed reads back
+   * meaning exactly what it did — nothing held by hand.
+   */
+  it("are absent from a record that has none, and read back as none", () => {
+    const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
+
+    expect("overrides" in record).toBe(false);
+    expect(fromPersisted(JSON.parse(JSON.stringify(record))).overrides).toEqual([]);
+  });
+
+  it("keep a run readable by a build that never heard of them", () => {
+    const record = toPersisted({
+      state: emptyRun("hades2", "build-1"),
+      quarantine: [],
+      overrides: [...overrides],
+    });
+    const { overrides: _dropped, ...asAnOlderBuildWroteIt } = record;
+
+    expect(fromPersisted(asAnOlderBuildWroteIt).overrides).toEqual([]);
+    expect(fromPersisted(asAnOlderBuildWroteIt).state.facts.held.size).toBe(0);
+  });
+});
+
 describe("a record this build cannot read", () => {
   it("is refused when it comes from a newer store version", () => {
     const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
@@ -114,6 +161,42 @@ describe("a record this build cannot read", () => {
     );
     expect(() => fromPersisted(withQuarantine([{ path: "held" }]))).toThrow(/quarantine/);
     expect(() => fromPersisted(withQuarantine([{ path: "held", key: 7 }]))).toThrow(/quarantine/);
+  });
+
+  /**
+   * Held to a stricter standard than the quarantine beside it, and the
+   * difference is the reason: a quarantined value is set aside and handed to
+   * nobody, while an override's value is merged into the facts and read by
+   * evaluation. A count that came back a string would throw nowhere —
+   * evaluation is total — it would quietly answer a comparison wrong.
+   */
+  it("is refused when an override is not one", () => {
+    const withOverrides = (overrides: unknown) => {
+      const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
+      return { ...record, overrides } as never;
+    };
+
+    expect(() => fromPersisted(withOverrides({}))).toThrow(/overrides are not a list/);
+    expect(() => fromPersisted(withOverrides([null]))).toThrow(/not an object/);
+    expect(() => fromPersisted(withOverrides([{ path: "nowhere", key: "x" }]))).toThrow(
+      /unknown field/,
+    );
+    expect(() => fromPersisted(withOverrides([{ path: "held", value: null }]))).toThrow(/no key/);
+    expect(() => fromPersisted(withOverrides([{ path: "elements", element: "Fire" }]))).toThrow(
+      /wrong shape/,
+    );
+    expect(
+      () => fromPersisted(withOverrides([{ path: "elements", element: "Fire", value: "2" }])),
+    ).toThrow(/wrong shape/);
+    expect(() => fromPersisted(withOverrides([{ path: "godPool", god: "Hera" }]))).toThrow(
+      /whether the god is in/,
+    );
+    expect(
+      () => fromPersisted(withOverrides([{ path: "equipped", field: "hat", value: null }])),
+    ).toThrow(/field of the equipped kit/);
+    expect(
+      () => fromPersisted(withOverrides([{ path: "talents", talent: "A", selection: "maybe" }])),
+    ).toThrow(/neither answer nor absence/);
   });
 
   it("reads a record that carries no quarantine at all", () => {

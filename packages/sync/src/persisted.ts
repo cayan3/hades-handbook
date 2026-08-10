@@ -11,6 +11,7 @@ import type {
   TalentSelection,
   TraitId,
 } from "@repo/core";
+import type { FactOverride } from "./overrides.js";
 import type { QuarantinedEntry } from "./quarantine.js";
 
 /**
@@ -73,6 +74,17 @@ export interface PersistedRun {
    * Without this, correcting an unrelated mis-tap deleted them.
    */
   godsRewardedWithoutBoon?: GodId[];
+  /**
+   * The fields the user is holding by hand, so that planning survives a reload
+   * the way the run itself does.
+   *
+   * Kept beside the facts rather than inside them, which is the split the whole
+   * layer rests on: these are not things that happened, they are things the
+   * user is trying out over what happened, and merging the two here would lose
+   * the only record of which is which. Handed back untouched by whoever loads
+   * the run — nothing on this side reads an override or knows what one means.
+   */
+  overrides?: FactOverride[];
 }
 
 /** A notice that has outlived the load that raised it. */
@@ -109,16 +121,17 @@ interface PersistedIntent {
 /**
  * A run and the bookkeeping that travels with it.
  *
- * The last two are optional so that a caller building a record by hand — every
- * test here, and the fresh run a load starts — says only what it means. Absent
- * reads back as "nothing owed" and "no such god", which is what an older record
- * written before these existed also means.
+ * The last three are optional so that a caller building a record by hand —
+ * every test here, and the fresh run a load starts — says only what it means.
+ * Absent reads back as "nothing owed", "no such god" and "nothing held by
+ * hand", which is what an older record written before these existed also means.
  */
 export interface StoredRun {
   state: RunState;
   quarantine: readonly QuarantinedEntry[];
   pendingNotice?: PersistedNotice | null;
   rewardedWithoutBoon?: ReadonlySet<GodId>;
+  overrides?: readonly FactOverride[];
 }
 
 export function toPersisted(run: StoredRun): PersistedRun {
@@ -156,12 +169,17 @@ export function toPersisted(run: StoredRun): PersistedRun {
       notes: [...intent.notes],
     },
     quarantine: [...run.quarantine],
-    // Both written only when they carry something, so an ordinary run's record
-    // looks exactly as it did before either existed.
+    // All three are written only when they carry something, so an ordinary
+    // run's record looks exactly as it did before any of them existed — which
+    // is the same thing that lets a record written by an older build be read
+    // here without a store version between them.
     ...(run.pendingNotice == null ? {} : { pendingNotice: run.pendingNotice }),
     ...(run.rewardedWithoutBoon === undefined || run.rewardedWithoutBoon.size === 0
       ? {}
       : { godsRewardedWithoutBoon: [...run.rewardedWithoutBoon] }),
+    ...(run.overrides === undefined || run.overrides.length === 0
+      ? {}
+      : { overrides: [...run.overrides] }),
   };
 }
 
@@ -175,6 +193,7 @@ const QUARANTINE_PATHS: ReadonlySet<string> = new Set([
   "pins",
   "planned",
   "notes",
+  "overrides",
 ]);
 
 /**
@@ -226,6 +245,87 @@ function readNotice(raw: unknown): PersistedNotice | null {
     throw new Error("stored notice does not say which build the run was played on");
   }
   return { playedOn, entries: readQuarantine(entries) };
+}
+
+/**
+ * Checks the fields the user is holding by hand.
+ *
+ * Held to a stricter standard than the quarantine beside it, and the difference
+ * is the whole reason: a quarantined value is set aside and handed to nobody,
+ * while an override's value is merged into the facts and read by evaluation on
+ * the next frame. A count that came back a string would not throw anywhere —
+ * evaluation is total — it would quietly answer a comparison wrong, which is
+ * the failure that costs a session to find. So the value is checked here, where
+ * the record is still a record, rather than trusted at the point where being
+ * wrong is invisible.
+ *
+ * Absent means none, on the same terms as the quarantine: it is a shape this
+ * build can read, and it is what every record written before overrides existed
+ * says.
+ */
+function readOverrides(raw: unknown): FactOverride[] {
+  if (raw === undefined) return [];
+  if (!Array.isArray(raw)) throw new Error("stored overrides are not a list");
+
+  for (const entry of raw as unknown[]) {
+    if (typeof entry !== "object" || entry === null) {
+      throw new Error("stored overrides hold an entry that is not an object");
+    }
+    const o = entry as Record<string, unknown>;
+    const refuse = (why: string): never => {
+      throw new Error(`stored override ${String(o.path)} ${why}`);
+    };
+
+    const id = (field: string): void => {
+      if (typeof o[field] !== "string") refuse(`names no ${field}`);
+    };
+    const value = (ok: (v: unknown) => boolean): void => {
+      if (!ok(o.value)) refuse("carries a value of the wrong shape");
+    };
+
+    switch (o.path) {
+      case "held":
+        id("key");
+        value((v) => v === null || (typeof v === "object" && v !== null));
+        break;
+      case "godPool":
+        id("god");
+        if (typeof o.present !== "boolean") refuse("does not say whether the god is in");
+        break;
+      case "bans":
+        id("trait");
+        if (typeof o.present !== "boolean") refuse("does not say whether the trait is in");
+        break;
+      case "elements":
+        id("element");
+        value((v) => typeof v === "number");
+        break;
+      case "resources":
+        id("resource");
+        value((v) => typeof v === "number");
+        break;
+      case "slots":
+        id("slot");
+        value((v) => v === null || typeof v === "string");
+        break;
+      case "equipped":
+        if (o.field !== "weapon" && o.field !== "aspect" && o.field !== "keepsake") {
+          refuse("names no field of the equipped kit");
+        }
+        value((v) => v === null || typeof v === "string");
+        break;
+      case "talents":
+        id("talent");
+        if (o.selection !== null && o.selection !== "selected" && o.selection !== "notSelected") {
+          refuse("carries a selection that is neither answer nor absence");
+        }
+        break;
+      default:
+        throw new Error(`stored overrides name an unknown field: ${String(o.path)}`);
+    }
+  }
+
+  return raw as FactOverride[];
 }
 
 /** The god list is checked for the same reason the quarantine's keys are. */
@@ -297,6 +397,7 @@ export function fromPersisted(record: unknown): StoredRun {
     quarantine: readQuarantine(raw.quarantine),
     pendingNotice: readNotice(raw.pendingNotice),
     rewardedWithoutBoon: new Set(readGodList(raw.godsRewardedWithoutBoon)),
+    overrides: readOverrides(raw.overrides),
   };
 }
 
