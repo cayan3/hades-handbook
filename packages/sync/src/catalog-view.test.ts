@@ -71,11 +71,12 @@ describe("the two god id spaces", () => {
    * in it under a prefixed key. They stay in the table, which has to stay
    * faithful to the file it came from, and they aren't names a run can address.
    *
-   * `kind` cannot do this filtering and it is worth pinning why. Hermes, Chaos
-   * and Selene are `NonPoolSlot` exactly as the mechanical entries are — that
-   * flag is about the cap, not about being a god — so a filter written against
-   * it would throw away three real gods, and a pool naming Hermes would then be
-   * quarantined despite D212 saying it must not be.
+   * `kind` can't do this filtering bc Hermes, Chaos, and Selene are
+   * `NonPoolSlot` exactly as the mechanical entries are (that flag is abt the
+   * actual god pool cap, not abt being a god/deity in the first place lol), so
+   * a filter written against it would throw away three real gods and a pool
+   * naming Hermes would then be quarantined despite naming a god that the run
+   * really did take a reward from.
    */
   it("leaves out the loot slots that are not gods, and keeps the gods that take no slot", () => {
     expect([...shippedCatalog("hades1").gods].sort()).toEqual([
