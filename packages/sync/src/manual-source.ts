@@ -12,7 +12,8 @@ import type {
   TraitId,
 } from "@repo/core";
 import { type SyncCatalog, shippedCatalog } from "./catalog-view.js";
-import { migrate } from "./migrate.js";
+import { migrate, scanOverrides } from "./migrate.js";
+import type { FactOverride } from "./overrides.js";
 import {
   type PersistedNotice,
   type StoredRun,
@@ -52,6 +53,43 @@ export interface MarkOptions {
 }
 
 /**
+ * Which writer made the last edit, named after the writer itself so that
+ * nothing here has to invent a second vocabulary for the same fifteen gestures.
+ */
+export type EditAction =
+  | "mark"
+  | "remove"
+  | "purge"
+  | "addGod"
+  | "equipWeapon"
+  | "equipAspect"
+  | "equipKeepsake"
+  | "answerMirrorRow"
+  | "setElement"
+  | "setResource"
+  | "pin"
+  | "unpin"
+  | "plan"
+  | "unplan"
+  | "setNote"
+  | "acceptMigration";
+
+/**
+ * The last thing that happened, in enough detail for a view to word an offer to
+ * undo it and no more.
+ *
+ * Deliberately not a sentence, for the same reason the migration notice is not
+ * one: a string here would be this package deciding how "Marked Storm Lightning
+ * — Undo" reads and in what language. `subject` is whatever the gesture named —
+ * a trait, a god, a Mirror row, an element — or null where it named nothing,
+ * which is what unequipping looks like.
+ */
+export interface UndoableEdit {
+  action: EditAction;
+  subject: string | null;
+}
+
+/**
  * Manual entry: the whole product, and the only source in v1.
  *
  * Everything is a user tap, so this is also the only place that maintains the
@@ -87,6 +125,35 @@ export interface ManualSource extends RunStateSource {
    * player finding an empty run with no explanation. Null on an ordinary load.
    */
   readonly unreadableRun: Error | null;
+
+  /**
+   * The fields the user was holding by hand when this run was last stored,
+   * brought forward by the same pass that brings the run forward and otherwise
+   * handed back exactly as they went in.
+   *
+   * Nothing here reads one or knows what one means. They live in this record
+   * because the record is where a run's storage is, and because one writer to
+   * it is the only arrangement in which two halves of the same run cannot
+   * overwrite each other.
+   */
+  readonly overrides: readonly FactOverride[];
+
+  /** Stores the overrides now in force. Called by whoever owns the overlay. */
+  putOverrides(overrides: readonly FactOverride[]): void;
+
+  /**
+   * The last edit, or null when there is nothing to take back — before the
+   * first tap, after an undo, and after a run has ended.
+   */
+  readonly lastEdit: UndoableEdit | null;
+
+  /**
+   * Takes back the last edit, whether it wrote facts or intent. Does nothing
+   * when there is none, and is not itself undoable: one level is the whole
+   * offer, and a redo built on top of it would be the ordered history this
+   * deliberately is not.
+   */
+  undo(): void;
 
   /** Marks a boon held, with everything that implies. */
   mark(trait: TraitId, options?: MarkOptions): void;
@@ -194,7 +261,16 @@ export async function openManualSource(
   }
 
   const outcome = migrate(stored.state, catalog);
-  const quarantine = [...stored.quarantine, ...outcome.quarantine];
+  /**
+   * The overlay is scanned with the run, and it has to be: the merge lays it
+   * back over the facts *after* the pass that cleaned them, so an override left
+   * naming a renamed trait would put that id straight back into what
+   * evaluation reads — past the one pass whose job is that no such id ever
+   * reaches it.
+   */
+  const overlay = scanOverrides(stored.overrides ?? [], catalog);
+  const setAside = [...outcome.quarantine, ...overlay.quarantine];
+  const quarantine = [...stored.quarantine, ...setAside];
 
   /**
    * What is still owed carries across loads, because it cannot be re-derived.
@@ -207,7 +283,7 @@ export async function openManualSource(
    * stays the build the run was on when the first of them turned up.
    */
   const carried = stored.pendingNotice ?? null;
-  const owed = [...(carried?.entries ?? []), ...outcome.quarantine];
+  const owed = [...(carried?.entries ?? []), ...setAside];
   const pendingNotice: PersistedNotice | null =
     owed.length === 0
       ? null
@@ -220,6 +296,7 @@ export async function openManualSource(
     quarantine,
     pendingNotice,
     rewardedWithoutBoon: stored.rewardedWithoutBoon ?? new Set(),
+    overrides: overlay.overrides,
     unreadableRun: unreadable,
   });
 
@@ -233,7 +310,7 @@ export async function openManualSource(
    * changed nothing, so an ordinary start still costs no write.
    */
   const changed =
-    outcome.quarantine.length > 0 ||
+    setAside.length > 0 ||
     unreadable !== null ||
     outcome.state.facts.dataVersion !== stored.state.facts.dataVersion;
   if (changed) source.persistNow();
@@ -248,6 +325,7 @@ interface SourceSeed {
   quarantine: readonly QuarantinedEntry[];
   pendingNotice: PersistedNotice | null;
   rewardedWithoutBoon: ReadonlySet<GodId>;
+  overrides: readonly FactOverride[];
   unreadableRun: Error | null;
 }
 
@@ -256,6 +334,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   let state = seed.state;
   let quarantine = seed.quarantine;
   let pending = seed.pendingNotice;
+  let overrides = seed.overrides;
   let notice: MigrationNotice | null =
     pending === null
       ? null
@@ -274,8 +353,14 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
    * of the pool. Kept here rather than in `RunFacts` because it is bookkeeping
    * about how the pool was built, not a fact about the run, and nothing in the
    * engine has any business reading it.
+   *
+   * Replaced rather than added to, the way the facts collections are. Undo puts
+   * back a state that was captured before an edit, and a set captured by
+   * reference and then written into is not the set that was captured — it is
+   * the current one wearing an old name, so the undo would restore facts from
+   * before the edit beside provenance from after it.
    */
-  const rewardedWithoutBoon = new Set(seed.rewardedWithoutBoon);
+  let rewardedWithoutBoon: ReadonlySet<GodId> = seed.rewardedWithoutBoon;
   const listeners = new Set<(facts: RunFacts) => void>();
 
   /**
@@ -303,7 +388,13 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   let storageError: Error | null = null;
 
   function persist(): void {
-    const snapshot = toPersisted({ state, quarantine, pendingNotice: pending, rewardedWithoutBoon });
+    const snapshot = toPersisted({
+      state,
+      quarantine,
+      pendingNotice: pending,
+      rewardedWithoutBoon,
+      overrides,
+    });
     writes = writes.then(async () => {
       try {
         await store.save(catalog.game, "active", snapshot);
@@ -325,6 +416,57 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     state = { facts, intent };
     persist();
     for (const listener of listeners) listener(facts);
+  }
+
+  /**
+   * Everything an edit can move, held by reference.
+   *
+   * Undo is a restore rather than an inverse operation, and that is the whole
+   * design. Marking a boon is not one write: it holds the trait, fills a slot,
+   * pools a god and can displace whatever was in that slot, which itself leaves
+   * a god standing in the pool with nothing to show for it. An inverse built
+   * per writer would have to know all four, and the one it would forget is the
+   * displaced boon — the case with no visible symptom until a requirement that
+   * named it quietly stops being met. A snapshot cannot forget a field.
+   *
+   * Cheap because every one of these is replaced rather than written into, so
+   * capturing the lot is five references and restoring them is five
+   * assignments. It also restores *identity*, which means a consumer memoizing
+   * on the facts object finds the entry it had before the edit still warm.
+   */
+  interface Snapshot {
+    edit: UndoableEdit;
+    state: RunState;
+    quarantine: readonly QuarantinedEntry[];
+    pending: PersistedNotice | null;
+    notice: MigrationNotice | null;
+    rewardedWithoutBoon: ReadonlySet<GodId>;
+  }
+
+  let undoable: Snapshot | null = null;
+
+  /**
+   * Captures the state one edit is about to change.
+   *
+   * Called after a writer's guards and before its first write, which is the
+   * only placement that works: earlier and a refused write would leave an undo
+   * offering to take back something that never happened, later and there is
+   * nothing left to capture.
+   *
+   * The overlay is deliberately not captured. Taking a field in hand and
+   * handing it back are already each other's inverse and each visible on the
+   * field itself, so an undo that also rewound them would be taking back a
+   * gesture the user can see they made, on the strength of a different one.
+   */
+  function beginEdit(action: EditAction, subject: string | null): void {
+    undoable = {
+      edit: { action, subject },
+      state,
+      quarantine,
+      pending,
+      notice,
+      rewardedWithoutBoon,
+    };
   }
 
   function record(trait: TraitId) {
@@ -358,9 +500,11 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
    * itself asks the question the other way round and gets a complete answer —
    * and doubles as a repair for any run stored before this was recorded.
    */
+  const standing = new Set(rewardedWithoutBoon);
   for (const god of state.facts.godPool) {
-    if (!stillHoldsBoonOf(state.facts.held, god)) rewardedWithoutBoon.add(god);
+    if (!stillHoldsBoonOf(state.facts.held, god)) standing.add(god);
   }
+  rewardedWithoutBoon = standing;
 
   /** Removes a trait from `held` and empties whatever slot it was sitting in. */
   function drop(trait: TraitId): { held: RunFacts["held"]; slots: RunFacts["slots"] } {
@@ -418,6 +562,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
      * so the notice went with it whether or not anybody had read it.
      */
     acceptMigration(): void {
+      beginEdit("acceptMigration", null);
       notice = null;
       pending = null;
       commit({ ...state.facts, dataVersion: catalog.dataVersion });
@@ -425,6 +570,48 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
 
     persistNow(): void {
       persist();
+    },
+
+    get overrides() {
+      return overrides;
+    },
+
+    /**
+     * Stored and handed back, never interpreted. The overlay belongs to
+     * whatever is laying it over this source; what belongs here is the one
+     * writer to the record, since two halves of a run saving themselves
+     * separately is how one of them gets lost.
+     */
+    putOverrides(next: readonly FactOverride[]): void {
+      overrides = [...next];
+      persist();
+    },
+
+    get lastEdit() {
+      return undoable === null ? null : undoable.edit;
+    },
+
+    /**
+     * Puts back everything the last edit moved — the facts, the intent, and the
+     * bookkeeping beside them that no fact records.
+     *
+     * That last part is the half an undo written against the facts alone gets
+     * wrong. A purge and a displacement both leave a god in the pool on the
+     * strength of a reward that really was taken, and that reason lives outside
+     * `RunFacts`; rewinding the facts without it would leave the god pooled
+     * with the rule that explains them switched off, so the next unrelated
+     * correction anywhere in the run would delete them.
+     */
+    undo(): void {
+      if (undoable === null) return;
+      const back = undoable;
+      undoable = null;
+
+      quarantine = back.quarantine;
+      pending = back.pending;
+      notice = back.notice;
+      rewardedWithoutBoon = back.rewardedWithoutBoon;
+      commit(back.state.facts, back.state.intent);
     },
 
     /**
@@ -452,6 +639,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       if (found.slot === "Aspect") {
         throw new Error(`"${trait}" is a weapon form; equip it with equipAspect`);
       }
+      beginEdit("mark", trait);
 
       const displaced = found.slot === null ? undefined : state.facts.slots.get(found.slot);
 
@@ -464,7 +652,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
         const gone = Object.hasOwn(catalog.traits, displaced)
           ? catalog.traits[displaced]?.god
           : undefined;
-        if (gone != null) rewardedWithoutBoon.add(gone);
+        if (gone != null) rewardedWithoutBoon = new Set(rewardedWithoutBoon).add(gone);
       }
       held.set(trait, {
         rarity: options.rarity ?? found.rarity[0] ?? "Common",
@@ -501,6 +689,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
      */
     remove(trait: TraitId): void {
       if (!state.facts.held.has(trait)) return;
+      beginEdit("remove", trait);
       const found = Object.hasOwn(catalog.traits, trait) ? catalog.traits[trait] : undefined;
       const { held, slots } = drop(trait);
 
@@ -520,8 +709,9 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
      */
     purge(trait: TraitId): void {
       if (!state.facts.held.has(trait)) return;
+      beginEdit("purge", trait);
       const found = Object.hasOwn(catalog.traits, trait) ? catalog.traits[trait] : undefined;
-      if (found?.god != null) rewardedWithoutBoon.add(found.god);
+      if (found?.god != null) rewardedWithoutBoon = new Set(rewardedWithoutBoon).add(found.god);
       const { held, slots } = drop(trait);
       commit({ ...state.facts, held, slots });
     },
@@ -546,9 +736,15 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       // Nothing in `held` will ever account for this one, so it is recorded as
       // standing on its own — otherwise the next correction removes it.
       const known = rewardedWithoutBoon.has(god);
-      rewardedWithoutBoon.add(god);
-      if (state.facts.godPool.has(god)) {
-        if (!known) persist();
+      const pooled = state.facts.godPool.has(god);
+      // Already there and already accounted for: nothing moves, so there is
+      // nothing to write, notify or offer to take back.
+      if (known && pooled) return;
+
+      beginEdit("addGod", god);
+      rewardedWithoutBoon = new Set(rewardedWithoutBoon).add(god);
+      if (pooled) {
+        persist();
         return;
       }
       commit({ ...state.facts, godPool: new Set(state.facts.godPool).add(god) });
@@ -556,6 +752,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
 
     /** Unchecked: the catalog ships no weapon table to check against. */
     equipWeapon(weapon: string | null): void {
+      beginEdit("equipWeapon", weapon);
       const equipped = { ...state.facts.equipped };
       if (weapon === null) delete equipped.weapon;
       else equipped.weapon = weapon;
@@ -584,6 +781,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
           throw new Error(`"${aspect}" is not a weapon form; a boon is recorded with mark`);
         }
       }
+      beginEdit("equipAspect", aspect);
       const equipped = { ...state.facts.equipped };
       if (aspect === null) delete equipped.aspect;
       else equipped.aspect = aspect;
@@ -594,6 +792,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       if (keepsake !== null && !catalog.keepsakes.has(keepsake)) {
         throw new Error(`no keepsake "${keepsake}" in the ${catalog.game} catalog`);
       }
+      beginEdit("equipKeepsake", keepsake);
       const equipped = { ...state.facts.equipped };
       if (keepsake === null) delete equipped.keepsake;
       else equipped.keepsake = keepsake;
@@ -620,6 +819,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       if (selected !== null && !found.members.includes(selected)) {
         throw new Error(`"${selected}" is not a member of Mirror row "${row}"`);
       }
+      beginEdit("answerMirrorRow", row);
 
       const talents = new Map(state.facts.equipped.talents ?? []);
       for (const member of found.members) {
@@ -629,6 +829,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     },
 
     setElement(element: Element, count: number): void {
+      beginEdit("setElement", element);
       const elements = new Map(state.facts.elements);
       if (count === 0) elements.delete(element);
       else elements.set(element, count);
@@ -636,6 +837,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     },
 
     setResource(resource: ResourceId, amount: number): void {
+      beginEdit("setResource", resource);
       const resources = new Map(state.facts.resources);
       if (amount === 0) resources.delete(resource);
       else resources.set(resource, amount);
@@ -644,10 +846,12 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
 
     pin(trait: TraitId): void {
       record(trait);
+      beginEdit("pin", trait);
       commit(state.facts, { ...state.intent, pins: new Set(state.intent.pins).add(trait) });
     },
 
     unpin(trait: TraitId): void {
+      beginEdit("unpin", trait);
       const pins = new Set(state.intent.pins);
       pins.delete(trait);
       commit(state.facts, { ...state.intent, pins });
@@ -655,10 +859,12 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
 
     plan(trait: TraitId): void {
       record(trait);
+      beginEdit("plan", trait);
       commit(state.facts, { ...state.intent, planned: new Set(state.intent.planned).add(trait) });
     },
 
     unplan(trait: TraitId): void {
+      beginEdit("unplan", trait);
       const planned = new Set(state.intent.planned);
       planned.delete(trait);
       commit(state.facts, { ...state.intent, planned });
@@ -675,11 +881,14 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
      * leave the entry with no way out.
      */
     setNote(trait: TraitId, text: string): void {
+      // Checked before the edit is captured rather than inside the branch
+      // below, so that a refused note leaves nothing to offer to take back.
+      if (text !== "") record(trait);
+      beginEdit("setNote", trait);
       const notes = new Map(state.intent.notes);
       if (text === "") {
         notes.delete(trait);
       } else {
-        record(trait);
         notes.set(trait, text);
       }
       commit(state.facts, { ...state.intent, notes });
@@ -705,7 +914,13 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
      * but only this one leaves a partial write easy to read.
      */
     async finishRun(): Promise<void> {
-      const finished = toPersisted({ state, quarantine, pendingNotice: pending, rewardedWithoutBoon });
+      const finished = toPersisted({
+        state,
+        quarantine,
+        pendingNotice: pending,
+        rewardedWithoutBoon,
+        overrides,
+      });
       const fresh = toPersisted({
         state: emptyRun(catalog.game, catalog.dataVersion),
         quarantine: [],
@@ -732,7 +947,16 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       quarantine = [];
       notice = null;
       pending = null;
-      rewardedWithoutBoon.clear();
+      rewardedWithoutBoon = new Set();
+      overrides = [];
+      /**
+       * Nothing from the finished run may be taken back into the fresh one.
+       * The last edit belonged to a run that is now in the other record, and
+       * restoring it here would put a boon somebody earned last night into a
+       * run that has not started — while the record it came from still says
+       * the run ended without it.
+       */
+      undoable = null;
       for (const listener of listeners) listener(state.facts);
     },
 

@@ -929,6 +929,306 @@ describe("a stored run this build cannot read", () => {
   });
 });
 
+describe("the overlay stored beside the run", () => {
+  /**
+   * Stored and handed back, never interpreted. The overlay belongs to whatever
+   * is laying it over this source; what belongs here is the record and its one
+   * writer, since two halves of the same run saving themselves separately is
+   * how one of them gets lost.
+   */
+  it("survives closing and reopening, exactly as it went in", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    const overrides = [
+      { path: "held", key: "HeraAttack", value: null },
+      { path: "godPool", god: "Zeus", present: true },
+    ] as const;
+
+    source.putOverrides([...overrides]);
+    await source.flush();
+
+    expect((await open(store)).overrides).toEqual(overrides);
+  });
+
+  it("stays out of a record that has none", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.flush();
+
+    const record = await store.load("hades2", "active");
+
+    expect(record === null ? true : "overrides" in record).toBe(false);
+    expect((await open(store)).overrides).toEqual([]);
+  });
+
+  /**
+   * The load scans the overlay with the run, and it has to: the merge lays the
+   * overlay back over the facts after the pass that cleaned them, so a hand-held
+   * field naming a renamed trait would put that id straight back into what
+   * evaluation reads — past the one pass whose whole job is that no such id
+   * ever reaches it.
+   */
+  it("loses a field naming something the update renamed, and says so", async () => {
+    const store = createMemoryStore();
+    const old = emptyRun("hades2", "build-0");
+    const gone = { path: "held", key: "RenamedSinceBuild0", value: null } as const;
+    await store.save(
+      "hades2",
+      "active",
+      toPersisted({
+        state: old,
+        quarantine: [],
+        overrides: [gone, { path: "held", key: "HeraAttack", value: null }],
+      }),
+    );
+
+    const source = await open(store);
+
+    expect(source.overrides).toEqual([{ path: "held", key: "HeraAttack", value: null }]);
+    expect(source.quarantine).toEqual([
+      { path: "overrides", key: "held:RenamedSinceBuild0", value: gone },
+    ]);
+    expect(source.migrationNotice?.count).toBe(1);
+  });
+
+  it("is gone when the run it belonged to ends", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.putOverrides([{ path: "held", key: "HeraAttack", value: null }]);
+
+    await source.finishRun();
+
+    expect(source.overrides).toEqual([]);
+    expect((await open(store)).overrides).toEqual([]);
+  });
+});
+
+describe("taking back the last edit", () => {
+  it("names what it would take back, and stops offering once it has", async () => {
+    const source = await open();
+    expect(source.lastEdit).toBeNull();
+
+    source.mark("HeraAttack");
+    expect(source.lastEdit).toEqual({ action: "mark", subject: "HeraAttack" });
+
+    source.undo();
+    expect(source.lastEdit).toBeNull();
+    expect(source.getFacts().held.size).toBe(0);
+  });
+
+  it("does nothing at all when there is nothing to take back", async () => {
+    const source = await open();
+    const before = source.getFacts();
+
+    source.undo();
+    source.undo();
+
+    expect(source.getFacts()).toBe(before);
+  });
+
+  it("keeps only the last one, however many came before it", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.mark("HeraSpecial");
+
+    source.undo();
+    source.undo();
+
+    expect(source.getFacts().held.has("HeraSpecial")).toBe(false);
+    expect(source.getFacts().held.has("HeraAttack")).toBe(true);
+  });
+
+  /**
+   * Marking a boon is four writes, not one — the trait, its slot, its god, and
+   * whatever it displaced. An undo built out of the field an override would
+   * name puts back the first and loses the fourth, which is the case with no
+   * symptom: the run looks right and a requirement that named the displaced
+   * boon has quietly stopped being met.
+   */
+  it("puts back the boon a mark displaced, and the slot it was in", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    source.mark("ZeusAttack");
+    source.undo();
+
+    expect(source.getFacts().held.has("HeraAttack")).toBe(true);
+    expect(source.getFacts().held.has("ZeusAttack")).toBe(false);
+    expect(source.getFacts().slots.get("Melee")).toBe("HeraAttack");
+    expect([...source.getFacts().godPool]).toEqual(["Hera"]);
+  });
+
+  /**
+   * The half no fact records. A purge leaves its god in the pool on the
+   * strength of a reward that really was taken, and that reason lives outside
+   * the run facts. Rewinding the facts alone would leave the god pooled with
+   * the rule explaining them switched off — so the next unrelated correction
+   * anywhere in the run would delete a god the player really has met.
+   */
+  it("takes a purged boon's god back out of the standing set", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.mark("HeraSpecial");
+
+    source.purge("HeraSpecial");
+    source.undo();
+    // Hera now stands on her held boons alone again, so correcting the last of
+    // them is a correction rather than a no-op.
+    source.remove("HeraSpecial");
+    source.remove("HeraAttack");
+
+    expect(source.getFacts().godPool.size).toBe(0);
+  });
+
+  it("does the same for the displacement that leaves a god behind", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    source.mark("ZeusAttack");
+    source.undo();
+    source.remove("HeraAttack");
+
+    expect(source.getFacts().godPool.size).toBe(0);
+  });
+
+  /**
+   * The other direction, and the one every test above happens to miss: an undo
+   * must not *wipe* a god who was already standing before the edit it takes
+   * back. Left wrong, taking back an unrelated mark switches off the rule that
+   * explains a god purged an hour ago, and the next correction deletes them —
+   * which is the composition failure the standing set was introduced to fix,
+   * reproduced one layer along.
+   */
+  it("leaves a god who was already standing where they were", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.mark("HeraSpecial");
+    source.purge("HeraSpecial");
+
+    source.mark("HermesDash");
+    source.undo();
+    source.remove("HeraAttack");
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(true);
+  });
+
+  it("takes back a god recorded directly, standing set and all", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    source.addGod("Zeus");
+    source.undo();
+
+    expect(source.getFacts().godPool.has("Zeus")).toBe(false);
+    source.remove("HeraAttack");
+    expect(source.getFacts().godPool.size).toBe(0);
+  });
+
+  it("takes back an edit to intent as readily as one to facts", async () => {
+    const source = await open();
+    source.pin("HeraAttack");
+    source.setNote("HeraAttack", "keep at Epic");
+
+    source.undo();
+
+    expect(source.getState().intent.notes.has("HeraAttack")).toBe(false);
+    expect(source.getState().intent.pins.has("HeraAttack")).toBe(true);
+    expect(source.lastEdit).toBeNull();
+  });
+
+  it("takes back the equipped kit and a Mirror answer", async () => {
+    const hades1 = await openManualSource({
+      game: "hades1",
+      catalog: testCatalog({ ...world(), game: "hades1" }),
+      store: createMemoryStore(),
+    });
+    hades1.answerMirrorRow("Cast", "AmmoMetaUpgrade");
+
+    hades1.undo();
+
+    expect(hades1.getFacts().equipped.talents).toBeUndefined();
+
+    const source = await open();
+    source.equipKeepsake("ForceHeraBoonKeepsake");
+    source.undo();
+    expect(source.getFacts().equipped.keepsake).toBeUndefined();
+  });
+
+  /**
+   * A refused write is not an edit. Left uncaptured this would offer to take
+   * back the thing before it, which is a different edit than the one the user
+   * just failed to make.
+   */
+  it("offers nothing after a write the source refused", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    expect(() => {
+      source.mark("TorchAutofireAspect");
+    }).toThrow();
+    expect(() => {
+      source.addGod("ZeusUpgrade");
+    }).toThrow();
+    expect(() => {
+      source.remove("HeraSpecial");
+    }).not.toThrow();
+
+    expect(source.lastEdit).toEqual({ action: "mark", subject: "HeraAttack" });
+  });
+
+  it("reaches storage, so what was taken back stays taken back", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack");
+    source.mark("ZeusAttack");
+
+    source.undo();
+    await source.flush();
+
+    expect((await open(store)).getFacts().held.has("HeraAttack")).toBe(true);
+    expect((await open(store)).getFacts().held.has("ZeusAttack")).toBe(false);
+  });
+
+  /**
+   * The offer does not survive the run it belongs to. That edit is in the other
+   * record now, and putting it back here would drop a boon somebody earned last
+   * night into a run that has not started.
+   */
+  it("is off the table once the run has ended", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    await source.finishRun();
+
+    expect(source.lastEdit).toBeNull();
+    source.undo();
+    expect(source.getFacts().held.size).toBe(0);
+  });
+
+  /**
+   * Accepting the migration writes a fact — the build stamp — so it is an edit
+   * like any other, and taking it back has to bring the notice with it. The
+   * notice is not in the run facts, so an undo that rewound them alone would
+   * leave the stamp back where it was and the apology gone.
+   */
+  it("brings the migration notice back with the stamp it advanced", async () => {
+    const store = createMemoryStore();
+    const old = emptyRun("hades2", "build-0");
+    old.facts.held.set("RenamedSinceBuild0", { rarity: "Epic", level: 1 });
+    await store.save("hades2", "active", toPersisted({ state: old, quarantine: [] }));
+    const source = await open(store);
+    expect(source.migrationNotice).not.toBeNull();
+
+    source.acceptMigration();
+    expect(source.migrationNotice).toBeNull();
+    source.undo();
+
+    expect(source.migrationNotice).not.toBeNull();
+    expect(source.getFacts().dataVersion).toBe("build-0");
+  });
+});
+
 describe("run progress", () => {
   /**
    * The run facts no longer carry region and chamber at all, so the interesting
