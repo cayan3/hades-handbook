@@ -199,6 +199,32 @@ describe("a record this build cannot read", () => {
     ).toThrow(/neither answer nor absence/);
   });
 
+  /**
+   * The held arm carries a record rather than a scalar, and it is the only one
+   * whose value decides a verdict: evaluation compares `level` against a
+   * requirement's minimum. A level that comes back missing or as a string makes
+   * that comparison false, so the boon reads as unheld — while every set-shaped
+   * question about the same run still counts it, because those ask only whether
+   * the key is there. One run answering "you have a boon of this god" yes and
+   * "you have this boon" no is the failure worth a load-time refusal.
+   */
+  it("is refused when a held override carries something that is not a held trait", () => {
+    const withOverrides = (overrides: unknown) => {
+      const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
+      return { ...record, overrides } as never;
+    };
+    const held = (value: unknown) => withOverrides([{ path: "held", key: "HeraAttack", value }]);
+
+    expect(() => fromPersisted(held({}))).toThrow(/wrong shape/);
+    expect(() => fromPersisted(held({ rarity: "Common" }))).toThrow(/wrong shape/);
+    expect(() => fromPersisted(held({ rarity: "Common", level: "2" }))).toThrow(/wrong shape/);
+    expect(() => fromPersisted(held({ level: 2 }))).toThrow(/wrong shape/);
+
+    // Both shapes the field is allowed to take still read.
+    expect(fromPersisted(held(null)).overrides).toHaveLength(1);
+    expect(fromPersisted(held({ rarity: "Common", level: 2 })).overrides).toHaveLength(1);
+  });
+
   it("reads a record that carries no quarantine at all", () => {
     const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
     const { quarantine: _dropped, ...withoutIt } = record;

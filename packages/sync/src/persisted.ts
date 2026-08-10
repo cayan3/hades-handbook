@@ -263,6 +263,12 @@ function readNotice(raw: unknown): PersistedNotice | null {
  * build can read, and it is what every record written before overrides existed
  * says.
  */
+function isHeldTrait(v: unknown): boolean {
+  if (typeof v !== "object" || v === null) return false;
+  const held = v as Record<string, unknown>;
+  return typeof held.level === "number" && typeof held.rarity === "string";
+}
+
 function readOverrides(raw: unknown): FactOverride[] {
   if (raw === undefined) return [];
   if (!Array.isArray(raw)) throw new Error("stored overrides are not a list");
@@ -284,9 +290,25 @@ function readOverrides(raw: unknown): FactOverride[] {
     };
 
     switch (o.path) {
+      /**
+       * The one arm whose value is a record rather than a scalar, and the only
+       * one that decides a verdict. Evaluation compares `level` against a
+       * requirement's minimum, so a level that came back missing or as a string
+       * makes that comparison false and the boon reads as unheld — while every
+       * set-shaped question about the same run still counts it. That is one run
+       * answering "you have a boon of this god" and "you have this boon" two
+       * different ways, which is the shape of wrongness this whole function was
+       * written to stop and was the one arm not doing it.
+       *
+       * `rarity` is checked as a string and no further. Nothing in evaluation
+       * reads it, so a wrong one costs a display colour rather than an answer,
+       * and the closed set lives in `core` as a type with no runtime value —
+       * a copy of the list here would turn the next rarity added there into a
+       * record this build refuses to open.
+       */
       case "held":
         id("key");
-        value((v) => v === null || (typeof v === "object" && v !== null));
+        value((v) => v === null || isHeldTrait(v));
         break;
       case "godPool":
         id("god");
