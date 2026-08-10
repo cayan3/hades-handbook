@@ -16,14 +16,19 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:core": "vitest run packages/core",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.dom.json",
+    "build": "npm run build --workspace @repo/web",
+    "dev": "npm run dev --workspace @repo/web",
     "lint": "depcruise packages apps",
     "verify:real": "python3 tools/data-extract/verify_real.py",
     "test:extract": "python3 -m pytest tools/data-extract"
   },
   "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "dependency-cruiser": "^18.1.0",
     "fast-check": "^4.9.0",
+    "jsdom": "^30.0.1",
     "typescript": "^6.0.3",
     "vitest": "^4.1.10"
   }

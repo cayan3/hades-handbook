@@ -11,6 +11,10 @@
   "dependencies": {
     "@repo/catalog": "*",
     "@repo/core": "*",
-    "@repo/sync": "*"
+    "@repo/sync": "*",
+    "react": "^19.2.8"
+  },
+  "devDependencies": {
+    "react-dom": "^19.2.8"
   }
 }
