@@ -6,9 +6,9 @@
  * any accounts or servers) (IndexedDB instead of `localStorage` bc the state
  * is structured (e.g. maps of held traits, pool, elements) and can uh grow lol).
  *
- * No framework dependency yet (will be chosen together w/ the UI shell).
- *
- * Not implemented yet.
+ * The page itself is `index.html` and `src/main.tsx`, which is what the
+ * bundler builds. This module is the app's importable face and stays empty:
+ * nothing imports an application, and the import-boundary rules say so.
  */
 
 export {};

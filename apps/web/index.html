@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!--
+      The production content security policy, stated here so a build that would
+      need loosening it fails while somebody is looking. No unsafe-inline and no
+      unsafe-eval: the bundler emits external modules and an external
+      stylesheet, the service worker registers from a module rather than from an
+      injected snippet, and the renderer sets styles through the object model
+      rather than through markup, which this does not govern. connect-src is
+      'none' because the whole product runs from a local store and talks to
+      nobody. The dev server injects its own live-reload client, so this header
+      belongs to the built site only.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; manifest-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    />
+    <title>Hades Handbook</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

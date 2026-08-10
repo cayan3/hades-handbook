@@ -1,0 +1,79 @@
+/*
+ * THROWAWAY SCAFFOLDING. Enough to tell five nodes apart and nothing else — no
+ * god palette, no type stack, no ladder as designed.
+ *
+ * It is a stylesheet rather than styles built in JavaScript on purpose: the
+ * bundler emits it as a file the page links to, so the built site needs no
+ * inline style and its content security policy needs no exception for one. A
+ * library that injects a <style> element at runtime would cost that.
+ */
+
+:root {
+  color-scheme: dark;
+  --ink: #f2ece4;
+  --ground: #12100f;
+}
+
+body {
+  margin: 0;
+  padding: 1.5rem;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+}
+
+.slice__ladder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.boon-diamond {
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+  width: 7rem;
+  padding: 0.6rem;
+  border: 2px solid currentColor;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.boon-diamond__art {
+  width: 3rem;
+  height: 3rem;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.boon-diamond__name {
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+/* The ladder steps down in brightness and frame weight. Structural, not hue. */
+.boon-diamond[data-state="Obtained"] {
+  border-width: 3px;
+}
+.boon-diamond[data-state="Available"] {
+  border-width: 3px;
+  box-shadow: 0 0 0.75rem currentColor;
+}
+.boon-diamond[data-state="Pending"] {
+  opacity: 0.85;
+}
+.boon-diamond[data-state="Locked"] {
+  border-width: 1px;
+  opacity: 0.55;
+}
+.boon-diamond[data-state="Impossible"] {
+  border-width: 1px;
+  opacity: 0.4;
+}
+.boon-diamond[data-state="Impossible"] .boon-diamond__art {
+  filter: grayscale(1);
+}
