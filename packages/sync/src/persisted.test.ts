@@ -225,6 +225,36 @@ describe("a record this build cannot read", () => {
     expect(fromPersisted(held({ rarity: "Common", level: 2 })).overrides).toHaveLength(1);
   });
 
+  /**
+   * The identical hole one field over, and in the field evaluation reads most.
+   * A held boon was decoded straight into the map with no check at all, so a
+   * `{}` beside a real trait id produced the same split answer an override now
+   * cannot: unheld to `hasTrait`, held to everything that asks about the god.
+   *
+   * Refusing is affordable because a refusal no longer strands anybody — the
+   * record is set aside, a fresh run starts, and the load says so on screen.
+   */
+  it("is refused when a held boon carries no level or rarity", () => {
+    const withHeld = (held: unknown) => {
+      const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
+      return { ...record, facts: { ...record.facts, held } } as never;
+    };
+
+    expect(() => fromPersisted(withHeld({}))).toThrow(/not a list/);
+    expect(() => fromPersisted(withHeld([["HeraAttack"]]))).toThrow(/no level or rarity/);
+    expect(() => fromPersisted(withHeld([["HeraAttack", {}]]))).toThrow(/no level or rarity/);
+    expect(() => fromPersisted(withHeld([["HeraAttack", { rarity: "Common" }]]))).toThrow(
+      /no level or rarity/,
+    );
+    expect(() => fromPersisted(withHeld([["HeraAttack", { rarity: "Common", level: "2" }]]))).toThrow(
+      /no level or rarity/,
+    );
+    expect(() => fromPersisted(withHeld([[7, { rarity: "Common", level: 1 }]]))).toThrow(/no id/);
+
+    const good = fromPersisted(withHeld([["HeraAttack", { rarity: "Common", level: 2 }]]));
+    expect(good.state.facts.held.get("HeraAttack")).toEqual({ rarity: "Common", level: 2 });
+  });
+
   it("reads a record that carries no quarantine at all", () => {
     const record = toPersisted({ state: emptyRun("hades2", "build-1"), quarantine: [] });
     const { quarantine: _dropped, ...withoutIt } = record;
