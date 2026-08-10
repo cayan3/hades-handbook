@@ -50,33 +50,25 @@ export function evaluate(
 
     case "godInPool": {
       if (facts.godPool.has(req.god)) return SATISFIED;
-      // The god pool cap is soft, i.e. even if the player already has four
-      // distinct gods in their pool, equipping a fifth god's keepsake "forces"
-      // that god into the god pool. Since keepsakes are swappable each region,
-      // the number of remaining keepsake-equipping opportunities determines
-      // whether or not a god is genuinely unreachable. If run progress isn't
-      // tracked, the default is to treat a god as still reachable (bc it's more
-      // damaging to mistakenly display a reachable god (even if they're only
-      // reachable-via-keepsake) as unreachable; also, "this god is technically
-      // reachable but you'll need to equip their keepsake to get them in your
-      // god pool" is actually yk actionable whereas the dead end of
-      // "unreachable." is.. much less so (not to mention maybe a bit ermmm idk
-      // ouch-ful ig :pensive: :pensive:)).
-      if (facts.progress === undefined) return pending(req);
-      if (rules.canGodEnterPool(req.god, facts)) return pending(req);
-      // This function always reports godPoolFull bc canGodEnterPool(g, f)
-      // returns a boolean, so false means "god can't enter" but there are two
-      // distinct possibilities for why that's the case: either the pool is full
-      // (which is a run state), or the god is permanently excluded (which is a
-      // catalog fact, e.g. GodKind being NPC/Ally). Since canGodEnterPool(g, f)
-      // returns false in both cases (so can't tell the two apart), godPoolFull
-      // supplies the additional info needed to distinguish between the two.
-      // Also, godInPool never handles god exclusion from the pool. Instead,
-      // exclusion reaches evaluation through `isBlocked` on a trait (e.g.
-      // asking abt a trait of an excluded god can make rules.isBlocked return
-      // {kind:"godExcluded"}). Any gods that can never enter the pool at all
-      // (e.g. Hermes in both games) is a catalog fact, so there shouldn't be
-      // any requirements naming them in the first place.
+      if (!rules.isGodPoolFull(facts)) return pending(req);
+      // Reported as full even though the cap is soft: equipping an absent god's
+      // keepsake still forces them in past it. Saying so would need to know
+      // whether an opportunity to swap one in remains, which is a count of the
+      // regions left in the run, & nothing supplies that number -- a phone-first
+      // player would be keeping it by hand for the length of every run, w/ no
+      // other surface reading it and no way to notice when it drifts.
+      //
+      // So the honest shape of the answer is "impossible *for now*", and the
+      // "for now" lives in the copy the UI puts on this verdict: equip this
+      // god's keepsake next region and they can still turn up. Splitting that
+      // sentence across two states (one that says impossible & one that says
+      // not-yet) is what needs the counter; keeping it as one sentence doesn't.
+      //
+      // The reason is always godPoolFull, never godExcluded. A god who can
+      // never enter the pool at all (e.g. Hermes in both games) is a catalog
+      // fact rather than a run state, so a requirement naming one shouldn't be
+      // authored in the first place, and exclusion that does matter arrives
+      // through `isBlocked` on a *trait* instead.
       return unsatisfiable({ kind: "godPoolFull", god: req.god });
     }
 

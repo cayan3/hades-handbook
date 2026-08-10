@@ -300,12 +300,7 @@ export function fromPersisted(record: unknown): StoredRun {
   };
 }
 
-/**
- * An empty run for one game, stamped with the catalog it was started against.
- *
- * `progress` is absent and there is no way to set it, which is deliberate and
- * is explained where the manual source refuses to collect it.
- */
+/** An empty run for one game, stamped with the catalog it was started against. */
 export function emptyRun(game: GameId, dataVersion: string): RunState {
   return {
     facts: {

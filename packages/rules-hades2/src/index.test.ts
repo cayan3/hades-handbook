@@ -63,75 +63,27 @@ function record(over: Partial<TraitRecord> & { id: TraitId }): TraitRecord {
  * is the fact the cap is counted over — not something a test should be
  * inventing.
  */
-function world(records: readonly TraitRecord[], forcing: Record<string, string> = {}): RulesCatalog {
+function world(records: readonly TraitRecord[]): RulesCatalog {
   return {
     traits: Object.fromEntries(records.map((r) => [r.id, r])),
-    forcingKeepsakes: new Map(Object.entries(forcing)),
     poolGods: poolGods("hades2"),
   };
 }
 
 describe("the pool cap", () => {
-  const rules = createRules(world([], { ZeusKeepsake: "Zeus" }));
+  const rules = createRules(world([]));
+  const full = () => new Set(["Hera", "Ares", "Demeter", "Hestia"]);
 
   it("is four", () => {
     expect(rules.poolCapacity(facts())).toBe(4);
   });
 
-  it("lets a god in while the pool has room", () => {
-    const f = facts({ godPool: new Set(["Hera", "Ares"]), progress: { region: 4, chamber: 30 } });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
+  it("is not full while the pool has room", () => {
+    expect(rules.isGodPoolFull(facts({ godPool: new Set(["Hera", "Ares"]) }))).toBe(false);
   });
 
-  it("lets a god in from a full pool while a region boundary remains", () => {
-    const full = new Set(["Hera", "Ares", "Demeter", "Hestia"]);
-    const f = facts({ godPool: full, progress: { region: 3, chamber: 1 } });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
-  });
-
-  it("closes on a full pool in the last region", () => {
-    const full = new Set(["Hera", "Ares", "Demeter", "Hestia"]);
-    const f = facts({ godPool: full, progress: { region: 4, chamber: 1 } });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(false);
-  });
-
-  it("stays open in the last region when the god's own keepsake is already equipped", () => {
-    // The case counting regions alone gets wrong: there is no boundary left to
-    // swap at, and nothing needs swapping.
-    const full = new Set(["Hera", "Ares", "Demeter", "Hestia"]);
-    const f = facts({
-      godPool: full,
-      progress: { region: 4, chamber: 1 },
-      equipped: { keepsake: "ZeusKeepsake" },
-    });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
-  });
-
-  it("does not let another god's keepsake stand in", () => {
-    const full = new Set(["Hera", "Ares", "Demeter", "Hestia"]);
-    const f = facts({
-      godPool: full,
-      progress: { region: 4, chamber: 1 },
-      equipped: { keepsake: "ZeusKeepsake" },
-    });
-    expect(rules.canGodEnterPool("Poseidon", f)).toBe(false);
-  });
-
-  it("is generous when progress was never collected", () => {
-    const full = new Set(["Hera", "Ares", "Demeter", "Hestia"]);
-    expect(rules.canGodEnterPool("Zeus", facts({ godPool: full }))).toBe(true);
-  });
-
-  it("is generous about a region number this game does not have", () => {
-    const full = new Set(["Hera", "Ares", "Demeter", "Hestia"]);
-    const f = facts({ godPool: full, progress: { region: 7, chamber: 1 } });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
-  });
-
-  it("says a god already in the pool can be in the pool", () => {
-    const full = new Set(["Hera", "Ares", "Demeter", "Zeus"]);
-    const f = facts({ godPool: full, progress: { region: 4, chamber: 1 } });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
+  it("is full once four gods are in", () => {
+    expect(rules.isGodPoolFull(facts({ godPool: full() }))).toBe(true);
   });
 
   it("does not count a god who takes no pool slot toward the cap", () => {
@@ -139,19 +91,12 @@ describe("the pool cap", () => {
     // five gods who grant boons without ever taking a slot: Hermes, Chaos,
     // Selene and the cameos. Counting them would shut the door on a run with
     // two slots still open.
-    const f = facts({
-      godPool: new Set(["Hera", "Ares", "Hermes", "Artemis"]),
-      progress: { region: 4, chamber: 1 },
-    });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
+    const f = facts({ godPool: new Set(["Hera", "Ares", "Hermes", "Artemis"]) });
+    expect(rules.isGodPoolFull(f)).toBe(false);
   });
 
   it("still closes once four slot-taking gods are in, whoever else is", () => {
-    const f = facts({
-      godPool: new Set(["Hera", "Ares", "Demeter", "Hestia", "Hermes"]),
-      progress: { region: 4, chamber: 1 },
-    });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(false);
+    expect(rules.isGodPoolFull(facts({ godPool: new Set([...full(), "Hermes"]) }))).toBe(true);
   });
 });
 
@@ -305,22 +250,6 @@ describe("against the shipped Hades II catalog", () => {
     expect(count((r) => r.aspectConflicts)).toEqual({ carriers: 2, edges: 2 });
     expect(count((r) => r.blockedBy)).toEqual({ carriers: 0, edges: 0 });
     expect(count((r) => r.exclusiveGroup)).toEqual({ carriers: 7, edges: 29 });
-  });
-
-  it("opens the pool on a keepsake id the game actually uses", () => {
-    // The pool tests above invent both halves of the mapping, so they pass
-    // whatever id space it happens to be keyed in. This one hands over the
-    // shipped map and the id a run really records — the same id the nine
-    // Godsent Hex gates use when they name a keepsake. If the two ever drift
-    // apart, the last-region rule stops seeing the keepsake that saves the run
-    // and answers impossible.
-    const f = facts({
-      godPool: new Set(["Hera", "Ares", "Demeter", "Hestia"]),
-      progress: { region: 4, chamber: 1 },
-      equipped: { keepsake: "ForceZeusBoonKeepsake" },
-    });
-    expect(rules.canGodEnterPool("Zeus", f)).toBe(true);
-    expect(rules.canGodEnterPool("Poseidon", f)).toBe(false);
   });
 
   it("fires on the two aspect conflicts the game declares", () => {

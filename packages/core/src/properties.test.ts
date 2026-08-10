@@ -132,19 +132,19 @@ const lookupsArb: fc.Arbitrary<CatalogLookups> = fc
 /** What the feasibility layer refuses, drawn before anything that must yk respect it. */
 interface Feasibility {
   blocked: readonly string[];
-  unreachable: readonly string[];
+  poolFull: boolean;
 }
 
 const feasibilityArb: fc.Arbitrary<Feasibility> = fc
-  .tuple(fc.subarray([...TRAITS]), fc.subarray([...GODS]))
-  .map(([blocked, unreachable]) => ({ blocked, unreachable }));
+  .tuple(fc.subarray([...TRAITS]), fc.boolean())
+  .map(([blocked, poolFull]) => ({ blocked, poolFull }));
 
 function rulesFor(feasibility: Feasibility): GameRules {
   return stubRules({
     blocked: new Map<string, Reason>(
       feasibility.blocked.map((trait) => [trait, { kind: "banned", trait }] as const),
     ),
-    unreachableGods: new Set(feasibility.unreachable),
+    poolFull: feasibility.poolFull,
   });
 }
 
@@ -152,7 +152,7 @@ function rulesFor(feasibility: Feasibility): GameRules {
  * A run and a further acquisition.
  *
  * **The acquisition is drawn so the feasibility layer permits it**: nothing
- * banned is acquired, and no god that can't enter the pool is added to it.
+ * banned is acquired, and no god joins a pool the rules call full.
  * Without that, the property is simply well false. A generator free to
  * "acquire" a banned trait describes a step the rules say literally can't be
  * taken, and after such a step an impossible branch erm well climbs back to
@@ -161,8 +161,8 @@ function rulesFor(feasibility: Feasibility): GameRules {
  * verdict left to respect, so any gain is a step the rules permit.
  *
  * **What the run already holds is deliberately not constrained that way.** Run
- * may hold a trait the feasibility layer now blocks, or have a god pooled that
- * couldn't currently enter the pool. Those states are in fact reachable in prod
+ * may hold a trait the feasibility layer now blocks, or have gods pooled while
+ * the same layer calls the pool full. Those states are in fact reachable in prod
  * (evaluation runs on effective facts, & the override layer can set one w/o the
  * other) and they're the only states that distinguish "satisfaction is checked
  * before feasibility" from the reverse ordering. Ruling them out costs the
@@ -176,7 +176,9 @@ function rulesFor(feasibility: Feasibility): GameRules {
  */
 const worldArb = feasibilityArb.chain((feasibility) => {
   const obtainable = TRAITS.filter((trait) => !feasibility.blocked.includes(trait));
-  const reachable = GODS.filter((god) => !feasibility.unreachable.includes(god));
+  // A shut pool refuses every god at once, where a ban is per trait, so this
+  // half of the acquisition is either free or empty and never in between.
+  const reachable = feasibility.poolFull ? [] : [...GODS];
 
   const levelled = (traits: readonly string[]) =>
     fc
@@ -204,13 +206,6 @@ const worldArb = feasibilityArb.chain((feasibility) => {
       elementPlan,
       fc.option(fc.constantFrom(...KEEPSAKES), { nil: undefined }),
       fc.option(fc.constantFrom(...ASPECTS), { nil: undefined }),
-      fc.option(
-        fc.record({
-          region: fc.integer({ min: 1, max: 4 }),
-          chamber: fc.integer({ min: 1, max: 40 }),
-        }),
-        { nil: undefined },
-      ),
       fc.subarray(obtainable).chain(levelled),
       fc.subarray(reachable),
       // Drawn as a partial map on purpose, so all three answers occur: a talent
@@ -237,7 +232,6 @@ const worldArb = feasibilityArb.chain((feasibility) => {
         elements,
         keepsake,
         aspect,
-        progress,
         gainedTraits,
         gainedGods,
         talents,
@@ -278,7 +272,7 @@ const worldArb = feasibilityArb.chain((feasibility) => {
 
         return {
           req,
-          facts: progress === undefined ? base : { ...base, progress },
+          facts: base,
           rules: rulesFor(feasibility),
           lookups,
           delta,
@@ -544,7 +538,7 @@ describe("P8 — whether a requirement is met does not depend on feasibility", (
         // Satisfaction is read before feasibility in every rule, so whether a
         // requirement is *met* is a question about literally just the facts.
         // A run that holds a trait the layer now blocks or has a god pooled
-        // that couldn't enter the pool today still meets a requirement
+        // while the layer calls the pool full still meets a requirement
         // naming them. Also, it's only in that kind of run where the two
         // orderings give different answers (which is why the generator is yk
         // free to produce one).

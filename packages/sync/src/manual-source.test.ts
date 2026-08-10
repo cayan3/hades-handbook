@@ -931,18 +931,16 @@ describe("a stored run this build cannot read", () => {
 
 describe("run progress", () => {
   /**
-   * There is deliberately no method that sets it. The counter has one consumer
-   * in the whole model, that consumer is reached only through a requirement
-   * atom no shipped catalog produces, and its absence is already handled in the
-   * safe direction. This test exists so that adding a setter is a decision
-   * somebody makes on purpose rather than a helpful-looking patch.
+   * The run facts no longer carry region and chamber at all, so the interesting
+   * half of the old assertion — that the source declines to collect a field it
+   * could have — is now a type error rather than a test. What is left is the
+   * surface: nothing here grew a setter for a counter the model dropped.
    */
   it("is never collected by manual entry", async () => {
     const source = await open();
     source.mark("HeraAttack");
     source.equipKeepsake("ForceHeraBoonKeepsake");
 
-    expect(source.getFacts().progress).toBeUndefined();
     expect(Object.keys(source)).not.toContain("setProgress");
   });
 });

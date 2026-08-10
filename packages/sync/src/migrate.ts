@@ -203,7 +203,6 @@ function scanFacts(
     equipped,
     resources: new Map(facts.resources),
     bans,
-    ...(facts.progress === undefined ? {} : { progress: facts.progress }),
   };
 }
 

@@ -754,24 +754,19 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
 }
 
 /**
- * Run progress — region and chamber — is not collected, and there is
- * deliberately no method above that sets it.
+ * How far into a run the player is — region and chamber — is not collected, and
+ * there is deliberately no method above that sets it and nowhere in the run
+ * facts to put it.
  *
- * It has exactly one consumer in the whole model: the question of whether a god
- * can still be forced into a full pool late in a run. That question is asked by
- * one requirement atom which no shipped catalog produces, in either game, so
- * the counter would today buy a precision nothing can reach. Against that it
- * costs a phone-first player a number to maintain by hand for the length of
- * every run, with no other surface reading it and no feedback when it drifts —
- * and the half of it that is a chamber count is read by nothing at all, in any
- * game, even in principle.
+ * It only ever had one consumer: the question of whether a god could still be
+ * forced into a full pool late in a run, asked by a requirement atom that no
+ * shipped catalog produces in either game. Against a precision nothing could
+ * reach, it cost a phone-first player a number to maintain by hand for the
+ * length of every run, with no other surface reading it and no feedback when it
+ * drifted. The engine now answers that question from the pool alone and hands
+ * the keepsake route to the copy instead, so there is nothing left to ask for.
  *
- * The engine already handles its absence, and handles it in the safe direction:
- * with no progress recorded a god reads as still reachable rather than as a
- * dead end, which is the answer that never costs a player a build they could
- * have finished.
- *
- * A bridge fed by the game gets the counter for free and may write it. That is
- * the case this field stays optional for. It is not a reason for manual entry
- * to ask.
+ * A bridge fed by the game would get the counter for free, which is the case
+ * for putting the field back if a catalog ever starts producing that atom. It
+ * was never a case for manual entry to ask.
  */

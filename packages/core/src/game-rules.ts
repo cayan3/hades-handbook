@@ -1,4 +1,4 @@
-import type { GodId, TraitId } from "./ids.js";
+import type { TraitId } from "./ids.js";
 import type { RunFacts } from "./run-state.js";
 import type { Reason } from "./status.js";
 
@@ -25,20 +25,21 @@ export interface GameRules {
   poolCapacity(f: RunFacts): number;
 
   /**
-   * Whether a god `g` can still enter the pool this run. This is true whenever
-   * it's still possible to "force" a god into the pool by equipping their keepsake,
-   * which is calculated based on how far the run has progressed so far.
+   * Whether the run has used up the cap above, counting only the gods that
+   * actually take a pool slot. A run's god pool holds every god it took a reward
+   * from, and some of them (Hermes and Chaos in both games, plus Selene and the
+   * cameos in Hades II) hand out boons without ever claiming a slot, so this is
+   * not just a size against a number.
    *
-   * When run progress is unknown, an implementation is never actually asked this.
-   * A wrongly displayed "unreachable" is like most damaging answer this engine
-   * can give, which is too important to depend on each implementation always
-   * remembering the same guard(s). To help prevent this from happening,
-   * evaluation checks run progress first & if it's unknown, reports "not yet"
-   * w/o consulting the rules at all. This allows the conservative answer of
-   * "not yet" to be guaranteed/the default instead of being left to ermmmm
-   * well whichever silly lil guy wrote the implementation ig (0_0).
+   * The question is deliberately about the *pool* & not about a particular god.
+   * The cap is soft & a keepsake can still force a god in past it, but nothing
+   * supplies the run progress that would say whether an opportunity to do that
+   * remains, so there's no honest per-god answer to give: once the cap is met
+   * every absent god is in the same position. The softness is carried in the
+   * copy attached to the verdict instead, which tells the player the keepsake
+   * route is still open.
    */
-  canGodEnterPool(g: GodId, f: RunFacts): boolean;
+  isGodPoolFull(f: RunFacts): boolean;
 
   /**
    * Feasibility for one trait: bans, weapon aspect conflicts, slot &

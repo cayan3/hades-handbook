@@ -46,7 +46,7 @@ const exclusiveRules: GameRules = {
 /** Feasibility that depends on the run: the (natural) pool closes once it's full. */
 const poolRules: GameRules = {
   ...stubRules(),
-  canGodEnterPool: (_god, facts) => facts.godPool.size < 4,
+  isGodPoolFull: (facts) => facts.godPool.size >= 4,
 };
 
 function reasonOf(req: Requirement, facts: RunFacts, rules = stubRules(), lookups = NO_LOOKUPS) {
@@ -187,22 +187,32 @@ describe("hasTrait", () => {
 
 describe("godInPool", () => {
   const needsZeus: Requirement = { kind: "godInPool", god: "Zeus" };
-  const lateRun = { region: 4, chamber: 30 };
 
   it("is satisfied when the god is in the pool", () => {
-    const facts = makeFacts({ godPool: new Set(["Zeus"]), progress: lateRun });
+    const facts = makeFacts({ godPool: new Set(["Zeus"]) });
     expect(evaluate(needsZeus, facts, stubRules(), NO_LOOKUPS)).toEqual({ kind: "satisfied" });
   });
 
-  it("is pending while the god can still be pulled in", () => {
-    const facts = makeFacts({ progress: lateRun });
-    expect(residualOf(needsZeus, facts)).toEqual(needsZeus);
+  it("is pending while the pool still has room", () => {
+    expect(residualOf(needsZeus, makeFacts())).toEqual(needsZeus);
   });
 
-  it("is impossible once no keepsake opportunity remains", () => {
-    const facts = makeFacts({ progress: lateRun });
-    const rules = stubRules({ unreachableGods: new Set(["Zeus"]) });
-    expect(reasonOf(needsZeus, facts, rules)).toEqual({ kind: "godPoolFull", god: "Zeus" });
+  it("is impossible once the pool is full", () => {
+    // "Impossible" here is a shorthand for "impossible for now": the cap is
+    // soft, and a keepsake equipped at the next region can still force Zeus in.
+    // Saying *that* instead would need a count of the regions the run has left,
+    // which nothing supplies, so the softness is carried by the copy the UI puts
+    // on this verdict rather than by a second status.
+    const rules = stubRules({ poolFull: true });
+    expect(reasonOf(needsZeus, makeFacts(), rules)).toEqual({ kind: "godPoolFull", god: "Zeus" });
+  });
+
+  it("is satisfied for a pooled god even once the pool is full", () => {
+    // Satisfaction is read before feasibility everywhere, and this is the case
+    // where the two disagree: the fourth god through the door is in the pool,
+    // and the pool is also shut.
+    const facts = makeFacts({ godPool: new Set(["g1", "g2", "g3", "Zeus"]) });
+    expect(evaluate(needsZeus, facts, poolRules, NO_LOOKUPS)).toEqual({ kind: "satisfied" });
   });
 
   it("closes as the pool fills, which is a status going down under acquisition", () => {
@@ -212,25 +222,11 @@ describe("godInPool", () => {
     // places where acquiring something actually *lowers* a status (on purpose ofc).
     // Monotonicity holds the feasibility layer fixed specifically so it can
     // exclude them, so this is the only place the behavior is actually checked.
-    const room = makeFacts({ godPool: new Set(["g1", "g2", "g3"]), progress: lateRun });
+    const room = makeFacts({ godPool: new Set(["g1", "g2", "g3"]) });
     expect(residualOf(needsZeus, room, poolRules)).toEqual(needsZeus);
 
-    const full = makeFacts({ godPool: new Set(["g1", "g2", "g3", "g4"]), progress: lateRun });
+    const full = makeFacts({ godPool: new Set(["g1", "g2", "g3", "g4"]) });
     expect(reasonOf(needsZeus, full, poolRules)).toEqual({ kind: "godPoolFull", god: "Zeus" });
-  });
-
-  it("stays pending with no run progress, even when the rules say the pool is closed", () => {
-    // Since players can still "force" gods not already in their pool even after
-    // they already have four gods in the pool (& thus in most circumstances
-    // won't be offered new gods via normal in-game room rewards), counting the
-    // remaining regions/keepsake-equipping opportunities is the only way to
-    // know if a god is genuinely unreachable. Obviously, that means we need to
-    // keep track of some sort of run progress in order to actually count them.
-    // Also, the UI guessing "impossible" when a god can still be "forced" is
-    // likee the damaging mistake possible here (lol!), so the absence of
-    // run progress outranks the answer "technically" given by the rules.
-    const rules = stubRules({ unreachableGods: new Set(["Zeus"]) });
-    expect(residualOf(needsZeus, makeFacts(), rules)).toEqual(needsZeus);
   });
 });
 

@@ -73,26 +73,6 @@ export interface RunFacts {
    * exactly one path in (i.e. as input to a `GameRules` implementation).
    */
   bans: Set<TraitId>;
-  /**
-   * How far into the run the player is. 1-indexed counters (i.e. instead of
-   * 0-indexed (for once lol)), and w/o any actual region names since ordering is
-   * all that matters & region names differ per game (or even type of run in
-   * Hades II). Absent when the source can't supply it.
-   *
-   * Important (at least) bc the god pool cap is soft, i.e. even if the player
-   * already has four distinct gods in their pool, equipping a fifth god's
-   * keepsake "forces" that god into the god pool. Since keepsakes are swappable
-   * each region, the number of remaining keepsake-equipping opportunities
-   * determines whether or not a god is genuinely unreachable. If run progress
-   * isn't tracked, the default is to treat a god as still reachable (bc it's
-   * more damaging to mistakenly display a reachable god (even if they're only
-   * reachable-via-keepsake) as unreachable; also, "this god is technically
-   * reachable but you'll need to equip their keepsake to get them in your god
-   * pool" is actually yk actionable whereas the dead end of "unreachable."
-   * is.. much less so (not to mention maybe a bit ermmm idk ouch-ful ig
-   * :pensive: :pensive:)).
-   */
-  progress?: { region: number; chamber: number };
 }
 
 /**

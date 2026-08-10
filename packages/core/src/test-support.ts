@@ -48,13 +48,20 @@ export function held(...traits: ReadonlyArray<TraitId | readonly [TraitId, numbe
 
 export interface StubRules {
   blocked?: ReadonlyMap<TraitId, Reason>;
-  unreachableGods?: ReadonlySet<GodId>;
+  /**
+   * A fixed answer rather than a count over the facts, for the same reason the
+   * blocked map is: a stub that filled up as gods were pooled would make
+   * feasibility move under acquisition, which is the one thing monotonicity
+   * needs held still. The worked examples that *want* it to move build their
+   * own rules.
+   */
+  poolFull?: boolean;
   capacity?: number;
 }
 
 /**
- * A game-rules stub whose verdicts depend on the trait, god, or element asked
- * about and never on the facts.
+ * A game-rules stub whose verdicts depend on the trait or element asked about
+ * and never on the facts.
  *
  * That is... literally the point bro (this is not a shortcut -_-). Feasibility
  * that varies w/ what the player holds is exactly what makes acquisition able
@@ -72,7 +79,7 @@ export interface StubRules {
 export function stubRules(cfg: StubRules = {}): GameRules {
   return {
     poolCapacity: () => cfg.capacity ?? 4,
-    canGodEnterPool: (g) => !(cfg.unreachableGods?.has(g) ?? false),
+    isGodPoolFull: () => cfg.poolFull ?? false,
     isBlocked: (t) => cfg.blocked?.get(t) ?? null,
   };
 }
@@ -104,8 +111,8 @@ export function emptyAcquisition(): Acquisition {
 
 /**
  * The same run w/ nothing acquired yet: `held`, `godPool`, & `elements` are
- * emptied/cleared, while everything else (e.g. the equipped kit, progress, &
- * every rules verdict that doesn't derive from those three) is left alone.
+ * emptied/cleared, while everything else (e.g. the equipped kit & every rules
+ * verdict that doesn't derive from those three) is left alone.
  *
  * This is the very baseline a residual is a statement about. A residual says
  * what still needs to be acquired, so re-feeding it to the facts it literally
@@ -167,7 +174,7 @@ export function applyAcquisition(facts: RunFacts, delta: Acquisition): RunFacts 
  * why we can't have nice things :pensive: :pensive:.)
  *
  * Nothing the feasibility layer refuses is ever put in the list (a run can't
- * acquire a trait that's been banned, or pool a god that can't enter the pool)
+ * acquire a trait that's been banned, or pool a god once the pool is full)
  * (lol).
  *
  * Each requirement 1) is threaded through the list built so far, and 2) hands
@@ -230,7 +237,7 @@ function collect(
     }
     case "godInPool": {
       if (facts.godPool.has(req.god)) return sofar;
-      if (!rules.canGodEnterPool(req.god, facts)) return null;
+      if (rules.isGodPoolFull(facts)) return null;
       const next = clone(sofar);
       next.godPool.add(req.god);
       return next;

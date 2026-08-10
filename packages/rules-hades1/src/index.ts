@@ -1,5 +1,5 @@
-import { type TraitRecord, forcingKeepsakes, poolGods, traitsFor } from "@repo/catalog";
-import type { GameRules, GodId, KeepsakeId, Reason, RunFacts, TraitId } from "@repo/core";
+import { type TraitRecord, poolGods, traitsFor } from "@repo/catalog";
+import type { GameRules, GodId, Reason, RunFacts, TraitId } from "@repo/core";
 
 /**
  * Hades I implementation of the game-rules seam.
@@ -31,14 +31,6 @@ import type { GameRules, GodId, KeepsakeId, Reason, RunFacts, TraitId } from "@r
 const POOL_CAPACITY = 4;
 
 /**
- * How many regions a run passes through, which bounds how many times a keepsake
- * can be swapped in. Four, Tartarus through Styx, against eight keepsakes that
- * force a god, so the supply can never run out. Remaining regions are what to
- * count, not remaining keepsakes.
- */
-const REGIONS_PER_RUN = 4;
-
-/**
  * The catalog reads this implementation needs, passed as data rather than
  * imported, so a test can state a small world instead of asserting against four
  * hundred shipped records.
@@ -46,8 +38,6 @@ const REGIONS_PER_RUN = 4;
 export interface RulesCatalog {
   /** Trait records with the overlay folded in. */
   traits: Readonly<Record<TraitId, TraitRecord>>;
-  /** Which god each keepsake forces into the pool. */
-  forcingKeepsakes: ReadonlyMap<KeepsakeId, GodId>;
   /** The gods that hold a pool slot, which are the ones the cap counts. */
   poolGods: ReadonlySet<GodId>;
 }
@@ -55,13 +45,12 @@ export interface RulesCatalog {
 export function shippedCatalog(): RulesCatalog {
   return {
     traits: traitsFor("hades1"),
-    forcingKeepsakes: forcingKeepsakes("hades1"),
     poolGods: poolGods("hades1"),
   };
 }
 
 export function createRules(catalog: RulesCatalog = shippedCatalog()): GameRules {
-  const { traits, forcingKeepsakes: forcing, poolGods: pooled } = catalog;
+  const { traits, poolGods: pooled } = catalog;
 
   return {
     poolCapacity(): number {
@@ -69,49 +58,28 @@ export function createRules(catalog: RulesCatalog = shippedCatalog()): GameRules
     },
 
     /**
-     * Whether a god can still enter the pool this run.
+     * Whether the run has used up its cap on gods.
      *
-     * The cap is soft. It bounds which gods the game *offers*, and equipping an
-     * absent god's keepsake pulls that god in anyway, so the real question is
-     * not "is the pool full" but "is there any way left to add to it". There
-     * are three, and this returns false only once all three are spent.
+     * Only gods that hold a pool slot count, which is why the count below is
+     * not just the size of the pool. A run's god pool holds every god it took a
+     * reward from, and Hermes and Chaos hand out boons without ever claiming a
+     * slot; the game leaves them out by the same flag it uses to set the cap.
+     * Counting them would fill the pool two gods early and shut the door while
+     * slots were still open.
      *
-     * The pool has room, so the god may simply be offered.
-     *
-     * A region boundary remains, which is where keepsakes get swapped, so the
-     * god's own keepsake can still go on in time to matter.
-     *
-     * Or the run is already carrying that god's keepsake. This is the case
-     * counting regions alone gets wrong: in the last region there is no
-     * boundary left to swap at, but a keepsake equipped before entering it is
-     * still equipped, and the god it forces can still turn up. Answering "full"
-     * there would tell a player their build is impossible while the thing that
-     * saves it sits in their keepsake slot.
-     *
-     * Anything short of a proven dead end returns true. Wrongly calling a god
-     * unreachable is the most damaging answer this engine can give — a player
-     * acts on "impossible tonight" and walks away from a build that was open —
-     * so unknown progress is treated generously, and so is a region number
-     * outside the range this game has. A counter this code does not recognise
-     * is not evidence of anything.
-     *
-     * Only gods that hold a pool slot count toward the cap, which is why the
-     * count below is not just the size of the pool. A run's god pool holds every
-     * god it took a reward from, and Hermes and Chaos hand out boons without
-     * ever claiming a slot; the game leaves them out by the same flag it uses to
-     * set the cap. Counting them would fill the pool two gods early and report a
-     * god as unreachable while slots were still free.
+     * A full pool is not the end of the matter and this answer is not the whole
+     * verdict. The cap bounds which gods the game *offers*; equipping an absent
+     * god's keepsake pulls that god in anyway, at any point in the run. Saying
+     * which absent gods that leaves genuinely out of reach would mean knowing
+     * how many chances to swap a keepsake in the run has left, and nothing hands
+     * this code that number, so the question this answers is the one it can:
+     * whether the pool is offering anybody else. The keepsake route is spelled
+     * out in the copy that goes with the verdict rather than left implied.
      */
-    canGodEnterPool(god: GodId, facts: RunFacts): boolean {
-      if (facts.godPool.has(god)) return true;
+    isGodPoolFull(facts: RunFacts): boolean {
       let occupied = 0;
       for (const inPool of facts.godPool) if (pooled.has(inPool)) occupied++;
-      if (occupied < POOL_CAPACITY) return true;
-      const region = facts.progress?.region;
-      if (region === undefined) return true;
-      if (region !== REGIONS_PER_RUN) return true;
-      const keepsake = facts.equipped.keepsake;
-      return keepsake !== undefined && forcing.get(keepsake) === god;
+      return occupied >= POOL_CAPACITY;
     },
 
     /**
