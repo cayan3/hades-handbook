@@ -8,9 +8,11 @@ import type {
 import { evaluate } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import type { SyncCatalog } from "./catalog-view.js";
+import { openManualSource } from "./manual-source.js";
 import { createOverrideLayer } from "./override-layer.js";
 import type { FactOverride } from "./overrides.js";
 import type { RunStateSource, Unsub } from "./port.js";
+import { createMemoryStore } from "./store.js";
 import { testCatalog, testFacts, testTrait, traitTable } from "./test-support.js";
 
 function world(): SyncCatalog {
@@ -346,6 +348,30 @@ describe("what evaluation reads", () => {
 
     layer.clearOverrides();
     expect(verdict(layer.getFacts())).toBe("satisfied");
+  });
+
+  /**
+   * Undo is on the source and the merge is on the layer, and the contract asks
+   * for the composition: taking back an edit recomputes the effective facts.
+   * Each half is tested on its own above, which is exactly the arrangement in
+   * which a composition can be broken with every test still green.
+   */
+  it("moves when an undo on the source takes an edit back", async () => {
+    const source = await openManualSource({
+      game: "hades2",
+      catalog: world(),
+      store: createMemoryStore(),
+    });
+    const layer = createOverrideLayer({ source, catalog: world() });
+    layer.setOverride({ path: "godPool", god: "Zeus", present: true });
+
+    source.mark("HeraAttack");
+    expect(verdict(layer.getFacts())).toBe("satisfied");
+    source.undo();
+
+    expect(verdict(layer.getFacts())).toBe("pending");
+    // The hand-edit is untouched by the undo: it was never that edit.
+    expect(layer.getFacts().godPool.has("Zeus")).toBe(true);
   });
 
   /**
