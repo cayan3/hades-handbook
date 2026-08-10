@@ -121,6 +121,41 @@ describe("reading a source through the layer", () => {
     expect(layer.isOverridden("held", "ZeusAttack")).toBe(false);
   });
 
+  /**
+   * The merge is cached and recomputed only when the source moves or the
+   * overlay changes, so an override the caller can still reach is one it can
+   * change with nothing invalidating that cache. The stale answer that comes
+   * back is the hard kind to notice: the facts object's identity has not moved
+   * either, so a consumer memoizing on it is not merely holding an old answer,
+   * it is being told the answer is current.
+   */
+  it("keeps hold of its own overrides rather than the caller's objects", () => {
+    const { fake, layer } = layerOver(heldFacts());
+    const mine = { path: "godPool", god: "Zeus", present: true } as FactOverride;
+
+    layer.setOverride(mine);
+    (mine as { present: boolean }).present = false;
+    // The read has to come after something invalidates the cached merge, or the
+    // stale answer and the right one are the same answer and the assertion
+    // holds either way.
+    fake.report(heldFacts());
+    expect(layer.getFacts().godPool.has("Zeus")).toBe(true);
+
+    const handedBack = layer.overrides[0] as { present: boolean };
+    handedBack.present = false;
+    fake.report(heldFacts());
+    expect(layer.getFacts().godPool.has("Zeus")).toBe(true);
+  });
+
+  it("keeps hold of what a restore handed it, too", () => {
+    const restored = [{ path: "godPool", god: "Zeus", present: true } as FactOverride];
+    const { layer } = layerOver(heldFacts(), { restored });
+
+    (restored[0] as { present: boolean }).present = false;
+
+    expect(layer.getFacts().godPool.has("Zeus")).toBe(true);
+  });
+
   it("passes the source's own status and capabilities through", () => {
     const { fake, layer } = layerOver(heldFacts());
 

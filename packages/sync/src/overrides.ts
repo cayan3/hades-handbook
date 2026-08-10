@@ -116,9 +116,19 @@ export function emptyOverlay(): OverlayState {
   return { overrides: new Map() };
 }
 
+/**
+ * Copied on the way in instead of kept by reference.
+ *
+ * Whatever holds an overlay caches a merge over it and recomputes only when
+ * told, so an override the caller can still reach is an override the caller can
+ * change without the cache hearing about it. Also, the answer/reply is then
+ * stale in the one direction nothing checks, since the facts object's identity
+ * hasn't moved either. A shallow copy is the whole guard; it's the top-level
+ * fields a caller reassigns.
+ */
 export function overlayOf(overrides: Iterable<FactOverride>): OverlayState {
   const state = emptyOverlay();
-  for (const o of overrides) state.overrides.set(factKey(o), o);
+  for (const o of overrides) state.overrides.set(factKey(o), { ...o });
   return state;
 }
 

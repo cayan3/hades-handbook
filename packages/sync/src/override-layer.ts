@@ -129,8 +129,13 @@ export function createOverrideLayer(options: OverrideLayerOptions): OverrideLaye
     announce();
   }
 
+  /**
+   * Copies on the way out for the reason `overlayOf` copies on the way in: the
+   * merge below is cached, so an override a caller still holds a reference to
+   * is one it can change without anything invalidating that cache.
+   */
   function overrides(): readonly FactOverride[] {
-    return [...overlay.overrides.values()];
+    return [...overlay.overrides.values()].map((o) => ({ ...o }));
   }
 
   /**
@@ -234,7 +239,7 @@ export function createOverrideLayer(options: OverrideLayerOptions): OverrideLaye
 
     setOverride(o: FactOverride): void {
       check(o);
-      overlay.overrides.set(factKey(o), o);
+      overlay.overrides.set(factKey(o), { ...o });
       overlayChanged();
     },
 
