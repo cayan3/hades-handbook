@@ -1,5 +1,5 @@
 import type { TraitRecord } from "@repo/catalog";
-import type { GameId, RunState, TraitId } from "@repo/core";
+import type { GameId, RunFacts, RunState, TraitId } from "@repo/core";
 import type { MirrorRow, SyncCatalog } from "./catalog-view.js";
 import { emptyRun } from "./persisted.js";
 
@@ -69,4 +69,16 @@ export function testRow(id: string, a: string, b: string): MirrorRow {
 /** An empty run stamped with a build of the caller's choosing. */
 export function runOn(game: GameId, dataVersion: string): RunState {
   return emptyRun(game, dataVersion);
+}
+
+/**
+ * Facts with only the fields a test cares about filled in.
+ *
+ * This is whole instead of partial because the merge shares the collections
+ * nothing addressed, so a test asserting that has to be able to hold the *same* empty
+ * map the source handed over (which a builder handing back a fresh one per
+ * call wouldn't be able to express).
+ */
+export function testFacts(over: Partial<RunFacts> = {}): RunFacts {
+  return { ...emptyRun("hades2", "build-1").facts, ...over };
 }
