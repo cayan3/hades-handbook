@@ -439,6 +439,74 @@ describe("answering a Mirror row", () => {
   });
 });
 
+describe("answering one talent on its own", () => {
+  /**
+   * The same question reaching the same map, differing only in which set the id
+   * is checked against — and that is the whole point of it. The row form checks
+   * `mirrorRows`, which no shipped catalog populates, so it throws on every
+   * call; this checks `talents`, which carries every talent a requirement gates
+   * on. Nothing else about the answer changes.
+   */
+  it("writes the one key it was asked about, and no other", async () => {
+    const source = await open();
+
+    source.answerTalent("AmmoMetaUpgrade", "selected");
+
+    expect([...(source.getFacts().equipped.talents ?? [])]).toEqual([
+      ["AmmoMetaUpgrade", "selected"],
+    ]);
+  });
+
+  it("records a definite no, which is a different answer from silence", async () => {
+    const source = await open();
+
+    source.answerTalent("AmmoMetaUpgrade", "notSelected");
+
+    expect(source.getFacts().equipped.talents?.get("AmmoMetaUpgrade")).toBe("notSelected");
+    // The partner was never asked about, so it has no key at all — which reads
+    // as an open question rather than as a second no.
+    expect(source.getFacts().equipped.talents?.has("ReloadAmmoMetaUpgrade")).toBe(false);
+  });
+
+  /**
+   * Un-answering has to reach *absent*, not *empty*. An empty map is the
+   * run-wide "asked, and none is selected", so a user taking back their last
+   * answer would otherwise be making the strongest statement available — the
+   * mistake the three-state shape exists to prevent, arriving from the one
+   * direction that looks like tidying up.
+   */
+  it("takes the map back to absent when the last answer is withdrawn", async () => {
+    const source = await open();
+    source.answerTalent("AmmoMetaUpgrade", "notSelected");
+    source.answerTalent("ReloadAmmoMetaUpgrade", "notSelected");
+
+    source.answerTalent("AmmoMetaUpgrade", null);
+    expect(source.getFacts().equipped.talents?.size).toBe(1);
+
+    source.answerTalent("ReloadAmmoMetaUpgrade", null);
+    expect(source.getFacts().equipped.talents).toBeUndefined();
+  });
+
+  it("refuses a talent the catalog cannot name", async () => {
+    const source = await open();
+
+    expect(() => {
+      source.answerTalent("NotATalent", "selected");
+    }).toThrow(/no talent/);
+    expect(source.getFacts().equipped.talents).toBeUndefined();
+  });
+
+  it("is takeable back like any other edit", async () => {
+    const source = await open();
+    source.answerTalent("AmmoMetaUpgrade", "selected");
+
+    expect(source.lastEdit).toEqual({ action: "answerTalent", subject: "AmmoMetaUpgrade" });
+    source.undo();
+
+    expect(source.getFacts().equipped.talents).toBeUndefined();
+  });
+});
+
 describe("intent", () => {
   it("refuses a pin or a plan on an id the catalog does not have", async () => {
     const source = await open();

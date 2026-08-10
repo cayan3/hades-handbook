@@ -9,6 +9,7 @@ import type {
   RunFacts,
   RunState,
   TalentId,
+  TalentSelection,
   TraitId,
 } from "@repo/core";
 import { type SyncCatalog, shippedCatalog } from "./catalog-view.js";
@@ -65,6 +66,7 @@ export type EditAction =
   | "equipAspect"
   | "equipKeepsake"
   | "answerMirrorRow"
+  | "answerTalent"
   | "setElement"
   | "setResource"
   | "pin"
@@ -173,6 +175,24 @@ export interface ManualSource extends RunStateSource {
 
   /** Answers one Mirror row: a member, or `null` for "none selected". */
   answerMirrorRow(row: string, selected: TalentId | null): void;
+
+  /**
+   * Answers one talent on its own: selected, not selected, or `null` to put it
+   * back to nobody having been asked.
+   *
+   * The same question as `answerMirrorRow` reaching the same map, differing in
+   * which set it checks the id against — and that is the whole of why it
+   * exists. The row form checks `catalog.mirrorRows`, which no shipped catalog
+   * populates, so it throws on every call; this checks `catalog.talents`, which
+   * carries every talent some requirement gates on. The two collect the same
+   * answer because the only row member outside that set is read by no
+   * requirement, so never writing its key is invisible to evaluation.
+   *
+   * Rows remain the better surface where they exist — they match the Mirror's
+   * own presentation and make "both members selected" unrepresentable — so this
+   * is the way to ask while they do not, not a replacement for asking properly.
+   */
+  answerTalent(talent: TalentId, selection: TalentSelection | null): void;
 
   setElement(element: Element, count: number): void;
   setResource(resource: ResourceId, amount: number): void;
@@ -855,6 +875,37 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
         talents.set(member, member === selected ? "selected" : "notSelected");
       }
       commit({ ...state.facts, equipped: { ...state.facts.equipped, talents } });
+    },
+
+    /**
+     * One talent at a time, which is what can actually be asked today.
+     *
+     * `null` puts the key back to absent rather than writing a definite no, and
+     * the two have to stay tellable apart: absent is "nobody asked" and reads
+     * as an open question, while `"notSelected"` is an answer that makes every
+     * trait the talent gates impossible for the run.
+     *
+     * Which is why a map emptied by un-answering is deleted rather than left
+     * empty. An empty map is the run-wide "asked, and none is selected", so
+     * leaving one behind would turn a user taking back their last answer into
+     * the strongest possible statement — the mistake the three-state shape
+     * exists to prevent, arriving from the one direction that looks like
+     * tidying up.
+     */
+    answerTalent(talent: TalentId, selection: TalentSelection | null): void {
+      if (!catalog.talents.has(talent)) {
+        throw new Error(`no talent "${talent}" in the ${catalog.game} catalog`);
+      }
+      beginEdit("answerTalent", talent);
+
+      const talents = new Map(state.facts.equipped.talents ?? []);
+      if (selection === null) talents.delete(talent);
+      else talents.set(talent, selection);
+
+      const equipped = { ...state.facts.equipped };
+      if (talents.size === 0) delete equipped.talents;
+      else equipped.talents = talents;
+      commit({ ...state.facts, equipped });
     },
 
     setElement(element: Element, count: number): void {
