@@ -29,20 +29,16 @@ import {
 import { catalogNaming, type Naming } from "./naming.js";
 
 /**
- * Everything a node shows without being asked.
+ * Everything a node shows without being asked, split from the detail below along
+ * the line the disclosure ladder draws: an icon and a state always, everything
+ * else on a hover or a tap. That split is also what keeps a page of a hundred and
+ * thirty nodes affordable, since the parts that cost a second walk of a
+ * requirement tree are all on the other side of it.
  *
- * Split from the detail below along the line the disclosure ladder draws:
- * always visible is an icon and a state, and everything else waits for a hover
- * or a tap. That split is not only a design choice, it is what keeps a page of
- * a hundred and thirty nodes affordable — the parts that cost a second walk of
- * a requirement tree are all on the other side of it.
- *
- * Two fields cost more than the rest and are computed only when they can
- * possibly be non-empty. `notice` needs the reason behind an impossible
- * verdict, so it is asked for only once the state is already **Impossible**,
- * which across the shipped data is by a wide margin the rarest state. `dormant`
- * needs a second requirement evaluated, and only six records in either game
- * have one to evaluate.
+ * Two fields are computed only when they can be non-empty. `notice` needs the
+ * reason behind an impossible verdict, so it is asked for only once the state is
+ * Impossible, which is by far the rarest. `dormant` needs a second requirement
+ * evaluated, and six records in either game have one.
  */
 export interface NodeView {
   readonly trait: TraitId;
@@ -83,15 +79,20 @@ export interface NodeDetail {
 /**
  * The catalog and rules a set of nodes is derived against.
  *
- * The game rules arrive as a parameter rather than being picked from the game
- * id here. Two implementations exist, one per game, and a component library
- * that chose between them would have to import both — which would put the whole
- * of one game's feasibility logic into every page of the other.
+ * The rules are a parameter rather than picked from the game id, because a
+ * library that chose between the two implementations would have to import both,
+ * putting one game's whole feasibility layer into every page of the other.
  *
- * The records arrive as data for the reason the rules packages take theirs that
- * way: it lets a test state a world of three boons instead of asserting against
- * six hundred shipped ones, and it lets a demonstration show a verdict the
- * shipped data cannot produce without pretending the data produces it.
+ * The records are data for the reason the rules packages take theirs that way: a
+ * test can state a world of three boons rather than assert against six hundred,
+ * and a demonstration can show a verdict the shipped data cannot produce without
+ * pretending it does.
+ *
+ * Naming is deliberately *not* wired to those records. Names come back through
+ * the catalog's resolver, which is what gives them a withdrawal path; a caller
+ * supplying a record the catalog has never heard of is inventing a boon, and
+ * inventing its name is its own business. `naming` is a plain field, so such a
+ * caller overrides it where the fiction lives.
  */
 export interface NodeSource {
   readonly game: GameKey;
@@ -104,11 +105,9 @@ export interface NodeSource {
 }
 
 /**
- * Wires a source over the shipped catalog.
- *
- * The rules and the lookups stay the caller's; the records default to the
- * shipped ones and can be replaced, which is how the tests and the demonstration
- * put a boon in front of the derivation that the games do not contain.
+ * Rules and lookups stay the caller's; records default to the shipped ones and
+ * can be replaced, which is how the tests and the gallery put a boon in front of
+ * the derivation that the games do not contain.
  */
 export function createNodeSource(
   game: GameKey,
@@ -116,9 +115,9 @@ export function createNodeSource(
   lookups: CatalogLookups,
   records: Readonly<Record<TraitId, TraitRecord>> = traitsFor(game),
 ): NodeSource {
-  // Built once. The map is keyed by keepsake and asked by god, and rebuilding
-  // the inversion per impossible node would rescan it on every render of a
-  // full pool -- which is exactly the run where every absent god is one.
+  // Built once. The map is keyed by keepsake and asked by god, and inverting it
+  // per impossible node would rescan it on every render of a full pool, which is
+  // exactly the run where every absent god is one.
   const byGod = new Map<GodId, KeepsakeId>();
   for (const [keepsake, god] of forcingKeepsakes(game)) byGod.set(god, keepsake);
 
@@ -127,42 +126,33 @@ export function createNodeSource(
     rules,
     lookups,
     records,
-    naming: catalogNaming(game, records),
+    naming: catalogNaming(game),
     forcingKeepsake: (god) => byGod.get(god) ?? null,
   };
 }
 
 /**
- * A requirement that asks for nothing, for a boon that is gated on nothing.
- *
- * Roughly two thirds of the records in each game have no prerequisite at all,
- * and the evaluator answers a childless `all` with "satisfied" — so this is the
- * shape of "no gate" rather than a stand-in for one, and it keeps the
- * derivation to a single path instead of a special case that would then need
- * its own answer for every state below.
+ * For a boon gated on nothing, which is roughly two thirds of each game. The
+ * evaluator answers a childless `all` with "satisfied", so this is the shape of
+ * "no gate" rather than a stand-in for one, and it keeps the derivation to one
+ * path instead of a special case needing its own answer for every state.
  */
 const NO_GATE: Requirement = Object.freeze({ kind: "all", of: [] });
 
 /**
  * The rarity to show, which is usually none.
  *
- * A held boon carries a rarity, and for a great many boons that rarity is
- * something nobody observed: 191 records in the first game and 86 in the second
- * declare an *empty* list of rarities, and the writer that records a mark falls
- * back to the first declared rarity, or to Common when there are none. So for
- * those records the field says "Common" about a boon the data never said could
- * be Common.
+ * A held boon carries a rarity and for many boons nobody observed it: 191 records
+ * in the first game and 86 in the second declare an *empty* rarity list, and the
+ * writer that records a mark falls back to the first declared one, or to Common
+ * when there are none. So the field says "Common" about boons the data never said
+ * could be Common. Showing that would turn a guess into an observation, so a
+ * rarity appears only where the record declares the boon has any.
  *
- * Rarity is display state, and displaying a value the data does not have turns
- * a guess into an observation on screen. So this shows a rarity only where the
- * record declares that the boon has rarities at all, and nothing otherwise —
- * an absent treatment being the honest rendering of an absent fact.
- *
- * That leaves a smaller version of the same problem, named here rather than
- * hidden: even where the list is non-empty, the held rarity is that same
- * fallback unless whatever recorded the mark asked which one. Closing it is a
- * question for the surface that owns the marking gesture, not for this one,
- * which has no way to ask.
+ * A smaller version of the problem survives, named rather than hidden: even with
+ * a non-empty list, the held rarity is that same fallback unless something asked
+ * which one. Asking belongs to whatever owns the marking gesture; this has no way
+ * to.
  */
 function declaredRarity(
   state: BoonState,
@@ -175,18 +165,15 @@ function declaredRarity(
 }
 
 /**
- * One node, derived.
+ * The state comes from the engine's own helper and is never recomputed here. A
+ * view deciding for itself which of the five buckets a boon is in would be a
+ * second implementation of the rule, and the two would agree right up until one
+ * of them changed.
  *
- * The state comes from the engine's own helper and is never recomputed here —
- * a view that decided for itself which of the five buckets a boon was in would
- * be a second implementation of the rule, and the two would agree right up
- * until one of them was changed.
- *
- * The reason behind an impossible verdict is asked for separately, and in the
- * same order the helper settles the state: the boon's own feasibility first,
- * because a boon can be out of reach while its prerequisite stays perfectly
- * satisfiable, then the prerequisite. Getting that order wrong would show a
- * player the wrong sentence about the right verdict.
+ * The reason is asked for separately and in the order the helper settles the
+ * state: the boon's own feasibility first, since a boon can be out of reach while
+ * its prerequisite stays satisfiable, then the prerequisite. The wrong order
+ * shows the wrong sentence under the right verdict.
  */
 export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFacts): NodeView {
   const { game, rules, lookups, naming, records } = source;
@@ -219,12 +206,9 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
 }
 
 /**
- * Why a boon is impossible, in the order the state was decided.
- *
- * Only ever asked once the answer is known to be Impossible, so the fallback at
- * the end is unreachable by construction rather than by luck — and it is an
- * empty group rather than a throw, because a node that renders nothing is a
- * worse outcome than a node that says less than it could.
+ * Only asked once the answer is known to be Impossible, so the fallback at the
+ * end is unreachable by construction. It is an empty group rather than a throw:
+ * a node that renders nothing is worse than one that says less than it could.
  */
 function reasonFor(
   source: NodeSource,
@@ -240,10 +224,8 @@ function reasonFor(
 }
 
 /**
- * The half of a node that waits to be asked for.
- *
- * Recomputed per inspection instead of cached with the view: one node is open
- * at a time, and the work is a walk of a single requirement tree.
+ * Recomputed per inspection rather than cached with the view: one node is open at
+ * a time, and the work is a walk of one requirement tree.
  */
 export function deriveNodeDetail(
   source: NodeSource,

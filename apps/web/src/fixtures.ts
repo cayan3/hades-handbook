@@ -5,31 +5,24 @@ import { createRules as hades2Rules } from "@repo/rules-hades2";
 import { type NodeSource, createNodeSource } from "@repo/ui";
 
 /**
- * Hand-written runs, and nothing that could produce one on its own.
+ * Hand-written runs, and nothing that could produce one on its own. No store is
+ * opened, no run-state source exists, nothing subscribes. Wiring the real
+ * platform is a later job, and keeping that seam is what stops a rendering
+ * problem and a persistence problem arriving in the same diff.
  *
- * This session builds the component library and is judged on whether it reads
- * right, so the run state it reads is typed out here rather than loaded: no
- * store is opened, no run-state source exists, and there is nothing to
- * subscribe to. Wiring the real platform is the next session's whole job, and
- * keeping the seam intact is what stops a rendering problem and a persistence
- * problem arriving in the same diff.
- *
- * Everything below the facts is real — the shipped catalog, the shipped
+ * Everything below the facts is real: the shipped catalog, the shipped
  * requirement trees, both games' actual rules. So a state on this page is the
  * engine's answer about a made-up run, never a label somebody typed.
  */
 
 /**
- * Lightning Rod: a Mirror talent, an Artemis boon and a Zeus boon.
- *
- * Chosen because it is the one shape in either game that can reach all five
- * states, which took a measurement worth leaving behind. **Impossible** is
- * derived from a boon's own feasibility and its prerequisite, and across the
- * shipped Hades II data no combination of held boons can make any prerequisite
- * unsatisfiable at all — of the hundred records that carry one, every branch
- * bottoms out in held traits, element counts or keepsakes. Hades I reaches it
- * sixteen times and all sixteen the same way: a Mirror talent the player did
- * not take, which is settled before the run starts and cannot change during it.
+ * Lightning Rod: a Mirror talent, an Artemis boon and a Zeus boon. Chosen because
+ * it is the one shape in either game that reaches all five states, which took a
+ * measurement worth leaving behind. Across the shipped Hades II data no
+ * combination of held boons can make any prerequisite unsatisfiable — of the
+ * hundred records carrying one, every branch bottoms out in held traits, element
+ * counts or keepsakes. Hades I reaches Impossible sixteen times and always the
+ * same way: a Mirror talent the player did not take, fixed before the run starts.
  */
 export const LIGHTNING_ROD = "AmmoBoltTrait" as TraitId;
 const TALENT = "AmmoMetaUpgrade";
@@ -40,13 +33,11 @@ const ZEUS_BOON = "ZeusWeaponTrait" as TraitId;
 export const SELF_HEALING = "ElementalRallyBoon" as TraitId;
 
 /**
- * A boon that asks for a god to be in the pool, which no shipped record does.
- *
- * Written out here, and labelled, because the verdict it produces carries the
- * one piece of copy in this product that is required rather than chosen — and
- * the atom that produces it has zero authors across both games' data. Faking
- * the *record* is honest; faking the verdict would not be, so the run below is
- * a real full pool and the rules that call it full are the shipped ones.
+ * A boon asking for a god in the pool, which no shipped record does — the atom
+ * has zero authors in either game. Written out here and labelled, because the
+ * verdict it produces carries the one piece of required copy in this product.
+ * Faking the *record* is honest; faking the verdict would not be, so the run is
+ * a real full pool and the rules calling it full are the shipped ones.
  */
 export const POOL_DEMO = "FixtureGodInPool" as TraitId;
 
@@ -92,12 +83,25 @@ function hades1Run(talent: TalentSelection | null, ...traits: readonly TraitId[]
   });
 }
 
-export const hades1: NodeSource = createNodeSource(
+const hades1Base = createNodeSource(
   "hades1",
   hades1Rules(),
   createLookups("hades1"),
   hades1Records(),
 );
+
+/**
+ * A source that also knows the name of the boon it made up. Names come back
+ * through the catalog's resolver, which has never heard of a fixture and quite
+ * right — so the file that invents a record supplies its name too.
+ */
+export const hades1: NodeSource = {
+  ...hades1Base,
+  naming: {
+    ...hades1Base.naming,
+    trait: (id) => (id === POOL_DEMO ? "Sea Blessing (fixture)" : hades1Base.naming.trait(id)),
+  },
+};
 
 export const hades2: NodeSource = createNodeSource(
   "hades2",
@@ -115,11 +119,9 @@ export const LADDER: ReadonlyArray<{ readonly state: string; readonly facts: Run
 ];
 
 /**
- * Four gods that hold a pool slot, which is the cap in both games.
- *
- * Hermes and Chaos are left out on purpose even though a run of this length
- * would have met them: they grant boons without ever claiming a slot, so
- * counting them would fill the pool two gods early.
+ * Four gods holding a pool slot, which is the cap in both games. Hermes and Chaos
+ * are left out on purpose though a run this long would have met them: they grant
+ * boons without claiming a slot, so counting them fills the pool two gods early.
  */
 export const FULL_POOL: RunFacts = facts("hades1", {
   godPool: new Set(["Zeus", "Ares", "Athena", "Aphrodite"]),
