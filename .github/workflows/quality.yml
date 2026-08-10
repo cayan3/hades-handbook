@@ -56,6 +56,24 @@ jobs:
       - run: npm run typecheck
       - run: npm run lint
       - run: npm test
+      # The app is the only thing here with a bundler, and nothing else would
+      # notice it stopped producing a page.
+      - run: npm run build
+      # The two strings this product renders and did not write are extracted
+      # game text and the player's own notes, and both reach the page as text,
+      # which the renderer escapes. There is exactly one way to opt out of that,
+      # so it is refused here rather than left to review. The pattern matches
+      # the prop being set, not the name being mentioned, so prose explaining
+      # the rule does not trip it.
+      - name: refuse the escaping opt-out
+        run: |
+          set -uo pipefail
+          if grep -rnE "dangerouslySetInnerHTML[[:space:]]*[=:]" packages apps \
+               --include="*.ts" --include="*.tsx"; then
+            echo "::error::text rendered as markup"
+            exit 1
+          fi
+          exit 0
 
   # Python tool (data-extract). Runs the synthetic fixtures — the only extractor
   # coverage that can run here, since the real dump is not in the repo.
