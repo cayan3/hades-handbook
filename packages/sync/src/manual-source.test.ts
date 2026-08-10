@@ -1227,6 +1227,65 @@ describe("taking back the last edit", () => {
     expect(source.migrationNotice).not.toBeNull();
     expect(source.getFacts().dataVersion).toBe("build-0");
   });
+
+  /**
+   * The test above asserts in memory, which is the only place the restored
+   * notice and the restored *owing* look alike. They are two fields, and an
+   * undo that put back the one on screen while leaving the record saying
+   * nothing is owed would pass it — the apology given back to the user and
+   * forgiven on disk in the same breath, with the next load raising nothing.
+   * Reloading is what tells them apart.
+   */
+  it("leaves the notice owed on disk too, so the next load still raises it", async () => {
+    const store = createMemoryStore();
+    const old = emptyRun("hades2", "build-0");
+    old.facts.held.set("RenamedSinceBuild0", { rarity: "Epic", level: 1 });
+    await store.save("hades2", "active", toPersisted({ state: old, quarantine: [] }));
+
+    const source = await open(store);
+    source.acceptMigration();
+    source.undo();
+    await source.flush();
+
+    const reloaded = await open(store);
+    expect(reloaded.migrationNotice?.playedOn).toBe("build-0");
+    expect(reloaded.migrationNotice?.entries).toEqual([
+      { path: "held", key: "RenamedSinceBuild0", value: { rarity: "Epic", level: 1 } },
+    ]);
+    // The stamp is not the assertion, and deliberately so: with nothing left to
+    // quarantine the reload re-stamps, which is the whole reason the owing is
+    // stored in a field of its own. One field cannot mean both "the build this
+    // run was played on" and "somebody still has to be told".
+    expect(reloaded.getFacts().dataVersion).toBe("build-1");
+  });
+
+  /**
+   * Nothing owed and the stamp already current: no field moves. Left ungated
+   * this was the expensive kind of no-op — a fresh facts object saying exactly
+   * what the old one said, so every consumer memoizing on that identity
+   * re-derived a game's worth of state for nothing — and worse, it spent the
+   * one level of undo the user has, replacing the offer to take back their
+   * last real edit with an offer to take back a gesture that changed nothing.
+   */
+  it("does nothing at all when there is no migration to accept", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    const before = source.getFacts();
+    let heard = 0;
+    source.subscribe(() => {
+      heard += 1;
+    });
+
+    source.acceptMigration();
+
+    expect(source.getFacts()).toBe(before);
+    expect(heard).toBe(0);
+    expect(source.lastEdit).toEqual({ action: "mark", subject: "HeraAttack" });
+
+    // And the mark is still the thing an undo takes back.
+    source.undo();
+    expect(source.getFacts().held.has("HeraAttack")).toBe(false);
+  });
 });
 
 describe("run progress", () => {

@@ -562,6 +562,16 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
      * so the notice went with it whether or not anybody had read it.
      */
     acceptMigration(): void {
+      // Nothing owed and the stamp already current: no field moves, so there is
+      // nothing to write, nothing to notify and nothing to offer to take back.
+      // Left ungated this was the expensive kind of no-op — it handed every
+      // consumer a fresh facts object saying exactly what the old one said, so
+      // each of them re-derived a whole game's worth of state for nothing, and
+      // it replaced the offer to undo the user's last real edit with an offer
+      // to undo a gesture that changed nothing.
+      if (notice === null && pending === null && state.facts.dataVersion === catalog.dataVersion) {
+        return;
+      }
       beginEdit("acceptMigration", null);
       notice = null;
       pending = null;
