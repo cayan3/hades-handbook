@@ -387,15 +387,34 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   let writes: Promise<void> = Promise.resolve();
   let storageError: Error | null = null;
 
+  /**
+   * The snapshot is taken when the write runs, not when the tap happened.
+   *
+   * Taken at the tap it was a copy of a run that had since moved on, and the
+   * one place that mattered was the run boundary. `finishRun` writes both
+   * records and only then empties memory, so a tap made while those writes are
+   * in flight used to capture the *finished* run and then land after them —
+   * putting the run that just ended back into the `active` record, where the
+   * next load reads it as the run in progress. Ending a run and having it
+   * un-end is a strange enough thing to see that it is worth the ordering being
+   * obvious rather than clever.
+   *
+   * Snapshotting late is also simply cheaper: a burst of taps chains a burst of
+   * writes, and every one of them now stores the same final run instead of a
+   * succession of states that overwrite each other anyway.
+   *
+   * The one write that must snapshot early is `finishRun`'s own, which has to
+   * store the run as it was before it cleared it. That one still does.
+   */
   function persist(): void {
-    const snapshot = toPersisted({
-      state,
-      quarantine,
-      pendingNotice: pending,
-      rewardedWithoutBoon,
-      overrides,
-    });
     writes = writes.then(async () => {
+      const snapshot = toPersisted({
+        state,
+        quarantine,
+        pendingNotice: pending,
+        rewardedWithoutBoon,
+        overrides,
+      });
       try {
         await store.save(catalog.game, "active", snapshot);
         storageError = null;

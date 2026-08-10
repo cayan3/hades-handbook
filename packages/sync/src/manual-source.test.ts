@@ -2,7 +2,7 @@ import type { GameId } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import type { SyncCatalog } from "./catalog-view.js";
 import { openManualSource } from "./manual-source.js";
-import { STORE_VERSION, emptyRun, toPersisted } from "./persisted.js";
+import { STORE_VERSION, emptyRun, fromPersisted, toPersisted } from "./persisted.js";
 import { type RunSlot, type RunStore, createMemoryStore } from "./store.js";
 import { testCatalog, testRow, testTrait, traitTable } from "./test-support.js";
 
@@ -1001,6 +1001,32 @@ describe("the overlay stored beside the run", () => {
 
     expect(source.overrides).toEqual([]);
     expect((await open(store)).overrides).toEqual([]);
+  });
+
+  /**
+   * A write chained while `finishRun`'s two record writes are in flight used to
+   * capture the run as it was at the tap — which, since nothing is cleared until
+   * both records are written, was the *finished* run. It then landed after both,
+   * so the record meaning "the run in progress" came back holding the run that
+   * had just ended, and the next load un-ended it. The write is chained after
+   * the boundary and now snapshots there too, so it stores the fresh run.
+   */
+  it("is not put back by a write that lands while the run is ending", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack");
+
+    const ending = source.finishRun();
+    source.putOverrides([{ path: "godPool", god: "Zeus", present: true }]);
+    await ending;
+    await source.flush();
+
+    const reopened = await open(store);
+    expect([...reopened.getFacts().held.keys()]).toEqual([]);
+    expect(reopened.overrides).toEqual([]);
+    // The finished run is where it belongs, and it kept what it had.
+    const last = fromPersisted(await store.load("hades2", "last"));
+    expect([...last.state.facts.held.keys()]).toEqual(["HeraAttack"]);
   });
 });
 
