@@ -1,0 +1,379 @@
+/*
+ * The node ladder, both of them.
+ *
+ * A stylesheet rather than styles assembled at runtime: the page ships a content
+ * policy with no allowance for inline styling, so a library that injected a
+ * <style> element would be a dependency that could not run. Custom properties
+ * per node stay available and are what the god colour uses, since those go
+ * through the object model, which the policy does not govern.
+ *
+ * The rule this file exists to keep: state is structural, never hue. Every step
+ * below is frame weight, brightness, saturation or shadow, and none of them sets
+ * a colour. A test reads this file and says so, because a rule kept only by
+ * everyone remembering it is a rule with a date on it. Hue belongs to god
+ * identity, and a channel meaning two things means neither.
+ *
+ * No hatching anywhere: it reads as texture rather than rank, can't be told from
+ * a dimmed frame at this size, and collides with the artwork it sits over.
+ */
+
+.node {
+  /* The one colour a node carries, meaning which god granted the boon. Set per
+     node through the style attribute; this is the no-god fallback. */
+  --god: #c9bfb2;
+  --frame: #f2ece4;
+  --node-size: 4.5rem;
+
+  display: inline-grid;
+  justify-items: center;
+}
+
+.node__control {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: center;
+  width: 7.5rem;
+  padding: 0.4rem;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+
+.node__control:focus-visible {
+  /* Its own channel, never one of the ladder's steps: it has to read on all
+     five, including the two already dimmed. */
+  outline: 3px solid #7fd3ff;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/*
+ * Uniform diamond, for every boon. Shape says nothing here — not rarity, not
+ * whether a boon is a Duo. Real boon art is diamond, so a diamond frame is what
+ * official artwork drops into cleanly, and a Duo is told apart by what is inside
+ * it. Shape as a type channel was tried and withdrawn: it fought the artwork and
+ * made every silhouette a thing to learn.
+ *
+ * Sharp by default — hard-edged, no bevel and no rounding, which is what the
+ * ladder's weights are legible against.
+ *
+ * Three boxes, because a diamond will not take a border. A clip path cuts the
+ * corners off the element, and takes an inset shadow and any absolutely
+ * positioned child with them — so the first version drew a frame nobody could
+ * see and hid both corner glyphs the same way. Instead the shape is a diamond
+ * filled with the frame's colour, the fill is a smaller diamond inside it, and
+ * the ring between the two is the frame. The outer box stays unclipped so the
+ * glyphs hanging off the corners survive.
+ */
+.node__frame {
+  position: relative;
+  width: var(--node-size);
+  height: var(--node-size);
+}
+
+.node__shape,
+.node__fill {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.node__shape {
+  background: var(--frame);
+  /* Doubled: across a 45-degree edge the visible ring is about seven tenths of
+     the inset. */
+  padding: calc(var(--frame-weight, 2px) * 2);
+  box-sizing: border-box;
+}
+
+.node__fill {
+  background: var(--ground, #12100f);
+}
+
+.node__art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.node__name {
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.node__lead {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/*
+ * Top right is the pin's, freed by dropping the checkmark an Obtained node used
+ * to carry. Bottom right is the dormant ring's, since a boon can be pinned and
+ * inert at once. Both sit outside the clip path, or the corners are exactly what
+ * gets clipped away.
+ */
+.node__marker,
+.node__dormant {
+  position: absolute;
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.node__marker {
+  top: -0.2rem;
+  right: -0.2rem;
+}
+
+.node__dormant {
+  right: -0.2rem;
+  bottom: -0.2rem;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * The real-art ladder — the default. With artwork on the node, state rides on
+ * the frame and on what is done to the art. A fill would bury a detailed,
+ * already-colourful icon, which is why this differs from the ladder below.
+ *
+ * Obtained    full-colour art, solid bright frame
+ * Available   full-colour art, bright frame, glow — takeable now
+ * Pending     full-colour art, plain frame, no glow — on the way
+ * Locked      dimmed art, bright thin frame — not started, reachable
+ * Impossible  desaturated art, low-contrast frame — can't happen this run
+ * ---------------------------------------------------------------------------
+ */
+
+.node[data-state="Obtained"] {
+  --frame-weight: 5px;
+}
+
+.node[data-state="Available"] {
+  --frame-weight: 5px;
+}
+
+.node[data-state="Available"] .node__frame {
+  /* The one accent reserved for "takeable now", so completing a requirement is
+     what moves on the page. Ink colour rather than one of its own: brightness,
+     not hue. */
+  filter: drop-shadow(0 0 0.35rem currentColor) drop-shadow(0 0 0.7rem currentColor);
+}
+
+.node[data-state="Pending"] {
+  --frame-weight: 3px;
+}
+
+/*
+ * The bottom two rungs differ in *where* the dimming lands, not only how much.
+ * Desaturation is the "not this run" signal and says nothing to a reader already
+ * seeing the page without colour, which is every reader this ladder was made
+ * structural for. Checked by looking: dimmed the same way, Locked and Impossible
+ * were the same picture in greyscale. So Locked keeps a bright frame around
+ * dimmed art — the boon is untouched and still ahead of you — and Impossible
+ * dims the frame with it.
+ */
+.node[data-state="Locked"] {
+  --frame-weight: 2px;
+}
+
+.node[data-state="Locked"] .node__fill {
+  filter: brightness(0.5);
+}
+
+.node[data-state="Locked"] .node__name {
+  opacity: 0.7;
+}
+
+.node[data-state="Impossible"] {
+  --frame-weight: 1px;
+}
+
+.node[data-state="Impossible"] .node__frame {
+  filter: grayscale(1) opacity(0.55);
+}
+
+.node[data-state="Impossible"] .node__name {
+  opacity: 0.7;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * The fallback ladder — no artwork at all, which is what this product looks like
+ * if the shipped art has to come down. The same five steps carried by fill and
+ * frame, with god colour back on the node since it is the only identity channel
+ * left. Same component, one stylesheet along: a second component would be the
+ * one nobody looked at until the day it was the only one.
+ * ---------------------------------------------------------------------------
+ */
+
+.node[data-ladder="fallback"] .node__shape {
+  background: var(--god);
+}
+
+/* Solid: with no artwork to bury, a fill costs nothing. The one step the two
+   ladders do differently. */
+.node[data-ladder="fallback"][data-state="Obtained"] .node__fill {
+  background: var(--god);
+}
+
+.node[data-ladder="fallback"][data-state="Available"] .node__frame {
+  filter: drop-shadow(0 0 0.4rem var(--god));
+}
+
+/* Locked dims the art on the default ladder and here there is none. Dimming the
+   empty middle only darkens it past the page behind it, which reads as a filled
+   node rather than a faded one, so the frame takes the dimming instead. */
+.node[data-ladder="fallback"][data-state="Locked"] .node__fill {
+  filter: none;
+}
+
+.node[data-ladder="fallback"][data-state="Locked"] .node__shape {
+  filter: brightness(0.55);
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Junctions: the three-way answer for the group a branch point stands for, in
+ * the same diamond language as the nodes it joins. Filled when met, outline when
+ * not yet, faded when it cannot happen. Smaller, because it is not a node.
+ * ---------------------------------------------------------------------------
+ */
+
+.junction {
+  display: inline-block;
+  width: 1.1rem;
+  height: 1.1rem;
+  overflow: visible;
+}
+
+.junction polygon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.junction[data-status="satisfied"] polygon {
+  fill: currentColor;
+}
+
+.junction[data-status="unsatisfiable"] {
+  opacity: 0.4;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Tier bands and the detail sheet.
+ * ---------------------------------------------------------------------------
+ */
+
+.tier-bands,
+.tier-bands__nodes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tier-bands__band + .tier-bands__band {
+  margin-top: 1.25rem;
+}
+
+.tier-bands__label {
+  margin: 0 0 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.tier-bands__nodes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: end center;
+  background: rgb(0 0 0 / 55%);
+}
+
+.sheet {
+  width: min(30rem, 100%);
+  max-height: 85vh;
+  padding: 1rem 1.1rem 1.4rem;
+  overflow-y: auto;
+  border-radius: 0.75rem 0.75rem 0 0;
+  background: #1b1815;
+}
+
+@media (min-width: 48rem) {
+  .sheet-scrim {
+    place-items: center;
+  }
+
+  .sheet {
+    border-radius: 0.75rem;
+  }
+}
+
+.sheet__head {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.sheet__title {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.sheet h3 {
+  margin: 1rem 0 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.sheet ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.sheet__notice {
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.4rem;
+  background: rgb(255 255 255 / 6%);
+}
+
+.sheet__keepsake {
+  display: block;
+  margin-top: 0.35rem;
+  opacity: 0.75;
+}
+
+.sheet__actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+.sheet__actions button,
+.sheet__close {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid currentColor;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}

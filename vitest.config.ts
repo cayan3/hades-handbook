@@ -15,5 +15,13 @@ export default defineConfig({
       "apps/*/src/**/*.test.tsx",
     ],
     exclude: ["**/node_modules/**", "**/dist/**", "tools/**"],
+    // The runner stubs stylesheets with an empty module by default, to save work
+    // no assertion was going to look at. One assertion does: the node ladder's
+    // rule is that state is structural and never a colour, kept by a test that
+    // reads the stylesheet. With the stub in place that test read an empty
+    // string, passed and proved nothing -- which its own "is the ladder in here
+    // at all" case caught. Nothing else imports a stylesheet, so this costs the
+    // one file that asked for it.
+    css: true,
   },
 });
