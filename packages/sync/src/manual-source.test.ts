@@ -597,6 +597,204 @@ describe("the port surface", () => {
   });
 });
 
+describe("watching intent, which the port cannot carry", () => {
+  it("tells an intent subscriber about a pin, a plan and a note", async () => {
+    const source = await open();
+    const seen: number[] = [];
+    const unsub = source.subscribeIntent((intent) => seen.push(intent.pins.size));
+
+    source.pin("HeraAttack");
+    source.plan("HeraSpecial");
+    source.setNote("HeraAttack", "keep for the duo");
+    unsub();
+    source.pin("HermesDash");
+
+    expect(seen).toEqual([1, 1, 1]);
+  });
+
+  /**
+   * The wake-up that carried no news. Every intent writer commits the facts
+   * object it already handed out, so a facts subscriber was told to look again
+   * at something that had not moved — and a consumer memoizing on the facts had
+   * to re-derive a whole game to find that out.
+   */
+  it("does not wake a facts subscriber for an intent-only edit", async () => {
+    const source = await open();
+    const before = source.getFacts();
+    let heard = 0;
+    source.subscribe(() => {
+      heard += 1;
+    });
+
+    source.pin("HeraAttack");
+    source.setNote("HeraAttack", "keep for the duo");
+
+    expect(heard).toBe(0);
+    expect(source.getFacts()).toBe(before);
+  });
+
+  it("tells an intent subscriber when a run ends and the fresh one has no pins", async () => {
+    const source = await open();
+    source.pin("HeraAttack");
+    const seen: number[] = [];
+    source.subscribeIntent((intent) => seen.push(intent.pins.size));
+
+    await source.finishRun();
+
+    expect(seen).toEqual([0]);
+  });
+});
+
+describe("a writer that moves nothing", () => {
+  /**
+   * One level of undo is the whole offer, so an edit that changes nothing must
+   * not take it: the mis-tap it displaces is then unreachable. Four writers had
+   * no guard of their own, and this is the one answer for all of them.
+   */
+  it("leaves the undo offer on the last real edit", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    source.unpin("HeraAttack");
+    source.unplan("HeraAttack");
+    source.setElement("Fire", 0);
+    source.equipKeepsake(null);
+    source.equipWeapon(null);
+
+    expect(source.lastEdit).toEqual({ action: "mark", subject: "HeraAttack" });
+    source.undo();
+    expect(source.getFacts().held.has("HeraAttack")).toBe(false);
+  });
+
+  it("announces nothing and keeps the facts object it already handed out", async () => {
+    const source = await open();
+    source.setElement("Fire", 2);
+    const before = source.getFacts();
+    let heard = 0;
+    source.subscribe(() => {
+      heard += 1;
+    });
+
+    source.setElement("Fire", 2);
+    source.equipWeapon(null);
+
+    expect(heard).toBe(0);
+    expect(source.getFacts()).toBe(before);
+  });
+
+  /**
+   * The other direction, since a check this cheap is only worth having if it
+   * can still tell an edit apart: re-marking a held boon at a different rarity
+   * is a real change to the one field a requirement's level comparison reads.
+   */
+  it("still counts a re-mark that changes the rarity", async () => {
+    const source = await open();
+    source.mark("HeraAttack", { rarity: "Common" });
+    let heard = 0;
+    source.subscribe(() => {
+      heard += 1;
+    });
+
+    source.mark("HeraAttack", { rarity: "Rare" });
+
+    expect(heard).toBe(1);
+    expect(source.getFacts().held.get("HeraAttack")?.rarity).toBe("Rare");
+  });
+
+  /**
+   * Accepting a notice on a run whose stamp a later clean load already advanced
+   * moves nothing in the facts — and is exactly the gesture this writer exists
+   * for, so it has to be published anyway.
+   */
+  it("does not silence accepting a notice the facts cannot see", async () => {
+    const store = createMemoryStore();
+    const stale = emptyRun("hades2", "build-1");
+    stale.facts.held.set("GoneInThisBuild", { rarity: "Common", level: 1 });
+    await store.save(
+      "hades2",
+      "active",
+      toPersisted({ state: stale, quarantine: [] }),
+    );
+
+    // First load quarantines the missing id and holds the stamp back; second
+    // load finds a clean run and advances it while the owing rides along.
+    await openManualSource({ game: "hades2", catalog: world(), store });
+    const source = await openManualSource({ game: "hades2", catalog: world(), store });
+    expect(source.migrationNotice?.count).toBe(1);
+    expect(source.getFacts().dataVersion).toBe("build-1");
+
+    let heard = 0;
+    source.subscribeCondition(() => {
+      heard += 1;
+    });
+    source.acceptMigration();
+
+    expect(source.migrationNotice).toBeNull();
+    expect(heard).toBe(1);
+    await source.flush();
+    const stored = fromPersisted(await store.load("hades2", "active"));
+    expect(stored.pendingNotice).toBeNull();
+  });
+});
+
+describe("what the source has to say about itself", () => {
+  it("hands the five parts back together and replaces them whole", async () => {
+    const source = await open();
+    const before = source.getCondition();
+
+    source.mark("HeraAttack");
+
+    expect(before.lastEdit).toBeNull();
+    expect(source.getCondition()).not.toBe(before);
+    expect(source.getCondition().lastEdit).toEqual({ action: "mark", subject: "HeraAttack" });
+  });
+
+  /**
+   * The one that could not be observed at all before. A failed write is set
+   * inside the chain, with no tap behind it and nothing awaiting it, so a view
+   * showing "this run is not being saved" would have gone on showing the
+   * opposite.
+   */
+  it("announces a failed write, and again when one gets through", async () => {
+    let failing = true;
+    const memory = createMemoryStore();
+    const store: RunStore = {
+      load: (game, slot) => memory.load(game, slot),
+      clear: (game, slot) => memory.clear(game, slot),
+      save: (game, slot, run) =>
+        failing ? Promise.reject(new Error("quota")) : memory.save(game, slot, run),
+    };
+    const source = await openManualSource({ game: "hades2", catalog: world(), store });
+    const seen: Array<string | null> = [];
+    source.subscribeCondition((condition) => seen.push(condition.storageError?.message ?? null));
+
+    source.mark("HeraAttack");
+    await source.flush().catch(() => undefined);
+    failing = false;
+    source.mark("HeraSpecial");
+    await source.flush();
+
+    expect(seen).toContain("quota");
+    expect(seen[seen.length - 1]).toBeNull();
+    expect(source.storageError).toBeNull();
+  });
+
+  it("says nothing when a writer moved nothing", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    let heard = 0;
+    source.subscribeCondition(() => {
+      heard += 1;
+    });
+
+    source.unpin("HeraAttack");
+    source.setElement("Fire", 0);
+    await source.flush();
+
+    expect(heard).toBe(0);
+  });
+});
+
 describe("persistence", () => {
   it("survives closing and reopening", async () => {
     const store = createMemoryStore();

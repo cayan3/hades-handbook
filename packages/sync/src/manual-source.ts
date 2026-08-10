@@ -3,10 +3,12 @@ import type {
   Element,
   GameId,
   GodId,
+  HeldTrait,
   KeepsakeId,
   Rarity,
   ResourceId,
   RunFacts,
+  RunIntent,
   RunState,
   TalentId,
   TalentSelection,
@@ -92,6 +94,32 @@ export interface UndoableEdit {
 }
 
 /**
+ * What the source has to say about itself, as against about the run.
+ *
+ * Each of these was a getter and nothing else, which made every one of them
+ * unobservable: `storageError` is assigned inside a chained write with no user
+ * gesture behind it, and accepting a migration notice moves no fact, so a view
+ * showing either would have gone on showing the old answer forever. The port
+ * carries facts and the second subscription carries intent; this is the third
+ * thing, and it is the one a view spends most of its chrome on.
+ *
+ * One object replaced whole rather than five getters, so a consumer can hold it
+ * and compare identity the way it already does with the facts.
+ */
+export interface SourceCondition {
+  /** What the load could not carry forward, until the user accepts it. */
+  readonly migrationNotice: MigrationNotice | null;
+  /** Why a stored run was set aside, when one was. */
+  readonly unreadableRun: Error | null;
+  /** The last write that did not get through, cleared by one that does. */
+  readonly storageError: Error | null;
+  /** Everything set aside across every load of this run. */
+  readonly quarantine: readonly QuarantinedEntry[];
+  /** What `undo()` would take back, or null when there is nothing. */
+  readonly lastEdit: UndoableEdit | null;
+}
+
+/**
  * Manual entry: the whole product, and the only source in v1.
  *
  * Everything is a user tap, so this is also the only place that maintains the
@@ -103,6 +131,25 @@ export interface UndoableEdit {
 export interface ManualSource extends RunStateSource {
   /** Facts and intent together. Views that only evaluate want `getFacts()`. */
   getState(): RunState;
+
+  /**
+   * Called when pins, plans or notes change. A second subscription rather than
+   * a widening of the port: the port is facts-only *because* of the provenance
+   * split, so intent cannot arrive through it, and a Goals view watching pins
+   * had no way to hear about one.
+   *
+   * The facts subscription no longer fires for these. It used to, with the same
+   * facts object it had already handed out — a wake-up carrying no news, which
+   * cost every memoized consumer a miss and told the one listener that cared
+   * nothing at all.
+   */
+  subscribeIntent(cb: (intent: RunIntent) => void): Unsub;
+
+  /** The five things above, together, replaced whole whenever one moves. */
+  getCondition(): SourceCondition;
+
+  /** Called when it does. */
+  subscribeCondition(cb: (condition: SourceCondition) => void): Unsub;
 
   /** Everything a load set aside, still recoverable. */
   readonly quarantine: readonly QuarantinedEntry[];
@@ -382,6 +429,8 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
    */
   let rewardedWithoutBoon: ReadonlySet<GodId> = seed.rewardedWithoutBoon;
   const listeners = new Set<(facts: RunFacts) => void>();
+  const intentListeners = new Set<(intent: RunIntent) => void>();
+  const conditionListeners = new Set<(condition: SourceCondition) => void>();
 
   /**
    * Writes are chained rather than fired off independently.
@@ -441,20 +490,60 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       } catch (cause) {
         storageError = cause instanceof Error ? cause : new Error(String(cause));
       }
+      // Nobody awaited the tap that caused this, so this is the only way the
+      // difference between a run that is saving and one that is not reaches a
+      // screen.
+      refreshCondition();
     });
   }
 
   /**
+   * Publishes an edit — unless the edit turns out not to be one.
+   *
    * Every edit lands as a whole new facts object, with the collections it did
    * not touch shared rather than copied. Consumers can then tell "something
    * changed" from object identity, which is what makes memoizing evaluation on
    * the facts sound; mutating in place would leave every cache holding a stale
    * answer that still looks current.
+   *
+   * Which is exactly why identity cannot answer "did anything move". Every
+   * writer builds new objects, so `unpin` on a trait nobody pinned produces a
+   * distinct run saying precisely what the old one said. Asked by value here
+   * rather than by four early returns in the four writers that lacked one, so
+   * that a writer added later gets the answer without having to remember it.
+   * A no-op costs a walk of a few dozen entries; publishing one costs every
+   * consumer a re-derive of a game's worth of nodes and, worse, spends the one
+   * level of undo on a gesture that changed nothing, which puts the user's real
+   * last edit out of reach.
+   *
+   * `alsoMoved` is for the writer that moves something no fact records — the
+   * migration notice — where the facts cannot say whether anything happened.
+   *
+   * Facts and intent are announced separately because they are separate
+   * subscriptions: a pin is invisible through the port by construction, and
+   * waking every facts listener for one is a miss for all of them and news for
+   * none.
    */
-  function commit(facts: RunFacts, intent = state.intent): void {
-    state = { facts, intent };
+  function commit(facts: RunFacts, intent = state.intent, alsoMoved = false): void {
+    const factsMoved = !sameFacts(facts, state.facts);
+    const intentMoved = !sameIntent(intent, state.intent);
+    if (!factsMoved && !intentMoved && !alsoMoved) {
+      // Nothing to write, nothing to announce, and the undo level goes back to
+      // whoever held it before this writer captured its snapshot.
+      undoable = previousEdit;
+      return;
+    }
+    refreshCondition();
+
+    // The unmoved half keeps its object, so a run that changed only its intent
+    // hands back the facts a memo is already holding an answer for.
+    state = {
+      facts: factsMoved ? facts : state.facts,
+      intent: intentMoved ? intent : state.intent,
+    };
     persist();
-    for (const listener of listeners) listener(facts);
+    if (factsMoved) for (const listener of listeners) listener(state.facts);
+    if (intentMoved) for (const listener of intentListeners) listener(state.intent);
   }
 
   /**
@@ -483,6 +572,42 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   }
 
   let undoable: Snapshot | null = null;
+  /**
+   * What `undoable` held before the writer now running captured its own, so
+   * that a writer which turns out to have moved nothing can put it back.
+   */
+  let previousEdit: Snapshot | null = null;
+
+  let condition: SourceCondition = {
+    migrationNotice: notice,
+    unreadableRun,
+    storageError,
+    quarantine,
+    lastEdit: null,
+  };
+
+  /**
+   * Rebuilds the condition if any of its five parts moved, and says so.
+   *
+   * Identity is enough to compare them: every one is replaced whole rather than
+   * written into, so a new object is the only way any of them changes. Called
+   * from everywhere that could move one, which is cheap precisely because it
+   * checks — the alternative is remembering which of eleven call sites moves
+   * which field.
+   */
+  function refreshCondition(): void {
+    const lastEdit = undoable === null ? null : undoable.edit;
+    if (
+      condition.migrationNotice === notice &&
+      condition.storageError === storageError &&
+      condition.quarantine === quarantine &&
+      condition.lastEdit === lastEdit
+    ) {
+      return;
+    }
+    condition = { migrationNotice: notice, unreadableRun, storageError, quarantine, lastEdit };
+    for (const listener of conditionListeners) listener(condition);
+  }
 
   /**
    * Captures the state one edit is about to change.
@@ -498,6 +623,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
    * gesture the user can see they made, on the strength of a different one.
    */
   function beginEdit(action: EditAction, subject: string | null): void {
+    previousEdit = undoable;
     undoable = {
       edit: { action, subject },
       state,
@@ -594,6 +720,24 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       };
     },
 
+    subscribeIntent(cb: (intent: RunIntent) => void): Unsub {
+      intentListeners.add(cb);
+      return () => {
+        intentListeners.delete(cb);
+      };
+    },
+
+    getCondition(): SourceCondition {
+      return condition;
+    },
+
+    subscribeCondition(cb: (next: SourceCondition) => void): Unsub {
+      conditionListeners.add(cb);
+      return () => {
+        conditionListeners.delete(cb);
+      };
+    },
+
     /**
      * Clearing the notice is what makes it stop being owed, and that fact is
      * persisted here. It used to be inferred from the build stamp, which could
@@ -614,7 +758,10 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       beginEdit("acceptMigration", null);
       notice = null;
       pending = null;
-      commit({ ...state.facts, dataVersion: catalog.dataVersion });
+      // The stamp may already be current — a clean load after an unacknowledged
+      // one advances it while the owing rides along — so the facts alone can
+      // say nothing moved while the thing this writer exists for just did.
+      commit({ ...state.facts, dataVersion: catalog.dataVersion }, state.intent, true);
     },
 
     persistNow(): void {
@@ -655,12 +802,19 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       if (undoable === null) return;
       const back = undoable;
       undoable = null;
+      // Nothing left for a no-op commit to hand back: an undo is not itself
+      // undoable, so there is no earlier offer waiting behind this one.
+      previousEdit = null;
 
       quarantine = back.quarantine;
       pending = back.pending;
       notice = back.notice;
       rewardedWithoutBoon = back.rewardedWithoutBoon;
-      commit(back.state.facts, back.state.intent);
+      // Always a move: an offer to take something back only exists because a
+      // writer moved something, and for two of them — the accepted notice, a
+      // god recorded into a pool already holding them — what moved is the
+      // bookkeeping above rather than any fact.
+      commit(back.state.facts, back.state.intent, true);
     },
 
     /**
@@ -794,6 +948,9 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       rewardedWithoutBoon = new Set(rewardedWithoutBoon).add(god);
       if (pooled) {
         persist();
+        // No fact moved — the pool already named them — but the run now knows
+        // why they are in it, and that is an edit to take back.
+        refreshCondition();
         return;
       }
       commit({ ...state.facts, godPool: new Set(state.facts.godPool).add(god) });
@@ -1019,6 +1176,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
           failed.cause = cause instanceof Error ? cause : new Error(String(cause));
           storageError = failed.cause;
         }
+        refreshCondition();
       });
       await writes;
       if (failed.cause !== null) throw failed.cause;
@@ -1037,7 +1195,14 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
        * the run ended without it.
        */
       undoable = null;
+      previousEdit = null;
+      refreshCondition();
+      // Announced directly rather than through `commit`, which would compare a
+      // fresh run against the one just filed and find plenty moved anyway — but
+      // this is not an edit and has no snapshot behind it. Both sides are told:
+      // the fresh run's pins are as empty as its held boons.
       for (const listener of listeners) listener(state.facts);
+      for (const listener of intentListeners) listener(state.intent);
     },
 
     get storageError() {
@@ -1055,6 +1220,81 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       });
     },
   };
+}
+
+/**
+ * Whether two runs say the same thing.
+ *
+ * Asked by value, because identity cannot answer it: a writer that moves
+ * nothing still builds a new object and new collections. The walk is a few
+ * dozen entries against a real run, which is nothing beside what publishing a
+ * non-edit costs — a re-derive everywhere plus the undo level.
+ */
+function sameFacts(a: RunFacts, b: RunFacts): boolean {
+  if (a === b) return true;
+  return (
+    a.game === b.game &&
+    a.dataVersion === b.dataVersion &&
+    sameMap(a.held, b.held, sameHeld) &&
+    sameMap(a.elements, b.elements, identical) &&
+    sameMap(a.slots, b.slots, identical) &&
+    sameMap(a.resources, b.resources, identical) &&
+    sameSet(a.godPool, b.godPool) &&
+    sameSet(a.bans, b.bans) &&
+    sameEquipped(a.equipped, b.equipped)
+  );
+}
+
+function sameIntent(a: RunIntent, b: RunIntent): boolean {
+  if (a === b) return true;
+  return (
+    sameSet(a.pins, b.pins) &&
+    sameSet(a.planned, b.planned) &&
+    sameMap(a.notes, b.notes, identical)
+  );
+}
+
+/**
+ * An absent talent map and an empty one are different answers — "nobody asked"
+ * against "asked, and none is selected" — so they are compared before the
+ * contents are.
+ */
+function sameEquipped(a: RunFacts["equipped"], b: RunFacts["equipped"]): boolean {
+  if (a.weapon !== b.weapon || a.aspect !== b.aspect || a.keepsake !== b.keepsake) return false;
+  if (a.talents === undefined || b.talents === undefined) return a.talents === b.talents;
+  return sameMap(a.talents, b.talents, identical);
+}
+
+function sameMap<K, V>(
+  a: ReadonlyMap<K, V>,
+  b: ReadonlyMap<K, V>,
+  same: (x: V, y: V) => boolean,
+): boolean {
+  if (a === b) return true;
+  if (a.size !== b.size) return false;
+  for (const [key, value] of a) {
+    const other = b.get(key);
+    // `has` as well as `get`, since a stored value may legitimately be null —
+    // an empty slot is a slot the run has.
+    if (other === undefined && !b.has(key)) return false;
+    if (!same(value, other as V)) return false;
+  }
+  return true;
+}
+
+function sameSet<T>(a: ReadonlySet<T>, b: ReadonlySet<T>): boolean {
+  if (a === b) return true;
+  if (a.size !== b.size) return false;
+  for (const member of a) if (!b.has(member)) return false;
+  return true;
+}
+
+function identical<T>(x: T, y: T): boolean {
+  return x === y;
+}
+
+function sameHeld(x: HeldTrait, y: HeldTrait): boolean {
+  return x === y || (x.level === y.level && x.rarity === y.rarity);
 }
 
 /**

@@ -59,6 +59,7 @@ export type {
   MarkOptions,
   MigrationNotice,
   OpenManualSourceOptions,
+  SourceCondition,
   UndoableEdit,
 } from "./manual-source.js";
 export { openManualSource } from "./manual-source.js";
