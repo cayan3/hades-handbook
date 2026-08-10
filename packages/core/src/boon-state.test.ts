@@ -67,6 +67,27 @@ describe("boonState", () => {
     expect(stateOf(makeFacts({ held: held(TARGET, "p1") }), rules)).toBe("Obtained");
   });
 
+  it("is Impossible when the boon itself is blocked, with every prerequisite met", () => {
+    // The block is abt the target rather than abt anything in its prerequisite
+    // tree, so nothing `evaluate` walks can see it. This is the Hades II Cast
+    // group: holding one of the five costs the other four, and their own
+    // prerequisites go on being perfectly satisfiable.
+    const rules = stubRules({
+      blocked: new Map([[TARGET, { kind: "slotConflict", trait: TARGET, conflictsWith: "other" }]]),
+    });
+    expect(stateOf(makeFacts({ held: held("p1", "p2") }), rules)).toBe("Impossible");
+  });
+
+  it("stays Obtained when the boon is both held and blocked", () => {
+    // Satisfaction before feasibility, for the target itself as well as for its
+    // prerequisites: a run holding a member of an exclusive group is told it
+    // holds it, not that it can never have it.
+    const rules = stubRules({
+      blocked: new Map([[TARGET, { kind: "slotConflict", trait: TARGET, conflictsWith: "other" }]]),
+    });
+    expect(stateOf(makeFacts({ held: held(TARGET) }), rules)).toBe("Obtained");
+  });
+
   it("is Available when the boon has no prerequisite at all", () => {
     const state = boonState(TARGET, { kind: "all", of: [] }, makeFacts(), stubRules(), NO_LOOKUPS);
     expect(state).toBe("Available");

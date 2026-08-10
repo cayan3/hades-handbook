@@ -27,6 +27,18 @@ export type BoonState = "Obtained" | "Available" | "Pending" | "Locked" | "Impos
  *
  * "Held" takes priority over everything else, including impossible: a boon
  * obtained before a blocker appeared is still obtained & the UI should say so.
+ *
+ * Two questions, not one, & this used to ask only the second. A prerequisite
+ * says what a run must *collect*; it says nothing abt the boon itself being out
+ * of reach. Bans, aspect conflicts, one-directional blocks & a held member of
+ * the boon's own exclusive group are facts abt this trait, they arrive through
+ * `isBlocked`, and none of them is in the tree `evaluate` walks. Asking only
+ * the prerequisite renders a boon Available while the run holds the one thing
+ * that costs it — in Hades II the five Cast boons are one exclusive group, so
+ * taking any of them left the other four reading takeable.
+ *
+ * Asked after "is it held" & before anything else, i.e. the order the evaluator
+ * uses everywhere (satisfaction before feasibility).
  */
 export function boonState(
   trait: TraitId,
@@ -36,6 +48,7 @@ export function boonState(
   lookups: CatalogLookups,
 ): BoonState {
   if (facts.held.has(trait)) return "Obtained";
+  if (rules.isBlocked(trait, facts) !== null) return "Impossible";
 
   const status = evaluate(prereq, facts, rules, lookups);
   switch (status.kind) {
