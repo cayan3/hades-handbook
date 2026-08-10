@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { migrate, scanOverrides } from "./migrate.js";
+import { factKey } from "./overrides.js";
 import { runOn, testCatalog, testRow, testTrait, traitTable } from "./test-support.js";
 
 /**
@@ -457,6 +458,33 @@ describe("the fields the user was holding by hand", () => {
     expect(scan.quarantine).toEqual([
       { path: "overrides", key: "held:RenamedSinceBuild1", value: gone },
     ]);
+  });
+
+  /**
+   * One bad id per kind bc the test above passes all six kinds with every id
+   * present, so proves only that a clean overlay survives. An arm that answered
+   * "keeps it" unconditionally would pass that test but fail this one (the rule
+   * is that no unidentifiable id reaches evaluation, and an override is the one
+   * place a quarantined id can actually be put back after the pass that took
+   * it out in the first place), so an arm that never refuses is that rule
+   * switched off for the field it covers.
+   */
+  it("sets aside a bad id of every kind, not only a held one", () => {
+    const bad = [
+      { path: "held", key: "GoneTrait", value: null },
+      { path: "godPool", god: "GoneGod", present: true },
+      { path: "bans", trait: "GoneTrait", present: true },
+      { path: "slots", slot: "GoneSlot", value: null },
+      { path: "talents", talent: "GoneTalent", selection: "selected" },
+      { path: "equipped", field: "aspect", value: "GoneForm" },
+      { path: "equipped", field: "keepsake", value: "GoneKeepsake" },
+    ] as const;
+
+    for (const o of bad) {
+      const scan = scanOverrides([o], currentCatalog());
+      expect(scan.overrides).toEqual([]);
+      expect(scan.quarantine).toEqual([{ path: "overrides", key: factKey(o), value: o }]);
+    }
   });
 
   it("checks the occupant a slot override names, not only the slot", () => {
