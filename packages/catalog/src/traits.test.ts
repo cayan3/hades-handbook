@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { type GameKey, dataFor } from "./data.js";
 import { createLookups } from "./lookups.js";
 import { overlayFor } from "./overlay.js";
-import type { TraitRecord } from "./schema.js";
-import { traitsFor } from "./traits.js";
+import { type TraitRecord, isRequirementNode } from "./schema.js";
+import { refusedTraits, traitsFor } from "./traits.js";
 
 /**
  * The overlay only means anything if somebody applies it.
@@ -23,8 +23,15 @@ describe.each(GAMES)("traits for %s", (game) => {
   const overlay = overlayFor(game);
   const traits = traitsFor(game);
 
-  it("keeps every record the extraction produced", () => {
-    expect(Object.keys(traits).sort()).toEqual(Object.keys(raw).sort());
+  it("keeps every record the extraction produced except the ones it refuses", () => {
+    // This used to assert the two sets were equal outright, and the refusal is
+    // what made that false. Stated as "everything minus the refusals" rather
+    // than relaxed to a count: a record going missing for any *other* reason is
+    // still a failure, which is the half of the original assertion worth
+    // keeping.
+    const refused = new Set(refusedTraits(game));
+    const expected = Object.keys(raw).filter((id) => !refused.has(id));
+    expect(Object.keys(traits).sort()).toEqual(expected.sort());
   });
 
   it("applies every god the overlay corrects", () => {
@@ -73,5 +80,52 @@ describe("the corrections the overlay exists for", () => {
     const zeus = createLookups("hades1").boonsOfGod("Zeus");
     expect(zeus).not.toContain("DemeterRangedTrait");
     expect(zeus).not.toContain("ShieldLoadAmmo_DemeterRangedTrait");
+  });
+});
+
+describe("records this catalog will not hand over", () => {
+  /**
+   * The extractor ships a record rather than dropping it when it cannot build
+   * the record's gate, and says why on the record. That is right — the name,
+   * the icon and the reason are all still worth having — and it means the field
+   * typed as the engine's nine-armed union sometimes holds something that is not
+   * one of the nine. Past this package every consumer is entitled to believe the
+   * type, and the evaluator's switch is exhaustive with no default case, so an
+   * unrecognised node matches no arm and falls off the end.
+   */
+  it("refuses exactly the two whose prerequisite is not a requirement", () => {
+    expect(refusedTraits("hades2")).toEqual([
+      "ChaosLastStandBlessing",
+      "ChaosMetaUpgradeCurse",
+    ]);
+    expect(refusedTraits("hades1")).toEqual([]);
+  });
+
+  it("refuses only records that say for themselves why they could not be built", () => {
+    // The refusal is not this package's judgement about a record it dislikes.
+    // Every id it withholds carries the extractor's own account of the clause
+    // that did not resolve, which is what makes the loss recoverable.
+    const raw = dataFor("hades2").boons as Record<string, TraitRecord>;
+    for (const id of refusedTraits("hades2")) {
+      expect(raw[id]?.buildFailure?.length ?? 0).toBeGreaterThan(0);
+    }
+  });
+
+  it("keeps them out of what anything downstream can look up", () => {
+    for (const id of refusedTraits("hades2")) {
+      expect(traitsFor("hades2")[id]).toBeUndefined();
+    }
+  });
+
+  it("hands over a prerequisite the evaluator can always walk", () => {
+    // The property the refusal exists for, asserted over both shipped games
+    // rather than over the two ids that motivated it -- a patch adding a third
+    // should show up here as a changed count, not as a crash in a view.
+    for (const game of ["hades1", "hades2"] as const) {
+      for (const record of Object.values(traitsFor(game))) {
+        if (record.prereq != null) expect(isRequirementNode(record.prereq)).toBe(true);
+        if (record.activation != null) expect(isRequirementNode(record.activation)).toBe(true);
+      }
+    }
   });
 });

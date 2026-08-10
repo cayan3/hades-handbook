@@ -1,6 +1,6 @@
 import { type GameKey, dataFor } from "./data.js";
 import { overlayFor } from "./overlay.js";
-import type { TraitRecord } from "./schema.js";
+import { type TraitRecord, isRequirementNode } from "./schema.js";
 
 /**
  * The trait records with the overlay folded in — what everything should read.
@@ -29,11 +29,40 @@ import type { TraitRecord } from "./schema.js";
  * outcome nobody adding an overlay entry would be asking for. Sorted so the
  * merged list doesn't depend on which side happened to name a form first.
  */
-function merge(game: GameKey): Readonly<Record<string, TraitRecord>> {
+function merge(game: GameKey): {
+  records: Readonly<Record<string, TraitRecord>>;
+  refused: readonly string[];
+} {
   const raw = dataFor(game).boons as Record<string, TraitRecord>;
   const overlay = overlayFor(game);
   const merged: Record<string, TraitRecord> = {};
+  const refused: string[] = [];
   for (const [id, record] of Object.entries(raw)) {
+    /**
+     * A record whose gate isn't a `Requirement` doesn't get handed over.
+     *
+     * The extractor refuses to guess a clause it can't classify and says so on
+     * the record instead, which is right — and it means two Hades II records
+     * ship a prereq that is a node with no `kind`. This is the last place that
+     * can notice: past here the field is typed as the engine's own union and
+     * every consumer is entitled to believe it.
+     *
+     * Refused rather than repaired, because each repair is worse. Inventing a
+     * prerequisite is what the build failure exists to prevent, the unresolved
+     * clause being a member list nothing can reconstruct. Nulling it means "no
+     * prerequisite", so a Chaos curse called Barren would read as takeable now.
+     * Leaving it to whoever renders a node moves the question one layer out and
+     * makes every future consumer remember the same guard.
+     *
+     * The cost is that these two can't be looked up at all. Both are Chaos,
+     * out of v1 scope, and both keep their build failure, so what was lost is
+     * recoverable once somebody decides what such a record should say.
+     */
+    if (record.prereq != null && !isRequirementNode(record.prereq)) {
+      refused.push(id);
+      continue;
+    }
+
     const entry = overlay[id];
     if (entry === undefined) {
       merged[id] = record;
@@ -49,15 +78,24 @@ function merge(game: GameKey): Readonly<Record<string, TraitRecord>> {
     merged[id] =
       Object.keys(patch).length === 0 ? record : Object.freeze({ ...record, ...patch });
   }
-  return Object.freeze(merged);
+  return { records: Object.freeze(merged), refused: Object.freeze(refused.sort()) };
 }
 
-const MERGED: Readonly<Record<GameKey, Readonly<Record<string, TraitRecord>>>> =
-  Object.freeze({
-    hades1: merge("hades1"),
-    hades2: merge("hades2"),
-  });
+const MERGED: Readonly<Record<GameKey, ReturnType<typeof merge>>> = Object.freeze({
+  hades1: merge("hades1"),
+  hades2: merge("hades2"),
+});
 
 export function traitsFor(game: GameKey): Readonly<Record<string, TraitRecord>> {
-  return MERGED[game];
+  return MERGED[game].records;
+}
+
+/**
+ * The ids this catalog would not hand over, sorted. Exported so the refusal is a
+ * fact somebody can look at rather than a silent subtraction — a record that
+ * vanishes between the snapshot and the app with nothing naming it gets
+ * rediscovered as a bug two sessions later.
+ */
+export function refusedTraits(game: GameKey): readonly string[] {
+  return MERGED[game].refused;
 }

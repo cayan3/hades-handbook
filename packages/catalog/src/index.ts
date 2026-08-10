@@ -26,10 +26,10 @@ export type { GameData, GameKey } from "./data.js";
 export { createLookups } from "./lookups.js";
 export { forcingKeepsakes, keepsakesFor } from "./keepsakes.js";
 export { poolGods } from "./gods.js";
-export { iconFor, textFor } from "./assets.js";
+export { iconFor, keepsakeNameFor, nameFor, textFor } from "./assets.js";
 export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
-export { traitsFor } from "./traits.js";
+export { refusedTraits, traitsFor } from "./traits.js";
 export type {
   BuildFailure,
   GodRecord,

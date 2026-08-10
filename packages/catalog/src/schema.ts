@@ -239,3 +239,44 @@ export interface SetRecord {
   members: readonly TraitId[];
   source?: string;
 }
+
+/**
+ * Whether a value the extraction handed over is actually a `Requirement`.
+ *
+ * Typing a snapshot means asserting things about JSON the compiler takes on
+ * trust, and nearly all of those are cheap to be right about. This one isn't:
+ * `prereq` is typed as the engine's nine-armed union, and two Hades II records
+ * ship a prereq with no `kind` at all, flagged with a build failure saying a
+ * clause didn't resolve when the game data was dumped.
+ *
+ * The evaluator's switch has no default case on purpose — an unhandled arm
+ * should be a compile error, not a silent branch — so a node from outside the
+ * union matches nothing, falls off the end and returns `undefined` against a
+ * signature promising a status. Nothing downstream can defend against that,
+ * because the type says it can't happen.
+ *
+ * So the check lives here, at the one boundary where untyped data becomes typed.
+ * Structural (there's no runtime tag to trust) and recursive through the two
+ * composites, since a group is only as good as its members.
+ */
+export function isRequirementNode(node: unknown): boolean {
+  if (typeof node !== "object" || node === null) return false;
+  const kind = (node as { kind?: unknown }).kind;
+  switch (kind) {
+    case "all":
+    case "anyOf": {
+      const of = (node as { of?: unknown }).of;
+      return Array.isArray(of) && of.every(isRequirementNode);
+    }
+    case "hasTrait":
+    case "hasBoonFrom":
+    case "hasElement":
+    case "godInPool":
+    case "hasKeepsake":
+    case "hasAspect":
+    case "hasTalent":
+      return true;
+    default:
+      return false;
+  }
+}
