@@ -1,5 +1,12 @@
 {
+  "//": [
+    "The pure half: everything that must compile without a browser.",
+    "",
+    "New packages land here by default, which is the direction that fails safe",
+    "— a package has to be named in tsconfig.dom.json to be given a document.",
+    "The two projects together cover the whole workspace."
+  ],
   "extends": "./tsconfig.base.json",
   "include": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts", "vitest.config.ts"],
-  "exclude": ["node_modules", "**/dist", "tools"]
+  "exclude": ["node_modules", "**/dist", "tools", "packages/ui", "apps/web"]
 }

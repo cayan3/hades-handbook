@@ -1,0 +1,37 @@
+{
+  "//": [
+    "The half of the workspace that is allowed to know a browser exists.",
+    "",
+    "The base config compiles with lib ES2022 and types [], so nothing in the",
+    "repo can reach for a document, a timer or an IndexedDB factory without",
+    "someone noticing — that is what keeps the domain package honest, and the",
+    "run-state package writes out the narrow shape of every platform object it",
+    "takes rather than reading one off the global. Adding DOM to the base lib",
+    "would hand that guarantee away everywhere at once, and the import-boundary",
+    "cruiser cannot see a `window`: it checks which modules import which, not",
+    "which globals they touch.",
+    "",
+    "So the DOM arrives as a second project instead. Typechecking is two passes",
+    "over two disjoint file sets, and a package is in the pure half until",
+    "somebody deliberately moves it here.",
+    "",
+    "jsx: react-jsx is the automatic runtime — component files never import",
+    "React just to be allowed to write markup, and the import the compiler adds",
+    "in its place resolves inside node_modules, so it is not something the",
+    "import-boundary rules can trip over."
+  ],
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client"]
+  },
+  "include": [
+    "packages/ui/src/**/*.ts",
+    "packages/ui/src/**/*.tsx",
+    "apps/web/src/**/*.ts",
+    "apps/web/src/**/*.tsx",
+    "apps/web/vite.config.ts"
+  ],
+  "exclude": ["node_modules", "**/dist", "tools"]
+}
