@@ -56,12 +56,19 @@ export function Loadout({
   onExpanded,
 }: LoadoutProps) {
   /**
-   * Split, never re-sorted: both halves come out in the order the run took
-   * them. A column that re-ordered itself by slot would move a boon the player
-   * put there, which is the one thing a menu of your own build must not do.
+   * The core column is in **slot order**, always the same one; everything else
+   * is in the order the run took it.
+   *
+   * The two halves want opposite rules and that is the whole of it. A core slot
+   * is a position — Attack, Special, Cast, and so on — and a player reads the
+   * column by position, so it has to be the same column every run whatever
+   * order they filled it in. The rest have no positions to be in, so the only
+   * order that means anything is when they arrived.
    */
   const isCore = (entry: LoadoutEntry) => entry.slot !== null && coreSlots.includes(entry.slot);
-  const core = entries.filter(isCore);
+  const core = coreSlots
+    .map((slot) => entries.find((entry) => entry.slot === slot))
+    .filter((entry): entry is LoadoutEntry => entry !== undefined);
   const rest = entries.filter((entry) => !isCore(entry));
 
   return (

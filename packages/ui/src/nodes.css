@@ -641,19 +641,34 @@
  * channel the game puts it on. Common sets no property and gets no treatment,
  * so a coloured tile means something.
  *
- * A drop shadow rather than a shape behind it, and that is what makes the edge
- * possible: the filter follows the diamond's own alpha, so offsetting it paints
- * a solid copy that shows only where it clears the tile. A second element would
- * have needed a triangle, and this file draws exactly one silhouette — a rule a
- * test keeps.
+ * A shape behind the tile, offset up and to the right so that only its
+ * upper-right edges clear the diamond — the lower-left ones are pulled in
+ * behind it and never show.
  *
- * The offset is diagonal and the band it leaves is not: across a 45-degree edge
- * the visible width is the offset times the root of two, so this reads
- * thinner than the same number would suggest. 0.22rem was the first value and
- * was too fine to carry a colour at this size.
+ * The obvious implementation is a `drop-shadow` on the diamond itself, and it
+ * does not work: `clip-path` is applied *after* `filter`, so the element's own
+ * clip cuts the shadow off at exactly the boundary the shadow exists to cross.
+ * That is why raising its offset changed nothing visible. A sibling has its own
+ * box and its own clip and is unaffected.
+ *
+ * The same diamond polygon, deliberately: this file draws exactly one
+ * silhouette and a test keeps it that way.
  */
-.loadout__tile[data-rarity] .node__shape {
-  filter: drop-shadow(0.4rem -0.4rem 0 var(--rarity));
+.loadout__tile[data-rarity]::before {
+  content: "";
+  position: absolute;
+  /* Grown and shifted by the same amount, so the trailing edges land flush
+     against the tile and the leading ones carry the whole band. */
+  inset: -0.34rem;
+  transform: translate(0.34rem, -0.34rem);
+  z-index: 0;
+  background: var(--rarity);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.loadout__tile .node {
+  position: relative;
+  z-index: 1;
 }
 
 .loadout__tile .node__control {

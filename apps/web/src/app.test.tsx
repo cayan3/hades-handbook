@@ -374,6 +374,24 @@ describe("the Loadout", () => {
     expect(container.querySelector('.loadout__tile[data-rarity="Epic"]')).not.toBeNull();
   });
 
+  /**
+   * The core column is read by position, so it is the same column every run
+   * whatever order the player filled it in — Attack, Special, Cast, Dash,
+   * then the fifth. The boons that hold no slot keep the order they arrived in,
+   * because arrival is the only order they have.
+   */
+  it("keeps the core slots in slot order however they were taken", async () => {
+    await mount();
+    // Special before Attack, so insertion order and slot order disagree.
+    open("AphroditeSpecialBoon");
+    click("Common");
+    open(APHRODITE_MELEE);
+    click("Common");
+
+    const named = loadout().map((label) => label.split(" —")[0]);
+    expect(named).toEqual([H2[APHRODITE_MELEE]?.name, H2.AphroditeSpecialBoon?.name]);
+  });
+
   /** No names drawn, and every one of them still said. */
   it("draws no name and keeps every name reachable", async () => {
     await mount();

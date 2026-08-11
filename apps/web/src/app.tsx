@@ -58,6 +58,11 @@ const RULES = {
  * every run has one of, which is what makes a column of them a build at a
  * glance.
  *
+ * **The order is the game's own and the column is read by position**, so it is
+ * fixed rather than derived: Attack, Special, Cast, Dash or Sprint, then the
+ * fifth each game calls something different — Call in the first, Magick in the
+ * second, with the Hex after it.
+ *
  * Written out per game because the games differ and neither says so in data:
  * measured, Hades I files boons under Melee, Secondary, Ranged, Rush, Shout and
  * Assist, and Hades II under Melee, Secondary, Ranged, Rush, Mana and Spell.
