@@ -85,13 +85,36 @@ function click(label: string): void {
 }
 
 /**
+ * Selects a god's tab, adding it through the picker if the run has not met them.
+ *
+ * The bar carries the gods this run met plus whatever the player added, because
+ * all seventeen at once is a list rather than navigation — so reaching an
+ * unmet god goes through the picker, which is the path a planning player takes.
+ */
+function showGod(name: string): void {
+  const tab = [...container.querySelectorAll<HTMLElement>(".app__gods button")].find(
+    (button) => button.textContent?.trim() === name,
+  );
+  if (tab !== undefined) {
+    act(() => tab.click());
+    return;
+  }
+  const picker = container.querySelector<HTMLSelectElement>(".app__addgod select");
+  if (picker === null) throw new Error(`no tab for ${name} and no picker to add one`);
+  act(() => {
+    picker.value = name;
+    picker.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+}
+
+/**
  * Opens one boon's detail surface, selecting its god's tab first — which is
  * also an assertion that every boon is reachable through the tabs, including
  * the ones the data attributes to no god at all.
  */
 function open(trait: string): void {
   const record = H2[trait];
-  click(record?.god ?? "Duos & others");
+  showGod(record?.god ?? "Duos & others");
 
   const name = record?.name ?? trait;
   const node = [...container.querySelectorAll<HTMLElement>("button")].find((button) =>
@@ -389,16 +412,34 @@ describe("what the boon list shows", () => {
     expect(labels).toContain("Excruciating");
   });
 
-  /** Every god that grants a boon, present whatever the pool says. */
-  it("keeps a god's tab there whether or not the run has met them", async () => {
+  /**
+   * Seventeen tabs at once is a list rather than navigation, so the bar carries
+   * the gods this run has met plus whatever the player added — and once a tab
+   * appears it stays, whatever the pool does afterwards. Navigation must not
+   * reshuffle under somebody because a boon was removed.
+   */
+  it("shows the gods a run has met, and keeps a tab once it is there", async () => {
     await mount();
-    expect(texts(".app__gods button")).toContain("Aphrodite");
+    const shown = () => texts(".app__gods button");
+    expect(shown()).not.toContain("Ares");
+
+    // Added for planning, without having met them — and the tab that was
+    // showing before does not vanish behind it.
+    showGod("Ares");
+    expect(shown()).toContain("Ares");
+    expect(shown()).toContain("Aphrodite");
 
     open(APHRODITE_MELEE);
     click("Common");
-    expect(texts(".app__gods button")).toContain("Aphrodite");
     expect(
       container.querySelector<HTMLElement>('.app__gods button[data-pooled="true"]')?.textContent,
     ).toBe("Aphrodite");
+
+    // Correcting the mis-tap takes Aphrodite back out of the pool; the tab
+    // stays, because it is the player's and not the pool's.
+    open(APHRODITE_MELEE);
+    click("I mis-tapped");
+    expect(shown()).toContain("Aphrodite");
+    expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
   });
 });

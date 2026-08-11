@@ -55,6 +55,26 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  align-items: center;
+}
+
+.app__artwork {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: center;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.app__addgod select {
+  padding: 0.35rem 0.5rem;
+  border: 1px dashed rgb(255 255 255 / 35%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
 }
 
 .app__games button,
@@ -137,11 +157,17 @@ body {
  * Desktop: the tree, the Loadout and Goals at once, which is the whole
  * difference between the profiles. The boon ladder takes the middle because it
  * is the one that scrolls.
+ *
+ * Two steps rather than one, and both lower than the obvious choice. A single
+ * 60rem breakpoint means a laptop at any browser zoom past 125% gets the phone
+ * layout on a full screen, which is not a phone and does not want one — and the
+ * first report of this layout was exactly that, one column at full screen. So
+ * Goals pairs with the boons at tablet width and the Loadout joins at 72rem.
  */
-@media (min-width: 60rem) {
+@media (min-width: 48rem) {
   .app__body {
     display: grid;
-    grid-template-columns: 22rem minmax(0, 1fr) 20rem;
+    grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr);
     align-items: start;
     gap: 1.5rem;
   }
@@ -154,7 +180,19 @@ body {
     order: 2;
   }
 
+  /* Full width under the pair until there is room for a column of its own. */
   .loadout {
     order: 3;
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 72rem) {
+  .app__body {
+    grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr) minmax(14rem, 18rem);
+  }
+
+  .loadout {
+    grid-column: auto;
   }
 }

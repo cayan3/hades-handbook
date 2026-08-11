@@ -118,11 +118,53 @@ function Run({
   const [fault, setFault] = useState<Error | null>(null);
   const [dismissedEdit, setDismissedEdit] = useState<unknown>(null);
   const [god, setGod] = useState<string | null>(null);
+  /**
+   * The fallback ladder is the default because **no art set is shipped**.
+   *
+   * The real-art ladder puts state on the frame and on what is done to the
+   * artwork, on the argument that a fill would bury a detailed, already
+   * colourful icon. With every icon resolving to the missing-art placeholder
+   * there is no icon to bury and nothing for half the ladder to ride on: every
+   * node is the same flat square, and the frame weights are being asked to
+   * carry the whole ladder on their own. The fallback is the same five steps
+   * built for exactly this — no image element at all, god colour back on the
+   * node as the identity channel.
+   *
+   * A toggle rather than a detection, because whether a file loads is something
+   * only the browser finds out, one image at a time, and a page that changed
+   * ladder as art trickled in would be worse than either.
+   */
+  const [artwork, setArtwork] = useState(false);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
   // Nobody has chosen, so show a god the run has met, or the first one.
   const showing = god ?? tabs.find((name) => facts.godPool.has(name)) ?? tabs[0] ?? NO_GOD;
+
+  /**
+   * Gods the player added for planning. Only ever grown, which is half of what
+   * makes a tab sticky; the other half is that a pooled god's tab is derived
+   * below rather than stored, so leaving the pool cannot take a tab away
+   * either. Navigation must not reshuffle under somebody because a boon was
+   * removed.
+   */
+  const [added, setAdded] = useState<ReadonlySet<string>>(new Set());
+  const addGodTab = useCallback((name: string) => {
+    setAdded((before) => new Set(before).add(name));
+  }, []);
+
+  /**
+   * The first god is always here, so the bar is never empty on a run that has
+   * met nobody — and so that the tab a player starts on does not vanish the
+   * moment they look at a second god, which is what happens if the only reason
+   * it was there was that it was selected.
+   */
+  const shownTabs = tabs.filter(
+    (name) =>
+      facts.godPool.has(name) || added.has(name) || name === showing || name === tabs[0],
+  );
+  shownTabs.push(NO_GOD);
+  const unshown = tabs.filter((name) => !shownTabs.includes(name));
   // One cache for the whole page, keyed on the facts object's identity — which
   // is sound because every writer replaces the object and shares the
   // collections it did not touch.
@@ -164,10 +206,18 @@ function Run({
   const openedView = opened === null ? null : view(opened);
 
   return (
-    <NodePresentation ladder="real-art">
+    <NodePresentation ladder={artwork ? "real-art" : "fallback"}>
       <div className="app">
         <header className="app__head">
           <h1>Hades Handbook</h1>
+          <label className="app__artwork">
+            <input
+              type="checkbox"
+              checked={artwork}
+              onChange={(event) => setArtwork(event.target.checked)}
+            />
+            Artwork
+          </label>
           <nav className="app__games" aria-label="Game">
             {(["hades1", "hades2"] as const).map((id) => (
               <button
@@ -230,7 +280,7 @@ function Run({
               Tap a boon to see what it needs, mark it, or set it as a goal.
             </p>
             <nav className="app__gods" aria-label="God">
-              {[...tabs, NO_GOD].map((name) => (
+              {shownTabs.map((name) => (
                 <button
                   key={name}
                   type="button"
@@ -243,6 +293,38 @@ function Run({
                   {name}
                 </button>
               ))}
+              {unshown.length === 0 ? null : (
+                /**
+                 * Every god at once is seventeen tabs wrapping over three rows,
+                 * which is a list rather than navigation. So the bar carries the
+                 * gods this run has actually met plus whatever the player added
+                 * for planning, and the rest arrive through here.
+                 *
+                 * A native select rather than a popover: it needs no focus
+                 * management, no escape handling and no second dialog, and on a
+                 * phone it is the control the platform already gives for exactly
+                 * this.
+                 */
+                <label className="app__addgod">
+                  <span className="visually-hidden">Add a god to plan with</span>
+                  <select
+                    value=""
+                    onChange={(event) => {
+                      addGodTab(event.target.value);
+                      setGod(event.target.value);
+                    }}
+                  >
+                    <option value="" disabled>
+                      + god
+                    </option>
+                    {unshown.map((name) => (
+                      <option key={name} value={name}>
+                        {name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
             </nav>
             <TierBands
               views={boons.map(view)}
