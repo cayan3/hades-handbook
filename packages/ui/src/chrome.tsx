@@ -57,6 +57,17 @@ export function NoticeBar({
 export interface UndoToastProps {
   /** What just happened, in the past tense and without the word "undo" in it. */
   readonly what: string;
+  /**
+   * What the edit cost that nothing else says — today, the boon a mark pushed
+   * out of a filled slot, and which of the player's goals wanted it.
+   *
+   * It reads here rather than as a warning before the mark, because there is no
+   * before: marking is one tap. That is the better place for it anyway. It was
+   * never a choice — a control that could refuse a displacement would be
+   * refusing ordinary play — so a warning ahead of it was a sentence with
+   * nothing to do, and this one arrives beside a working Undo.
+   */
+  readonly cost?: readonly string[];
   readonly onUndo: () => void;
   readonly onDismiss: () => void;
 }
@@ -66,10 +77,17 @@ export interface UndoToastProps {
  * an ordered history interacts badly with fields the user is holding by hand.
  * So this shows the last edit only and disappears when it is taken back.
  */
-export function UndoToast({ what, onUndo, onDismiss }: UndoToastProps) {
+export function UndoToast({ what, cost = [], onUndo, onDismiss }: UndoToastProps) {
   return (
     <div className="toast" role="status">
       <span className="toast__what">{what}</span>
+      {cost.length === 0 ? null : (
+        <span className="toast__cost">
+          {cost.map((line) => (
+            <span key={line}>{line}</span>
+          ))}
+        </span>
+      )}
       <button type="button" className="toast__undo" onClick={onUndo}>
         Undo
       </button>

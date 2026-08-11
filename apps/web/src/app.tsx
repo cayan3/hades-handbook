@@ -24,6 +24,7 @@ import {
   createNodeCache,
   createNodeSource,
   deriveNodeDetail,
+  displacementLines,
   editSentence,
   godColour,
   migrationMessage,
@@ -139,6 +140,8 @@ function Run({
   const [opened, setOpened] = useState<TraitId | null>(null);
   const [fault, setFault] = useState<Error | null>(null);
   const [dismissedEdit, setDismissedEdit] = useState<unknown>(null);
+  /** What the last mark pushed out of the run, for the toast to say beside it. */
+  const [cost, setCost] = useState<readonly string[]>([]);
   const [god, setGod] = useState<string | null>(null);
   /**
    * The fallback ladder is the default because **no art set is shipped**.
@@ -233,8 +236,23 @@ function Run({
    * long press on a touch screen — one handler for both.
    */
   const markOrOpen = useCallback(
-    (trait: TraitId) => write(() => session.source.mark(trait)),
-    [session, write],
+    (trait: TraitId) => {
+      /**
+       * What the mark is about to cost, worked out before it happens because
+       * afterwards the slot holds something else.
+       *
+       * This is the displacement annotation, arriving beside the undo rather
+       * than as a warning ahead of the tap. There is no ahead — marking is one
+       * tap — and it was never a choice anyway: a control that could refuse a
+       * displacement would be refusing ordinary play. Computed here rather than
+       * carried on the node because the half worth reading walks the player's
+       * pins, and pins are intent, which is not in the node cache's key.
+       */
+      const displaced = deriveNodeDetail(source, view(trait), facts, intent.pins).displaces;
+      setCost(displaced === null ? [] : displacementLines(displaced));
+      write(() => session.source.mark(trait));
+    },
+    [session, write, source, view, facts, intent],
   );
   const toggleGoal = useCallback(
     (trait: TraitId) =>
@@ -438,6 +456,7 @@ function Run({
         {condition.lastEdit === null || condition.lastEdit === dismissedEdit ? null : (
           <UndoToast
             what={editSentence(condition.lastEdit, source.naming)}
+            cost={condition.lastEdit.action === "mark" ? cost : []}
             onUndo={() => write(() => session.source.undo())}
             onDismiss={() => setDismissedEdit(condition.lastEdit)}
           />

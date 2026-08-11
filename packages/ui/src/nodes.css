@@ -750,3 +750,16 @@
 .loadout__equipped dd {
   margin: 0;
 }
+
+/*
+ * What the last edit cost, under what it was. Quieter than the sentence above
+ * it and still a full line each, because the second one names the player's own
+ * goal and that is the whole reason the annotation exists.
+ */
+.toast__cost {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  opacity: 0.8;
+  font-size: 0.78rem;
+}

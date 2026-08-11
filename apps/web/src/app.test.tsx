@@ -221,15 +221,14 @@ describe("the three ways a boon leaves a run", () => {
    * the first out of the run entirely, so it stops counting toward everything
    * that named it.
    *
-   * **What it no longer has is a warning ahead of it.** The sentence — "taking
-   * this replaces Flutter Strike, and Flutter Strike is a prerequisite of a
-   * goal you are holding" — was announced in the detail surface *before* the
-   * mark, and a one-tap mark has no before: the sheet opens only on a boon the
-   * run already has, and a held boon displaces nothing. The derivation is
-   * intact and tested beside it in the library; what it lost is somewhere to
-   * go. Pinned here rather than left to be rediscovered.
+   * **The warning moved rather than going away.** It used to be announced in
+   * the detail surface *before* the mark, and a one-tap mark has no before. It
+   * was never a choice either — a control that could refuse a displacement
+   * would refuse ordinary play — so it now reads beside the undo, which is the
+   * one place the player can actually act on it. The derivation is
+   * intact; what changed is where it is said.
    */
-  it("displaces the boon in the slot, with no warning ahead of it", async () => {
+  it("displaces the boon in the slot and says so beside the undo", async () => {
     await mount();
     // Island Getaway asks for an Aphrodite boon by name, so pinning it is what
     // used to make the warning worth reading.
@@ -239,7 +238,19 @@ describe("the three ways a boon leaves a run", () => {
 
     expect(heldInLoadout(ARES_MELEE)).toBe(true);
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(false);
-    expect(container.querySelector(".sheet__displaces")).toBeNull();
+
+    // The sentence is beside the undo rather than ahead of the tap, and both
+    // halves are there: what left the run, and which goal wanted it.
+    const said = container.querySelector(".toast__cost")?.textContent ?? "";
+    expect(said).toContain(`Taking this replaces ${H2[APHRODITE_MELEE]?.name}`);
+    expect(said).toContain(H2.AllCloseBoon?.name ?? "Island Getaway");
+  });
+
+  /** Nothing to say where nothing was pushed out. */
+  it("says nothing about displacement when the slot was free", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    expect(container.querySelector(".toast__cost")).toBeNull();
   });
 });
 
