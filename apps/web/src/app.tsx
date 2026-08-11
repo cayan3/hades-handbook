@@ -25,9 +25,10 @@ import {
   createNodeSource,
   deriveNodeDetail,
   editSentence,
+  godColour,
   migrationMessage,
 } from "@repo/ui";
-import { useCallback, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useMemo, useState } from "react";
 import {
   attempt,
   useCondition,
@@ -306,9 +307,18 @@ function Run({
                   key={name}
                   type="button"
                   aria-current={name === showing ? "page" : undefined}
-                  // In the pool is a fact about the run and shows on the tab;
-                  // it never decides whether the tab is there.
+                  /**
+                   * In the pool is a fact about the run and shows on the tab;
+                   * it never decides whether the tab is there. The glow is the
+                   * god's own colour, which is the channel hue already means
+                   * everywhere else — a row of tabs glowing one shared colour
+                   * would be spending the identity channel on nothing.
+                   *
+                   * Nothing about goals reaches this: a pinned goal, or a god
+                   * added to plan with, leaves a tab exactly as it was.
+                   */
                   data-pooled={facts.godPool.has(name)}
+                  style={{ "--god": godColour(name) } as CSSProperties}
                   onClick={() => setGod(name)}
                 >
                   {name}

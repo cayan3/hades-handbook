@@ -350,7 +350,7 @@ describe("the Loadout", () => {
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
     expect(heldInLoadout("AllCloseBoon")).toBe(false);
 
-    click("All 2 boons");
+    click("Show all boons");
     expect(heldInLoadout("AllCloseBoon")).toBe(true);
 
     click("Core slots only");
