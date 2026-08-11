@@ -92,7 +92,14 @@ export default defineConfig({
       workbox: {
         // The art set is served from public/ and never fingerprinted, so it is
         // matched at runtime instead of being listed in the precache manifest.
-        globPatterns: ["**/*.{js,css,html,webmanifest}"],
+        //
+        // The faces are precached even though they are not fingerprinted
+        // either, and the difference is size against consequence: four files
+        // and 78 kB, against an installed copy that renders in system fonts
+        // the moment it is offline — which is most of what "installable"
+        // promises. Workbox gives an unfingerprinted file its own revision
+        // hash, so replacing one still busts the entry.
+        globPatterns: ["**/*.{js,css,html,webmanifest,woff2}"],
       },
       manifest: {
         name: "Hades Handbook",

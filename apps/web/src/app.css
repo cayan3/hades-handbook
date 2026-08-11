@@ -12,26 +12,66 @@
  * depends on how wide the page is.
  */
 
+/*
+ * The three faces, self-hosted, because the content policy has no allowance for
+ * a foundry's origin and this product talks to nobody. All three are SIL Open
+ * Font License 1.1 and the licence text ships beside them in `public/fonts`,
+ * which is a condition of that licence rather than a courtesy.
+ *
+ * **Latin subset, woff2 only.** Every browser that can install a progressive
+ * web app reads woff2, and the latin cut is a fifth of the size of the full
+ * face for a product whose text is English and the games' own item names.
+ * 78 kB for the three, against a bundle of 780.
+ *
+ * `swap`, so the page is readable in the fallback while a face loads rather
+ * than blank while it does. The stacks below name a real fallback each, so a
+ * refused or slow font degrades to something with the right proportions.
+ *
+ * Cinzel is a variable font and one file covers 400–700; Barlow ships static
+ * instances, so it is two.
+ */
+@font-face {
+  font-family: "Cinzel";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/cinzel.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/barlow-400.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Barlow";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/barlow-600.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/jetbrains-mono-400.woff2") format("woff2");
+}
+
 :root {
   color-scheme: dark;
   --ink: #f2ece4;
   --ground: #12100f;
 
   /*
-   * The three type roles, as tokens.
-   *
-   * **The faces themselves are not shipped yet.** Cinzel, Barlow and JetBrains
-   * Mono are all openly licensed and self-hosting them is the only way they can
-   * load at all — the policy has no allowance for a foundry's origin and this
-   * product talks to nobody — so they arrive as files under `public/fonts` with
-   * the art set, and this becomes an `@font-face` block plus nothing else.
-   * Declaring the faces now would give every page a run of 404s and the same
-   * fallback it already has.
-   *
-   * The roles are applied below regardless, so the shape of the page is the one
-   * the design asks for and the faces drop in without anything moving: display
-   * for titles and god names, body for everything it cannot do, mono only where
-   * digits have to line up.
+   * The three type roles, as tokens: display for titles and god names, body for
+   * everything it cannot do, mono only where digits have to line up. Cinzel is
+   * effectively all caps and illegible small, which is why it is never body
+   * text.
    */
   --face-display: "Cinzel", Georgia, serif;
   --face-body: "Barlow", system-ui, sans-serif;
