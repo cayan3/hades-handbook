@@ -611,7 +611,8 @@
 
 .loadout__list {
   display: flex;
-  gap: 0.4rem;
+  /* Wide enough that a tile's rarity band does not reach into its neighbour. */
+  gap: 0.6rem;
 }
 
 /* The core slots are a column and stay one, whatever else arrives beside them. */
@@ -645,9 +646,14 @@
  * a solid copy that shows only where it clears the tile. A second element would
  * have needed a triangle, and this file draws exactly one silhouette — a rule a
  * test keeps.
+ *
+ * The offset is diagonal and the band it leaves is not: across a 45-degree edge
+ * the visible width is the offset times the root of two, so this reads
+ * thinner than the same number would suggest. 0.22rem was the first value and
+ * was too fine to carry a colour at this size.
  */
 .loadout__tile[data-rarity] .node__shape {
-  filter: drop-shadow(0.22rem -0.22rem 0 var(--rarity));
+  filter: drop-shadow(0.4rem -0.4rem 0 var(--rarity));
 }
 
 .loadout__tile .node__control {
