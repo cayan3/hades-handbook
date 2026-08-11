@@ -1,8 +1,14 @@
 /*
- * Page chrome for the gallery, and nothing belonging to a node. The ladder, the
- * frames, the corners and the junctions live in the component library's own
- * stylesheet, which this page includes; anything about a node that ended up here
- * would be a rule the library's tests cannot see.
+ * Page chrome and the two layout profiles, and nothing belonging to a node. The
+ * ladder, the frames, the corners and the junctions live in the component
+ * library's own stylesheet, which this page includes; anything about a node
+ * that ended up here would be a rule the library's tests cannot see.
+ *
+ * Phone first, and the profiles are one media query rather than two layouts:
+ * the phone stacks Goals, Loadout and the boons in that order, which puts the
+ * home surface at the top where it belongs, and the desktop puts the three side
+ * by side. Same components, same order in the document, so the reading order a
+ * screen reader gets does not depend on the width of the window.
  */
 
 :root {
@@ -18,56 +24,137 @@ body {
   font-family: system-ui, sans-serif;
 }
 
-.gallery {
-  max-width: 60rem;
+.app {
+  max-width: 90rem;
   margin: 0 auto;
-  padding: 1.5rem 1.25rem 4rem;
+  padding: 1rem 1rem calc(5rem + env(safe-area-inset-bottom));
 }
 
-.gallery h1 {
-  margin: 0 0 0.4rem;
-  font-size: 1.4rem;
+.app__loading {
+  padding: 2rem 1rem;
+  opacity: 0.7;
 }
 
-.gallery h2 {
-  margin: 2rem 0 0.5rem;
+.app__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+}
+
+.app__head h1 {
+  flex: 1;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.app__games,
+.app__gods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.app__games button,
+.app__gods button,
+.app__finish {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* The tab a god's boons are showing under. */
+.app__games button[aria-current],
+.app__gods button[aria-current] {
+  border-color: currentColor;
+  background: rgb(255 255 255 / 10%);
+}
+
+/*
+ * In the pool is a fact about the run, so it changes how a tab looks and never
+ * whether it is there: navigation must not reshuffle under somebody because a
+ * boon was removed.
+ */
+.app__gods button[data-pooled="true"]::before {
+  content: "●";
+  margin-right: 0.35rem;
+  font-size: 0.7em;
+  vertical-align: 0.15em;
+}
+
+.app__notices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.9rem 0;
+}
+
+.app__notices:empty {
+  margin: 0;
+}
+
+.notice__cause {
+  margin: 0.4rem 0 0;
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+  opacity: 0.7;
+  overflow-wrap: anywhere;
+}
+
+.app__body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.app__body h2 {
+  margin: 0 0 0.5rem;
   font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   opacity: 0.6;
 }
 
-.gallery__head p,
-.gallery__note {
-  max-width: 44rem;
+.app__hint {
   margin: 0 0 0.75rem;
   font-size: 0.85rem;
-  opacity: 0.75;
-}
-
-.gallery__toggle {
-  display: inline-flex;
-  gap: 0.4rem;
-  align-items: center;
-  font-size: 0.85rem;
-}
-
-.gallery__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.gallery__row--inline li {
-  display: inline-flex;
-  gap: 0.4rem;
-  align-items: center;
-}
-
-.gallery__caption {
-  font-size: 0.75rem;
   opacity: 0.7;
+}
+
+.app__gods {
+  margin-bottom: 1rem;
+}
+
+/*
+ * Desktop: the tree, the Loadout and Goals at once, which is the whole
+ * difference between the profiles. The boon ladder takes the middle because it
+ * is the one that scrolls.
+ */
+@media (min-width: 60rem) {
+  .app__body {
+    display: grid;
+    grid-template-columns: 22rem minmax(0, 1fr) 20rem;
+    align-items: start;
+    gap: 1.5rem;
+  }
+
+  .goals {
+    order: 1;
+  }
+
+  .app__ladder {
+    order: 2;
+  }
+
+  .loadout {
+    order: 3;
+  }
 }

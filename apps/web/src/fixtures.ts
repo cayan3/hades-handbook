@@ -5,14 +5,15 @@ import { createRules as hades2Rules } from "@repo/rules-hades2";
 import { type NodeSource, createNodeSource } from "@repo/ui";
 
 /**
- * Hand-written runs, and nothing that could produce one on its own. No store is
- * opened, no run-state source exists, nothing subscribes. Wiring the real
- * platform is a later job, and keeping that seam is what stops a rendering
- * problem and a persistence problem arriving in the same diff.
+ * Hand-written runs, kept for the tests that need a run the shipped data cannot
+ * produce.
  *
  * Everything below the facts is real: the shipped catalog, the shipped
- * requirement trees, both games' actual rules. So a state on this page is the
- * engine's answer about a made-up run, never a label somebody typed.
+ * requirement trees, both games' actual rules. So a state here is the engine's
+ * answer about a made-up run, never a label somebody typed — which is what lets
+ * these stand in for the two verdicts a real run essentially never reaches.
+ * Impossible is one of them, and the full-pool copy is the only piece of
+ * required wording in the product.
  */
 
 /**
