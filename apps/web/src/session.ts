@@ -1,6 +1,5 @@
 import type { GameId, RunFacts, RunIntent } from "@repo/core";
 import {
-  type FactOverride,
   type RunSession,
   type RunStore,
   type SourceCondition,
@@ -51,19 +50,6 @@ export function useCondition(session: RunSession): SourceCondition {
     useCallback((notify) => session.source.subscribeCondition(notify), [session]),
     useCallback(() => session.source.getCondition(), [session]),
   );
-}
-
-/**
- * Every field the user is holding by hand, so a marker can be drawn per field.
- *
- * The overlay has no subscription of its own and needs none: the layer
- * announces a change to it through the same callback it announces a fact
- * through, precisely because both change what everything downstream reads. So
- * subscribing to the facts and re-reading is the whole implementation.
- */
-export function useOverrides(session: RunSession): readonly FactOverride[] {
-  useFacts(session);
-  return session.layer.overrides;
 }
 
 /** Whether the same origin has another tab open, which is last-write-wins. */

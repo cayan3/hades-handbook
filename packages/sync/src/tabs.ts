@@ -9,14 +9,14 @@ import type { Unsub } from "./port.js";
 export interface BroadcastChannelLike {
   postMessage(message: unknown): void;
   /**
-   * The parameter is `any` for the reason the store's handlers are, measured
-   * the same way: the real `onmessage` is `(ev: MessageEvent) => any`, and a
-   * hand-written `{ data: unknown }` is not assignable to `MessageEvent`, so
-   * declaring the shape we actually read refuses the real channel. Widened
-   * here, and narrowed again at the one place that assigns it, so the code
-   * inside stays typed.
+   * `any` because a parameter position is contravariant: the real `onmessage`
+   * is `(ev: MessageEvent) => any`, and the `{ data: unknown }` we actually
+   * read is not assignable to `MessageEvent`, so declaring what we read is what
+   * refuses the real channel. Widened here and narrowed again where it is
+   * assigned, so the code inside stays typed. Required rather than optional,
+   * unlike the store's handlers: nothing ever fires this without an event.
    */
-  onmessage: ((event?: any) => void) | null;
+  onmessage: ((event: any) => void) | null;
   close(): void;
 }
 
