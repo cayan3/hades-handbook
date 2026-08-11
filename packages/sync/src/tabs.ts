@@ -8,7 +8,15 @@ import type { Unsub } from "./port.js";
  */
 export interface BroadcastChannelLike {
   postMessage(message: unknown): void;
-  onmessage: ((event: { data: unknown }) => void) | null;
+  /**
+   * The parameter is `any` for the reason the store's handlers are, measured
+   * the same way: the real `onmessage` is `(ev: MessageEvent) => any`, and a
+   * hand-written `{ data: unknown }` is not assignable to `MessageEvent`, so
+   * declaring the shape we actually read refuses the real channel. Widened
+   * here, and narrowed again at the one place that assigns it, so the code
+   * inside stays typed.
+   */
+  onmessage: ((event?: any) => void) | null;
   close(): void;
 }
 
@@ -98,7 +106,7 @@ export function createTabPresence(options: TabPresenceOptions): TabPresence {
     channel.postMessage({ kind: "hades-handbook/tab", tabId } satisfies Heartbeat);
   }
 
-  channel.onmessage = (event) => {
+  channel.onmessage = (event: { data: unknown }) => {
     if (closed || !isHeartbeat(event.data) || event.data.tabId === tabId) return;
     lastSeen.set(event.data.tabId, now());
     recompute();

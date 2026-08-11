@@ -18,6 +18,23 @@ import { DB_NAME, DB_VERSION, STORE_NAME, type RunSlot, type RunStore, recordKey
  * platform exists, the typechecker could not check the assertion, and it would
  * fail at runtime under the test runner, which has no IndexedDB at all.
  */
+
+/**
+ * A handler the browser calls and whose argument nothing here reads.
+ *
+ * Optional and `any`, and that is the only shape that works — measured rather
+ * than assumed, because until something passed the real objects nobody had
+ * checked. Every DOM handler is typed `(ev: SomeEvent) => any` and a parameter
+ * position is checked contravariantly, so anything narrower refuses the real
+ * factory: `() => void` fails on arity ("provides too few arguments") and a
+ * hand-written event shape fails on the event type. Optional, because the fakes
+ * fire these with no argument, which the browser never does.
+ *
+ * The alternative is a cast in the app, which would also stop the typechecker
+ * looking at every other member — the opposite of why these are written out.
+ */
+type EventHandler = ((event?: any) => void) | null;
+
 export interface IdbFactoryLike {
   open(name: string, version?: number): IdbOpenRequestLike;
 }
@@ -25,14 +42,14 @@ export interface IdbFactoryLike {
 export interface IdbRequestLike<T> {
   result: T;
   error: unknown;
-  onsuccess: (() => void) | null;
-  onerror: (() => void) | null;
+  onsuccess: EventHandler;
+  onerror: EventHandler;
 }
 
 export interface IdbOpenRequestLike extends IdbRequestLike<IdbDatabaseLike> {
-  onupgradeneeded: (() => void) | null;
+  onupgradeneeded: EventHandler;
   /** Fired when an older connection elsewhere is holding this open back. */
-  onblocked: (() => void) | null;
+  onblocked: EventHandler;
 }
 
 export interface IdbDatabaseLike {
@@ -41,7 +58,7 @@ export interface IdbDatabaseLike {
   transaction(name: string, mode: "readonly" | "readwrite"): IdbTransactionLike;
   close(): void;
   /** Fired when something else wants to open this database at a new version. */
-  onversionchange: (() => void) | null;
+  onversionchange: EventHandler;
 }
 
 export interface IdbTransactionLike {
