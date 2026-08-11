@@ -215,19 +215,23 @@ describe("activationLines", () => {
 
 describe("the accessible name", () => {
   it("carries the state in words, after the name and before the god", () => {
-    expect(accessibleName("Storm Lightning", "Available", "Zeus", 2)).toBe(
-      "Storm Lightning — Available — Zeus, tier 2",
+    expect(accessibleName("Storm Lightning", "Available", "Zeus")).toBe(
+      "Storm Lightning — Available — Zeus",
     );
   });
 
-  it("drops what the record does not have rather than filling it in", () => {
-    // Every Duo answers to two gods and most Infusions to none, so a tier is
-    // missing more often than not.
-    expect(accessibleName("Island Getaway", "Locked", null, null)).toBe("Island Getaway — Locked");
-    expect(accessibleName("Tall Order", "Pending", "Hermes", null)).toBe(
-      "Tall Order — Pending — Hermes",
-    );
-    expect(accessibleName("Nameless", "Obtained", null, 1)).toBe("Nameless — Obtained — tier 1");
+  it("drops the god rather than filling one in", () => {
+    // Every Duo answers to two gods, so the record names neither.
+    expect(accessibleName("Island Getaway", "Locked", null)).toBe("Island Getaway — Locked");
+  });
+
+  /**
+   * The tier used to be here, as "Zeus, tier 2". It is the game's internal rank
+   * and the game never shows it to a player, so announcing it would tell a
+   * screen reader something no one else is told.
+   */
+  it("never says the tier", () => {
+    expect(accessibleName("Storm Lightning", "Available", "Zeus")).not.toMatch(/tier/i);
   });
 
   it("gives each of the five states its own sentence", () => {

@@ -47,7 +47,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
     rarities: [],
     notice: null,
     dormant: false,
-    label: "Storm Lightning — Pending — Zeus, tier 2",
+    label: "Storm Lightning — Pending — Zeus",
     ...over,
   };
 }

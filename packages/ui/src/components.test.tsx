@@ -49,7 +49,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
     rarities: [],
     notice: null,
     dormant: false,
-    label: "Storm Lightning — Available — Zeus, tier 2",
+    label: "Storm Lightning — Available — Zeus",
     ...over,
   };
 }
@@ -89,7 +89,7 @@ describe("BoonNode", () => {
   it("reflects held and pinned where a reader can find them", () => {
     render(
       <BoonNode
-        view={view({ state: "Obtained", label: "Storm Lightning — Obtained — Zeus, tier 2" })}
+        view={view({ state: "Obtained", label: "Storm Lightning — Obtained — Zeus" })}
         pinned
         onOpen={() => {}}
       />,
@@ -253,10 +253,16 @@ describe("TierBands", () => {
     expect([...container.querySelectorAll("[tabindex]")]).toEqual([]);
   });
 
-  it("labels each band", () => {
+  /**
+   * Rewritten rather than deleted: it used to assert the bands were labelled
+   * "Tier 1" and "Untiered". The tier is the game's internal rank and the game
+   * never shows it, so it groups the page and is not written on it. The bands
+   * themselves stay, because they are the order.
+   */
+  it("groups into bands without naming the tier", () => {
     render(<TierBands views={[view({ tier: 1 }), view({ trait: "x", tier: null })]} />);
-    const labels = [...container.querySelectorAll(".tier-bands__label")].map((el) => el.textContent);
-    expect(labels).toEqual(["Tier 1", "Untiered"]);
+    expect(container.querySelectorAll(".tier-bands__band")).toHaveLength(2);
+    expect(container.textContent).not.toMatch(/tier/i);
   });
 
   it("marks the pinned ones and only those", () => {

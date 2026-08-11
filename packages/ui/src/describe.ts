@@ -275,20 +275,14 @@ export function stateSentence(state: BoonState): string {
 
 /**
  * What a screen reader announces. The state is in the name and not only in the
- * frame, which is what makes the ladder readable without seeing it. God and tier
- * follow, since a node in a graph means little without knowing whose ladder it
- * is on and how deep — and both are dropped rather than filled in where the
- * record has neither, which is most Infusions and every Duo.
+ * frame, which is what makes the ladder readable without seeing it, and the god
+ * follows where the record names one — dropped rather than filled in otherwise,
+ * which is every Duo.
+ *
+ * Tier is deliberately absent. It orders the page and it is the game's internal
+ * rank, which the game itself never shows a player, so announcing it would be
+ * this product saying more about a boon than the game does.
  */
-export function accessibleName(
-  name: string,
-  state: BoonState,
-  god: string | null,
-  tier: number | null,
-): string {
-  const parts = [name, state];
-  if (god !== null && tier !== null) parts.push(`${god}, tier ${tier}`);
-  else if (god !== null) parts.push(god);
-  else if (tier !== null) parts.push(`tier ${tier}`);
-  return parts.join(" — ");
+export function accessibleName(name: string, state: BoonState, god: string | null): string {
+  return god === null ? `${name} — ${state}` : `${name} — ${state} — ${god}`;
 }

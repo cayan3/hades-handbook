@@ -53,12 +53,13 @@ describe("deriveNodeView", () => {
     expect(stateOf(h1Facts("notSelected"))).toBe("Impossible");
   });
 
-  it("puts the state in words, with the god and depth a record has", () => {
+  it("puts the state in words, with the god a record has", () => {
     // Sweet Surrender is a plain rung on one god's ladder. Lightning Rod is the
-    // other case: a talent-gated cross-god boon has neither god nor tier, and
-    // every Duo is the same.
+    // other case: a talent-gated cross-god boon answers to no single god, and
+    // every Duo is the same. The record's tier reaches neither name.
     const view = deriveNodeView(h1(), TIER_TWO, makeFacts());
-    expect(view.label).toBe("Sweet Surrender — Locked — Aphrodite, tier 2");
+    expect(view.tier).toBe(2);
+    expect(view.label).toBe("Sweet Surrender — Locked — Aphrodite");
 
     const rod = deriveNodeView(h1(), LIGHTNING_ROD, h1Facts("selected", ARTEMIS_BOON));
     expect(rod.label).toBe("Lightning Rod — Pending");

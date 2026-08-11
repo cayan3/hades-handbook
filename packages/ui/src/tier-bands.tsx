@@ -3,21 +3,18 @@ import { BoonNode } from "./boon-node.js";
 import type { NodeView } from "./node-view.js";
 
 /**
- * Nodes in tier order, which is also keyboard order.
+ * Nodes in tier order, which is also the keyboard order: tab order is DOM
+ * order, so emitting them in tier order is the whole of that promise and
+ * nothing needs a tab index.
  *
- * Tab order is DOM order, so a container that emits nodes in tier order has kept
- * the promise and nothing anywhere needs a tab index. The alternative —
- * scattering nodes across a canvas and reordering them with tab indices — is
- * where a promise like this quietly stops being true.
+ * The tier is never drawn. It is the game's internal rank and the game does not
+ * show it to a player either, so here it orders the page and nothing more — a
+ * band is a group with no heading.
  *
- * Not the god page. That is a laid-out graph with connectors, junctions, a band
- * for the element-gated boons and rim nodes for cross-god ones, and it is a
- * session of its own. This is the ordering rule underneath it, built now so the
- * commitment is testable.
- *
- * Boons with no tier come last, together: most Infusions and every Duo, since a
- * Duo answers to two gods and an Infusion to none. A placeholder for the bands
- * the god page will give them, not a claim that they belong together.
+ * Not the god page, which is a laid-out graph with connectors and junctions and
+ * is a session of its own. Untiered boons come last, together: most Infusions
+ * and every Duo. A placeholder for the bands that page will give them, not a
+ * claim that they belong together.
  */
 export interface TierBandsProps {
   readonly views: readonly NodeView[];
@@ -26,16 +23,15 @@ export interface TierBandsProps {
   readonly onOpen?: (trait: TraitId) => void;
 }
 
-const UNTIERED = "Untiered";
+const UNTIERED = "untiered";
 
 export function TierBands({ views, pinned, onOpen }: TierBandsProps) {
   const bands = groupByTier(views);
 
   return (
     <ol className="tier-bands">
-      {bands.map(([label, members]) => (
-        <li className="tier-bands__band" key={label}>
-          <h3 className="tier-bands__label">{label}</h3>
+      {bands.map(([key, members]) => (
+        <li className="tier-bands__band" key={key}>
           <ul className="tier-bands__nodes">
             {members.map((view) => (
               <li key={view.trait}>
@@ -55,7 +51,8 @@ export function TierBands({ views, pinned, onOpen }: TierBandsProps) {
 
 /**
  * Tiers ascending, untiered last. Order within a tier is the caller's, since a
- * god page wants one ordering and a duo grid another.
+ * god page wants one ordering and a duo grid another. The string is a React key
+ * and never reaches the page.
  */
 function groupByTier(views: readonly NodeView[]): ReadonlyArray<[string, NodeView[]]> {
   const byTier = new Map<number, NodeView[]>();
@@ -73,7 +70,7 @@ function groupByTier(views: readonly NodeView[]): ReadonlyArray<[string, NodeVie
 
   const bands: Array<[string, NodeView[]]> = [...byTier.entries()]
     .sort(([a], [b]) => a - b)
-    .map(([tier, members]) => [`Tier ${tier}`, members]);
+    .map(([tier, members]) => [String(tier), members]);
   if (untiered.length > 0) bands.push([UNTIERED, untiered]);
   return bands;
 }

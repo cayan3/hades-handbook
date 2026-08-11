@@ -229,7 +229,7 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
       state === "Obtained" &&
       record?.activation != null &&
       evaluate(record.activation, facts, rules, lookups).kind !== "satisfied",
-    label: accessibleName(name, state, god, tier),
+    label: accessibleName(name, state, god),
   };
 }
 

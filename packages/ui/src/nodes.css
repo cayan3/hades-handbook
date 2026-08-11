@@ -282,15 +282,6 @@
   margin-top: 1.25rem;
 }
 
-.tier-bands__label {
-  margin: 0 0 0.4rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.6;
-}
-
 .tier-bands__nodes {
   display: flex;
   flex-wrap: wrap;
