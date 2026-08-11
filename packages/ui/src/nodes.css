@@ -603,15 +603,25 @@
  * how a player recognises their own build and is why the game draws it this
  * way.
  */
+.loadout__grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
 .loadout__list {
   display: flex;
-  flex-wrap: wrap;
   gap: 0.4rem;
 }
 
-.loadout:not([data-expanded="true"]) .loadout__list {
+/* The core slots are a column and stay one, whatever else arrives beside them. */
+.loadout__core {
+  flex: none;
   flex-direction: column;
-  flex-wrap: nowrap;
+}
+
+.loadout__rest {
+  flex-wrap: wrap;
 }
 
 .loadout__entry {
@@ -626,25 +636,18 @@
 }
 
 /*
- * The rarity, as a colour behind the tile rather than as a word beside it —
- * the same channel the game puts it on. Common sets no property and gets no
- * treatment, so a coloured tile means something.
+ * The rarity, along the tile's upper-right edge — the same place and the same
+ * channel the game puts it on. Common sets no property and gets no treatment,
+ * so a coloured tile means something.
  *
- * The same diamond as the node, deliberately: this file draws exactly one
- * silhouette and a test says so.
+ * A drop shadow rather than a shape behind it, and that is what makes the edge
+ * possible: the filter follows the diamond's own alpha, so offsetting it paints
+ * a solid copy that shows only where it clears the tile. A second element would
+ * have needed a triangle, and this file draws exactly one silhouette — a rule a
+ * test keeps.
  */
-.loadout__tile[data-rarity]::before {
-  content: "";
-  position: absolute;
-  inset: -0.28rem;
-  z-index: 0;
-  background: var(--rarity);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-}
-
-.loadout__tile .node {
-  position: relative;
-  z-index: 1;
+.loadout__tile[data-rarity] .node__shape {
+  filter: drop-shadow(0.22rem -0.22rem 0 var(--rarity));
 }
 
 .loadout__tile .node__control {

@@ -55,11 +55,14 @@ export function Loadout({
   expanded = false,
   onExpanded,
 }: LoadoutProps) {
-  const core = coreSlots
-    .map((slot) => entries.find((entry) => entry.slot === slot))
-    .filter((entry): entry is LoadoutEntry => entry !== undefined);
-  const rest = entries.filter((entry) => !core.includes(entry));
-  const shown = expanded ? [...core, ...rest] : core;
+  /**
+   * Split, never re-sorted: both halves come out in the order the run took
+   * them. A column that re-ordered itself by slot would move a boon the player
+   * put there, which is the one thing a menu of your own build must not do.
+   */
+  const isCore = (entry: LoadoutEntry) => entry.slot !== null && coreSlots.includes(entry.slot);
+  const core = entries.filter(isCore);
+  const rest = entries.filter((entry) => !isCore(entry));
 
   return (
     <section className="loadout" data-expanded={expanded}>
@@ -69,14 +72,14 @@ export function Loadout({
         <p className="loadout__empty">No boons yet.</p>
       ) : (
         <>
-          <ul className="loadout__list">
-            {shown.map((entry) => (
-              <li key={entry.view.trait} className="loadout__entry">
-                <Tile entry={entry} onOpen={onOpen} />
-                {entry.overridden === true ? <OverrideMarker /> : null}
-              </li>
-            ))}
-          </ul>
+          {/* The core column stays leftmost when the rest arrives beside it,
+              rather than the two flowing together — the slots every run has
+              one of are the spine of a build and keeping them put is what
+              makes the panel readable at a glance after it opens. */}
+          <div className="loadout__grid">
+            <Tiles className="loadout__core" entries={core} onOpen={onOpen} />
+            {expanded ? <Tiles className="loadout__rest" entries={rest} onOpen={onOpen} /> : null}
+          </div>
           {rest.length === 0 || onExpanded === undefined ? null : (
             <button
               type="button"
@@ -84,7 +87,7 @@ export function Loadout({
               aria-expanded={expanded}
               onClick={() => onExpanded(!expanded)}
             >
-              {expanded ? "Core slots only" : `All ${entries.length} boons`}
+              {expanded ? "Core slots only" : "Show all boons"}
             </button>
           )}
         </>
@@ -101,6 +104,28 @@ export function Loadout({
         </dl>
       )}
     </section>
+  );
+}
+
+function Tiles({
+  className,
+  entries,
+  onOpen,
+}: {
+  readonly className: string;
+  readonly entries: readonly LoadoutEntry[];
+  readonly onOpen?: ((trait: TraitId) => void) | undefined;
+}) {
+  if (entries.length === 0) return null;
+  return (
+    <ul className={`loadout__list ${className}`}>
+      {entries.map((entry) => (
+        <li key={entry.view.trait} className="loadout__entry">
+          <Tile entry={entry} onOpen={onOpen} />
+          {entry.overridden === true ? <OverrideMarker /> : null}
+        </li>
+      ))}
+    </ul>
   );
 }
 
