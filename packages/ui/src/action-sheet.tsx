@@ -1,5 +1,6 @@
 import type { Rarity, TraitId } from "@repo/core";
 import { type KeyboardEvent, useEffect, useId, useRef } from "react";
+import { RarityMark } from "./chrome.js";
 import { displacementLines, stateSentence } from "./describe.js";
 import {
   OVERRIDDEN_HINT,
@@ -170,8 +171,10 @@ export function ActionSheet({
 
         {view.rarity === null ? null : (
           <p className="sheet__rarity">
-            {/* Only where the data says this boon has rarities at all. */}
-            Rarity: {view.rarity}
+            {/* Only where the data says this boon has rarities at all, and as
+                its own colour rather than as a labelled line — the name is
+                still there for a pointer and for a reader. */}
+            <RarityMark rarity={view.rarity} />
           </p>
         )}
 

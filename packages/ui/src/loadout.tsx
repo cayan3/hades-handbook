@@ -1,5 +1,5 @@
 import type { SlotId, TraitId } from "@repo/core";
-import { OverrideMarker } from "./chrome.js";
+import { OverrideMarker, RarityMark } from "./chrome.js";
 import type { NodeView } from "./node-view.js";
 
 /**
@@ -51,9 +51,7 @@ export function Loadout({ entries, equipped = [], onOpen }: LoadoutProps) {
               >
                 <span className="loadout__slot">{entry.slot ?? "—"}</span>
                 <span className="loadout__name">{entry.view.name}</span>
-                {entry.view.rarity === null ? null : (
-                  <span className="loadout__rarity">{entry.view.rarity}</span>
-                )}
+                {entry.view.rarity === null ? null : <RarityMark rarity={entry.view.rarity} />}
               </button>
               {entry.overridden === true ? <OverrideMarker /> : null}
             </li>

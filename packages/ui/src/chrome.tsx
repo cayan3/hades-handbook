@@ -1,5 +1,7 @@
-import type { ReactNode } from "react";
+import type { Rarity } from "@repo/core";
+import type { CSSProperties, ReactNode } from "react";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
+import { rarityColour } from "./rarity-palette.js";
 
 /**
  * The furniture a run wears: what a load could not carry, what a save could not
@@ -75,6 +77,31 @@ export function UndoToast({ what, onUndo, onDismiss }: UndoToastProps) {
         ×
       </button>
     </div>
+  );
+}
+
+/**
+ * The rarity a run holds, as its colour rather than as a word.
+ *
+ * The word was taking a line of its own beside every entry, which is a lot of
+ * furniture for a value that is decoration in most of the product — rarity is
+ * display state and no requirement reads it. As a swatch it costs a glyph.
+ *
+ * **The name still reaches every reader**: a title for a pointer, and a
+ * visually-hidden span for anyone not using one. Colour alone would be
+ * unreadable to a colourblind player and silent to a screen reader, and two of
+ * the game's own rarity colours are identical anyway.
+ */
+export function RarityMark({ rarity }: { readonly rarity: Rarity }) {
+  return (
+    <span
+      className="rarity"
+      title={rarity}
+      style={{ "--rarity": rarityColour(rarity) } as CSSProperties}
+    >
+      <span aria-hidden="true" className="rarity__swatch" />
+      <span className="visually-hidden">{rarity}</span>
+    </span>
   );
 }
 
