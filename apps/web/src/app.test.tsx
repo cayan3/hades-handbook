@@ -124,22 +124,47 @@ function showGod(name: string): void {
 }
 
 /**
- * Opens one boon's detail surface, selecting its god's tab first — which is
- * also an assertion that every boon is reachable through the tabs. A Duo names
- * no single god and is reached through either of the two it belongs to.
+ * One boon's node, with its god's tab selected first — which is also an
+ * assertion that every boon is reachable through the tabs. A Duo names no
+ * single god and is reached through either of the two it belongs to.
  */
-function open(trait: string): void {
+function node(trait: string): HTMLElement {
   const record = H2[trait];
   const god = record?.god ?? record?.duoGods?.[0];
   if (god === undefined) throw new Error(`${trait} belongs to no god and has no tab`);
   showGod(god);
 
   const name = record?.name ?? trait;
-  const node = [...container.querySelectorAll<HTMLElement>("button")].find((button) =>
+  const found = [...container.querySelectorAll<HTMLElement>("button")].find((button) =>
     button.getAttribute("aria-label")?.startsWith(`${name} —`),
   );
-  if (node === undefined) throw new Error(`no node for ${trait}`);
-  act(() => node.click());
+  if (found === undefined) throw new Error(`no node for ${trait}`);
+  return found;
+}
+
+/**
+ * A click, which is the whole marking gesture: a boon the run does not have is
+ * marked, and one it does opens its details. The same event either way, which
+ * is the point — a player taps the thing they mean.
+ */
+function tap(trait: string): void {
+  // Resolved before the act, never inside it: `node` selects the god's tab,
+  // which is itself an act, and a nested one does not flush until the outer
+  // one finishes — so the node would be looked for on the previous tab.
+  const control = node(trait);
+  act(() => control.click());
+}
+
+/**
+ * Sets or clears a goal. A right-click on a pointer and a long press on a touch
+ * screen both raise `contextmenu`, which is why it is one handler rather than a
+ * double-tap that would have to delay the mark to recognise itself.
+ */
+function goal(trait: string): void {
+  const control = node(trait);
+  act(() => {
+    control.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+  });
 }
 
 describe("marking a boon", () => {
@@ -147,14 +172,15 @@ describe("marking a boon", () => {
     await mount();
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
 
-    open(APHRODITE_MELEE);
-    // The record declares four rarities, so the question is the control rather
-    // than a dialog in front of it.
-    click("Rare");
-
+    // One tap and it is in the run. No dialog, no question in front of it.
+    tap(APHRODITE_MELEE);
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
-    // Rarity is a colour behind the tile, with the name still in the tile's
-    // description rather than in a column of text.
+
+    // Tapping it again opens the details, which is where the rarity the mark
+    // had to guess gets corrected. Rarity is a colour behind the tile, with the
+    // name still in the tile's description rather than in a column of text.
+    tap(APHRODITE_MELEE);
+    click("Rare");
     expect(container.querySelector('.loadout__tile[data-rarity="Rare"]')).not.toBeNull();
   });
 
@@ -165,7 +191,8 @@ describe("marking a boon", () => {
    */
   it("stores the rarity the player chose rather than the first declared", async () => {
     await mount();
-    open(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
     click("Heroic");
 
     expect(container.querySelector('.loadout__tile[data-rarity="Heroic"]')).not.toBeNull();
@@ -182,35 +209,44 @@ describe("the three ways a boon leaves a run", () => {
    */
   it("offers the mis-tap and the loss as separate controls", async () => {
     await mount();
-    open(APHRODITE_MELEE);
-    click("Common");
-    open(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
 
     expect(control("I mis-tapped")).toBeDefined();
     expect(control("I lost it in game")).toBeDefined();
   });
 
-  it("says what a mark would displace, and which goal wanted it", async () => {
+  /**
+   * Displacement still happens and is still recorded: a second Melee boon takes
+   * the first out of the run entirely, so it stops counting toward everything
+   * that named it.
+   *
+   * **What it no longer has is a warning ahead of it.** The sentence — "taking
+   * this replaces Flutter Strike, and Flutter Strike is a prerequisite of a
+   * goal you are holding" — was announced in the detail surface *before* the
+   * mark, and a one-tap mark has no before: the sheet opens only on a boon the
+   * run already has, and a held boon displaces nothing. The derivation is
+   * intact and tested beside it in the library; what it lost is somewhere to
+   * go. Pinned here rather than left to be rediscovered.
+   */
+  it("displaces the boon in the slot, with no warning ahead of it", async () => {
     await mount();
-    // Island Getaway asks for an Aphrodite boon by name, so pinning it makes
-    // the displaced boon a prerequisite of something the player is holding.
-    open(APHRODITE_MELEE);
-    click("Common");
-    open("AllCloseBoon");
-    click("Set as goal");
+    // Island Getaway asks for an Aphrodite boon by name, so pinning it is what
+    // used to make the warning worth reading.
+    tap(APHRODITE_MELEE);
+    goal("AllCloseBoon");
+    tap(ARES_MELEE);
 
-    open(ARES_MELEE);
-    const said = container.querySelector(".sheet__displaces")?.textContent ?? "";
-    expect(said).toContain(`Taking this replaces ${H2[APHRODITE_MELEE]?.name}`);
-    expect(said).toContain(H2.AllCloseBoon?.name ?? "Island Getaway");
+    expect(heldInLoadout(ARES_MELEE)).toBe(true);
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(false);
+    expect(container.querySelector(".sheet__displaces")).toBeNull();
   });
 });
 
 describe("the undo offer", () => {
   it("names the last edit and takes it back", async () => {
     await mount();
-    open(APHRODITE_MELEE);
-    click("Common");
+    tap(APHRODITE_MELEE);
 
     expect(container.querySelector(".toast__what")?.textContent).toBe(
       `Marked ${H2[APHRODITE_MELEE]?.name}`,
@@ -226,8 +262,7 @@ describe("the undo offer", () => {
    */
   it("appears for an intent edit, which no fact records", async () => {
     await mount();
-    open("AllCloseBoon");
-    click("Set as goal");
+    goal("AllCloseBoon");
 
     expect(container.querySelector(".toast__what")?.textContent).toContain("Pinned");
     // The panel is shut until it is asked for, so the pin has to be visible
@@ -301,7 +336,7 @@ describe("a field the user is holding by hand", () => {
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
     expect(container.querySelector(".override-marker")).not.toBeNull();
 
-    open(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
     click("Hand it back");
     // Handed back, the source has nothing to repopulate it with — which is the
     // honest answer for a source that only ever reported what was typed.
@@ -331,8 +366,7 @@ describe("the Goals panel", () => {
 
   it("counts what is pinned on the control that opens it", async () => {
     await mount();
-    open("AllCloseBoon");
-    click("Set as goal");
+    goal("AllCloseBoon");
 
     expect(control("Goals (1)")).toBeDefined();
   });
@@ -348,10 +382,8 @@ describe("the Loadout", () => {
     await mount();
     // Island Getaway is a Duo — it fills no slot, so it is not core, and its
     // record declares exactly one rarity, so that is what the control says.
-    open("AllCloseBoon");
-    click("Duo");
-    open(APHRODITE_MELEE);
-    click("Common");
+    tap("AllCloseBoon");
+    tap(APHRODITE_MELEE);
 
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
     expect(heldInLoadout("AllCloseBoon")).toBe(false);
@@ -369,13 +401,13 @@ describe("the Loadout", () => {
    */
   it("colours a tile by rarity, and leaves Common plain", async () => {
     await mount();
-    open(APHRODITE_MELEE);
-    click("Common");
+    // A one-tap mark stores the first rarity the record declares, which for
+    // this boon is Common — and Common draws nothing, which is what makes a
+    // coloured tile mean something.
+    tap(APHRODITE_MELEE);
     expect(container.querySelector(".loadout__tile[data-rarity]")).toBeNull();
 
-    open(APHRODITE_MELEE);
-    click("I mis-tapped");
-    open(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
     click("Epic");
     expect(container.querySelector('.loadout__tile[data-rarity="Epic"]')).not.toBeNull();
   });
@@ -389,10 +421,8 @@ describe("the Loadout", () => {
   it("keeps the core slots in slot order however they were taken", async () => {
     await mount();
     // Special before Attack, so insertion order and slot order disagree.
-    open("AphroditeSpecialBoon");
-    click("Common");
-    open(APHRODITE_MELEE);
-    click("Common");
+    tap("AphroditeSpecialBoon");
+    tap(APHRODITE_MELEE);
 
     const named = loadout().map((label) => label.split(" —")[0]);
     expect(named).toEqual([H2[APHRODITE_MELEE]?.name, H2.AphroditeSpecialBoon?.name]);
@@ -401,8 +431,7 @@ describe("the Loadout", () => {
   /** No names drawn, and every one of them still said. */
   it("draws no name and keeps every name reachable", async () => {
     await mount();
-    open(APHRODITE_MELEE);
-    click("Common");
+    tap(APHRODITE_MELEE);
 
     expect(container.querySelector(".loadout .node__name")).toBeNull();
     expect(loadout()[0]).toContain(H2[APHRODITE_MELEE]?.name);
@@ -466,8 +495,7 @@ describe("a store that will not take a write", () => {
    */
   it("says so, after a tap that nothing awaited", async () => {
     await mount(failing());
-    open(APHRODITE_MELEE);
-    click("Common");
+    tap(APHRODITE_MELEE);
     await act(async () => {
       await Promise.resolve();
     });
@@ -488,8 +516,7 @@ describe("ending a run", () => {
   it("files it and starts a fresh one", async () => {
     const store = createMemoryStore();
     await mount(store);
-    open(APHRODITE_MELEE);
-    click("Common");
+    tap(APHRODITE_MELEE);
 
     await act(async () => {
       control("End run").click();
@@ -520,8 +547,7 @@ describe("a write that throws", () => {
       save: () => Promise.reject(new Error("quota exceeded")),
     };
     await mount(store);
-    open(APHRODITE_MELEE);
-    click("Common");
+    tap(APHRODITE_MELEE);
 
     await act(async () => {
       control("End run").click();
@@ -612,15 +638,14 @@ describe("what the boon list shows", () => {
     expect(shown()).toContain("Ares");
     expect(shown()).toContain("Aphrodite");
 
-    open(APHRODITE_MELEE);
-    click("Common");
+    tap(APHRODITE_MELEE);
     expect(
       container.querySelector<HTMLElement>('.app__gods button[data-pooled="true"]')?.textContent,
     ).toBe("Aphrodite");
 
     // Correcting the mis-tap takes Aphrodite back out of the pool; the tab
     // stays, because it is the player's and not the pool's.
-    open(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
     click("I mis-tapped");
     expect(shown()).toContain("Aphrodite");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
@@ -634,16 +659,14 @@ describe("what the boon list shows", () => {
    */
   it("keeps a god pooled while any of their boons is still held", async () => {
     await mount();
-    open(APHRODITE_MELEE);
-    click("Common");
-    open("AphroditeSpecialBoon");
-    click("Common");
+    tap(APHRODITE_MELEE);
+    tap("AphroditeSpecialBoon");
 
-    open(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
     click("I mis-tapped");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).not.toBeNull();
 
-    open("AphroditeSpecialBoon");
+    tap("AphroditeSpecialBoon");
     click("I mis-tapped");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
   });

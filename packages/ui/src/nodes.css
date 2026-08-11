@@ -24,6 +24,8 @@
   --frame: #f2ece4;
   --node-size: 4.5rem;
 
+  /* The tooltip hangs off this box, so it has to be the containing block. */
+  position: relative;
   display: inline-grid;
   justify-items: center;
 }
@@ -110,6 +112,50 @@
 .node__lead {
   font-size: 0.72rem;
   font-weight: 700;
+}
+
+/*
+ * Why a boon cannot be had, on hover and on keyboard focus, in the place and
+ * the shape the game itself uses for the same job.
+ *
+ * `visibility` rather than `display`, so the box is laid out and measured
+ * before it is ever shown -- a tooltip that only exists while it is visible has
+ * to be positioned in the same frame it appears in, which is where a tooltip
+ * ends up half off the screen. Pointer events are off so hovering the tip
+ * cannot keep itself alive over the node underneath.
+ *
+ * Above the node rather than below it, because a page of these scrolls
+ * downward and a tip below covers what you were about to read.
+ */
+.node__tip {
+  position: absolute;
+  bottom: calc(100% + 0.4rem);
+  left: 50%;
+  z-index: 3;
+  width: max-content;
+  max-width: 15rem;
+  padding: 0.5rem 0.65rem;
+  transform: translateX(-50%);
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.3rem;
+  background: #12100f;
+  box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 55%);
+  color: #eae3d8;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-align: left;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.node__tip strong {
+  display: block;
+  color: #ff6b5c;
+}
+
+.node:hover .node__tip,
+.node:focus-within .node__tip {
+  visibility: visible;
 }
 
 /*

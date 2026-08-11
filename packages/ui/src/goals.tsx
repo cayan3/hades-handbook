@@ -1,5 +1,4 @@
-import type { TraitId } from "@repo/core";
-import { BoonNode } from "./boon-node.js";
+import { type BoonGestures, BoonNode } from "./boon-node.js";
 import { stateSentence } from "./describe.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 
@@ -22,14 +21,13 @@ export interface Goal {
   readonly detail: NodeDetail;
 }
 
-export interface GoalsPanelProps {
+export interface GoalsPanelProps extends BoonGestures {
   readonly goals: readonly Goal[];
-  readonly onOpen?: (trait: TraitId) => void;
   /** The boon advancing the most goals at once, where one does. */
   readonly bestNextPick?: NodeView | null;
 }
 
-export function GoalsPanel({ goals, onOpen, bestNextPick }: GoalsPanelProps) {
+export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps) {
   if (goals.length === 0) {
     return (
       <section className="goals goals--empty">
@@ -50,7 +48,7 @@ export function GoalsPanel({ goals, onOpen, bestNextPick }: GoalsPanelProps) {
       <ul className="goals__list">
         {goals.map((goal) => (
           <li key={goal.view.trait}>
-            <GoalCard goal={goal} onOpen={onOpen} />
+            <GoalCard goal={goal} {...gestures} />
           </li>
         ))}
       </ul>
@@ -58,20 +56,14 @@ export function GoalsPanel({ goals, onOpen, bestNextPick }: GoalsPanelProps) {
   );
 }
 
-export function GoalCard({
-  goal,
-  onOpen,
-}: {
-  readonly goal: Goal;
-  readonly onOpen?: ((trait: TraitId) => void) | undefined;
-}) {
+export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGestures) {
   const { view, detail } = goal;
   const met = detail.rows.filter((row) => row.met).length;
 
   return (
     <article className="goal" data-state={view.state}>
       <div className="goal__head">
-        <BoonNode view={view} pinned onOpen={onOpen} />
+        <BoonNode view={view} pinned {...gestures} />
         <div className="goal__what">
           <h3 className="goal__name">{view.name}</h3>
           <p className="goal__state">{stateSentence(view.state)}</p>

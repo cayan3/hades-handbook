@@ -182,16 +182,71 @@ describe("BoonNode", () => {
     );
   });
 
-  it("opens the detail surface from a click and from the keyboard alike", () => {
+  /**
+   * A click is one gesture with two meanings, and the run decides which: mark
+   * what it does not have, open the details of what it does. Marking something
+   * already held would mean nothing, and putting a sheet in front of a boon you
+   * are about to take is a dialog in front of the gesture a player makes dozens
+   * of times a run.
+   */
+  it("marks what the run lacks and opens what it holds, from click and keyboard alike", () => {
+    const onMark = vi.fn();
     const onOpen = vi.fn();
-    render(<BoonNode view={view()} onOpen={onOpen} />);
-    const control = container.querySelector("button")!;
 
-    act(() => control.click());
+    render(<BoonNode view={view({ state: "Available" })} onMark={onMark} onOpen={onOpen} />);
+    const takeable = container.querySelector("button")!;
+    act(() => takeable.click());
     // A button gets Enter and Space for free, which is why it is a button.
-    act(() => control.dispatchEvent(new MouseEvent("click", { bubbles: true })));
-    expect(onOpen).toHaveBeenCalledTimes(2);
-    expect(onOpen).toHaveBeenLastCalledWith("ZeusWeaponTrait");
+    act(() => takeable.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+    expect(onMark).toHaveBeenCalledTimes(2);
+    expect(onMark).toHaveBeenLastCalledWith("ZeusWeaponTrait");
+    expect(onOpen).not.toHaveBeenCalled();
+
+    render(<BoonNode view={view({ state: "Obtained" })} onMark={onMark} onOpen={onOpen} />);
+    act(() => container.querySelector("button")!.click());
+    expect(onOpen).toHaveBeenCalledWith("ZeusWeaponTrait");
+    expect(onMark).toHaveBeenCalledTimes(2);
+  });
+
+  /**
+   * A right-click on a pointer and a long press on a touch screen both raise
+   * `contextmenu`, so one handler is both gestures. A double-tap was the other
+   * candidate and would have had to hold the first tap back a quarter-second to
+   * recognise itself — and the tap it delays is the mark.
+   */
+  it("sets a goal from a context menu, and swallows the platform's own", () => {
+    const onGoal = vi.fn();
+    render(<BoonNode view={view()} onGoal={onGoal} />);
+    const menu = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
+    act(() => {
+      container.querySelector("button")!.dispatchEvent(menu);
+    });
+
+    expect(onGoal).toHaveBeenCalledWith("ZeusWeaponTrait");
+    // The platform's menu would cover the node it was opened on.
+    expect(menu.defaultPrevented).toBe(true);
+  });
+
+  /**
+   * Why a boon cannot be had, on hover and on focus, the way the game says the
+   * same thing. Hidden from the accessibility tree because every word of it is
+   * already in the description the control points at.
+   */
+  it("puts a verdict in a tooltip without saying it twice to a reader", () => {
+    render(
+      <BoonNode
+        view={view({
+          state: "Impossible",
+          notice: { lead: "Impossible for now.", body: "Equip the keepsake.", keepsake: null },
+        })}
+      />,
+    );
+    const tip = container.querySelector(".node__tip");
+    expect(tip?.textContent).toBe("Impossible for now. Equip the keepsake.");
+    expect(tip?.getAttribute("aria-hidden")).toBe("true");
+
+    render(<BoonNode view={view({ state: "Available" })} />);
+    expect(container.querySelector(".node__tip")).toBeNull();
   });
 
   it("fetches no artwork at all on the fallback ladder", () => {

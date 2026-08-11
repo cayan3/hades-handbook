@@ -293,10 +293,32 @@ describe("the write path", () => {
     expect(purge).toHaveBeenCalledWith("ZeusWeaponTrait");
   });
 
-  it("offers no mark for a boon already held, and no removal for one that is not", () => {
+  /**
+   * A held boon has nothing to mark — it is already held — but it does have a
+   * rarity worth correcting, because the mark itself is one tap and could not
+   * ask. So `mark` offers the rarity here rather than nothing, and the legend
+   * says "Taken at" rather than "Mark as have, at".
+   */
+  it("offers the rarity rather than the mark for a boon already held", () => {
     render(
       <ActionSheet
-        view={view({ state: "Obtained", rarities: ["Common"] })}
+        view={view({ state: "Obtained", rarity: "Common", rarities: ["Common", "Epic"] })}
+        detail={detail()}
+        onClose={noop}
+        actions={{ mark: noop }}
+      />,
+    );
+    expect(container.querySelector(".sheet__rarities legend")?.textContent).toBe("Taken at");
+    expect(actionButtons().map((b) => b.textContent)).toEqual(["Common", "Epic"]);
+    // Which one the run holds, for the reader who cannot see which is lit.
+    expect(actionButtons()[0]?.getAttribute("aria-pressed")).toBe("true");
+    expect(actionButtons()[1]?.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("offers nothing to a held boon whose record declares no rarity", () => {
+    render(
+      <ActionSheet
+        view={view({ state: "Obtained", rarities: [] })}
         detail={detail()}
         onClose={noop}
         actions={{ mark: noop }}

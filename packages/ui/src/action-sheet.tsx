@@ -253,13 +253,18 @@ export function ActionSheet({
 /**
  * The write path, and the shape of the questions it asks.
  *
- * **Marking asks the rarity by being the rarity**, where the record declares
- * any: one control per rarity instead of one control and then a dialog. The
- * marking gesture is the one interaction that has to stay instant, so a
- * question in front of it would be the wrong trade — but the choice *is* the
- * tap here, so it costs nothing and it stops the run storing a rarity nobody
- * observed. Where the record declares none there is nothing to ask and one
- * plain control does it.
+ * **The sheet is where the fiddly edits live, and a held boon is the only thing
+ * that has any.** Marking is a tap on the node itself and setting a goal is a
+ * long press on it, because those two are what a player does dozens of times a
+ * run and neither can afford a dialog in front of it. What is left is the rest:
+ * correcting a mis-tap, recording a loss, and saying which rarity the boon
+ * actually came at.
+ *
+ * **Rarity is one control per rarity**, where the record declares any, so the
+ * answer is the tap rather than a tap and then a question. It corrects what the
+ * mark had to guess: a one-tap mark stores the first rarity the record
+ * declares, which is Common for most boons and therefore draws no colour, and
+ * this is where a player says otherwise.
  */
 function MarkControls({
   view,
@@ -274,9 +279,10 @@ function MarkControls({
 }) {
   const { mark, remove, purge, pin, unpin } = actions;
   const marking = !held && mark !== undefined;
+  const rerarity = held && mark !== undefined && view.rarities.length > 0;
   const removing = held && (remove !== undefined || purge !== undefined);
   const pinning = pinned ? unpin !== undefined : pin !== undefined;
-  if (!marking && !removing && !pinning) return null;
+  if (!marking && !rerarity && !removing && !pinning) return null;
 
   return (
     <div className="sheet__actions">
@@ -289,6 +295,24 @@ function MarkControls({
           <legend>Mark as have, at</legend>
           {view.rarities.map((rarity) => (
             <button key={rarity} type="button" onClick={() => mark?.(view.trait, rarity)}>
+              {rarity}
+            </button>
+          ))}
+        </fieldset>
+      )}
+
+      {!rerarity ? null : (
+        <fieldset className="sheet__rarities">
+          {/* The mark itself could not ask, being one tap. This is the answer
+              arriving late rather than a question nobody was asked. */}
+          <legend>Taken at</legend>
+          {view.rarities.map((rarity) => (
+            <button
+              key={rarity}
+              type="button"
+              aria-pressed={view.rarity === rarity}
+              onClick={() => mark?.(view.trait, rarity)}
+            >
               {rarity}
             </button>
           ))}

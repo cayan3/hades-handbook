@@ -1,5 +1,5 @@
-import type { SlotId, TraitId } from "@repo/core";
-import { BoonNode } from "./boon-node.js";
+import type { SlotId } from "@repo/core";
+import { type BoonGestures, BoonNode } from "./boon-node.js";
 import { OverrideMarker } from "./chrome.js";
 import type { NodeView } from "./node-view.js";
 import { rarityColour } from "./rarity-palette.js";
@@ -31,7 +31,7 @@ export interface LoadoutEntry {
   readonly overridden?: boolean;
 }
 
-export interface LoadoutProps {
+export interface LoadoutProps extends BoonGestures {
   readonly entries: readonly LoadoutEntry[];
   /**
    * The slots a collapsed panel shows, in the order it shows them. The caller's
@@ -41,7 +41,6 @@ export interface LoadoutProps {
   readonly coreSlots?: readonly SlotId[];
   /** The equipped kit, which is not the Loadout and is shown beside it. */
   readonly equipped?: readonly { readonly label: string; readonly value: string }[];
-  readonly onOpen?: (trait: TraitId) => void;
   /** Starts expanded. Collapsed by default, which is the core slots alone. */
   readonly expanded?: boolean;
   readonly onExpanded?: (expanded: boolean) => void;
@@ -51,9 +50,9 @@ export function Loadout({
   entries,
   coreSlots = [],
   equipped = [],
-  onOpen,
   expanded = false,
   onExpanded,
+  ...gestures
 }: LoadoutProps) {
   /**
    * The core column is in **slot order**, always the same one; everything else
@@ -83,8 +82,8 @@ export function Loadout({
               one of are the spine of a build and keeping them put is what
               makes the panel readable at a glance after it opens. */}
           <div className="loadout__grid">
-            <Tiles className="loadout__core" entries={core} onOpen={onOpen} />
-            {expanded ? <Tiles className="loadout__rest" entries={rest} onOpen={onOpen} /> : null}
+            <Tiles className="loadout__core" entries={core} {...gestures} />
+            {expanded ? <Tiles className="loadout__rest" entries={rest} {...gestures} /> : null}
           </div>
           {rest.length === 0 || onExpanded === undefined ? null : (
             <button
@@ -116,18 +115,14 @@ export function Loadout({
 function Tiles({
   className,
   entries,
-  onOpen,
-}: {
-  readonly className: string;
-  readonly entries: readonly LoadoutEntry[];
-  readonly onOpen?: ((trait: TraitId) => void) | undefined;
-}) {
+  ...gestures
+}: { readonly className: string; readonly entries: readonly LoadoutEntry[] } & BoonGestures) {
   if (entries.length === 0) return null;
   return (
     <ul className={`loadout__list ${className}`}>
       {entries.map((entry) => (
         <li key={entry.view.trait} className="loadout__entry">
-          <Tile entry={entry} onOpen={onOpen} />
+          <Tile entry={entry} {...gestures} />
           {entry.overridden === true ? <OverrideMarker /> : null}
         </li>
       ))}
@@ -143,13 +138,7 @@ function Tiles({
  * Common resolves to nothing at all, which is what makes the coloured ones mean
  * something.
  */
-function Tile({
-  entry,
-  onOpen,
-}: {
-  readonly entry: LoadoutEntry;
-  readonly onOpen?: ((trait: TraitId) => void) | undefined;
-}) {
+function Tile({ entry, ...gestures }: { readonly entry: LoadoutEntry } & BoonGestures) {
   const rarity = entry.view.rarity;
   const marked = rarity !== null && rarity !== "Common";
 
@@ -159,7 +148,7 @@ function Tile({
       data-rarity={marked ? rarity : undefined}
       style={marked ? ({ "--rarity": rarityColour(rarity) } as CSSProperties) : undefined}
     >
-      <BoonNode view={entry.view} showName={false} onOpen={onOpen} />
+      <BoonNode view={entry.view} showName={false} {...gestures} />
     </span>
   );
 }

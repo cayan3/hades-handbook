@@ -223,6 +223,27 @@ function Run({
     [session, write],
   );
 
+  /**
+   * The two gestures a boon carries on the page itself.
+   *
+   * A click marks what the run does not have and opens the sheet on what it
+   * does; there is no popup in front of marking, because marking is what a
+   * player does dozens of times a run. Setting a goal is the secondary gesture
+   * and arrives as a context menu, which is a right-click on a pointer and a
+   * long press on a touch screen — one handler for both.
+   */
+  const markOrOpen = useCallback(
+    (trait: TraitId) => write(() => session.source.mark(trait)),
+    [session, write],
+  );
+  const toggleGoal = useCallback(
+    (trait: TraitId) =>
+      write(() =>
+        intent.pins.has(trait) ? session.source.unpin(trait) : session.source.pin(trait),
+      ),
+    [session, write, intent],
+  );
+
   const goals: Goal[] = [...intent.pins].map((trait) => ({
     view: view(trait),
     detail: deriveNodeDetail(source, view(trait), facts, intent.pins),
@@ -374,18 +395,26 @@ function Run({
             coreSlots={CORE_SLOTS[game]}
             equipped={equippedItems(facts)}
             onOpen={setOpened}
+            onGoal={toggleGoal}
             expanded={loadoutOpen}
             onExpanded={setLoadoutOpen}
           />
 
           <section className="app__ladder">
             <h2>Boons</h2>
-            <TierBands views={boons.map(view)} pinned={intent.pins} onOpen={setOpened} />
+            <TierBands
+              views={boons.map(view)}
+              pinned={intent.pins}
+              onMark={markOrOpen}
+              onOpen={setOpened}
+              onGoal={toggleGoal}
+            />
             {/* Under the thing it is about, not above it: it is a first-visit
                 explanation and it stops being read long before it stops being
                 on the page. */}
             <p className="app__hint">
-              Tap a boon to see what it needs, mark it, or set it as a goal.
+              Tap a boon to mark it as taken. Long-press, or right-click, to set
+              it as a goal. Tapping one you already hold opens its details.
             </p>
           </section>
         </main>
@@ -402,7 +431,7 @@ function Run({
             >
               Close
             </button>
-            <GoalsPanel goals={goals} onOpen={setOpened} />
+            <GoalsPanel goals={goals} onOpen={setOpened} onGoal={toggleGoal} />
           </aside>
         )}
 

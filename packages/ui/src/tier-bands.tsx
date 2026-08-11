@@ -1,5 +1,5 @@
 import type { TraitId } from "@repo/core";
-import { BoonNode } from "./boon-node.js";
+import { type BoonGestures, BoonNode } from "./boon-node.js";
 import type { NodeView } from "./node-view.js";
 
 /**
@@ -16,16 +16,15 @@ import type { NodeView } from "./node-view.js";
  * and every Duo. A placeholder for the bands that page will give them, not a
  * claim that they belong together.
  */
-export interface TierBandsProps {
+export interface TierBandsProps extends BoonGestures {
   readonly views: readonly NodeView[];
   /** Which boons are pinned to a goal. */
   readonly pinned?: ReadonlySet<TraitId>;
-  readonly onOpen?: (trait: TraitId) => void;
 }
 
 const UNTIERED = "untiered";
 
-export function TierBands({ views, pinned, onOpen }: TierBandsProps) {
+export function TierBands({ views, pinned, ...gestures }: TierBandsProps) {
   const bands = groupByTier(views);
 
   return (
@@ -38,7 +37,7 @@ export function TierBands({ views, pinned, onOpen }: TierBandsProps) {
                 <BoonNode
                   view={view}
                   pinned={pinned?.has(view.trait) ?? false}
-                  onOpen={onOpen}
+                  {...gestures}
                 />
               </li>
             ))}
