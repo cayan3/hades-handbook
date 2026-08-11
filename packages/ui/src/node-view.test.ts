@@ -272,4 +272,34 @@ describe("requirement rows", () => {
     expect(view.state).toBe("Impossible");
     expect(deriveNodeDetail(source, view, facts).rows.every((row) => !row.met)).toBe(true);
   });
+
+  /**
+   * The case that made matching by text wrong. An element gate is the one shape
+   * whose residual is a *different number* rather than the same node, so the
+   * gate and what is left of it never render to the same sentence and a row
+   * comparing them found no match and called itself met. 24 Hades II records
+   * carry one; this is the smallest of them.
+   */
+  it("does not call a half-met element gate met", () => {
+    const source = createNodeSource("hades2", stubRules(), stubLookups(), H2);
+    const gate = "ElementalBaseDamageBoon" as TraitId;
+    const facts = makeFacts({ game: "hades2", elements: new Map([["Fire" as const, 1]]) });
+    const view = deriveNodeView(source, gate, facts);
+    const { rows, needed } = deriveNodeDetail(source, view, facts);
+
+    expect(view.state).toBe("Pending");
+    expect(needed).toEqual(["1 more Fire"]);
+    expect(rows).toEqual([{ text: "1 more Fire", met: false }]);
+  });
+
+  it("calls it met once the count is there", () => {
+    const source = createNodeSource("hades2", stubRules(), stubLookups(), H2);
+    const gate = "ElementalBaseDamageBoon" as TraitId;
+    const facts = makeFacts({ game: "hades2", elements: new Map([["Fire" as const, 2]]) });
+    const view = deriveNodeView(source, gate, facts);
+
+    expect(deriveNodeDetail(source, view, facts).rows).toEqual([
+      { text: "2 more Fire", met: true },
+    ]);
+  });
 });

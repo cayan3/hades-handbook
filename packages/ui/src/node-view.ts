@@ -270,7 +270,7 @@ export function deriveNodeDetail(
   return {
     description: record?.descriptionRef == null ? null : textFor(record.descriptionRef),
     needed,
-    rows: requirementRows(prereq, needed, naming, status.kind === "unsatisfiable"),
+    rows: requirementRows(source, prereq, facts, status.kind === "unsatisfiable"),
     activation:
       view.dormant && record?.activation != null
         ? activationLines(record.activation, facts, naming)
@@ -282,25 +282,44 @@ export function deriveNodeDetail(
 const EMPTY_PINS: ReadonlySet<TraitId> = new Set();
 
 /**
- * The whole gate against what is left of it.
+ * The whole gate, one row per part, with the met ones marked.
  *
- * Both sides go through `neededLines`, so a row is "met" exactly when the
- * residual stopped asking for it — which is what keeps a progress count honest
- * without anybody subtracting anything twice. An unsatisfiable gate reports
- * nothing met: the residual it would be measured against does not exist, and
- * claiming progress toward something out of reach is the wrong half to guess.
+ * Each part is evaluated on its own rather than matched by the sentence it
+ * renders to. Matching text looks equivalent and is not: the residual rewrites
+ * a node where it can shrink one, so a gate asking for 3 Fire against a run
+ * holding 1 renders "3 more Fire" while the residual renders "2 more Fire",
+ * and a row looked for its own text in the residual, failed to find it, and
+ * reported met. 24 Hades II records carry an element gate that can do that.
+ *
+ * An unsatisfiable gate claims nothing met: claiming progress toward something
+ * out of reach is the wrong half to guess.
  */
 function requirementRows(
+  source: NodeSource,
   prereq: Requirement,
-  needed: readonly string[],
-  naming: Naming,
+  facts: RunFacts,
   blocked: boolean,
 ): readonly RequirementRow[] {
-  const open = new Set(needed);
-  return neededLines(prereq, naming).map((text) => ({
-    text,
-    met: !blocked && !open.has(text),
-  }));
+  const { rules, lookups, naming } = source;
+  return gateParts(prereq).map((part) => {
+    const status = evaluate(part, facts, rules, lookups);
+    // A row that is not met says what is left rather than what the gate asked
+    // for, which is the sentence a Forget-Me-Not entry is for.
+    const said = status.kind === "pending" ? status.residual : part;
+    return {
+      text: neededLines(said, naming)[0] ?? "",
+      met: !blocked && status.kind === "satisfied",
+    };
+  });
+}
+
+/**
+ * The gate as one part per row. Flattened through `all` and no further, which
+ * is the split `neededLines` already makes — a group is one line, so the parts
+ * and the lines come out in the same order and the same number.
+ */
+function gateParts(req: Requirement): readonly Requirement[] {
+  return req.kind === "all" ? req.of.flatMap(gateParts) : [req];
 }
 
 /**
