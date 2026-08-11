@@ -91,7 +91,7 @@ export function App({ store, presence, persistent }: AppProps) {
       onGame={setGame}
       session={state.session}
       presence={presence}
-      persistent={persistent}
+      persistent={persistent && state.persistent}
     />
   );
 }
@@ -135,6 +135,12 @@ function Run({
    * ladder as art trickled in would be worse than either.
    */
   const [artwork, setArtwork] = useState(false);
+  /**
+   * Goals is the phone's home and half the accessible path, so it opens by
+   * default; it is a panel rather than a column so that the layout has one
+   * shape at every width instead of rearranging as the window changes.
+   */
+  const [goalsOpen, setGoalsOpen] = useState(true);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -230,6 +236,16 @@ function Run({
               </button>
             ))}
           </nav>
+          {/* In the header rather than pinned to the panel, so the control that
+              opens it cannot sit on top of anything at a narrow width. */}
+          <button
+            type="button"
+            className="app__goalstoggle"
+            aria-expanded={goalsOpen}
+            onClick={() => setGoalsOpen(!goalsOpen)}
+          >
+            Goals{goals.length === 0 ? "" : ` (${goals.length})`}
+          </button>
           <button
             type="button"
             className="app__finish"
@@ -267,19 +283,7 @@ function Run({
           }}
         />
 
-        <main className="app__body">
-          <GoalsPanel goals={goals} onOpen={setOpened} />
-          <Loadout
-            entries={entries}
-            equipped={equippedItems(facts)}
-            onOpen={setOpened}
-          />
-          <section className="app__ladder">
-            <h2>Boons</h2>
-            <p className="app__hint">
-              Tap a boon to see what it needs, mark it, or set it as a goal.
-            </p>
-            <nav className="app__gods" aria-label="God">
+        <nav className="app__gods" aria-label="God">
               {shownTabs.map((name) => (
                 <button
                   key={name}
@@ -325,14 +329,31 @@ function Run({
                   </select>
                 </label>
               )}
-            </nav>
-            <TierBands
-              views={boons.map(view)}
-              pinned={intent.pins}
-              onOpen={setOpened}
-            />
+        </nav>
+
+        <main className="app__body">
+          {/* Left: what the run holds. Right of it: what it could hold. Goals
+              is a panel over the right-hand edge rather than a third column,
+              so the number of columns does not change with the window. */}
+          <Loadout entries={entries} equipped={equippedItems(facts)} onOpen={setOpened} />
+
+          <section className="app__ladder">
+            <h2>Boons</h2>
+            <TierBands views={boons.map(view)} pinned={intent.pins} onOpen={setOpened} />
+            {/* Under the thing it is about, not above it: it is a first-visit
+                explanation and it stops being read long before it stops being
+                on the page. */}
+            <p className="app__hint">
+              Tap a boon to see what it needs, mark it, or set it as a goal.
+            </p>
           </section>
         </main>
+
+        {!goalsOpen ? null : (
+          <aside className="app__goals">
+            <GoalsPanel goals={goals} onOpen={setOpened} />
+          </aside>
+        )}
 
         {condition.lastEdit === null || condition.lastEdit === dismissedEdit ? null : (
           <UndoToast

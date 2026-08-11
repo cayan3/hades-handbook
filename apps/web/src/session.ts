@@ -5,6 +5,7 @@ import {
   type RunStore,
   type SourceCondition,
   type TabPresence,
+  createMemoryStore,
   openRunSession,
 } from "@repo/sync";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
@@ -79,7 +80,12 @@ export function useOtherTabOpen(presence: TabPresence | null): boolean {
 /** A session being opened, open, or refused before it opened. */
 export type SessionState =
   | { readonly kind: "opening" }
-  | { readonly kind: "open"; readonly session: RunSession }
+  | {
+      readonly kind: "open";
+      readonly session: RunSession;
+      /** False when the store refused and this run lives in memory only. */
+      readonly persistent: boolean;
+    }
   | { readonly kind: "failed"; readonly cause: Error };
 
 /**
@@ -102,20 +108,39 @@ export function useRunSession(game: GameId, store: RunStore): SessionState {
     let opened: RunSession | null = null;
     setState({ kind: "opening" });
 
-    void openRunSession({ game, store }).then(
-      (session) => {
-        if (!current) {
-          session.close();
-          return;
-        }
-        opened = session;
-        setState({ kind: "open", session });
-      },
-      (cause: unknown) => {
-        if (!current) return;
-        setState({ kind: "failed", cause: cause instanceof Error ? cause : new Error(String(cause)) });
-      },
-    );
+    /**
+     * A store that refuses gets a run in memory rather than a dead page.
+     *
+     * The first `load` is where a browser says it will not give us storage — a
+     * private window in some browsers, blocked cookies, an evicted origin — and
+     * it says it by rejecting, so nothing earlier can catch it. Refusing to
+     * start is the wrong answer to that: the whole product works without a
+     * store, it just does not survive a reload, and this is the same bargain
+     * the quarantine makes one level down. It is loud rather than silent,
+     * because the caller shows a notice for exactly this.
+     */
+    void openRunSession({ game, store })
+      .then((session) => ({ session, persistent: true }))
+      .catch(() => openRunSession({ game, store: createMemoryStore() }).then(
+        (session) => ({ session, persistent: false }),
+      ))
+      .then(
+        ({ session, persistent }) => {
+          if (!current) {
+            session.close();
+            return;
+          }
+          opened = session;
+          setState({ kind: "open", session, persistent });
+        },
+        (cause: unknown) => {
+          if (!current) return;
+          setState({
+            kind: "failed",
+            cause: cause instanceof Error ? cause : new Error(String(cause)),
+          });
+        },
+      );
 
     return () => {
       current = false;

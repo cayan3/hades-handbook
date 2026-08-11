@@ -20,23 +20,17 @@ import {
 /**
  * Storage, or an honest substitute for it.
  *
- * A browser can refuse IndexedDB outright: a private window, a blocked-cookies
- * setting, an origin the user has cleared storage for. The memory store then
- * gives a working session that does not survive a reload, which is a better
- * answer than a page that will not start — and it is not a silent one, because
- * every write through it succeeds and the caller is told separately that this
- * run is not being kept.
+ * Only the outright-absent case can be answered here, and it is the rare one.
+ * Wrapping the factory opens nothing — a browser that has taken storage away
+ * says so at the first `open`, which is a rejected promise the session has to
+ * catch, not an exception this can. A private window is usually **not** that
+ * case either: Chrome gives incognito a real IndexedDB that is thrown away when
+ * the window closes, so the run genuinely is being saved and there is nothing
+ * to warn about.
  */
 export function browserStore(): { store: RunStore; persistent: boolean } {
-  // Not "in globalThis": a browser that has taken storage away can leave the
-  // property present and throw on the first open, which is why the fallback is
-  // decided here rather than by a feature test.
   if (globalThis.indexedDB == null) return { store: createMemoryStore(), persistent: false };
-  try {
-    return { store: createIdbStore(globalThis.indexedDB), persistent: true };
-  } catch {
-    return { store: createMemoryStore(), persistent: false };
-  }
+  return { store: createIdbStore(globalThis.indexedDB), persistent: true };
 }
 
 /**

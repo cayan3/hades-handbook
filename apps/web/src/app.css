@@ -4,24 +4,62 @@
  * library's own stylesheet, which this page includes; anything about a node
  * that ended up here would be a rule the library's tests cannot see.
  *
- * Phone first, and the profiles are one media query rather than two layouts:
- * the phone stacks Goals, Loadout and the boons in that order, which puts the
- * home surface at the top where it belongs, and the desktop puts the three side
- * by side. Same components, same order in the document, so the reading order a
- * screen reader gets does not depend on the width of the window.
+ * Phone first, and one shape at every width: the Loadout beside the boons, with
+ * Goals as a panel over the right-hand edge rather than a third column. The
+ * single query below stacks the two columns where there is no room for them,
+ * and changes nothing else — the count of columns does not move with the
+ * window, and neither does document order, so what a screen reader reads never
+ * depends on how wide the page is.
  */
 
 :root {
   color-scheme: dark;
   --ink: #f2ece4;
   --ground: #12100f;
+
+  /*
+   * The three type roles, as tokens.
+   *
+   * **The faces themselves are not shipped yet.** Cinzel, Barlow and JetBrains
+   * Mono are all openly licensed and self-hosting them is the only way they can
+   * load at all — the policy has no allowance for a foundry's origin and this
+   * product talks to nobody — so they arrive as files under `public/fonts` with
+   * the art set, and this becomes an `@font-face` block plus nothing else.
+   * Declaring the faces now would give every page a run of 404s and the same
+   * fallback it already has.
+   *
+   * The roles are applied below regardless, so the shape of the page is the one
+   * the design asks for and the faces drop in without anything moving: display
+   * for titles and god names, body for everything it cannot do, mono only where
+   * digits have to line up.
+   */
+  --face-display: "Cinzel", Georgia, serif;
+  --face-body: "Barlow", system-ui, sans-serif;
+  --face-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 body {
   margin: 0;
   background: var(--ground);
   color: var(--ink);
-  font-family: system-ui, sans-serif;
+  font-family: var(--face-body);
+}
+
+/*
+ * Display is effectively all-caps and illegible small, so it is titles and
+ * nothing else — never a label, never body text.
+ */
+h1,
+.goal__name,
+.sheet__title {
+  font-family: var(--face-display);
+  letter-spacing: 0.02em;
+}
+
+/* Only where alignment matters. */
+.goal__progress,
+.loadout__slot {
+  font-family: var(--face-mono);
 }
 
 .app {
@@ -150,49 +188,66 @@ body {
 }
 
 .app__gods {
-  margin-bottom: 1rem;
+  margin: 0.75rem 0 0;
 }
 
 /*
- * Desktop: the tree, the Loadout and Goals at once, which is the whole
- * difference between the profiles. The boon ladder takes the middle because it
- * is the one that scrolls.
+ * One shape at every width: what the run holds on the left, what it could hold
+ * beside it, and Goals over the right-hand edge as a panel rather than a third
+ * column.
  *
- * Two steps rather than one, and both lower than the obvious choice. A single
- * 60rem breakpoint means a laptop at any browser zoom past 125% gets the phone
- * layout on a full screen, which is not a phone and does not want one — and the
- * first report of this layout was exactly that, one column at full screen. So
- * Goals pairs with the boons at tablet width and the Loadout joins at 72rem.
+ * The column *count* no longer changes with the window, which is the thing the
+ * first version got wrong twice over — first by hiding the whole desktop layout
+ * behind a 60rem query that a zoomed laptop never reaches, then by rearranging
+ * again at a second breakpoint. One query remains, and all it does is stack the
+ * two columns when there is genuinely not room for them.
  */
 @media (min-width: 48rem) {
   .app__body {
     display: grid;
-    grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr);
+    grid-template-columns: minmax(14rem, 20rem) minmax(0, 1fr);
     align-items: start;
     gap: 1.5rem;
   }
-
-  .goals {
-    order: 1;
-  }
-
-  .app__ladder {
-    order: 2;
-  }
-
-  /* Full width under the pair until there is room for a column of its own. */
-  .loadout {
-    order: 3;
-    grid-column: 1 / -1;
-  }
 }
 
-@media (min-width: 72rem) {
-  .app__body {
-    grid-template-columns: minmax(16rem, 20rem) minmax(0, 1fr) minmax(14rem, 18rem);
-  }
+/*
+ * Goals: a panel over the right-hand edge, open by default because it is the
+ * phone's home and half the accessible path. It overlays rather than reflowing,
+ * so opening and closing it never moves the boons underneath — which is the
+ * whole reason it is a panel and not a third column.
+ */
+.app__goals {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  width: min(24rem, 100vw);
+  padding: 1rem;
+  overflow-y: auto;
+  background: #191614;
+  box-shadow: -0.5rem 0 1.5rem rgb(0 0 0 / 35%);
+}
 
-  .loadout {
-    grid-column: auto;
-  }
+.app__goalstoggle {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.rarity__swatch {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  margin-left: 0.4rem;
+  border: 1px solid rgb(0 0 0 / 45%);
+  border-radius: 50%;
+  background: var(--rarity);
+  vertical-align: -0.05em;
 }

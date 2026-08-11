@@ -136,7 +136,8 @@ describe("marking a boon", () => {
     click("Rare");
 
     expect(texts(".loadout__name")).toContain(H2[APHRODITE_MELEE]?.name);
-    expect(texts(".loadout__rarity")).toContain("Rare");
+    // Rarity is its own colour with the name behind it, not a column of text.
+    expect(texts(".loadout .rarity")).toContain("Rare");
   });
 
   /**
@@ -149,7 +150,7 @@ describe("marking a boon", () => {
     open(APHRODITE_MELEE);
     click("Heroic");
 
-    expect(texts(".loadout__rarity")).toContain("Heroic");
+    expect(texts(".loadout .rarity")).toContain("Heroic");
     expect(H2[APHRODITE_MELEE]?.rarity[0]).not.toBe("Heroic");
   });
 });
@@ -283,6 +284,33 @@ describe("a field the user is holding by hand", () => {
     // Handed back, the source has nothing to repopulate it with — which is the
     // honest answer for a source that only ever reported what was typed.
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
+  });
+});
+
+describe("the Goals panel", () => {
+  /**
+   * A panel rather than a column, so opening and closing it never moves the
+   * boons underneath and the layout has one shape at every width. Open by
+   * default, because Goals is the phone's home and half the accessible path —
+   * a collapsed default would bury the surface the product is for.
+   */
+  it("is open to begin with and can be put away", async () => {
+    await mount();
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+
+    click("Goals");
+    expect(container.querySelector(".app__goals")).toBeNull();
+
+    click("Goals");
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+  });
+
+  it("counts what is pinned on the control that opens it", async () => {
+    await mount();
+    open("AllCloseBoon");
+    click("Set as goal");
+
+    expect(control("Goals (1)")).toBeDefined();
   });
 });
 
