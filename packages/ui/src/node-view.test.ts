@@ -304,3 +304,46 @@ describe("requirement rows", () => {
     ]);
   });
 });
+
+describe("what a node says it would replace", () => {
+  const source = createNodeSource("hades2", stubRules(), stubLookups(), H2);
+  /** Two Hades II Melee boons: taking the second pushes out the first. */
+  const APHRODITE_MELEE = "AphroditeWeaponBoon" as TraitId;
+  const ARES_MELEE = "AresWeaponBoon" as TraitId;
+
+  function withMelee(occupant: TraitId | null) {
+    return makeFacts({
+      game: "hades2",
+      held: occupant === null ? held() : held(occupant),
+      slots: new Map([["Melee", occupant]]),
+    });
+  }
+
+  /**
+   * On the *view* rather than the detail, which is only sound because it reads
+   * `facts.slots` and nothing else — the cache is keyed on the facts object, so
+   * a field here that depended on the player's pins would go stale the moment
+   * one moved without the facts moving.
+   */
+  it("names the boon in the slot, from the facts alone", () => {
+    const view = deriveNodeView(source, ARES_MELEE, withMelee(APHRODITE_MELEE));
+    expect(view.replaces?.trait).toBe(APHRODITE_MELEE);
+    expect(view.replaces?.name).toBe(H2[APHRODITE_MELEE]?.name);
+  });
+
+  it("says nothing about an empty slot, or about a boon already in it", () => {
+    expect(deriveNodeView(source, ARES_MELEE, withMelee(null)).replaces).toBeNull();
+    // Re-marking what is already there displaces itself, which is nothing.
+    expect(deriveNodeView(source, APHRODITE_MELEE, withMelee(APHRODITE_MELEE)).replaces).toBeNull();
+  });
+
+  /** The goals half stays on the detail, where the pins are. */
+  it("leaves which goal wanted it to the detail", () => {
+    const facts = withMelee(APHRODITE_MELEE);
+    const view = deriveNodeView(source, ARES_MELEE, facts);
+    const pinned = new Set(["AllCloseBoon" as TraitId]);
+    expect(deriveNodeDetail(source, view, facts, pinned).displaces?.neededBy).toEqual([
+      H2.AllCloseBoon?.name,
+    ]);
+  });
+});

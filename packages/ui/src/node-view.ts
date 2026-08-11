@@ -69,6 +69,18 @@ export interface NodeView {
    * owning a thing and that thing working are different questions.
    */
   readonly dormant: boolean;
+  /**
+   * The boon a mark would push out of its slot, where there is one.
+   *
+   * **Facts only, and that is the constraint rather than an omission.** The
+   * cache is keyed on the facts object, so anything on a view has to be
+   * derivable from facts alone — the fuller sentence, naming which of the
+   * player's goals wanted the displaced boon, walks the pins, and pins are
+   * intent. A pin moves without the facts object moving, so a view carrying
+   * that would go on saying what it said before the pin and nothing would look
+   * wrong. It lives on `NodeDetail` and reads beside the undo instead.
+   */
+  readonly replaces: { readonly trait: TraitId; readonly name: string } | null;
   /** The state in text, which is where the ladder has to be readable from. */
   readonly label: string;
 }
@@ -226,6 +238,7 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
       state === "Obtained" &&
       record?.activation != null &&
       evaluate(record.activation, facts, rules, lookups).kind !== "satisfied",
+    replaces: occupantOf(records, naming, trait, state, facts),
     label: accessibleName(name, state, god),
   };
 }
@@ -277,7 +290,7 @@ export function deriveNodeDetail(
       view.dormant && record?.activation != null
         ? activationLines(record.activation, facts, naming)
         : [],
-    displaces: displacementOf(source, view, facts, pinned),
+    displaces: displacementOf(source, view, pinned),
   };
 }
 
@@ -325,30 +338,44 @@ function gateParts(req: Requirement): readonly Requirement[] {
 }
 
 /**
- * What marking this boon would push out, and which pinned goals wanted it.
- *
- * Only asked of a boon the run does not already hold: re-marking what is
- * already in the slot displaces itself, which is nothing.
+ * Who is in the slot this boon would fill. Not asked of a boon the run already
+ * holds, since re-marking what is already in the slot displaces itself.
+ */
+function occupantOf(
+  records: NodeSource["records"],
+  naming: Naming,
+  trait: TraitId,
+  state: BoonState,
+  facts: RunFacts,
+): { trait: TraitId; name: string } | null {
+  const slot = records[trait]?.slot ?? null;
+  if (slot === null || state === "Obtained") return null;
+
+  const occupant = facts.slots.get(slot);
+  if (occupant == null || occupant === trait) return null;
+  return { trait: occupant, name: naming.trait(occupant) };
+}
+
+/**
+ * What marking this boon would push out, and which pinned goals wanted it —
+ * the second half being the one worth the derivation, and the one that keeps
+ * this on the detail rather than on the view.
  */
 function displacementOf(
   source: NodeSource,
   view: NodeView,
-  facts: RunFacts,
   pinned: ReadonlySet<TraitId>,
 ): Displacement | null {
   const { records, naming } = source;
-  const slot = records[view.trait]?.slot ?? null;
-  if (slot === null || view.state === "Obtained") return null;
-
-  const occupant = facts.slots.get(slot);
-  if (occupant == null || occupant === view.trait) return null;
+  const replaced = view.replaces;
+  if (replaced === null) return null;
 
   const neededBy: string[] = [];
   for (const goal of pinned) {
     const prereq = records[goal]?.prereq;
-    if (prereq != null && asksFor(prereq, occupant)) neededBy.push(naming.trait(goal));
+    if (prereq != null && asksFor(prereq, replaced.trait)) neededBy.push(naming.trait(goal));
   }
-  return { trait: occupant, name: naming.trait(occupant), neededBy };
+  return { trait: replaced.trait, name: replaced.name, neededBy };
 }
 
 /**

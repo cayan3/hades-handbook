@@ -246,6 +246,19 @@ describe("the three ways a boon leaves a run", () => {
     expect(said).toContain(H2.AllCloseBoon?.name ?? "Island Getaway");
   });
 
+  /**
+   * The short half of the same sentence, on the node, before the tap. It reads
+   * `facts.slots` and nothing else, which is what lets it ride on a view the
+   * cache keys by facts identity.
+   */
+  it("warns on the node before the tap, without naming a goal", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+
+    const tip = node(ARES_MELEE).parentElement?.querySelector(".node__tip");
+    expect(tip?.textContent).toBe(`Taking this replaces ${H2[APHRODITE_MELEE]?.name}.`);
+  });
+
   /** Nothing to say where nothing was pushed out. */
   it("says nothing about displacement when the slot was free", async () => {
     await mount();

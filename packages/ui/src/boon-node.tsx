@@ -194,14 +194,27 @@ function noticeText(notice: NonNullable<NodeView["notice"]>): string {
 const DORMANT_SENTENCE = "Owned, and not active yet.";
 
 /**
- * What the hover tooltip says, or nothing where there is nothing to warn about.
- * An impossible verdict wins over dormancy, which cannot co-occur with it
- * anyway — dormancy is a badge on Obtained.
+ * What the hover tooltip says, or nothing where there is nothing to say.
+ *
+ * In order of what stops a player: it cannot be had, then it is owned and inert,
+ * then taking it would cost the boon in its slot. The first two cannot co-occur,
+ * dormancy being a badge on Obtained, and neither can co-occur with the third,
+ * which is only asked of a boon the run does not hold.
+ *
+ * The displacement line is the short one on purpose. Which of the player's goals
+ * wanted the boon about to leave is the sentence worth reading, and it cannot be
+ * here: it walks the pins, pins are intent, and the cache this view sits in is
+ * keyed on facts. It reads beside the undo, where the mark has already happened
+ * and there is something to press.
  */
 function tipFor(view: NodeView): { lead: string | null; body: string } | null {
   if (view.notice !== null) {
     const { lead, body, keepsake } = view.notice;
     return { lead, body: keepsake === null ? body : `${body} The keepsake is ${keepsake}.` };
   }
-  return view.dormant ? { lead: null, body: DORMANT_SENTENCE } : null;
+  if (view.dormant) return { lead: null, body: DORMANT_SENTENCE };
+  if (view.replaces !== null) {
+    return { lead: null, body: `Taking this replaces ${view.replaces.name}.` };
+  }
+  return null;
 }
