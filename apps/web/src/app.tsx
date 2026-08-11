@@ -195,7 +195,6 @@ function Run({
     (name) =>
       facts.godPool.has(name) || added.has(name) || name === showing || name === tabs[0],
   );
-  shownTabs.push(NO_GOD);
   const unshown = tabs.filter((name) => !shownTabs.includes(name));
   // One cache for the whole page, keyed on the facts object's identity — which
   // is sound because every writer replaces the object and shares the
@@ -527,16 +526,12 @@ function equippedItems(facts: RunFacts): { label: string; value: string }[] {
 }
 
 /**
- * Every god this game's records attribute a boon to, plus the bucket for the
- * ones they attribute to nobody — Duos, which answer to two gods, and the
- * weapon forms.
+ * Every god this game's records attribute a boon to.
  *
  * Every god is always present, which is the sticky-tab rule got for free: the
  * pool changes what a tab *looks* like and never whether it is there, so
  * navigation cannot reshuffle under somebody because a boon was removed.
  */
-const NO_GOD = "Duos & others";
-
 function godTabs(source: NodeSource): string[] {
   const gods = new Set<string>();
   for (const record of Object.values(source.records)) {
@@ -546,7 +541,11 @@ function godTabs(source: NodeSource): string[] {
 }
 
 /**
- * One god's boons.
+ * One god's boons, including the Duos they are half of.
+ *
+ * A Duo belongs to two gods and shows on both their tabs, which is what the
+ * design has always said and is the only placement that makes sense: the whole
+ * point of a Duo is that you are collecting toward it from two directions.
  *
  * The god page proper is a laid-out graph with connectors, junctions and bands,
  * and is a session of its own. This is the ordering rule underneath it — tier
@@ -557,7 +556,7 @@ function boonsOf(source: NodeSource, game: GameId, god: string): TraitId[] {
   const keepsakes = keepsakesFor(game);
   const shown: TraitId[] = [];
   for (const [id, record] of Object.entries(source.records)) {
-    if (god === NO_GOD ? record.god !== null : record.god !== god) continue;
+    if (record.god !== god && !(record.duoGods?.includes(god) ?? false)) continue;
     if (!browsable(id, record, keepsakes)) continue;
     shown.push(id);
   }
@@ -567,22 +566,23 @@ function boonsOf(source: NodeSource, game: GameId, god: string): TraitId[] {
 /**
  * Whether a record belongs in a list somebody browses.
  *
- * Three exclusions, each for a different reason, and none of them is a claim
- * that the record is uninteresting — a held boon still renders whatever it is.
+ * The god is the filter, and it is a better one than it looks: a boon is what a
+ * god hands you, so a record attributed to one is a boon and a record
+ * attributed to nobody is a costume, a Daedalus Hammer upgrade, a companion, a
+ * Chaos blessing or a weapon-specific trait. Measured over the two catalogs,
+ * that leaves 231 Hades I and 311 Hades II records out. Duos are the exception
+ * and carry their pair instead, which is why they are asked for separately
+ * above.
+ *
+ * Two exclusions on top, for records that do have a god:
  *
  * **No display text.** Around a fifth of each game's records have no entry in
- * the localized bundle: debug entries, cut content, inheritance templates. The
- * name resolver rightly falls back to the id, which is the right answer for a
- * label on something already on screen and the wrong one for three hundred
- * rows of `BaseCurse` offered as boons to take.
+ * the localized bundle — debug entries, cut content, inheritance templates. The
+ * name resolver falls back to the id, which is right for a label on something
+ * already on screen and wrong for a row offering `BaseCurse` as a boon to take.
  *
  * **Keepsakes**, which in Hades II are emitted as trait records under the same
- * id — the same overlap that makes one name resolver wrong for both spaces.
- * They are equipped, not taken.
- *
- * **Weapon forms.** A form goes in the equipped kit and `mark` refuses one
- * outright, so listing them beside boons would offer a gesture that is designed
- * to fail.
+ * id. They are equipped, not taken.
  */
 function browsable(
   id: TraitId,

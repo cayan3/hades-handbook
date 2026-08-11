@@ -125,12 +125,14 @@ function showGod(name: string): void {
 
 /**
  * Opens one boon's detail surface, selecting its god's tab first — which is
- * also an assertion that every boon is reachable through the tabs, including
- * the ones the data attributes to no god at all.
+ * also an assertion that every boon is reachable through the tabs. A Duo names
+ * no single god and is reached through either of the two it belongs to.
  */
 function open(trait: string): void {
   const record = H2[trait];
-  showGod(record?.god ?? "Duos & others");
+  const god = record?.god ?? record?.duoGods?.[0];
+  if (god === undefined) throw new Error(`${trait} belongs to no god and has no tab`);
+  showGod(god);
 
   const name = record?.name ?? trait;
   const node = [...container.querySelectorAll<HTMLElement>("button")].find((button) =>
@@ -531,46 +533,66 @@ describe("a write that throws", () => {
 });
 
 describe("what the boon list shows", () => {
-  /**
-   * Around a fifth of each game's records have no entry in the localized text
-   * bundle — debug entries, inheritance templates, cut content — and the name
-   * resolver rightly falls back to the id. That is the right answer for a label
-   * on something already on screen and the wrong one for a browsable list,
-   * where it offers `BaseCurse` as a boon to take.
-   */
-  it("leaves out records the game has no name for, keepsakes and weapon forms", async () => {
-    await mount();
-    click("Duos & others");
-    const labels = [...container.querySelectorAll(".node__name")].map((el) => el.textContent);
+  function shownBoons(): (string | null)[] {
+    return [...container.querySelectorAll(".node__name")].map((el) => el.textContent);
+  }
 
-    expect(labels).toContain(H2.AllCloseBoon?.name);
-    expect(labels).not.toContain("BaseCurse");
-    expect(labels).not.toContain("MetaUpgradeTrait");
-    // A keepsake is equipped, not taken, and in this game is also a trait
-    // record under the same id.
-    expect(labels).not.toContain("Bone Hourglass");
-    // A form is refused by `mark` outright, so offering one would be offering a
-    // gesture designed to fail.
-    expect(labels).not.toContain("Aspect of Melinoë");
+  /**
+   * A Duo answers to two gods, so it is on both their tabs. Collecting toward
+   * one happens from two directions and a Duo that appeared under neither god
+   * would be reachable only by knowing it exists.
+   */
+  it("puts a Duo on both of its gods' tabs", async () => {
+    await mount();
+    // Island Getaway is Aphrodite and Poseidon.
+    showGod("Aphrodite");
+    expect(shownBoons()).toContain(H2.AllCloseBoon?.name);
+    showGod("Poseidon");
+    expect(shownBoons()).toContain(H2.AllCloseBoon?.name);
+    showGod("Hera");
+    expect(shownBoons()).not.toContain(H2.AllCloseBoon?.name);
   });
 
   /**
-   * What is still in the list and should not be, pinned rather than left to be
-   * rediscovered: costumes and Chaos blessings are trait records like any
-   * other, and nothing in the catalog marks the difference between "a thing the
-   * game offers you as a boon" and "a trait record". The three exclusions above
-   * are the ones that can be made from data that exists; this one needs a
-   * marker that does not, so it is a finding rather than a filter.
-   *
-   * This test is expected to change the day that marker arrives.
+   * The one population that could have gone out with the bathwater. An Infusion
+   * is element-gated rather than god-gated, so it reads as a candidate for
+   * "belongs to nobody" — measured, 10 of this game's 11 carry a god after all,
+   * and the one that does not is a Chaos blessing, which is out of v1 scope.
    */
-  it("still lists costumes and Chaos records, which no field can tell from boons", async () => {
+  it("keeps the Infusions, which are gated on an element and not on a god", async () => {
     await mount();
-    click("Duos & others");
-    const labels = [...container.querySelectorAll(".node__name")].map((el) => el.textContent);
+    showGod("Hestia");
+    // Slow Cooker: obtainable at a Fire threshold, filed under Hestia.
+    expect(shownBoons()).toContain(H2.ElementalBaseDamageBoon?.name ?? "Slow Cooker");
+  });
 
-    expect(labels).toContain("Lavender Dress");
-    expect(labels).toContain("Excruciating");
+  /**
+   * The god is the filter and it is a better one than it looks: a boon is what
+   * a god hands you. A record attributed to nobody is a costume, a hammer
+   * upgrade, a companion, a Chaos blessing or a weapon-specific trait — 311 of
+   * them in this game — and none of those is a boon a run collects.
+   *
+   * This replaces a test that asserted the opposite. It pinned costumes and
+   * Chaos records as a *finding*, on the ground that nothing in the catalog
+   * separated a boon from a trait record. The god field does.
+   */
+  it("lists only what a god hands you", async () => {
+    await mount();
+    for (const god of ["Aphrodite", "Hera", "Poseidon"]) {
+      showGod(god);
+      const labels = shownBoons();
+      expect(labels).not.toContain("Lavender Dress");
+      expect(labels).not.toContain("Excruciating");
+      // No display text, so the resolver falls back to the id — right for a
+      // label on something already on screen, wrong for a row offering it.
+      expect(labels).not.toContain("BaseCurse");
+      expect(labels).not.toContain("MetaUpgradeTrait");
+      // Equipped rather than taken, and in this game also a trait record.
+      expect(labels).not.toContain("Bone Hourglass");
+      // Refused by `mark` outright, so listing one offers a gesture designed
+      // to fail.
+      expect(labels).not.toContain("Aspect of Melinoë");
+    }
   });
 
   /**
