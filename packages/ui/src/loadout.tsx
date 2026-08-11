@@ -65,11 +65,10 @@ export function Loadout({
    * order they filled it in. The rest have no positions to be in, so the only
    * order that means anything is when they arrived.
    */
-  const isCore = (entry: LoadoutEntry) => entry.slot !== null && coreSlots.includes(entry.slot);
   const core = coreSlots
     .map((slot) => entries.find((entry) => entry.slot === slot))
     .filter((entry): entry is LoadoutEntry => entry !== undefined);
-  const rest = entries.filter((entry) => !isCore(entry));
+  const rest = entries.filter((entry) => !core.includes(entry));
 
   return (
     <section className="loadout" data-expanded={expanded}>
