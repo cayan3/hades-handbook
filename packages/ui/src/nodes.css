@@ -658,9 +658,11 @@
   content: "";
   position: absolute;
   /* Grown and shifted by the same amount, so the trailing edges land flush
-     against the tile and the leading ones carry the whole band. */
-  inset: -0.34rem;
-  transform: translate(0.34rem, -0.34rem);
+     against the tile and the leading ones carry the whole band. The visible
+     width is not this number: across a 45-degree edge it is the growth plus the
+     shift, over the root of two — about 0.2rem here. */
+  inset: -0.14rem;
+  transform: translate(0.14rem, -0.14rem);
   z-index: 0;
   background: var(--rarity);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
