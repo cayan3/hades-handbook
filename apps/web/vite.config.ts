@@ -1,6 +1,65 @@
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import { type Plugin, defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+
+/**
+ * The production content security policy.
+ *
+ * No unsafe-inline and no unsafe-eval: the bundler emits external modules and
+ * an external stylesheet, the service worker registers from a module rather
+ * than from an injected snippet, and the renderer sets styles through the
+ * object model rather than through markup, which this does not govern.
+ * `connect-src` is 'none' because the whole product runs from a local store and
+ * talks to nobody.
+ */
+const POLICY = [
+  "default-src 'none'",
+  "script-src 'self'",
+  "style-src 'self'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "manifest-src 'self'",
+  "connect-src 'none'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+/**
+ * Injected into the built page and **only** the built page.
+ *
+ * Written as a literal in `index.html` it also reached the dev server, which is
+ * the one place the policy is wrong: Vite's live-reload client is an inline
+ * script and every stylesheet in dev is injected as an inline `<style>`, so
+ * `script-src 'self'` and `style-src 'self'` refuse both. The page still runs —
+ * the entry module is external — and comes up with no styling at all, which
+ * reads as a broken app rather than as a blocked policy.
+ *
+ * The policy that ships is unchanged, which is the point: this moves where it
+ * is applied, not what it says.
+ */
+function contentSecurityPolicy(): Plugin {
+  const meta = `<meta http-equiv="Content-Security-Policy" content="${POLICY}">`;
+
+  return {
+    name: "handbook-csp",
+    apply: "build",
+    transformIndexHtml(html) {
+      /**
+       * Written into the markup rather than described as a tag, so the emitted
+       * attribute is the policy verbatim — the tag form escapes every quote to
+       * `&#39;`, which a browser does decode before reading the policy, but
+       * "does decode" is a worse thing to rely on for a security control than
+       * emitting exactly what was checked in a browser.
+       *
+       * A missing anchor throws rather than quietly shipping a page with no
+       * policy, which is the one failure here that nothing downstream notices.
+       */
+      if (!html.includes("<head>")) throw new Error("no <head> to put the policy in");
+      return html.replace("<head>", `<head>\n    ${meta}`);
+    },
+  };
+}
 
 /**
  * The bundler exists for this app and for nothing else. Every workspace package
@@ -22,6 +81,7 @@ export default defineConfig({
     assetsInlineLimit: 0,
   },
   plugins: [
+    contentSecurityPolicy(),
     react(),
     VitePWA({
       // The registration is a line in main.tsx rather than a snippet this

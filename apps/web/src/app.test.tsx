@@ -12,6 +12,7 @@ import { traitsFor } from "@repo/catalog";
 import {
   type RunSlot,
   type RunStore,
+  type TabPresence,
   STORE_VERSION,
   createMemoryStore,
   emptyRun,
@@ -282,6 +283,45 @@ describe("a field the user is holding by hand", () => {
     // Handed back, the source has nothing to repopulate it with — which is the
     // honest answer for a source that only ever reported what was typed.
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
+  });
+});
+
+describe("another tab of the same run", () => {
+  /**
+   * Two tabs share one database and write last-one-wins, and v1 does not
+   * coordinate them — the warning is the whole mitigation, so it has to arrive
+   * when presence says so rather than only when the page is first drawn.
+   */
+  it("warns while it is open, and stops when it goes away", async () => {
+    let open = false;
+    const listeners = new Set<(v: boolean) => void>();
+    const presence: TabPresence = {
+      get otherTabOpen() {
+        return open;
+      },
+      subscribe: (cb) => {
+        listeners.add(cb);
+        return () => listeners.delete(cb);
+      },
+      close: () => listeners.clear(),
+    };
+    const announce = (next: boolean) => {
+      open = next;
+      act(() => {
+        for (const cb of listeners) cb(next);
+      });
+    };
+
+    await act(async () => {
+      root.render(<App store={createMemoryStore()} presence={presence} persistent />);
+    });
+    expect(texts(".notice__title")).not.toContain("This run is open in another tab.");
+
+    announce(true);
+    expect(texts(".notice__title")).toContain("This run is open in another tab.");
+
+    announce(false);
+    expect(texts(".notice__title")).not.toContain("This run is open in another tab.");
   });
 });
 
