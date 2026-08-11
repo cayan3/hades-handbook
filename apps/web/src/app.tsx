@@ -158,17 +158,20 @@ function Run({
    */
   const [artwork, setArtwork] = useState(false);
   /**
-   * Goals is the phone's home and half the accessible path, so it opens by
-   * default; it is a panel rather than a column so that the layout has one
-   * shape at every width instead of rearranging as the window changes.
+   * Closed by default. It used to open by default, on the argument that Goals
+   * is the phone's home and half the accessible path — but the panel is fixed
+   * over the right-hand edge and the run is keyed on the game, so switching
+   * games threw it back open over whatever was underneath. A surface that
+   * arrives uninvited is worse than one you ask for, and the header's control
+   * carries the pinned count, so it says how much is behind it.
    */
-  const [goalsOpen, setGoalsOpen] = useState(true);
+  const [goalsOpen, setGoalsOpen] = useState(false);
   const [loadoutOpen, setLoadoutOpen] = useState(false);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
   // Nobody has chosen, so show a god the run has met, or the first one.
-  const showing = god ?? tabs.find((name) => facts.godPool.has(name)) ?? tabs[0] ?? NO_GOD;
+  const showing = god ?? tabs.find((name) => facts.godPool.has(name)) ?? tabs[0] ?? "";
 
   /**
    * Gods the player added for planning. Only ever grown, which is half of what

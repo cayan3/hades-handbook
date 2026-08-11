@@ -228,6 +228,10 @@ describe("the undo offer", () => {
     click("Set as goal");
 
     expect(container.querySelector(".toast__what")?.textContent).toContain("Pinned");
+    // The panel is shut until it is asked for, so the pin has to be visible
+    // through the count on the control before it is visible in the list.
+    expect(control("Goals (1)")).toBeDefined();
+    click("Goals (1)");
     expect(texts(".goal__name")).toContain(H2.AllCloseBoon?.name);
   });
 });
@@ -306,21 +310,21 @@ describe("a field the user is holding by hand", () => {
 describe("the Goals panel", () => {
   /**
    * A panel rather than a column, so opening and closing it never moves the
-   * boons underneath and the layout has one shape at every width. Open by
-   * default, because Goals is the phone's home and half the accessible path —
-   * a collapsed default would bury the surface the product is for.
+   * boons underneath and the layout has one shape at every width. Closed to
+   * begin with: it is fixed over the right-hand edge, and opening by default
+   * meant a game switch threw it back over the page every time.
    */
-  it("is open to begin with and can be put away", async () => {
+  it("stays shut until it is asked for, and can be put away again", async () => {
     await mount();
+    expect(container.querySelector(".app__goals")).toBeNull();
+
+    click("Goals");
     expect(container.querySelector(".app__goals")).not.toBeNull();
 
     // The panel covers the right-hand end of the header, which is where the
     // control that opened it lives — so it needs a way out of its own.
     click("Close");
     expect(container.querySelector(".app__goals")).toBeNull();
-
-    click("Goals");
-    expect(container.querySelector(".app__goals")).not.toBeNull();
   });
 
   it("counts what is pinned on the control that opens it", async () => {
