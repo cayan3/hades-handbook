@@ -270,19 +270,18 @@ function isHeldTrait(v: unknown): boolean {
 }
 
 /**
- * Checks the held boons, which had the identical hole an override's value had
- * and had it in the field evaluation reads most.
+ * Checks the held boons, which had the same hole an override's value had, in the
+ * field evaluation reads most.
  *
- * A `[id, {}]` pair decoded straight into the map: `evaluate` compares
- * `held.level` against a requirement's minimum, so the boon read as unheld for
- * `hasTrait` while every set-shaped question about the same run counted it —
- * one run answering two ways, nothing throwing anywhere.
+ * A `[id, {}]` pair decoded straight into the map, and `evaluate` compares
+ * `held.level` against a requirement's minimum — so the boon read as unheld for
+ * `hasTrait` while every set-shaped question about the same run counted it. One
+ * run answering two ways, with nothing throwing anywhere.
  *
- * Refusing the record is the strong move and it is only affordable because a
- * refusal is now survivable and explained: the record is set aside, a fresh run
- * starts, and the load says so on screen. `mark` is the only writer of this map
- * and builds the record itself, so nothing this package can produce is refused
- * here — what is, was corrupted or came from somewhere else.
+ * Refusing the record is only affordable because a refusal is now survivable and
+ * explained: it is set aside, a fresh run starts, and the load says so on screen.
+ * `mark` is the only writer of this map and builds the record itself, so what
+ * gets refused here was corrupted or came from somewhere else.
  */
 function readHeld(raw: unknown): [TraitId, HeldTrait][] {
   if (!Array.isArray(raw)) throw new Error("stored run's held boons are not a list");

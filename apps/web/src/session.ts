@@ -138,18 +138,17 @@ export function useRunSession(game: GameId, store: RunStore): SessionState {
 }
 
 /**
- * Runs a write and keeps an exception off the screen.
+ * Runs a write and keeps the exception off the screen.
  *
- * The write-side guards throw, deliberately: every id a view can hand them came
- * off a catalog-driven list in the first place, so one the catalog does not
- * have is a programming error rather than user input, and a guard that returned
- * quietly would let a run fill up with ids nothing can name. But a throw out of
- * a tap handler unmounts the tree — the player loses the page, and the one
- * thing they were doing is the one thing they cannot now do.
+ * The write-side guards throw deliberately: every id a view can hand them came
+ * off a catalog-driven list, so one the catalog does not have is a programming
+ * error, and a guard that returned quietly would let a run fill with ids nothing
+ * can name. But a throw out of a tap handler unmounts the tree, and losing the
+ * page is a worse answer than losing the tap.
  *
- * So every write goes through here: the run is untouched (the guards run before
- * the first write, which is what makes that true), the gesture is dropped, and
- * the fault is reported where a bug report can carry it.
+ * So every write comes through here. The run is untouched — the guards all run
+ * before the first write, which is what makes that true — the gesture is
+ * dropped, and the fault is reported where somebody can quote it.
  */
 export function attempt(report: (fault: Error) => void, write: () => void): void {
   try {

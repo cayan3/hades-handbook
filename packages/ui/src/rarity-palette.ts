@@ -4,16 +4,14 @@ import type { Rarity } from "@repo/core";
  * The rarity colours, verbatim from both games, which agree on every tier they
  * share.
  *
- * This is not one of the ladder's channels and must never become one. State is
- * structural and hue means which god granted a boon; a rarity swatch is a third
- * thing and it earns its place only where it sits beside a name rather than on
- * a 40px diamond, where a third channel is where legibility goes.
+ * Not one of the ladder's channels and never to become one: state is structural
+ * and hue means which god granted a boon, so a rarity swatch is a third thing
+ * and only earns its place where it sits beside a name rather than on a 40px
+ * diamond.
  *
- * **Colour is never the only carrier.** Every place this is used puts the
- * rarity's name in text a reader can reach — a title for a pointer, a
- * visually-hidden span for a screen reader — because two of these values are
- * identical (`Duo` and `Perfect`), and because a swatch says nothing to
- * somebody who cannot see it.
+ * **Colour is never the only carrier.** Everywhere this is used puts the name in
+ * text a reader can reach, because `Duo` and `Perfect` are the same hex and
+ * because a swatch says nothing to somebody who cannot see it.
  */
 const RARITY_COLOURS: Readonly<Record<string, string>> = {
   Common: "#FFFFFF",

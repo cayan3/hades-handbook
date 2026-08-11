@@ -59,29 +59,19 @@ export function textFor(ref: string): string {
 }
 
 /**
- * Display names, the third thing this file resolves and the last to get a way
- * out. Art and description text have had one since they were written; a display
- * name is the game's own localized text on the same footing and was read
- * straight off the record by whoever wanted it, so withdrawing names would have
- * been a sweep rather than an edit here.
+ * Display names, resolved here so they can be withdrawn the way art and Codex
+ * text can: one edit, rather than a sweep through everything that draws a name.
  *
- * The name is always the game's own — no paraphrase, no invention. A player and
- * the data have to agree on what a boon is called, and a name we made up is one
- * nobody can search for. Where the bundle has no entry (roughly a fifth of each
- * game: debug content, cut content, inheritance templates) the id comes back.
- * Ids are stable, plainly not prose and safe to render; a blank label gives a
- * player nothing to search for and nothing to tell us about.
+ * The name is always the game's own, because a name we invented is one nobody
+ * can search for. Where the bundle has no entry — roughly a fifth of each game,
+ * being debug entries, cut content and inheritance templates — the id comes
+ * back, which is at least something a player can quote at us.
  *
- * Two functions rather than one, and the reason is measured. A single resolver
- * searching the spaces in turn works perfectly in Hades II and silently fails in
- * Hades I: all 35 Hades II keepsakes are *also* trait records under the same id
- * and name, while in Hades I the two share nothing. The agreement is the trap
- * rather than the evidence — the same one the forcing-keepsake derivation next
- * door documents — so the id space comes from the caller.
- *
- * Trait names read the merged records, which is what anything reading a trait
- * should go through: the overlay is a correction, and a record this catalog
- * refuses to hand over has no name to give.
+ * Two functions rather than one: a single resolver searching both spaces works
+ * in Hades II and fails silently in Hades I, since all 35 Hades II keepsakes
+ * are also trait records under the same id while Hades I's two spaces share
+ * none. The agreement is the trap, not the evidence, so the id space comes from
+ * the caller.
  */
 export function nameFor(game: GameKey, traitId: TraitId): string {
   return orId(traitsFor(game)[traitId]?.name, traitId);

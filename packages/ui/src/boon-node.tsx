@@ -70,10 +70,9 @@ export interface BoonNodeProps extends BoonGestures {
 }
 
 /**
- * Set through the object model rather than written into the page as a style
- * element, which is the distinction the page's content policy draws. A class per
- * god would avoid the question and cost a rule per god plus a build that knows
- * the roster.
+ * Through the object model rather than a style element, which is the line the
+ * page's content policy draws. A class per god would dodge the question and cost
+ * a rule per god plus a build that knows the roster.
  */
 function godProperty(god: string | null): CSSProperties {
   return { "--god": godColour(god) } as CSSProperties;

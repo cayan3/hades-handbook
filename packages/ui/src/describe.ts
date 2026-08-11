@@ -233,12 +233,10 @@ export interface Displacement {
 }
 
 /**
- * What taking a boon would cost, where it costs anything.
- *
- * Two sentences and the second is the one worth the derivation. The first is
- * something the Loadout already shows; the second says the boon about to leave
- * the run is holding up something the player asked to be reminded of, and
- * nothing else in the product computes that.
+ * What taking a boon would cost, where it costs anything. The second sentence is
+ * the one worth the derivation — the first is something the Loadout already
+ * shows, while nothing else in the product can say that the boon about to leave
+ * is holding up a goal the player asked to be reminded of.
  */
 export function displacementLines(displacement: Displacement): readonly string[] {
   const lines = [`Taking this replaces ${displacement.name}.`];

@@ -20,13 +20,11 @@ import {
 /**
  * Storage, or an honest substitute for it.
  *
- * Only the outright-absent case can be answered here, and it is the rare one.
- * Wrapping the factory opens nothing — a browser that has taken storage away
- * says so at the first `open`, which is a rejected promise the session has to
- * catch, not an exception this can. A private window is usually **not** that
- * case either: Chrome gives incognito a real IndexedDB that is thrown away when
- * the window closes, so the run genuinely is being saved and there is nothing
- * to warn about.
+ * Only the outright-absent case can be answered here. Wrapping the factory opens
+ * nothing — a browser that has taken storage away says so by *rejecting* the
+ * first `open`, which the session catches and this cannot. A private window is
+ * usually not that case: Chrome gives incognito a real IndexedDB, thrown away
+ * when the window closes.
  */
 export function browserStore(): { store: RunStore; persistent: boolean } {
   if (globalThis.indexedDB == null) return { store: createMemoryStore(), persistent: false };
@@ -66,21 +64,19 @@ export function newTabId(): string {
 /**
  * Registers the service worker and reloads once when a new one takes over.
  *
- * **What is cached and why it matters.** The precache holds the built shell —
- * the scripts, the stylesheet, the page and the manifest — and both games'
- * catalogs are compiled into those scripts, so a data change is a bundle change
- * and reaches an installed copy exactly as a code change does. What it does
- * *not* do on its own is reach the copy already open: the worker that is
- * running serves the version it precached, so a page can go on rendering a run
- * against data the player cannot see. That is not hypothetical — it happened
- * three times during the session that built these components, each time looking
- * like a fix that had not shipped, and the cure was clearing the worker's
- * caches by hand, which is not a thing to ask a player to do.
+ * The precache holds the built shell — scripts, stylesheet, page, manifest — and
+ * both games' catalogs are compiled into those scripts, so a data change is a
+ * bundle change and reaches an installed copy the way a code change does. What
+ * it cannot do on its own is reach the copy already open: the running worker
+ * keeps serving what it precached, so a page can go on rendering a run against
+ * data the player cannot see. That happened three times while these components
+ * were being built, each time looking like a fix that had not shipped, and the
+ * cure was clearing caches by hand.
  *
- * So the worker is built to take over immediately, and this reloads the page
- * when it does. One reload, guarded, because `controllerchange` also fires the
- * first time a worker claims an uncontrolled page and a loop there would be
- * unbreakable. The run itself is in IndexedDB and survives it.
+ * So the worker takes over immediately and this reloads once when it does.
+ * Guarded, because `controllerchange` also fires the first time a worker claims
+ * an uncontrolled page and an unguarded reload there is a loop with no way out.
+ * The run is in IndexedDB and survives it.
  */
 export function registerServiceWorker(): void {
   if (!("serviceWorker" in navigator)) return;

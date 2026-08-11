@@ -528,8 +528,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     const factsMoved = !sameFacts(facts, state.facts);
     const intentMoved = !sameIntent(intent, state.intent);
     if (!factsMoved && !intentMoved && !alsoMoved) {
-      // Nothing to write, nothing to announce, and the undo level goes back to
-      // whoever held it before this writer captured its snapshot.
+      // The undo level goes back to whoever held it before this writer took it.
       undoable = previousEdit;
       return;
     }
@@ -940,8 +939,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       // standing on its own — otherwise the next correction removes it.
       const known = rewardedWithoutBoon.has(god);
       const pooled = state.facts.godPool.has(god);
-      // Already there and already accounted for: nothing moves, so there is
-      // nothing to write, notify or offer to take back.
+      // Already there and already accounted for, so nothing moves.
       if (known && pooled) return;
 
       beginEdit("addGod", god);

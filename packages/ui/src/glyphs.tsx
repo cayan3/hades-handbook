@@ -1,19 +1,18 @@
 /**
- * The two corner glyphs, drawn rather than fetched. The pin has a game asset it
- * could use and deliberately does not: shipped art sits behind a resolver so it
- * can be withdrawn, and a glyph that must survive that withdrawal is better off
- * never being part of it. Drawn also means they inherit the node's colour and
+ * The two corner glyphs, drawn rather than fetched. Shipped art sits behind a
+ * resolver so it can be withdrawn, and a glyph that has to survive that
+ * withdrawal is better off never being part of it — so the pin has a game asset
+ * it could use and does not. Drawn also means they take the node's colour and
  * scale with it.
  *
- * Neither has alternative text. What they mean is in the node's accessible name
- * and description already, and announcing "pinned" twice is worse than once.
+ * Neither has alternative text: what they mean is in the node's accessible name
+ * already.
  */
 
 /**
- * The pin, top right. That corner is free because Obtained gave up its
- * checkmark: a full frame and full-colour art already say a boon is held, so a
- * tick said it twice and spent the one corner a small diamond has. The placement
- * mirrors where the game puts the same idea.
+ * The pin, top right — a corner free because Obtained gave up its checkmark: a
+ * full frame and full-colour art already say a boon is held. Same corner the
+ * game puts it in.
  */
 export function MarkerGlyph() {
   return (
@@ -27,12 +26,10 @@ export function MarkerGlyph() {
 }
 
 /**
- * The dormant ring, bottom right. Hollow is the message: the boon is owned — the
- * node keeps its whole Obtained treatment — and what it does is not switched on
- * yet. Ownership and liveness are different questions, so this is a mark on a
- * state rather than a sixth state.
- *
- * Bottom right because the top right is the pin's, and a boon can be both.
+ * The dormant ring, bottom right, since the top right is the pin's and a boon
+ * can be both. Hollow is the message: you own it and it is not switched on yet.
+ * A mark on a state rather than a sixth state, because owning a thing and that
+ * thing working are different questions.
  */
 export function DormantGlyph() {
   return (

@@ -13,12 +13,9 @@ import type { Naming } from "./naming.js";
  */
 
 /**
- * The undo offer, e.g. "Marked Storm Lightning".
- *
- * Past tense and no "Undo" in it: the control beside it says that, and a
- * sentence that names its own button reads as one when the button is somewhere
- * else. Where a gesture named nothing — unequipping, accepting a notice — the
- * verb carries it alone.
+ * The undo offer, e.g. "Marked Storm Lightning". Past tense, and no "Undo" in
+ * it — the control beside it says that. Where a gesture named nothing, like
+ * unequipping or accepting a notice, the verb carries it alone.
  */
 export function editSentence(edit: UndoableEdit, naming: Naming): string {
   const verb = VERBS[edit.action];

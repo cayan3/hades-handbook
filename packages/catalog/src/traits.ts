@@ -91,10 +91,9 @@ export function traitsFor(game: GameKey): Readonly<Record<string, TraitRecord>> 
 }
 
 /**
- * The ids this catalog would not hand over, sorted. Exported so the refusal is a
- * fact somebody can look at rather than a silent subtraction — a record that
- * vanishes between the snapshot and the app with nothing naming it gets
- * rediscovered as a bug two sessions later.
+ * The ids this catalog would not hand over, sorted. Exported so the refusal is
+ * something you can look at: a record that vanishes between the snapshot and the
+ * app with nothing naming it gets rediscovered as a bug two sessions later.
  */
 export function refusedTraits(game: GameKey): readonly string[] {
   return MERGED[game].refused;

@@ -1,21 +1,20 @@
 import type { GodId } from "@repo/core";
 
 /**
- * One colour per god. Hue means god identity and never state, so that state
- * survives a colourblind reader and a greyscale screenshot.
+ * One colour per god. Hue means identity and never state, which is what keeps
+ * state legible to a colourblind reader and in a greyscale screenshot.
  *
- * These do almost nothing on the default ladder: real boon art already carries
- * its god's colour, and every node on one god's page is that god anyway. They
- * earn their keep on cross-god chrome (god tabs, duo edges, requirement rows)
- * and on the fallback ladder, where colour is the only identity channel left.
+ * These earn their keep on cross-god chrome — god tabs, duo edges, requirement
+ * rows — and on the fallback ladder, where colour is the only identity channel
+ * left. On the default ladder they do almost nothing, since real boon art
+ * already carries its god's colour.
  *
- * Values are each god's own loot colour, hue-spread where two collided. Demeter
- * is retuned to pale ice blue for the frost theme, which also separates her from
- * Poseidon in the first game; Selene is designed, her extracted value being a
- * placeholder shared with Chaos. A god in both games keeps the same hex in both.
- *
- * Hades grants boons in the second game and has no colour: no loot data entry to
- * take one from, and his scope is still unclear, so a hue would be invented.
+ * Each god's own loot colour, hue-spread where two collided, and the same hex in
+ * both games. Demeter is retuned to pale ice blue: frost theme, and it also
+ * separates her from Poseidon in the first game. Selene is designed, her
+ * extracted value being a placeholder shared with Chaos. Hades grants boons in
+ * the second game and gets no colour — no loot data entry to take one from, and
+ * his scope is unclear, so any hue would be invented.
  */
 const GOD_COLOURS: Readonly<Record<GodId, string>> = Object.freeze({
   Zeus: "#FFE81F",
@@ -36,17 +35,16 @@ const GOD_COLOURS: Readonly<Record<GodId, string>> = Object.freeze({
 
 /**
  * For every god with no entry — Hades, Chaos, NPCs, whatever a patch adds — and
- * for nodes belonging to no god, which is most Infusions. Neutral on purpose: an
- * invented colour would read as identity, and two gods sharing one would read as
- * a relationship.
+ * for a node belonging to no god. Neutral on purpose: an invented colour reads
+ * as identity, and two gods sharing one reads as a relationship.
  */
 const UNASSIGNED = "#C9BFB2";
 
 /**
- * Handed to a node as a custom property rather than as a class, since a class per
- * god means a stylesheet rule per god and a build that knows the roster. Custom
- * properties go through the object model, which the page's content policy does
- * not govern — it forbids a style *element*, and this is not one.
+ * A custom property rather than a class, since a class per god means a rule per
+ * god and a build that knows the roster. Custom properties go through the object
+ * model, which the page's content policy does not govern: it forbids a style
+ * *element*, and this is not one.
  */
 export function godColour(god: GodId | null): string {
   if (god === null) return UNASSIGNED;

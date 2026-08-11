@@ -184,12 +184,10 @@ function Tiles({
 }
 
 /**
- * One held boon as a tile.
- *
- * The rarity colour is a custom property rather than a class per rarity, so the
- * palette stays in one module and a rarity the data adds later needs no rule.
- * Common resolves to nothing at all, which is what makes the coloured ones mean
- * something.
+ * One held boon as a tile. The rarity is a custom property rather than a class
+ * per rarity, so the palette stays in one module and a rarity the data adds
+ * later needs no rule; Common sets nothing, which is what makes a coloured tile
+ * mean something.
  */
 function Tile({
   entry,

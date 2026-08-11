@@ -169,17 +169,14 @@ const NO_GATE: Requirement = Object.freeze({ kind: "all", of: [] });
 /**
  * The rarity to show, which is usually none.
  *
- * A held boon carries a rarity and for many boons nobody observed it: 191 records
- * in the first game and 86 in the second declare an *empty* rarity list, and the
- * writer that records a mark falls back to the first declared one, or to Common
- * when there are none. So the field says "Common" about boons the data never said
- * could be Common. Showing that would turn a guess into an observation, so a
- * rarity appears only where the record declares the boon has any.
+ * A held boon always carries one and for many of them nobody observed it: 191
+ * Hades I records and 86 Hades II ones declare an *empty* rarity list, and the
+ * writer falls back to Common. So the field says "Common" about boons the data
+ * never said could be Common, and showing that would turn a guess into an
+ * observation. A rarity appears only where the record declares the boon has any.
  *
- * A smaller version of the problem survives, named rather than hidden: even with
- * a non-empty list, the held rarity is that same fallback unless something asked
- * which one. Asking belongs to whatever owns the marking gesture; this has no way
- * to.
+ * A smaller version survives and is named rather than hidden: even with a
+ * non-empty list the held rarity is a fallback until something asks which one.
  */
 function declaredRarity(
   state: BoonState,
@@ -252,8 +249,13 @@ function reasonFor(
 }
 
 /**
- * Recomputed per inspection rather than cached with the view: one node is open at
- * a time, and the work is a walk of one requirement tree.
+ * Not cached with the view, because it needs the player's pins and pins are
+ * intent — which is not in the cache's key and must not be, since a pin moving
+ * leaves the facts object identical.
+ *
+ * So this runs per render for every open sheet and every pinned goal. Measured
+ * against both catalogs the trees are small — depth 3, at most 25 nodes — so the
+ * cost is a few hundred node visits a render even with twenty goals pinned.
  */
 export function deriveNodeDetail(
   source: NodeSource,

@@ -175,7 +175,7 @@ function Run({
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
-  // Nobody has chosen, so show a god the run has met, or the first one.
+  // A god the run has met, until somebody picks otherwise.
   const showing = god ?? tabs.find((name) => facts.godPool.has(name)) ?? tabs[0] ?? "";
 
   /**
@@ -201,9 +201,8 @@ function Run({
       facts.godPool.has(name) || added.has(name) || name === showing || name === tabs[0],
   );
   const unshown = tabs.filter((name) => !shownTabs.includes(name));
-  // One cache for the whole page, keyed on the facts object's identity — which
-  // is sound because every writer replaces the object and shares the
-  // collections it did not touch.
+  // One cache for the whole page. What makes keying it on facts identity sound
+  // is a property of the layer below, and is written down there.
   const cache = useMemo(() => createNodeCache(source), [source]);
   const view = useCallback((trait: TraitId) => cache.viewOf(trait, facts), [cache, facts]);
   const boons = useMemo(() => boonsOf(source, game, showing), [source, game, showing]);
@@ -633,23 +632,17 @@ function boonsOf(source: NodeSource, game: GameId, god: string): TraitId[] {
 /**
  * Whether a record belongs in a list somebody browses.
  *
- * The god is the filter, and it is a better one than it looks: a boon is what a
- * god hands you, so a record attributed to one is a boon and a record
- * attributed to nobody is a costume, a Daedalus Hammer upgrade, a companion, a
- * Chaos blessing or a weapon-specific trait. Measured over the two catalogs,
- * that leaves 231 Hades I and 311 Hades II records out. Duos are the exception
- * and carry their pair instead, which is why they are asked for separately
- * above.
+ * The god above is the real filter and a better one than it looks: a boon is
+ * what a god hands you, so a record attributed to nobody is a costume, a
+ * Daedalus Hammer upgrade, a companion, a Chaos blessing or a weapon-specific
+ * trait. Measured, that leaves out 231 Hades I and 311 Hades II records. Duos
+ * carry their pair instead of a god, which is why they are asked for separately.
  *
- * Two exclusions on top, for records that do have a god:
- *
- * **No display text.** Around a fifth of each game's records have no entry in
- * the localized bundle — debug entries, cut content, inheritance templates. The
- * name resolver falls back to the id, which is right for a label on something
- * already on screen and wrong for a row offering `BaseCurse` as a boon to take.
- *
- * **Keepsakes**, which in Hades II are emitted as trait records under the same
- * id. They are equipped, not taken.
+ * Two more, for records that do have one. **No display text**: around a fifth of
+ * each game's records have no entry in the localized bundle, and the resolver
+ * falls back to the id — right for a label on something already on screen, wrong
+ * for a row offering `BaseCurse` as a boon to take. **Keepsakes**, which Hades II
+ * emits as trait records under the same id, are equipped rather than taken.
  */
 function browsable(
   id: TraitId,
