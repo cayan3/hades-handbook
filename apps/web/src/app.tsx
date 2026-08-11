@@ -170,6 +170,8 @@ function Run({
    */
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [loadoutOpen, setLoadoutOpen] = useState(false);
+  /** Which held boon's card is open beside the Loadout grid, if any. */
+  const [picked, setPicked] = useState<TraitId | null>(null);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -274,6 +276,9 @@ function Run({
   }));
 
   const openedView = opened === null ? null : view(opened);
+  // A card whose boon has left the run closes itself rather than describing a
+  // boon nobody holds.
+  const pickedView = picked === null || !facts.held.has(picked) ? null : view(picked);
 
   return (
     <NodePresentation ladder={artwork ? "real-art" : "fallback"}>
@@ -408,14 +413,28 @@ function Run({
           {/* Left: what the run holds. Right of it: what it could hold. Goals
               is a panel over the right-hand edge rather than a third column,
               so the number of columns does not change with the window. */}
+          {/* A tile opens its card beside the grid rather than a sheet over
+              it: reading what you hold is what this panel is for, and covering
+              the grid to read one entry is the thing it must not do. */}
           <Loadout
             entries={entries}
             coreSlots={CORE_SLOTS[game]}
             equipped={equippedItems(facts)}
-            onOpen={setOpened}
+            onOpen={setPicked}
             onGoal={toggleGoal}
             expanded={loadoutOpen}
             onExpanded={setLoadoutOpen}
+            selection={
+              pickedView === null
+                ? null
+                : {
+                    view: pickedView,
+                    detail: deriveNodeDetail(source, pickedView, facts, intent.pins),
+                    overridden: session.layer.isOverridden("held", pickedView.trait),
+                  }
+            }
+            onSelect={setPicked}
+            actions={actions}
           />
 
           <section className="app__ladder">

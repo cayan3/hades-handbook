@@ -1,7 +1,9 @@
-import type { SlotId } from "@repo/core";
+import type { SlotId, TraitId } from "@repo/core";
+import { type BoonActions, BoonActionBar } from "./boon-actions.js";
 import { type BoonGestures, BoonNode } from "./boon-node.js";
-import { OverrideMarker } from "./chrome.js";
-import type { NodeView } from "./node-view.js";
+import { OverrideMarker, RarityMark } from "./chrome.js";
+import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
+import type { NodeDetail, NodeView } from "./node-view.js";
 import { rarityColour } from "./rarity-palette.js";
 import type { CSSProperties } from "react";
 
@@ -31,6 +33,21 @@ export interface LoadoutEntry {
   readonly overridden?: boolean;
 }
 
+/**
+ * The boon the grid has selected, with everything the card beside it draws.
+ *
+ * Passed rather than derived, like everything else here: the description comes
+ * through the catalog's resolver and the requirement lines through the engine,
+ * and a component that fetched either would be a component with a catalog in
+ * it.
+ */
+export interface LoadoutSelection {
+  readonly view: NodeView;
+  readonly detail: NodeDetail;
+  /** Whether this boon's held state is the user's rather than the source's. */
+  readonly overridden?: boolean;
+}
+
 export interface LoadoutProps extends BoonGestures {
   readonly entries: readonly LoadoutEntry[];
   /**
@@ -44,6 +61,17 @@ export interface LoadoutProps extends BoonGestures {
   /** Starts expanded. Collapsed by default, which is the core slots alone. */
   readonly expanded?: boolean;
   readonly onExpanded?: (expanded: boolean) => void;
+  /**
+   * The boon whose card is open beside the grid, if one is.
+   *
+   * The game shows a held boon's text next to the icons rather than over them,
+   * and it is right to: reading what you have is what this panel is *for*, and
+   * a modal to do it covers the grid you were comparing against.
+   */
+  readonly selection?: LoadoutSelection | null;
+  readonly onSelect?: (trait: TraitId | null) => void;
+  /** The edits a card offers — the two removals and the rarity. */
+  readonly actions?: BoonActions;
 }
 
 export function Loadout({
@@ -52,6 +80,9 @@ export function Loadout({
   equipped = [],
   expanded = false,
   onExpanded,
+  selection = null,
+  onSelect,
+  actions,
   ...gestures
 }: LoadoutProps) {
   /**
@@ -81,9 +112,26 @@ export function Loadout({
               rather than the two flowing together — the slots every run has
               one of are the spine of a build and keeping them put is what
               makes the panel readable at a glance after it opens. */}
-          <div className="loadout__grid">
-            <Tiles className="loadout__core" entries={core} {...gestures} />
-            {expanded ? <Tiles className="loadout__rest" entries={rest} {...gestures} /> : null}
+          <div className="loadout__panel">
+            <div className="loadout__grid">
+              <Tiles
+                className="loadout__core"
+                entries={core}
+                selected={selection?.view.trait ?? null}
+                {...gestures}
+              />
+              {expanded ? (
+                <Tiles
+                  className="loadout__rest"
+                  entries={rest}
+                  selected={selection?.view.trait ?? null}
+                  {...gestures}
+                />
+              ) : null}
+            </div>
+            {selection === null ? null : (
+              <BoonCard selection={selection} onClose={() => onSelect?.(null)} actions={actions} />
+            )}
           </div>
           {rest.length === 0 || onExpanded === undefined ? null : (
             <button
@@ -115,14 +163,19 @@ export function Loadout({
 function Tiles({
   className,
   entries,
+  selected,
   ...gestures
-}: { readonly className: string; readonly entries: readonly LoadoutEntry[] } & BoonGestures) {
+}: {
+  readonly className: string;
+  readonly entries: readonly LoadoutEntry[];
+  readonly selected: TraitId | null;
+} & BoonGestures) {
   if (entries.length === 0) return null;
   return (
     <ul className={`loadout__list ${className}`}>
       {entries.map((entry) => (
         <li key={entry.view.trait} className="loadout__entry">
-          <Tile entry={entry} {...gestures} />
+          <Tile entry={entry} selected={entry.view.trait === selected} {...gestures} />
           {entry.overridden === true ? <OverrideMarker /> : null}
         </li>
       ))}
@@ -138,17 +191,88 @@ function Tiles({
  * Common resolves to nothing at all, which is what makes the coloured ones mean
  * something.
  */
-function Tile({ entry, ...gestures }: { readonly entry: LoadoutEntry } & BoonGestures) {
+function Tile({
+  entry,
+  selected,
+  ...gestures
+}: { readonly entry: LoadoutEntry; readonly selected: boolean } & BoonGestures) {
   const rarity = entry.view.rarity;
   const marked = rarity !== null && rarity !== "Common";
 
   return (
     <span
       className="loadout__tile"
+      data-selected={selected ? "true" : undefined}
       data-rarity={marked ? rarity : undefined}
       style={marked ? ({ "--rarity": rarityColour(rarity) } as CSSProperties) : undefined}
     >
       <BoonNode view={entry.view} showName={false} {...gestures} />
     </span>
+  );
+}
+
+/**
+ * One held boon's card, beside the grid rather than over it.
+ *
+ * The game's own boon menu reads this way — icons on the left, the text of
+ * whichever one you picked next to them — and the reason it does is that you
+ * are usually comparing, so covering the grid to read one entry is the one
+ * thing this surface must not do.
+ */
+function BoonCard({
+  selection,
+  onClose,
+  actions = {},
+}: {
+  readonly selection: LoadoutSelection;
+  readonly onClose: () => void;
+  readonly actions?: BoonActions | undefined;
+}) {
+  const { view, detail, overridden = false } = selection;
+
+  return (
+    <article className="loadout__card" data-state={view.state}>
+      <div className="loadout__cardhead">
+        <h3 className="loadout__cardname">{view.name}</h3>
+        {view.rarity === null ? null : <RarityMark rarity={view.rarity} />}
+        <button type="button" className="loadout__cardclose" aria-label="Close" onClick={onClose}>
+          ×
+        </button>
+      </div>
+
+      {!overridden ? null : (
+        <p className="loadout__overridden">
+          <strong>{OVERRIDDEN_LABEL}.</strong> {OVERRIDDEN_HINT}
+          {/* The control belongs beside the words. A card that says a field is
+              held by hand and offers no way to hand it back is the same gap as
+              a field with no view at all. */}
+          {actions.clearOverride === undefined ? null : (
+            <button
+              type="button"
+              className="loadout__handback"
+              onClick={() => actions.clearOverride?.(view.trait)}
+            >
+              Hand it back
+            </button>
+          )}
+        </p>
+      )}
+
+      {detail.description === null ? null : (
+        // Extracted game text, through the resolver that can withdraw it, as
+        // text rather than markup.
+        <p className="loadout__carddesc">{detail.description}</p>
+      )}
+
+      {detail.activation.length === 0 ? null : (
+        <ul className="loadout__cardlines">
+          {detail.activation.map((line) => (
+            <li key={line}>{line}</li>
+          ))}
+        </ul>
+      )}
+
+      <BoonActionBar view={view} held actions={actions} pinned={false} />
+    </article>
   );
 }

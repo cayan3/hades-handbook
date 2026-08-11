@@ -439,6 +439,40 @@ describe("the Loadout", () => {
     expect(named).toEqual([H2[APHRODITE_MELEE]?.name, H2.AphroditeSpecialBoon?.name]);
   });
 
+  /**
+   * The game shows a held boon's text beside the icons rather than over them,
+   * and the reason it does is that you are usually comparing — so covering the
+   * grid to read one entry is the thing this surface must not do.
+   */
+  it("opens a boon's card beside the grid rather than over it", async () => {
+    await mount();
+    // The first tap marks it; the second lands on the tile the mark created.
+    tap(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
+
+    const card = container.querySelector(".loadout__card");
+    expect(card?.querySelector(".loadout__cardname")?.textContent).toBe(
+      H2[APHRODITE_MELEE]?.name,
+    );
+    // Beside, not over: the grid it was picked from is still on the page.
+    expect(container.querySelectorAll(".loadout__tile")).not.toHaveLength(0);
+    expect(container.querySelector(".sheet-scrim")).toBeNull();
+
+    click("×");
+    expect(container.querySelector(".loadout__card")).toBeNull();
+  });
+
+  /** A card describing a boon nobody holds is a card about nothing. */
+  it("closes the card when the boon leaves the run", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
+    expect(container.querySelector(".loadout__card")).not.toBeNull();
+
+    click("I mis-tapped");
+    expect(container.querySelector(".loadout__card")).toBeNull();
+  });
+
   /** No names drawn, and every one of them still said. */
   it("draws no name and keeps every name reachable", async () => {
     await mount();
