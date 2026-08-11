@@ -52,6 +52,22 @@ const RULES = {
   hades2: hades2Rules,
 } as const;
 
+/**
+ * The slots a collapsed Loadout shows, in the order it shows them — the boons
+ * every run has one of, which is what makes a column of them a build at a
+ * glance.
+ *
+ * Written out per game because the games differ and neither says so in data:
+ * measured, Hades I files boons under Melee, Secondary, Ranged, Rush, Shout and
+ * Assist, and Hades II under Melee, Secondary, Ranged, Rush, Mana and Spell.
+ * `Assist` is the Companion rather than a boon slot, and `Keepsake` and
+ * `Aspect` are the equipped kit, so none of the three is here.
+ */
+const CORE_SLOTS: Readonly<Record<GameId, readonly string[]>> = {
+  hades1: ["Melee", "Secondary", "Ranged", "Rush", "Shout"],
+  hades2: ["Melee", "Secondary", "Ranged", "Rush", "Mana", "Spell"],
+};
+
 /** Built once per game: the records and lookups are fixed for a snapshot. */
 function nodeSourceFor(game: GameId): NodeSource {
   return createNodeSource(game, RULES[game](), createLookups(game), traitsFor(game));
@@ -141,6 +157,7 @@ function Run({
    * shape at every width instead of rearranging as the window changes.
    */
   const [goalsOpen, setGoalsOpen] = useState(true);
+  const [loadoutOpen, setLoadoutOpen] = useState(false);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -335,7 +352,14 @@ function Run({
           {/* Left: what the run holds. Right of it: what it could hold. Goals
               is a panel over the right-hand edge rather than a third column,
               so the number of columns does not change with the window. */}
-          <Loadout entries={entries} equipped={equippedItems(facts)} onOpen={setOpened} />
+          <Loadout
+            entries={entries}
+            coreSlots={CORE_SLOTS[game]}
+            equipped={equippedItems(facts)}
+            onOpen={setOpened}
+            expanded={loadoutOpen}
+            onExpanded={setLoadoutOpen}
+          />
 
           <section className="app__ladder">
             <h2>Boons</h2>
@@ -351,6 +375,16 @@ function Run({
 
         {!goalsOpen ? null : (
           <aside className="app__goals">
+            {/* Its own way out. The panel covers the right-hand end of the
+                header, which is where the control that opened it lives, so
+                without this there is no way to put it away. */}
+            <button
+              type="button"
+              className="app__goalsclose"
+              onClick={() => setGoalsOpen(false)}
+            >
+              Close
+            </button>
             <GoalsPanel goals={goals} onOpen={setOpened} />
           </aside>
         )}

@@ -139,12 +139,14 @@ h1,
  * In the pool is a fact about the run, so it changes how a tab looks and never
  * whether it is there: navigation must not reshuffle under somebody because a
  * boon was removed.
+ *
+ * A glow, the same signal a takeable boon carries, rather than a bullet — the
+ * page then has one vocabulary for "this one is live" instead of a second mark
+ * to learn.
  */
-.app__gods button[data-pooled="true"]::before {
-  content: "●";
-  margin-right: 0.35rem;
-  font-size: 0.7em;
-  vertical-align: 0.15em;
+.app__gods button[data-pooled="true"] {
+  border-color: currentColor;
+  box-shadow: 0 0 0.35rem currentColor, inset 0 0 0.35rem rgb(255 255 255 / 15%);
 }
 
 .app__notices {
@@ -228,6 +230,19 @@ h1,
   overflow-y: auto;
   background: #191614;
   box-shadow: -0.5rem 0 1.5rem rgb(0 0 0 / 35%);
+}
+
+.app__goalsclose {
+  float: right;
+  margin: 0 0 0.5rem 0.5rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
 }
 
 .app__goalstoggle {

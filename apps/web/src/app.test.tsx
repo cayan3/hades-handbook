@@ -81,6 +81,21 @@ function control(label: string): HTMLElement {
   return found;
 }
 
+/**
+ * The Loadout is tiles rather than rows now, so what it says is the accessible
+ * name of each tile — which is the promise the linear surface actually makes.
+ */
+function loadout(): string[] {
+  return [...container.querySelectorAll<HTMLElement>(".loadout__tile button")].map(
+    (button) => button.getAttribute("aria-label") ?? "",
+  );
+}
+
+function heldInLoadout(trait: string): boolean {
+  const name = H2[trait]?.name ?? trait;
+  return loadout().some((label) => label.startsWith(`${name} —`));
+}
+
 function click(label: string): void {
   act(() => control(label).click());
 }
@@ -135,9 +150,10 @@ describe("marking a boon", () => {
     // than a dialog in front of it.
     click("Rare");
 
-    expect(texts(".loadout__name")).toContain(H2[APHRODITE_MELEE]?.name);
-    // Rarity is its own colour with the name behind it, not a column of text.
-    expect(texts(".loadout .rarity")).toContain("Rare");
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+    // Rarity is a colour behind the tile, with the name still in the tile's
+    // description rather than in a column of text.
+    expect(container.querySelector('.loadout__tile[data-rarity="Rare"]')).not.toBeNull();
   });
 
   /**
@@ -150,7 +166,7 @@ describe("marking a boon", () => {
     open(APHRODITE_MELEE);
     click("Heroic");
 
-    expect(texts(".loadout .rarity")).toContain("Heroic");
+    expect(container.querySelector('.loadout__tile[data-rarity="Heroic"]')).not.toBeNull();
     expect(H2[APHRODITE_MELEE]?.rarity[0]).not.toBe("Heroic");
   });
 });
@@ -276,7 +292,7 @@ describe("a field the user is holding by hand", () => {
     });
 
     await mount(store);
-    expect(texts(".loadout__name")).toContain(H2[APHRODITE_MELEE]?.name);
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
     expect(container.querySelector(".override-marker")).not.toBeNull();
 
     open(APHRODITE_MELEE);
@@ -298,7 +314,9 @@ describe("the Goals panel", () => {
     await mount();
     expect(container.querySelector(".app__goals")).not.toBeNull();
 
-    click("Goals");
+    // The panel covers the right-hand end of the header, which is where the
+    // control that opened it lives — so it needs a way out of its own.
+    click("Close");
     expect(container.querySelector(".app__goals")).toBeNull();
 
     click("Goals");
@@ -311,6 +329,59 @@ describe("the Goals panel", () => {
     click("Set as goal");
 
     expect(control("Goals (1)")).toBeDefined();
+  });
+});
+
+describe("the Loadout", () => {
+  /**
+   * Styled after the game's own boon menu: the core slots on their own, tiles
+   * rather than rows, everything else behind one control. `§5` has asked for
+   * the collapsed/expanded pair since the design pass.
+   */
+  it("shows the core slots first and the rest behind one control", async () => {
+    await mount();
+    // Island Getaway is a Duo — it fills no slot, so it is not core, and its
+    // record declares exactly one rarity, so that is what the control says.
+    open("AllCloseBoon");
+    click("Duo");
+    open(APHRODITE_MELEE);
+    click("Common");
+
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+    expect(heldInLoadout("AllCloseBoon")).toBe(false);
+
+    click("All 2 boons");
+    expect(heldInLoadout("AllCloseBoon")).toBe(true);
+
+    click("Core slots only");
+    expect(heldInLoadout("AllCloseBoon")).toBe(false);
+  });
+
+  /**
+   * Rarity is a colour behind the tile and Common carries none, which is what
+   * makes a coloured one mean something — the game's own treatment.
+   */
+  it("colours a tile by rarity, and leaves Common plain", async () => {
+    await mount();
+    open(APHRODITE_MELEE);
+    click("Common");
+    expect(container.querySelector(".loadout__tile[data-rarity]")).toBeNull();
+
+    open(APHRODITE_MELEE);
+    click("I mis-tapped");
+    open(APHRODITE_MELEE);
+    click("Epic");
+    expect(container.querySelector('.loadout__tile[data-rarity="Epic"]')).not.toBeNull();
+  });
+
+  /** No names drawn, and every one of them still said. */
+  it("draws no name and keeps every name reachable", async () => {
+    await mount();
+    open(APHRODITE_MELEE);
+    click("Common");
+
+    expect(container.querySelector(".loadout .node__name")).toBeNull();
+    expect(loadout()[0]).toContain(H2[APHRODITE_MELEE]?.name);
   });
 });
 
@@ -380,7 +451,7 @@ describe("a store that will not take a write", () => {
     expect(texts(".notice__title")).toContain("This run isn't being saved.");
     // The edit was still accepted: the screen is right, only the reload is at
     // risk.
-    expect(texts(".loadout__name")).toContain(H2[APHRODITE_MELEE]?.name);
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
   });
 
   it("says so up front when the browser has no storage at all", async () => {
@@ -433,7 +504,7 @@ describe("a write that throws", () => {
     });
 
     expect(texts(".notice__title")).toContain("That didn't work.");
-    expect(texts(".loadout__name")).toContain(H2[APHRODITE_MELEE]?.name);
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
   });
 });
 
