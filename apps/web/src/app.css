@@ -128,11 +128,33 @@ h1,
   cursor: pointer;
 }
 
-/* The tab a god's boons are showing under. */
-.app__games button[aria-current],
-.app__gods button[aria-current] {
+/*
+ * Three things a tab can be, and each gets its own channel so that two of them
+ * can never be mistaken for each other.
+ *
+ * **Which god** is the outline, always, in that god's own colour — hue is what
+ * identity means everywhere else here, and a bar of identically outlined tabs
+ * is a bar that has stopped saying whose they are.
+ *
+ * **Which one you are reading** is a fill and nothing else. It used to be a
+ * bright `currentColor` border, which is a second glow beside the pool's and
+ * looked exactly like one — and the tab you have just been editing is always
+ * the selected one, so a god correctly leaving the pool still appeared lit.
+ * That was reported as the pool not clearing; it had.
+ *
+ * **Whether the run has met them** is the glow, and only that.
+ */
+.app__games button[aria-current] {
   border-color: currentColor;
   background: rgb(255 255 255 / 10%);
+}
+
+.app__gods button {
+  border-color: var(--god);
+}
+
+.app__gods button[aria-current] {
+  background: rgb(255 255 255 / 14%);
 }
 
 /*

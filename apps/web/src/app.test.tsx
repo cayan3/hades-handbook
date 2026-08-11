@@ -581,4 +581,26 @@ describe("what the boon list shows", () => {
     expect(shown()).toContain("Aphrodite");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
   });
+
+  /**
+   * The case that looks like the one above failing and is not: a god the run
+   * still holds a boon of stays in the pool, because they were genuinely met.
+   * Worth pinning beside it, since the two are told apart only by how many
+   * boons are left.
+   */
+  it("keeps a god pooled while any of their boons is still held", async () => {
+    await mount();
+    open(APHRODITE_MELEE);
+    click("Common");
+    open("AphroditeSpecialBoon");
+    click("Common");
+
+    open(APHRODITE_MELEE);
+    click("I mis-tapped");
+    expect(container.querySelector('.app__gods button[data-pooled="true"]')).not.toBeNull();
+
+    open("AphroditeSpecialBoon");
+    click("I mis-tapped");
+    expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
+  });
 });
