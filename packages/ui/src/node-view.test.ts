@@ -196,3 +196,80 @@ describe("deriveNodeDetail", () => {
     expect(detail.description).toBe(H1[LIGHTNING_ROD]?.descriptionRef);
   });
 });
+
+describe("what a mark would displace", () => {
+  /**
+   * Two boons of one god's Melee slot. Taking the second replaces the first,
+   * which is ordinary play — the cost is that the first may be holding up
+   * something the player pinned, and nothing else in the product works that
+   * out.
+   */
+  const ZEUS_MELEE = "ZeusWeaponTrait" as TraitId;
+  const ARES_MELEE = "AresWeaponTrait" as TraitId;
+
+  function occupied(...pins: TraitId[]) {
+    const facts = makeFacts({
+      held: held(ZEUS_MELEE),
+      slots: new Map([[H1[ZEUS_MELEE]?.slot ?? "Melee", ZEUS_MELEE]]),
+    });
+    return { facts, pins: new Set(pins) };
+  }
+
+  it("names the boon in the slot", () => {
+    const source = h1();
+    const { facts } = occupied();
+    const view = deriveNodeView(source, ARES_MELEE, facts);
+
+    expect(deriveNodeDetail(source, view, facts).displaces?.trait).toBe(ZEUS_MELEE);
+  });
+
+  it("says nothing about a slot nobody is in, or about a boon already held", () => {
+    const source = h1();
+    const empty = makeFacts();
+    const free = deriveNodeView(source, ARES_MELEE, empty);
+    expect(deriveNodeDetail(source, free, empty).displaces).toBeNull();
+
+    const { facts } = occupied();
+    const itself = deriveNodeView(source, ZEUS_MELEE, facts);
+    expect(deriveNodeDetail(source, itself, facts).displaces).toBeNull();
+  });
+
+  /**
+   * The half worth the derivation. Without pins there is no sentence here the
+   * Loadout does not already say.
+   */
+  it("names the goals whose prerequisite the displaced boon is", () => {
+    const source = h1();
+    const { facts } = occupied();
+    const view = deriveNodeView(source, ARES_MELEE, facts);
+
+    const withoutPins = deriveNodeDetail(source, view, facts);
+    expect(withoutPins.displaces?.neededBy).toEqual([]);
+
+    // Lightning Rod's gate asks for a Zeus boon by name.
+    const withPins = deriveNodeDetail(source, view, facts, new Set([LIGHTNING_ROD]));
+    expect(withPins.displaces?.neededBy).toEqual([source.naming.trait(LIGHTNING_ROD)]);
+  });
+});
+
+describe("requirement rows", () => {
+  it("marks the parts already met and counts the rest", () => {
+    const source = h1();
+    const facts = h1Facts("selected", ARTEMIS_BOON);
+    const view = deriveNodeView(source, LIGHTNING_ROD, facts);
+    const { rows, needed } = deriveNodeDetail(source, view, facts);
+
+    expect(rows.length).toBeGreaterThan(needed.length);
+    expect(rows.filter((row) => !row.met).map((row) => row.text)).toEqual([...needed]);
+    expect(rows.some((row) => row.met)).toBe(true);
+  });
+
+  it("claims nothing met for a gate that cannot be met at all", () => {
+    const source = h1();
+    const facts = h1Facts("notSelected", ARTEMIS_BOON);
+    const view = deriveNodeView(source, LIGHTNING_ROD, facts);
+
+    expect(view.state).toBe("Impossible");
+    expect(deriveNodeDetail(source, view, facts).rows.every((row) => !row.met)).toBe(true);
+  });
+});

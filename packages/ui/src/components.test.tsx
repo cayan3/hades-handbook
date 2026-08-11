@@ -46,6 +46,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
     tier: 2,
     iconKey: "official/Zeus_01",
     rarity: null,
+    rarities: [],
     notice: null,
     dormant: false,
     label: "Storm Lightning — Available — Zeus, tier 2",
@@ -86,14 +87,27 @@ describe("BoonNode", () => {
   });
 
   it("reflects held and pinned where a reader can find them", () => {
-    render(<BoonNode view={view({ state: "Obtained" })} pinned />);
+    render(
+      <BoonNode
+        view={view({ state: "Obtained", label: "Storm Lightning — Obtained — Zeus, tier 2" })}
+        pinned
+        onOpen={() => {}}
+      />,
+    );
     const control = container.querySelector("button")!;
-    expect(control.getAttribute("aria-pressed")).toBe("true");
+    // Held is carried in words rather than by `aria-pressed`, and the control
+    // says what it actually does, which is open a dialog. A toggle whose
+    // activation does not toggle the state it advertises is a control that
+    // lies; nothing is lost, because the name is what a reader hears first.
+    expect(control.getAttribute("aria-label")).toContain("Obtained");
+    expect(control.getAttribute("aria-pressed")).toBeNull();
+    expect(control.getAttribute("aria-haspopup")).toBe("dialog");
     expect(control.getAttribute("aria-current")).toBe("true");
     expect(container.querySelector(".node__marker")).not.toBeNull();
 
     render(<BoonNode view={view({ state: "Locked" })} />);
-    expect(container.querySelector("button")?.getAttribute("aria-pressed")).toBe("false");
+    // Nothing to open, so nothing is claimed.
+    expect(container.querySelector("button")?.getAttribute("aria-haspopup")).toBeNull();
     expect(container.querySelector("button")?.getAttribute("aria-current")).toBeNull();
     expect(container.querySelector(".node__marker")).toBeNull();
   });

@@ -48,7 +48,6 @@ export function BoonNode({ view, pinned = false, onOpen }: BoonNodeProps) {
   const ladder = useLadder();
   const describedBy = useId();
 
-  const obtained = view.state === "Obtained";
   const description = [
     stateSentence(view.state),
     view.dormant ? "Owned, and not active yet." : null,
@@ -65,10 +64,17 @@ export function BoonNode({ view, pinned = false, onOpen }: BoonNodeProps) {
         className="node__control"
         aria-label={view.label}
         aria-describedby={describedBy}
-        // Reflects "the run holds this". Note that pressing the control does
-        // not change it: activation opens the detail surface, and marking a boon
-        // as held happens there.
-        aria-pressed={obtained}
+        /**
+         * Not a toggle, so not `aria-pressed`. Activating a node opens the
+         * detail surface; whether the run holds the boon is changed in there,
+         * by two controls that are not each other's inverse — a mis-tap and a
+         * loss in game mean different things to the god pool. A button
+         * advertising a pressed state that its own activation does not change
+         * is a control that lies, and the state is not lost by dropping it: the
+         * accessible name carries "Obtained" in words, which is the reading a
+         * screen reader gets either way.
+         */
+        aria-haspopup={onOpen === undefined ? undefined : "dialog"}
         aria-current={pinned ? "true" : undefined}
         onClick={onOpen === undefined ? undefined : () => onOpen(view.trait)}
       >

@@ -1,4 +1,4 @@
-import type { BoonState, KeepsakeId, Reason, Requirement, RunFacts } from "@repo/core";
+import type { BoonState, KeepsakeId, Reason, Requirement, RunFacts, TraitId } from "@repo/core";
 import type { Naming } from "./naming.js";
 
 /**
@@ -215,6 +215,43 @@ export function activationLines(
     default:
       return [`needs ${branchPhrase(req, naming)}`];
   }
+}
+
+/**
+ * The boon a mark would replace, and what that costs.
+ *
+ * Occupancy is not impossibility — taking a second boon of a filled slot is
+ * ordinary play, and calling it a dead end would be the most damaging answer
+ * this product can give. It is a *cost*, which is a different sentence and a
+ * different shape: an annotation above the engine, not a verdict inside it.
+ */
+export interface Displacement {
+  readonly trait: TraitId;
+  readonly name: string;
+  /** Names of the pinned goals whose prerequisite asks for the displaced boon. */
+  readonly neededBy: readonly string[];
+}
+
+/**
+ * What taking a boon would cost, where it costs anything.
+ *
+ * Two sentences and the second is the one worth the derivation. The first is
+ * something the Loadout already shows; the second says the boon about to leave
+ * the run is holding up something the player asked to be reminded of, and
+ * nothing else in the product computes that.
+ */
+export function displacementLines(displacement: Displacement): readonly string[] {
+  const lines = [`Taking this replaces ${displacement.name}.`];
+  if (displacement.neededBy.length > 0) {
+    lines.push(`${displacement.name} is a prerequisite of ${list(displacement.neededBy)}.`);
+  }
+  return lines;
+}
+
+/** "a", "a and b", "a, b and c" — the reading order, not a comma-joined list. */
+function list(names: readonly string[]): string {
+  if (names.length <= 1) return names[0] ?? "";
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }
 
 /**

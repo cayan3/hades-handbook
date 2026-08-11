@@ -377,3 +377,282 @@
   font: inherit;
   cursor: pointer;
 }
+
+/*
+ * The chrome a run wears, and the two linear surfaces.
+ *
+ * Nothing below is keyed on a boon state, so none of it is part of the ladder —
+ * the structural rule above governs the five steps and these are not steps.
+ * Colour here means severity and kind, which is the one thing colour is free to
+ * mean once state has been taken off it.
+ */
+
+/*
+ * Hidden from the page and not from a reader. Deliberately without the inset
+ * clip the usual recipe adds: this file is allowed exactly one clipped shape,
+ * the node's diamond, and a test enforces that so a second silhouette cannot
+ * appear. The 1px box with overflow hidden does the job on its own — checked
+ * by writing the other version first and watching that test fail.
+ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.notice {
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.5rem;
+  border-left: 4px solid currentColor;
+  background: rgb(255 255 255 / 6%);
+}
+
+.notice[data-tone="alert"] {
+  color: #ffb4a2;
+}
+
+.notice__title {
+  margin: 0;
+  font-weight: 600;
+}
+
+.notice__body {
+  margin: 0.25rem 0 0;
+  opacity: 0.85;
+}
+
+.notice__notes {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  font-style: italic;
+}
+
+.notice__dismiss,
+.toast__undo,
+.toast__dismiss,
+.sheet__handback {
+  padding: 0.3rem 0.7rem;
+  margin-top: 0.6rem;
+  border: 1px solid currentColor;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/*
+ * Fixed to the bottom of the viewport and above the safe area, because on a
+ * phone this is the one control that has to be reachable with the thumb that
+ * just made the mistake.
+ */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(1rem + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  max-width: min(32rem, calc(100vw - 2rem));
+  padding: 0.5rem 0.6rem 0.5rem 1rem;
+  border-radius: 0.6rem;
+  background: #26211d;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
+}
+
+.toast__undo,
+.toast__dismiss {
+  margin-top: 0;
+  flex: none;
+}
+
+.toast__what {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.override-marker {
+  margin-left: 0.4rem;
+  opacity: 0.8;
+  cursor: help;
+}
+
+.sheet__overridden,
+.sheet__displaces {
+  padding: 0.6rem 0.7rem;
+  border-radius: 0.4rem;
+  background: rgb(255 255 255 / 6%);
+}
+
+.sheet__displaces p {
+  margin: 0 0 0.3rem;
+}
+
+.sheet__actions {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.sheet__rarities,
+.sheet__removals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.4rem 0.6rem 0.6rem;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.4rem;
+}
+
+.sheet__rarities legend,
+.sheet__removals legend {
+  padding: 0 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.goals__list,
+.loadout__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goal {
+  padding: 0.8rem 0;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.goal__head {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.goal__name {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.goal__state {
+  margin: 0;
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
+
+.goal__what {
+  flex: 1;
+}
+
+.goal__progress {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+
+.goal__rows {
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/*
+ * Have against need is carried by fill before colour: the dot is solid when a
+ * requirement is met and hollow when it is not, so the distinction survives
+ * both a colourblind reader and a printout. Each row also says which it is in
+ * words, for the reader who has neither.
+ */
+.goal__row::before {
+  content: "";
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.5rem;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+}
+
+.goal__row[data-met="true"] {
+  color: #9fd8a8;
+}
+
+.goal__row[data-met="true"]::before {
+  background: currentColor;
+}
+
+.goal__row[data-met="false"] {
+  opacity: 0.75;
+}
+
+.loadout__entry {
+  display: flex;
+  align-items: center;
+}
+
+.loadout__boon {
+  flex: 1;
+  display: flex;
+  gap: 0.7rem;
+  align-items: baseline;
+  padding: 0.4rem 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.loadout__slot {
+  min-width: 5.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.loadout__name {
+  flex: 1;
+}
+
+.loadout__rarity {
+  opacity: 0.7;
+  font-size: 0.85rem;
+}
+
+.loadout__equipped {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.8rem;
+  margin: 1rem 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.loadout__equipped div {
+  display: contents;
+}
+
+.loadout__equipped dt {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.loadout__equipped dd {
+  margin: 0;
+}

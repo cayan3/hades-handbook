@@ -1,0 +1,95 @@
+import type { ReactNode } from "react";
+import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
+
+/**
+ * The furniture a run wears: what a load could not carry, what a save could not
+ * store, what another tab is doing, and what the last tap can take back.
+ *
+ * Each of these existed as a field on the source and had no view, which is the
+ * same as not existing — a player met an empty run with no explanation, or a
+ * run that had silently stopped saving. Presentational like everything else
+ * here: the sentences come from `messages.ts` and the caller passes them in.
+ */
+
+export interface NoticeBarProps {
+  readonly title: string;
+  readonly body: string;
+  /**
+   * Loud enough to interrupt, or quiet enough to live in the header. A storage
+   * failure and a second open tab are not the same size of problem.
+   */
+  readonly tone?: "alert" | "note";
+  readonly children?: ReactNode;
+  readonly onDismiss?: () => void;
+  readonly dismissLabel?: string;
+}
+
+/**
+ * `role="status"` rather than `alert`: every one of these describes something
+ * that has already happened and none needs to interrupt what a screen reader is
+ * saying. An alert that fires on load, which the migration notice does, is one
+ * that talks over the page it is about.
+ */
+export function NoticeBar({
+  title,
+  body,
+  tone = "note",
+  children,
+  onDismiss,
+  dismissLabel = "Got it",
+}: NoticeBarProps) {
+  return (
+    <section className="notice" data-tone={tone} role="status">
+      <p className="notice__title">{title}</p>
+      <p className="notice__body">{body}</p>
+      {children}
+      {onDismiss === undefined ? null : (
+        <button type="button" className="notice__dismiss" onClick={onDismiss}>
+          {dismissLabel}
+        </button>
+      )}
+    </section>
+  );
+}
+
+export interface UndoToastProps {
+  /** What just happened, in the past tense and without the word "undo" in it. */
+  readonly what: string;
+  readonly onUndo: () => void;
+  readonly onDismiss: () => void;
+}
+
+/**
+ * One level, which is the whole offer: a wrong mark is re-doable by hand, and
+ * an ordered history interacts badly with fields the user is holding by hand.
+ * So this shows the last edit only and disappears when it is taken back.
+ */
+export function UndoToast({ what, onUndo, onDismiss }: UndoToastProps) {
+  return (
+    <div className="toast" role="status">
+      <span className="toast__what">{what}</span>
+      <button type="button" className="toast__undo" onClick={onUndo}>
+        Undo
+      </button>
+      <button type="button" className="toast__dismiss" aria-label="Dismiss" onClick={onDismiss}>
+        ×
+      </button>
+    </div>
+  );
+}
+
+/**
+ * The "diverges from live" marker: per field, and never a mode the run is in.
+ *
+ * A glyph with a real accessible name rather than a colour, since the whole
+ * point is that the user always knows which fields are theirs and which are
+ * being kept up to date for them.
+ */
+export function OverrideMarker() {
+  return (
+    <span className="override-marker" title={OVERRIDDEN_HINT}>
+      <span aria-hidden="true">✎</span>
+      <span className="visually-hidden">{OVERRIDDEN_LABEL}</span>
+    </span>
+  );
+}

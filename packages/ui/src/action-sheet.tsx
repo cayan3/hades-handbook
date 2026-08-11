@@ -1,5 +1,14 @@
+import type { Rarity, TraitId } from "@repo/core";
 import { type KeyboardEvent, useEffect, useId, useRef } from "react";
-import { stateSentence } from "./describe.js";
+import { displacementLines, stateSentence } from "./describe.js";
+import {
+  OVERRIDDEN_HINT,
+  OVERRIDDEN_LABEL,
+  PURGE_HINT,
+  PURGE_LABEL,
+  REMOVE_HINT,
+  REMOVE_LABEL,
+} from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 
 /**
@@ -15,17 +24,50 @@ import type { NodeDetail, NodeView } from "./node-view.js";
  * user who reaches a node and then falls out behind the sheet has been given a
  * trap rather than a path.
  *
- * The two actions are optional and absent until something can perform them.
- * Marking a boon writes a fact, which needs a run-state source, and this package
- * deliberately has none.
+ * Every action is optional and absent until something can perform it. They all
+ * write run state, which needs a source, and this package deliberately has
+ * none; a control that looked live and did nothing would be worse than no
+ * control.
  */
 export interface ActionSheetProps {
   readonly view: NodeView;
   readonly detail: NodeDetail;
   readonly pinned?: boolean;
+  /** Whether this boon's held state is one the user is holding by hand. */
+  readonly overridden?: boolean;
   readonly onClose: () => void;
-  readonly onMarkAsHave?: (trait: string) => void;
-  readonly onSetAsGoal?: (trait: string) => void;
+  readonly actions?: BoonActions;
+}
+
+/**
+ * The gestures a surface can offer about one boon.
+ *
+ * **The two removals are separate on purpose and the difference is a fact about
+ * the run, not wording.** A mis-tap never happened, so the god goes back out of
+ * the pool if nothing else holds them there; a boon lost in game was really
+ * taken, so the god stays. One control would have to pick one of those
+ * silently, and picking the mis-tap would under-report the pool for the rest of
+ * the run — a god the player has met reading as one they have not.
+ *
+ * Displacement is the third and is not a gesture at all: it happens on its own
+ * when a mark fills an occupied slot. It is announced before the mark rather
+ * than offered as a choice, because refusing it would mean refusing ordinary
+ * play.
+ */
+export interface BoonActions {
+  /**
+   * Records the boon as held. The rarity is what the player was offered, or
+   * `null` where the data declares none and there was nothing to ask.
+   */
+  readonly mark?: (trait: TraitId, rarity: Rarity | null) => void;
+  /** A mis-tap: it never happened. */
+  readonly remove?: (trait: TraitId) => void;
+  /** Held, and then lost in game. */
+  readonly purge?: (trait: TraitId) => void;
+  readonly pin?: (trait: TraitId) => void;
+  readonly unpin?: (trait: TraitId) => void;
+  /** Hands this boon's held state back to the source, which repopulates it. */
+  readonly clearOverride?: (trait: TraitId) => void;
 }
 
 /**
@@ -38,12 +80,13 @@ export function ActionSheet({
   view,
   detail,
   pinned = false,
+  overridden = false,
   onClose,
-  onMarkAsHave,
-  onSetAsGoal,
+  actions = {},
 }: ActionSheetProps) {
   const sheet = useRef<HTMLDivElement>(null);
   const titleId = useId();
+  const held = view.state === "Obtained";
 
   useEffect(() => {
     // Captured before focus moves and restored on the way out. Without it,
@@ -132,6 +175,21 @@ export function ActionSheet({
           </p>
         )}
 
+        {!overridden ? null : (
+          <p className="sheet__overridden">
+            <strong>{OVERRIDDEN_LABEL}.</strong> {OVERRIDDEN_HINT}
+            {actions.clearOverride === undefined ? null : (
+              <button
+                type="button"
+                className="sheet__handback"
+                onClick={() => actions.clearOverride?.(view.trait)}
+              >
+                Hand it back
+              </button>
+            )}
+          </p>
+        )}
+
         {view.notice === null ? null : (
           <p className="sheet__notice">
             {/* Word for word what it has to be: the emphasis is markup around
@@ -166,27 +224,101 @@ export function ActionSheet({
           </section>
         )}
 
+        {detail.displaces === null || held ? null : (
+          <section className="sheet__displaces">
+            {/* Announced before the mark, never instead of it: a filled slot is
+                ordinary play, and a control that refused it would be refusing
+                the game. */}
+            {displacementLines(detail.displaces).map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </section>
+        )}
+
         {detail.description === null ? null : (
           // Extracted game text, through the resolver that can withdraw it, as
           // text rather than markup.
           <p className="sheet__description">{detail.description}</p>
         )}
 
-        {onMarkAsHave === undefined && onSetAsGoal === undefined ? null : (
-          <div className="sheet__actions">
-            {onMarkAsHave === undefined ? null : (
-              <button type="button" onClick={() => onMarkAsHave(view.trait)}>
-                Mark as have
-              </button>
-            )}
-            {onSetAsGoal === undefined ? null : (
-              <button type="button" onClick={() => onSetAsGoal(view.trait)}>
-                Set as goal
-              </button>
-            )}
-          </div>
-        )}
+        <MarkControls view={view} held={held} pinned={pinned} actions={actions} />
       </div>
+    </div>
+  );
+}
+
+/**
+ * The write path, and the shape of the questions it asks.
+ *
+ * **Marking asks the rarity by being the rarity**, where the record declares
+ * any: one control per rarity instead of one control and then a dialog. The
+ * marking gesture is the one interaction that has to stay instant, so a
+ * question in front of it would be the wrong trade — but the choice *is* the
+ * tap here, so it costs nothing and it stops the run storing a rarity nobody
+ * observed. Where the record declares none there is nothing to ask and one
+ * plain control does it.
+ */
+function MarkControls({
+  view,
+  held,
+  pinned,
+  actions,
+}: {
+  readonly view: NodeView;
+  readonly held: boolean;
+  readonly pinned: boolean;
+  readonly actions: BoonActions;
+}) {
+  const { mark, remove, purge, pin, unpin } = actions;
+  const marking = !held && mark !== undefined;
+  const removing = held && (remove !== undefined || purge !== undefined);
+  const pinning = pinned ? unpin !== undefined : pin !== undefined;
+  if (!marking && !removing && !pinning) return null;
+
+  return (
+    <div className="sheet__actions">
+      {!marking ? null : view.rarities.length === 0 ? (
+        <button type="button" onClick={() => mark?.(view.trait, null)}>
+          Mark as have
+        </button>
+      ) : (
+        <fieldset className="sheet__rarities">
+          <legend>Mark as have, at</legend>
+          {view.rarities.map((rarity) => (
+            <button key={rarity} type="button" onClick={() => mark?.(view.trait, rarity)}>
+              {rarity}
+            </button>
+          ))}
+        </fieldset>
+      )}
+
+      {!removing ? null : (
+        <fieldset className="sheet__removals">
+          {/* Two controls because they are two different facts. The verb
+              carries the meaning, so neither needs an interrupting note. */}
+          <legend>No longer have it?</legend>
+          {remove === undefined ? null : (
+            <button type="button" title={REMOVE_HINT} onClick={() => remove(view.trait)}>
+              {REMOVE_LABEL}
+            </button>
+          )}
+          {purge === undefined ? null : (
+            <button type="button" title={PURGE_HINT} onClick={() => purge(view.trait)}>
+              {PURGE_LABEL}
+            </button>
+          )}
+        </fieldset>
+      )}
+
+      {!pinning ? null : pinned ? (
+        <button type="button" onClick={() => unpin?.(view.trait)}>
+          Remove goal
+        </button>
+      ) : (
+        <button type="button" onClick={() => pin?.(view.trait)}>
+          Set as goal
+        </button>
+      )}
     </div>
   );
 }

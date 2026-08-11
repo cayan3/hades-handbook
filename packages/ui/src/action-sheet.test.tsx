@@ -9,6 +9,7 @@ import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ActionSheet } from "./action-sheet.js";
+import { OVERRIDDEN_LABEL, PURGE_LABEL, REMOVE_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 
 declare global {
@@ -43,6 +44,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
     tier: 2,
     iconKey: "official/Zeus_01",
     rarity: null,
+    rarities: [],
     notice: null,
     dormant: false,
     label: "Storm Lightning — Pending — Zeus, tier 2",
@@ -51,7 +53,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
 }
 
 function detail(over: Partial<NodeDetail> = {}): NodeDetail {
-  return { description: null, needed: [], activation: [], ...over };
+  return { description: null, needed: [], rows: [], activation: [], displaces: null, ...over };
 }
 
 const noop = () => {};
@@ -94,8 +96,7 @@ describe("ActionSheet", () => {
         view={view()}
         detail={detail()}
         onClose={noop}
-        onMarkAsHave={noop}
-        onSetAsGoal={noop}
+        actions={{ mark: noop, pin: noop }}
       />,
     );
     const stops = [...container.querySelectorAll("button")];
@@ -204,12 +205,10 @@ describe("ActionSheet", () => {
     render(<ActionSheet view={view()} detail={detail()} onClose={noop} />);
     expect(container.querySelector(".sheet__actions")).toBeNull();
 
-    const onMarkAsHave = vi.fn();
-    render(
-      <ActionSheet view={view()} detail={detail()} onClose={noop} onMarkAsHave={onMarkAsHave} />,
-    );
+    const mark = vi.fn();
+    render(<ActionSheet view={view()} detail={detail()} onClose={noop} actions={{ mark }} />);
     act(() => container.querySelector<HTMLElement>(".sheet__actions button")!.click());
-    expect(onMarkAsHave).toHaveBeenCalledWith("ZeusWeaponTrait");
+    expect(mark).toHaveBeenCalledWith("ZeusWeaponTrait", null);
   });
 
   it("renders description text and a player's own words as text", () => {
@@ -226,5 +225,140 @@ describe("ActionSheet", () => {
 
     render(<ActionSheet view={view({ rarity: "Epic" })} detail={detail()} onClose={noop} />);
     expect(container.querySelector(".sheet__rarity")?.textContent).toContain("Epic");
+  });
+});
+
+describe("the write path", () => {
+  function actionButtons(): HTMLElement[] {
+    return [...container.querySelectorAll<HTMLElement>(".sheet__actions button")];
+  }
+
+  /**
+   * Asking the rarity by *being* the rarity. The marking gesture has to stay
+   * instant, so a dialog in front of it would be the wrong trade — but where
+   * the record declares rarities the choice can be the tap itself, which is
+   * what stops the run storing a value nobody observed.
+   */
+  it("asks the rarity where the record declares any, and not where it does not", () => {
+    const mark = vi.fn();
+    render(
+      <ActionSheet
+        view={view({ state: "Available", rarities: ["Common", "Rare", "Epic"] })}
+        detail={detail()}
+        onClose={noop}
+        actions={{ mark }}
+      />,
+    );
+    const offered = actionButtons().map((button) => button.textContent);
+    expect(offered).toEqual(["Common", "Rare", "Epic"]);
+
+    act(() => actionButtons()[1]!.click());
+    expect(mark).toHaveBeenCalledWith("ZeusWeaponTrait", "Rare");
+
+    render(
+      <ActionSheet
+        view={view({ state: "Available", rarities: [] })}
+        detail={detail()}
+        onClose={noop}
+        actions={{ mark }}
+      />,
+    );
+    expect(actionButtons().map((button) => button.textContent)).toEqual(["Mark as have"]);
+    act(() => actionButtons()[0]!.click());
+    expect(mark).toHaveBeenLastCalledWith("ZeusWeaponTrait", null);
+  });
+
+  /**
+   * Two removals, not one. A mis-tap never happened, so the god goes back out
+   * of the pool if nothing else holds them; a boon lost in game was really
+   * taken, so the god stays. One control would have to pick one silently.
+   */
+  it("offers the two removals separately for a boon the run holds", () => {
+    const remove = vi.fn();
+    const purge = vi.fn();
+    render(
+      <ActionSheet
+        view={view({ state: "Obtained" })}
+        detail={detail()}
+        onClose={noop}
+        actions={{ mark: noop, remove, purge }}
+      />,
+    );
+
+    const labels = actionButtons().map((button) => button.textContent);
+    expect(labels).toEqual([REMOVE_LABEL, PURGE_LABEL]);
+    act(() => actionButtons()[0]!.click());
+    act(() => actionButtons()[1]!.click());
+    expect(remove).toHaveBeenCalledWith("ZeusWeaponTrait");
+    expect(purge).toHaveBeenCalledWith("ZeusWeaponTrait");
+  });
+
+  it("offers no mark for a boon already held, and no removal for one that is not", () => {
+    render(
+      <ActionSheet
+        view={view({ state: "Obtained", rarities: ["Common"] })}
+        detail={detail()}
+        onClose={noop}
+        actions={{ mark: noop }}
+      />,
+    );
+    expect(actionButtons()).toHaveLength(0);
+
+    render(
+      <ActionSheet
+        view={view({ state: "Locked" })}
+        detail={detail()}
+        onClose={noop}
+        actions={{ remove: noop, purge: noop }}
+      />,
+    );
+    expect(actionButtons()).toHaveLength(0);
+  });
+
+  it("says what a mark would replace, and which goal wanted it", () => {
+    render(
+      <ActionSheet
+        view={view({ state: "Available" })}
+        detail={detail({
+          displaces: { trait: "ZeusAttack", name: "Heaven Strike", neededBy: ["Lightning Rod"] },
+        })}
+        onClose={noop}
+        actions={{ mark: noop }}
+      />,
+    );
+    const said = container.querySelector(".sheet__displaces")!.textContent ?? "";
+    expect(said).toContain("Taking this replaces Heaven Strike.");
+    expect(said).toContain("Heaven Strike is a prerequisite of Lightning Rod.");
+  });
+
+  it("marks a hand-held field as such and offers it back", () => {
+    const clearOverride = vi.fn();
+    render(
+      <ActionSheet
+        view={view({ state: "Obtained" })}
+        detail={detail()}
+        overridden
+        onClose={noop}
+        actions={{ clearOverride }}
+      />,
+    );
+    expect(container.querySelector(".sheet__overridden")?.textContent).toContain(OVERRIDDEN_LABEL);
+
+    act(() => container.querySelector<HTMLElement>(".sheet__handback")!.click());
+    expect(clearOverride).toHaveBeenCalledWith("ZeusWeaponTrait");
+  });
+
+  it("toggles the goal control on whether it is already pinned", () => {
+    const pin = vi.fn();
+    const unpin = vi.fn();
+    render(
+      <ActionSheet view={view()} detail={detail()} onClose={noop} actions={{ pin, unpin }} />,
+    );
+    expect(actionButtons().map((button) => button.textContent)).toEqual(["Set as goal"]);
+
+    render(
+      <ActionSheet view={view()} detail={detail()} pinned onClose={noop} actions={{ pin, unpin }} />,
+    );
+    expect(actionButtons().map((button) => button.textContent)).toEqual(["Remove goal"]);
   });
 });

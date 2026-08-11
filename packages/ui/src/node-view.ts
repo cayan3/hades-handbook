@@ -22,6 +22,7 @@ import { boonState, evaluate } from "@repo/core";
 import {
   accessibleName,
   activationLines,
+  type Displacement,
   type ImpossibleNotice,
   impossibleNotice,
   neededLines,
@@ -54,6 +55,12 @@ export interface NodeView {
    * sentence suggests. See the note on `declaredRarity`.
    */
   readonly rarity: Rarity | null;
+  /**
+   * What the record says this boon can be offered as, which is empty for 191
+   * Hades I records and 86 Hades II ones. A surface that records a mark asks
+   * with this and stays silent without it.
+   */
+  readonly rarities: readonly Rarity[];
   /** Present exactly when the state is **Impossible**. */
   readonly notice: ImpossibleNotice | null;
   /**
@@ -72,8 +79,28 @@ export interface NodeDetail {
   readonly description: string | null;
   /** What the requirement still asks for, one line per thing to go and get. */
   readonly needed: readonly string[];
+  /**
+   * Every part of the gate with whether it is met — the same lines as `needed`,
+   * plus the ones already done. What a Goal card tracks, and what makes the
+   * progress count add up: both halves are produced by the same collapsing
+   * rule, so "met" is exactly "a row the residual no longer asks for".
+   */
+  readonly rows: readonly RequirementRow[];
   /** For a dormant Infusion, the threshold against the run's own count. */
   readonly activation: readonly string[];
+  /**
+   * What taking this boon would push out of the run, when it would. The
+   * sentence worth the derivation is its `neededBy`: the displaced boon is a
+   * prerequisite of something the player pinned, and nothing else computes
+   * that.
+   */
+  readonly displaces: Displacement | null;
+}
+
+/** One requirement of a goal, as a row that flips when it is met. */
+export interface RequirementRow {
+  readonly text: string;
+  readonly met: boolean;
 }
 
 /**
@@ -193,6 +220,7 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
     tier,
     iconKey: iconFor(game, trait),
     rarity: declaredRarity(state, facts, trait, record?.rarity ?? []),
+    rarities: record?.rarity ?? [],
     notice:
       state === "Impossible"
         ? impossibleNotice(reasonFor(source, trait, prereq, facts), naming, source.forcingKeepsake)
@@ -231,18 +259,97 @@ export function deriveNodeDetail(
   source: NodeSource,
   view: NodeView,
   facts: RunFacts,
+  pinned: ReadonlySet<TraitId> = EMPTY_PINS,
 ): NodeDetail {
   const { rules, lookups, naming, records } = source;
   const record = records[view.trait];
   const prereq = record?.prereq ?? NO_GATE;
   const status = evaluate(prereq, facts, rules, lookups);
+  const needed = status.kind === "pending" ? neededLines(status.residual, naming) : [];
 
   return {
     description: record?.descriptionRef == null ? null : textFor(record.descriptionRef),
-    needed: status.kind === "pending" ? neededLines(status.residual, naming) : [],
+    needed,
+    rows: requirementRows(prereq, needed, naming, status.kind === "unsatisfiable"),
     activation:
       view.dormant && record?.activation != null
         ? activationLines(record.activation, facts, naming)
         : [],
+    displaces: displacementOf(source, view, facts, pinned),
   };
+}
+
+const EMPTY_PINS: ReadonlySet<TraitId> = new Set();
+
+/**
+ * The whole gate against what is left of it.
+ *
+ * Both sides go through `neededLines`, so a row is "met" exactly when the
+ * residual stopped asking for it — which is what keeps a progress count honest
+ * without anybody subtracting anything twice. An unsatisfiable gate reports
+ * nothing met: the residual it would be measured against does not exist, and
+ * claiming progress toward something out of reach is the wrong half to guess.
+ */
+function requirementRows(
+  prereq: Requirement,
+  needed: readonly string[],
+  naming: Naming,
+  blocked: boolean,
+): readonly RequirementRow[] {
+  const open = new Set(needed);
+  return neededLines(prereq, naming).map((text) => ({
+    text,
+    met: !blocked && !open.has(text),
+  }));
+}
+
+/**
+ * What marking this boon would push out, and which pinned goals wanted it.
+ *
+ * Only asked of a boon the run does not already hold: re-marking what is
+ * already in the slot displaces itself, which is nothing.
+ */
+function displacementOf(
+  source: NodeSource,
+  view: NodeView,
+  facts: RunFacts,
+  pinned: ReadonlySet<TraitId>,
+): Displacement | null {
+  const { records, naming } = source;
+  const slot = records[view.trait]?.slot ?? null;
+  if (slot === null || view.state === "Obtained") return null;
+
+  const occupant = facts.slots.get(slot);
+  if (occupant == null || occupant === view.trait) return null;
+
+  const neededBy: string[] = [];
+  for (const goal of pinned) {
+    const prereq = records[goal]?.prereq;
+    if (prereq != null && asksFor(prereq, occupant)) neededBy.push(naming.trait(goal));
+  }
+  return { trait: occupant, name: naming.trait(occupant), neededBy };
+}
+
+/**
+ * Whether a requirement names this trait anywhere in it.
+ *
+ * `hasTrait` only. A `hasBoonFrom` the displaced boon happens to satisfy is not
+ * the same claim — another boon of that god may already be doing it — and
+ * saying so would turn a warning worth reading into one worth dismissing.
+ */
+function asksFor(req: Requirement, trait: TraitId): boolean {
+  switch (req.kind) {
+    case "hasTrait":
+      return req.trait === trait;
+    case "all":
+    case "anyOf":
+      return req.of.some((child) => asksFor(child, trait));
+    case "hasBoonFrom":
+    case "hasElement":
+    case "godInPool":
+    case "hasKeepsake":
+    case "hasAspect":
+    case "hasTalent":
+      return false;
+  }
 }
