@@ -32,6 +32,12 @@ export interface BoonNodeProps {
   readonly pinned?: boolean;
   /** Opens the detail surface. Absent while nothing has one to open. */
   readonly onOpen?: ((trait: string) => void) | undefined;
+  /**
+   * Draws the name under the diamond. Off in the Loadout, which is a menu of
+   * icons — the name is still in the control's accessible name, so nothing a
+   * reader gets depends on this.
+   */
+  readonly showName?: boolean;
 }
 
 /**
@@ -44,7 +50,7 @@ function godProperty(god: string | null): CSSProperties {
   return { "--god": godColour(god) } as CSSProperties;
 }
 
-export function BoonNode({ view, pinned = false, onOpen }: BoonNodeProps) {
+export function BoonNode({ view, pinned = false, onOpen, showName = true }: BoonNodeProps) {
   const ladder = useLadder();
   const describedBy = useId();
 
@@ -95,7 +101,7 @@ export function BoonNode({ view, pinned = false, onOpen }: BoonNodeProps) {
           {pinned ? <MarkerGlyph /> : null}
           {view.dormant ? <DormantGlyph /> : null}
         </span>
-        <span className="node__name">{view.name}</span>
+        {showName ? <span className="node__name">{view.name}</span> : null}
         {/* The soft half of a hard verdict, on the node rather than only behind
             a tap: someone scanning a page of dead ends has to see that one of
             them is not one. */}

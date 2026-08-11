@@ -597,40 +597,71 @@
   opacity: 0.75;
 }
 
+/*
+ * The boon menu: tiles, no names, the core slots in a column and everything
+ * else behind one control. A held run reads as a shape at a glance, which is
+ * how a player recognises their own build and is why the game draws it this
+ * way.
+ */
+.loadout__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.loadout:not([data-expanded="true"]) .loadout__list {
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
 .loadout__entry {
   display: flex;
   align-items: center;
 }
 
-.loadout__boon {
-  flex: 1;
-  display: flex;
-  gap: 0.7rem;
-  align-items: baseline;
-  padding: 0.4rem 0;
-  border: 0;
+.loadout__tile {
+  position: relative;
+  display: inline-flex;
+  --node-size: 3.25rem;
+}
+
+/*
+ * The rarity, as a colour behind the tile rather than as a word beside it —
+ * the same channel the game puts it on. Common sets no property and gets no
+ * treatment, so a coloured tile means something.
+ *
+ * The same diamond as the node, deliberately: this file draws exactly one
+ * silhouette and a test says so.
+ */
+.loadout__tile[data-rarity]::before {
+  content: "";
+  position: absolute;
+  inset: -0.28rem;
+  z-index: 0;
+  background: var(--rarity);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.loadout__tile .node {
+  position: relative;
+  z-index: 1;
+}
+
+.loadout__tile .node__control {
+  width: auto;
+  padding: 0.15rem;
+}
+
+.loadout__more {
+  margin-top: 0.7rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid currentColor;
+  border-radius: 0.35rem;
   background: transparent;
   color: inherit;
   font: inherit;
-  text-align: left;
+  font-size: 0.8rem;
   cursor: pointer;
-}
-
-.loadout__slot {
-  min-width: 5.5rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.55;
-}
-
-.loadout__name {
-  flex: 1;
-}
-
-.loadout__rarity {
-  opacity: 0.7;
-  font-size: 0.85rem;
 }
 
 .loadout__equipped {
