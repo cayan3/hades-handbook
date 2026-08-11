@@ -18,17 +18,19 @@ export interface Naming {
 }
 
 /**
- * Names come back through the catalog's resolvers, like artwork and description
- * text, so withdrawing them is one edit there rather than a sweep through
- * everything that renders one. Nothing here reads a name off a record.
+ * Names come back through the catalog's resolvers, so withdrawing the shipped
+ * text is one edit there rather than a sweep through everything that draws a
+ * name.
  *
- * Traits and keepsakes use different resolvers: in Hades II every keepsake is
+ * Traits and keepsakes need separate resolvers: in Hades II every keepsake is
  * also a trait record under the same id, so one function searching both spaces
- * would look right there and find nothing in Hades I, where they share none.
+ * works there and finds nothing in Hades I, where they share none.
  *
- * Gods are already the word a player uses. Talents and aspects resolve to their
- * ids because the data has no name to give — the extractor emits no Mirror rows,
- * and an aspect is a trait record in one game and not the other.
+ * A weapon form is an ordinary trait record in both games, so an aspect goes
+ * through the trait resolver — `ShieldLoadAmmoTrait` is Aspect of Beowulf,
+ * `AxeRecoveryAspect` is Aspect of Melinoë. Gods are already the word a player
+ * uses. Talents are the one id with nothing behind it: the extractor emits no
+ * talent records.
  */
 export function catalogNaming(game: GameKey): Naming {
   return {
@@ -36,6 +38,6 @@ export function catalogNaming(game: GameKey): Naming {
     god: (id) => id,
     keepsake: (id) => keepsakeNameFor(game, id),
     talent: (id) => id,
-    aspect: (id) => id,
+    aspect: (id) => nameFor(game, id),
   };
 }
