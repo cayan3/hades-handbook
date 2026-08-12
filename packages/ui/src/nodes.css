@@ -111,7 +111,10 @@
  * Content-box plus a negative margin puts the ring outside the fill instead, so
  * the icon is `--node-size` on every rung and only the ring changes.
  */
+/* Concentric with the fill inside it: same centre, radius larger by exactly the
+   ring's width. Give both the same radius and the ring pinches at each corner. */
 .node__shape {
+  border-radius: calc(var(--node-radius) + var(--frame-weight, 2px));
   background: var(--frame);
   /* Not doubled. The old inward version was, because a ring cut across a
      45-degree edge shows about seven tenths of its inset — but growing outward
@@ -136,11 +139,16 @@
 
 /* Hades II's icons are rounded squares. The frame is built by insetting one box
    inside another, so the corner radius has to come off the same variable the
-   clip does, or the ring goes square at the corners while the art stays round. */
+   clip does, or the ring goes square at the corners while the art stays round.
+
+   A length rather than a percentage, and derived from the node so it still
+   scales with it: a percentage resolves against each box's own size, and the
+   ring is a larger box than the fill, so its corners came out *tighter* than
+   the icon's and the two did not meet. */
 .node[data-game="hades2"],
 .loadout__tile[data-game="hades2"] {
   --node-clip: none;
-  --node-radius: 18%;
+  --node-radius: calc(var(--node-size) * 0.18);
 }
 
 .node__name {
@@ -801,8 +809,21 @@
 
 .loadout__list {
   display: flex;
-  /* Wide enough that a tile's rarity band does not reach into its neighbour. */
-  gap: 0.6rem;
+  /* Wide enough for a tile's rarity band and, on a pinned one, its glow. */
+  gap: 1rem;
+}
+
+/*
+ * No state glow in here. Every boon in the Loadout is Obtained by definition,
+ * so the glow meaning "you have this" tells you nothing and only bleeds into
+ * the tile beside it.
+ *
+ * The channel is not free for the taking, though: it is spoken for by the
+ * Loadout's own held-open card, which does not exist yet. Nothing lights a tile
+ * until it does.
+ */
+.loadout__tile .node__frame {
+  filter: none;
 }
 
 /* The core slots are a column and stay one, whatever else arrives beside them. */
