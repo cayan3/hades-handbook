@@ -269,6 +269,16 @@
 }
 
 /*
+ * Pending dims the art a little, where Locked dims it a lot. Doubly encoded on
+ * purpose: the ring carries this step everywhere it is drawn, and the god page
+ * does not draw one, so without this Available and Pending are the same picture
+ * there.
+ */
+.node[data-ladder="real-art"][data-state="Pending"] .node__fill {
+  filter: brightness(0.78);
+}
+
+/*
  * The bottom two rungs differ in *where* the dimming lands, not only how much.
  * Desaturation is the "not this run" signal and says nothing to a reader already
  * seeing the page without colour, which is every reader this ladder was made
@@ -377,6 +387,20 @@
  * allowed to mean, and they carry it as weight and opacity rather than as a
  * second colour.
  */
+/*
+ * No ring on this page.
+ *
+ * The frame is the ladder's loudest channel everywhere else, and here it was
+ * a white box around every icon saying the same thing about all of them. The
+ * two things allowed behind a boon here are the rarity band -- and only for the
+ * rarities a player cannot choose -- and the god-coloured glow on what the run
+ * holds. The ring keeps its geometry so the spacing does not jump between
+ * states; it just stops being visible.
+ */
+.godpage .node {
+  --frame: transparent;
+}
+
 .godpage {
   /* The wire layer is absolutely positioned against this. */
   position: relative;
