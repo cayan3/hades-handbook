@@ -4,19 +4,15 @@ import { evaluate } from "@repo/core";
 import type { NodeSource } from "./node-view.js";
 
 /**
- * One god's page as a laid-out graph: bands top to bottom, connectors running
- * from prerequisite to dependent, a junction wherever an any-of branches.
+ * One god's page as a laid-out graph: bands top to bottom, connectors from
+ * prerequisite to dependent, a junction wherever an any-of branches.
  *
- * Pure, and everything on it derives from the records and the facts. Nothing
- * here reads intent — a graph badly wants to draw what a player is collecting
- * toward, and a pin moves without the facts object moving, so a field carrying
- * one would go on saying what it said before the pin with nothing looking
- * wrong. Pinning reaches the page as a prop on the node instead.
+ * Derived from records and facts only. Pins are deliberately not an input — a
+ * pin moves without the facts object moving, so anything here that read one
+ * would go stale silently. Pinning is passed to the node as a prop instead.
  *
- * Not cached, unlike the node views. A page is 8 to 24 records; the whole
- * derivation is one tree walk per record plus one leaf evaluation per edge,
- * which over both catalogs is a few hundred map lookups. The views are the
- * expensive half and they have a cache of their own.
+ * Not cached: a page is 8 to 24 records, which comes to a few hundred map
+ * lookups. The node views are the expensive part and have their own cache.
  */
 export interface GodGraph {
   readonly god: GodId;
@@ -101,19 +97,18 @@ export function endpointOwner(id: string): TraitId {
 }
 
 /**
- * Which of a god's records the page carries: that god's own, plus every Duo
- * naming them, since collecting toward a Duo happens from two directions.
+ * A god's own records, plus every Duo naming them — you collect toward a Duo
+ * from two directions, so it belongs on both pages.
  *
- * A record attributed to no god is not a boon — the costumes, hammer upgrades,
- * companions, Chaos blessings and weapon traits all land there, and none of
- * them is something a run collects from a god.
+ * The god field does most of the filtering: a record attributed to nobody is a
+ * costume, a hammer upgrade, a companion or a Chaos blessing, none of which a
+ * run collects from a god.
  *
- * Two thirds of the rest are measured no-ops on this page: no record carrying a
- * god or a Duo pair is also a keepsake or sits in the Aspect slot. They stay
- * because the boon list they came from had them for a reason. `name` is the one
- * that bites — 4 Hades I records and 1 Hades II record carry a god and no
- * display text, and the resolver falls back to the id, which is right for a
- * label on something already on screen and wrong for a boon offered to take.
+ * Of the rest, only the `name` check bites. 4 Hades I and 1 Hades II records
+ * carry a god and no display text, and the resolver falls back to the id —
+ * fine as a label, wrong as a boon to offer. The keepsake and Aspect checks
+ * currently match nothing here; they stay because the list they came from had
+ * them for a reason.
  */
 export function pageTraits(source: NodeSource, god: GodId): TraitId[] {
   const keepsakes = keepsakesFor(source.game);
@@ -155,14 +150,13 @@ export function godGraph(source: NodeSource, god: GodId, facts: RunFacts): GodGr
 }
 
 /**
- * One walk of a gate, emitting a junction per any-of and an edge per trait leaf
- * naming something on this page.
+ * One walk of a gate: a junction per any-of, an edge per trait leaf that names
+ * something on this page.
  *
- * A junction is kept only where at least one branch is on the page. A gate
- * asking for any Cast boon in the game reaches this page through a single
- * record and has nothing here to connect to; drawn anyway it is a lone diamond
- * above a node with no lines into it. The whole requirement is still written
- * out in the detail surface, and the branch count above still says nine.
+ * Junctions are kept only where at least one branch is on the page. A gate
+ * asking for any Cast boon in the game has nothing here to connect to, and
+ * drawn anyway it is a lone diamond with no lines into it. The full gate is
+ * still spelled out in the detail surface.
  */
 function walk(
   source: NodeSource,
@@ -343,17 +337,12 @@ function layOut(
 }
 
 /**
- * Order within a band: under the prerequisites it comes from, where it has any.
+ * Order within a band: each node sits at the mean index of its prerequisites in
+ * the bands above. One barycentre pass, which is enough at 8 to 16 wide. Nodes
+ * with nothing above them fall to the end in name order.
  *
- * One barycentre pass — each node at the mean position of its sources in the
- * bands already placed — which is the standard way to stop a layered graph
- * crossing itself, and one pass is enough at 8 to 16 wide. A node with no
- * source on an earlier band has no position to average and falls to the end in
- * name order, which is the whole of the first band.
- *
- * Position here is the index in the band, not a coordinate: bands wrap on a
- * narrow screen and the browser owns where anything lands. Index is exactly
- * right until a band wraps and a fair approximation after.
+ * Index, not a coordinate — bands wrap and the browser owns where things land.
+ * Exact until a band wraps, a fair guess after.
  */
 function arrange(
   source: NodeSource,

@@ -7,20 +7,17 @@ import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
 
 /**
- * One god's boons as a vertical tiered graph: tier 1 across the top, each lower
- * tier below it, connectors flowing downward from prerequisite to dependent.
- * Above comes before below, which reads at a glance and scrolls on a phone.
+ * One god's boons as a vertical tiered graph: tier 1 on top, each lower tier
+ * below, connectors running downward. Above comes before below, which scrolls
+ * well on a phone.
  *
- * The bands are ordinary flow layout and the connectors are traced over them
- * afterwards. That split is the whole design: a band of up to sixteen nodes has
- * to wrap on a narrow screen, and the browser is the only thing that knows
- * where the wrap lands. Computing positions here instead would mean owning the
- * wrap, which means owning the width, which is where a graph stops being
- * responsive.
+ * The bands are ordinary flow layout; the connectors are measured and traced
+ * over them afterwards. A band can be sixteen nodes wide and has to wrap, and
+ * only the browser knows where — computing positions here would mean owning the
+ * width, and there goes the responsive layout.
  *
- * Nothing sets a tab index. Reading order is band order and band order is DOM
- * order, so the graph is traversable in the order it is drawn — which a canvas
- * is exactly the place to quietly lose.
+ * Nothing sets a tab index, so reading order is the order it is drawn in. A
+ * laid-out canvas is the usual place to lose that.
  */
 export interface GodPageProps extends BoonGestures {
   readonly graph: GodGraph;
