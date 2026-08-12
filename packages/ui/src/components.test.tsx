@@ -12,7 +12,6 @@ import { BoonNode } from "./boon-node.js";
 import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
 import { NodePresentation } from "./presentation.js";
-import { TierBands } from "./tier-bands.js";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -288,46 +287,5 @@ describe("Junction", () => {
     const junction = container.querySelector(".junction")!;
     expect(junction.getAttribute("aria-label")).toBe("Any 1 of 5 — not yet met");
     expect(junction.matches("button, [tabindex]")).toBe(false);
-  });
-});
-
-describe("TierBands", () => {
-  it("emits nodes in tier order, which is the tab order", () => {
-    render(
-      <TierBands
-        views={[
-          view({ trait: "c", name: "C", tier: 3 }),
-          view({ trait: "untiered", name: "Untiered", tier: null }),
-          view({ trait: "a", name: "A", tier: 1 }),
-          view({ trait: "b", name: "B", tier: 1 }),
-        ]}
-      />,
-    );
-
-    const order = [...container.querySelectorAll(".node__name")].map((el) => el.textContent);
-    expect(order).toEqual(["A", "B", "C", "Untiered"]);
-    expect([...container.querySelectorAll("[tabindex]")]).toEqual([]);
-  });
-
-  /**
-   * Rewritten rather than deleted: it used to assert the bands were labelled
-   * "Tier 1" and "Untiered". The tier is the game's internal rank and the game
-   * never shows it, so it groups the page and is not written on it. The bands
-   * themselves stay, because they are the order.
-   */
-  it("groups into bands without naming the tier", () => {
-    render(<TierBands views={[view({ tier: 1 }), view({ trait: "x", tier: null })]} />);
-    expect(container.querySelectorAll(".tier-bands__band")).toHaveLength(2);
-    expect(container.textContent).not.toMatch(/tier/i);
-  });
-
-  it("marks the pinned ones and only those", () => {
-    render(
-      <TierBands
-        views={[view({ trait: "a", tier: 1 }), view({ trait: "b", tier: 1 })]}
-        pinned={new Set(["b"])}
-      />,
-    );
-    expect(container.querySelectorAll(".node__marker")).toHaveLength(1);
   });
 });

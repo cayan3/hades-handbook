@@ -33,8 +33,8 @@ export { BoonArt, artUrl } from "./boon-art.js";
 export type { BoonArtProps } from "./boon-art.js";
 export { Junction } from "./junction.js";
 export type { JunctionProps } from "./junction.js";
-export { TierBands } from "./tier-bands.js";
-export type { TierBandsProps } from "./tier-bands.js";
+export { GodPage } from "./god-page.js";
+export type { GodPageProps } from "./god-page.js";
 export { ActionSheet } from "./action-sheet.js";
 export type { ActionSheetProps } from "./action-sheet.js";
 export { BoonActionBar } from "./boon-actions.js";
@@ -46,7 +46,7 @@ export { GoalCard, GoalsPanel } from "./goals.js";
 export type { Goal, GoalsPanelProps } from "./goals.js";
 export { Loadout } from "./loadout.js";
 export type { LoadoutEntry, LoadoutProps } from "./loadout.js";
-export { NodePresentation, useLadder } from "./presentation.js";
+export { NodePresentation, useGame, useLadder } from "./presentation.js";
 export type { Ladder } from "./presentation.js";
 export { MarkerGlyph, DormantGlyph } from "./glyphs.js";
 
@@ -55,9 +55,19 @@ export type { NodeDetail, NodeSource, NodeView, RequirementRow } from "./node-vi
 export { createNodeCache } from "./node-cache.js";
 export type { NodeCache } from "./node-cache.js";
 
+export { godGraph, graphTraits, isJunctionId, neighbourhood, pageTraits } from "./god-graph.js";
+export type {
+  BandKind,
+  GodGraph,
+  GraphBand,
+  GraphEdge,
+  GraphJunction,
+  GraphMember,
+} from "./god-graph.js";
+
 export { catalogNaming } from "./naming.js";
 export type { Naming } from "./naming.js";
-export { godColour, colouredGods } from "./god-palette.js";
+export { GOD_VIEW_ACCENT, godColour, colouredGods } from "./god-palette.js";
 export {
   POOL_FULL_BODY,
   POOL_FULL_COPY,

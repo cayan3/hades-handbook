@@ -1,4 +1,4 @@
-import { createLookups, keepsakesFor, traitsFor } from "@repo/catalog";
+import { createLookups, traitsFor } from "@repo/catalog";
 import type { GameId, Rarity, RunFacts, TraitId } from "@repo/core";
 import { createRules as hades1Rules } from "@repo/rules-hades1";
 import { createRules as hades2Rules } from "@repo/rules-hades2";
@@ -7,17 +7,17 @@ import {
   ActionSheet,
   type BoonActions,
   type Goal,
+  GodPage,
   GoalsPanel,
   Loadout,
   type LoadoutEntry,
-  NoticeBar,
   NodePresentation,
+  NoticeBar,
   type NodeSource,
   OTHER_TAB_BODY,
   OTHER_TAB_TITLE,
   STORAGE_ERROR_BODY,
   STORAGE_ERROR_TITLE,
-  TierBands,
   UNREADABLE_RUN_BODY,
   UNREADABLE_RUN_TITLE,
   UndoToast,
@@ -27,6 +27,8 @@ import {
   displacementLines,
   editSentence,
   godColour,
+  godGraph,
+  graphTraits,
   migrationMessage,
 } from "@repo/ui";
 import { type CSSProperties, useCallback, useMemo, useState } from "react";
@@ -205,7 +207,13 @@ function Run({
   // is a property of the layer below, and is written down there.
   const cache = useMemo(() => createNodeCache(source), [source]);
   const view = useCallback((trait: TraitId) => cache.viewOf(trait, facts), [cache, facts]);
-  const boons = useMemo(() => boonsOf(source, game, showing), [source, game, showing]);
+  // The page's shape and the page's state, derived together because the
+  // connectors carry path status and that is a fact about the run.
+  const graph = useMemo(() => godGraph(source, showing, facts), [source, showing, facts]);
+  const boonViews = useMemo(
+    () => new Map(graphTraits(graph).map((trait) => [trait, view(trait)])),
+    [graph, view],
+  );
 
   const write = useCallback(
     (body: () => void) => {
@@ -438,8 +446,9 @@ function Run({
 
           <section className="app__ladder">
             <h2>Boons</h2>
-            <TierBands
-              views={boons.map(view)}
+            <GodPage
+              graph={graph}
+              views={boonViews}
               pinned={intent.pins}
               onMark={markOrOpen}
               onOpen={setOpened}
@@ -604,50 +613,4 @@ function godTabs(source: NodeSource): string[] {
     if (record.god !== null) gods.add(record.god);
   }
   return [...gods].sort((a, b) => a.localeCompare(b));
-}
-
-/**
- * One god's boons, including the Duos they are half of.
- *
- * A Duo belongs to two gods and shows on both their tabs, which is what the
- * design has always said and is the only placement that makes sense: the whole
- * point of a Duo is that you are collecting toward it from two directions.
- *
- * The god page proper is a laid-out graph with connectors, junctions and bands,
- * and is a session of its own. This is the ordering rule underneath it — tier
- * bands, which are also the keyboard order — so that every boon is reachable
- * and markable now rather than after that page exists.
- */
-function boonsOf(source: NodeSource, game: GameId, god: string): TraitId[] {
-  const keepsakes = keepsakesFor(game);
-  const shown: TraitId[] = [];
-  for (const [id, record] of Object.entries(source.records)) {
-    if (record.god !== god && !(record.duoGods?.includes(god) ?? false)) continue;
-    if (!browsable(id, record, keepsakes)) continue;
-    shown.push(id);
-  }
-  return shown;
-}
-
-/**
- * Whether a record belongs in a list somebody browses.
- *
- * The god above is the real filter and a better one than it looks: a boon is
- * what a god hands you, so a record attributed to nobody is a costume, a
- * Daedalus Hammer upgrade, a companion, a Chaos blessing or a weapon-specific
- * trait. Measured, that leaves out 231 Hades I and 311 Hades II records. Duos
- * carry their pair instead of a god, which is why they are asked for separately.
- *
- * Two more, for records that do have one. **No display text**: around a fifth of
- * each game's records have no entry in the localized bundle, and the resolver
- * falls back to the id — right for a label on something already on screen, wrong
- * for a row offering `BaseCurse` as a boon to take. **Keepsakes**, which Hades II
- * emits as trait records under the same id, are equipped rather than taken.
- */
-function browsable(
-  id: TraitId,
-  record: { name: string | null; slot: string | null },
-  keepsakes: Readonly<Record<string, unknown>>,
-): boolean {
-  return record.name !== null && record.slot !== "Aspect" && !Object.hasOwn(keepsakes, id);
 }

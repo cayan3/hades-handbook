@@ -78,10 +78,10 @@
  * Three boxes, because a diamond will not take a border. A clip path cuts the
  * corners off the element, and takes an inset shadow and any absolutely
  * positioned child with them — so the first version drew a frame nobody could
- * see and hid both corner glyphs the same way. Instead the shape is a diamond
- * filled with the frame's colour, the fill is a smaller diamond inside it, and
- * the ring between the two is the frame. The outer box stays unclipped so the
- * glyphs hanging off the corners survive.
+ * see and hid both corner glyphs the same way. Instead the shape is filled with
+ * the frame's colour, the fill is a smaller copy inside it, and the ring between
+ * the two is the frame. The outer box stays unclipped so the glyphs hanging off
+ * the corners survive.
  */
 .node__frame {
   position: relative;
@@ -341,21 +341,121 @@
  * ---------------------------------------------------------------------------
  */
 
-.tier-bands,
-.tier-bands__nodes {
+/*
+ * The god page: bands down the screen, connectors traced over them.
+ *
+ * Nothing below is keyed on a boon state, so none of it is a rung of the
+ * ladder. The wires carry path status, which is the one thing line style is
+ * allowed to mean, and they carry it as weight and opacity rather than as a
+ * second colour.
+ */
+.godpage {
+  /* The wire layer is absolutely positioned against this. */
+  position: relative;
+}
+
+.godpage__bands,
+.godpage__nodes,
+.godpage__junctions {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.tier-bands__band + .tier-bands__band {
-  margin-top: 1.25rem;
+/* Above the wires, and opaque, so a connector passes behind a node rather than
+   across its face. */
+.godpage__bands {
+  position: relative;
+  z-index: 1;
 }
 
-.tier-bands__nodes {
+.godpage__band + .godpage__band {
+  margin-top: 1.75rem;
+}
+
+.godpage__nodes,
+.godpage__junctions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
+  /* Centred, so a short band sits under the middle of the one above it and the
+     connectors fan symmetrically instead of all leaning left. */
+  justify-content: center;
+}
+
+/* The branch points feeding this band, in the strip above its nodes. */
+.godpage__junctions {
+  gap: 1.5rem;
+  margin-bottom: 0.4rem;
+}
+
+/*
+ * A band naming itself, which only the ones the game names ever do. There is no
+ * tier heading anywhere and that is the point: the tier is the extraction's own
+ * rank and the game shows a player no such thing.
+ */
+.godpage__bandname {
+  margin: 0 0 0.5rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  opacity: 0.55;
+}
+
+/* The rim: the Duos this god is half of, set apart from its own ladder. */
+.godpage__band[data-kind="duo"] {
+  margin-top: 2.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+
+.godpage__partner {
+  display: block;
+  font-size: 0.7rem;
+  text-align: center;
+  opacity: 0.6;
+}
+
+.godpage__showall {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0.9rem;
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+
+/*
+ * The connectors. Behind the bands and deaf to the pointer, so hovering a wire
+ * cannot steal the hover that drew it.
+ *
+ * The resting page draws none of them: a page carries up to 66 and one gate
+ * offering "any of nine" fans that far by itself, so the light-up on
+ * satisfaction only reads against quiet.
+ */
+.godpage__wires {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.godpage__wire {
+  fill: none;
+  stroke: var(--wire, #c8a951);
+  stroke-width: 2;
+}
+
+/* Line style says one thing: whether this path is contributing. A branch still
+   open is the same colour, thinner and dashed — never a hue of its own. */
+.godpage__wire[data-taken="false"] {
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  opacity: 0.45;
 }
 
 .sheet-scrim {

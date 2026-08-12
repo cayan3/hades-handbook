@@ -616,6 +616,67 @@ describe("a write that throws", () => {
   });
 });
 
+describe("the god page", () => {
+  /**
+   * The page is a laid-out graph now rather than a list in tier order, and what
+   * makes it one is the connectors. They are traced over the bands after layout
+   * rather than positioned by it, so this asserts what each is drawn *for*, not
+   * where it lands — the runner has no layout and every box measures zero.
+   */
+  it("draws a god's ladder as bands with a branch point where a gate branches", async () => {
+    await mount();
+    showGod("Zeus");
+
+    // More than one band, and no band anywhere names the rank that ordered it.
+    expect(container.querySelectorAll(".godpage__band").length).toBeGreaterThan(1);
+    expect(texts(".godpage__bandname")).not.toContain("Tier 1");
+    // Zeus in this game has both of the bands that carry a name of their own.
+    expect(texts(".godpage__bandname")).toEqual(["Infusions", "Duos"]);
+
+    // Every junction says what it stands for, and the count is the gate's own
+    // rather than the number of lines that happen to reach it here.
+    const junctions = [...container.querySelectorAll(".junction")];
+    expect(junctions.length).toBeGreaterThan(0);
+    for (const junction of junctions) {
+      expect(junction.getAttribute("aria-label")).toMatch(/^Any \d+ of \d+ — /);
+    }
+  });
+
+  /**
+   * A page of two dozen boons carries up to 66 connectors and one gate can fan
+   * to nine on its own, so the resting page draws none of them and hovering or
+   * focusing a node draws its own. Focus rather than hover, because the
+   * connectors must not be a thing only a mouse can see.
+   */
+  it("draws its connectors around whatever has focus, and none at rest", async () => {
+    await mount();
+    const boon = node("DoubleBoltBoon");
+    expect(container.querySelectorAll(".godpage__wire")).toHaveLength(0);
+
+    act(() => boon.focus());
+    expect(container.querySelectorAll(".godpage__wire").length).toBeGreaterThan(0);
+
+    act(() => boon.blur());
+    expect(container.querySelectorAll(".godpage__wire")).toHaveLength(0);
+  });
+
+  /**
+   * Tab order is DOM order and nothing sets an index — the only version of that
+   * promise that cannot quietly stop being true, and a laid-out canvas is
+   * exactly where it usually does.
+   */
+  it("leaves the graph reachable in reading order", async () => {
+    await mount();
+    showGod("Zeus");
+    expect([...container.querySelectorAll(".godpage [tabindex]")]).toEqual([]);
+    // A junction stands for a requirement rather than for a boon; everything it
+    // joins is reachable through the nodes it joins.
+    expect([...container.querySelectorAll(".junction")].every((j) => !j.matches("button"))).toBe(
+      true,
+    );
+  });
+});
+
 describe("what the boon list shows", () => {
   function shownBoons(): (string | null)[] {
     return [...container.querySelectorAll(".node__name")].map((el) => el.textContent);
