@@ -186,7 +186,7 @@ describe("the connectors", () => {
     );
     const graph = godGraph(source, ZEUS, makeFacts());
 
-    expect(graph.edges).toEqual([{ id: "a>d", from: "a", to: "d", taken: false }]);
+    expect(graph.edges).toEqual([{ id: "a>d", from: "a", to: "d", taken: false, reached: false }]);
   });
 
   it("is solid where the run holds the prerequisite and open where it does not", () => {
@@ -216,6 +216,19 @@ describe("the connectors", () => {
     expect(junction).toMatchObject({ dependent: "d", min: 1, of: 3, status: "satisfied" });
     expect(graph.edges.map((edge) => edge.id)).toEqual([`a>${junction?.id}`, `${junction?.id}>d`]);
     expect(graph.edges.every((edge) => edge.taken)).toBe(true);
+  });
+
+  it("marks a path as reached once the run holds the boon it leads to", () => {
+    const source = world(
+      record("a", { god: ZEUS, tier: 1 }),
+      record("d", { god: ZEUS, tier: 2, prereq: any(has("a"), has("elsewhere")) }),
+    );
+    const before = godGraph(source, ZEUS, makeFacts());
+    expect(before.edges.every((e) => !e.reached)).toBe(true);
+
+    const after = godGraph(source, ZEUS, makeFacts({ held: held("d") }));
+    expect(after.edges.every((e) => e.reached)).toBe(true);
+    expect(after.bands[1]?.junctions[0]?.reached).toBe(true);
   });
 
   it("draws no junction where a gate branches entirely off the page", () => {

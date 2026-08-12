@@ -138,6 +138,7 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
             key={edge.id}
             className="godpage__wire"
             data-taken={edge.taken}
+            data-reached={edge.reached}
             d={wire(places.get(edge.from), places.get(edge.to))}
           />
         ))}
@@ -158,7 +159,12 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
               <ul className="godpage__junctions">
                 {band.junctions.map((junction) => (
                   <li key={junction.id} data-endpoint={junction.id}>
-                    <Junction status={junction.status} min={junction.min} of={junction.of} />
+                    <Junction
+                      status={junction.status}
+                      min={junction.min}
+                      of={junction.of}
+                      reached={junction.reached}
+                    />
                   </li>
                 ))}
               </ul>
@@ -209,20 +215,16 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
 }
 
 /**
- * A connector from the bottom of one endpoint to the top of the next, routed in
- * right angles: straight down out of the source, across, straight down into the
- * target. Every segment is parallel or perpendicular to every other, which is
- * what makes a fan of them readable — a bundle of curves at slightly different
- * angles reads as noise at this density, where a bundle of parallel lines reads
- * as a bus.
+ * A connector, routed in right angles: down out of the source, across, down into
+ * the target. Every segment is parallel or perpendicular to the rest, which is
+ * what lets a fan of them read as a bus rather than as noise.
  *
- * The horizontal run sits midway between the two rows. Where the target is
- * beside rather than below the source — the ~5% of edges joining two nodes in
- * the same band — the midpoint is inside both, so the run is pushed clear below
- * them instead of drawn through them.
+ * The horizontal run sits halfway between the rows. For the ~5% of edges that
+ * join two nodes in the same band there is no gap to sit in, so it drops clear
+ * below them instead.
  *
- * An unmeasured endpoint yields an empty path, which draws nothing. That is the
- * first frame, and it is also every frame under a test runner with no layout.
+ * An unmeasured endpoint gives an empty path, which draws nothing — the first
+ * frame, and every frame under a runner with no layout.
  */
 function wire(from: Place | undefined, to: Place | undefined): string {
   if (from === undefined || to === undefined) return "";

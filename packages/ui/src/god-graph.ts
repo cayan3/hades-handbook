@@ -61,6 +61,8 @@ export interface GraphJunction {
    */
   readonly of: number;
   readonly status: Status["kind"];
+  /** Whether the boon this branch point feeds is in the run. */
+  readonly reached: boolean;
 }
 
 export interface GraphEdge {
@@ -76,6 +78,8 @@ export interface GraphEdge {
    * is what made an earlier version of this design unreadable.
    */
   readonly taken: boolean;
+  /** Whether the boon at the end of this path is in the run. Lights the path. */
+  readonly reached: boolean;
 }
 
 /**
@@ -169,6 +173,8 @@ function walk(
   // Position in this record's own pre-order walk. Stable for a given record,
   // which is what a React key and a ref map both need.
   let nth = 0;
+  // Every path in this gate leads to the same boon, so this is asked once.
+  const reached = facts.held.has(dependent);
 
   const into = (req: Requirement, target: string): GraphEdge[] => {
     switch (req.kind) {
@@ -182,6 +188,7 @@ function walk(
             from: req.trait,
             to: target,
             taken: evaluate(req, facts, source.rules, source.lookups).kind === "satisfied",
+            reached,
           },
         ];
       }
@@ -195,7 +202,7 @@ function walk(
         if (branches.length === 0) return [];
 
         const status = evaluate(req, facts, source.rules, source.lookups).kind;
-        junctions.push({ id, dependent, min: req.min, of: req.of.length, status });
+        junctions.push({ id, dependent, min: req.min, of: req.of.length, status, reached });
         return [
           ...branches,
           {
@@ -203,6 +210,7 @@ function walk(
             from: id,
             to: target,
             taken: status === "satisfied",
+            reached,
           },
         ];
       }
@@ -266,17 +274,14 @@ function leavesOf(req: Requirement | null): readonly Requirement[] {
 }
 
 /**
- * A band's accessible name, which is no longer drawn on the page — the headings
- * were noise beside bands that carry no heading at all, and the grouping is
- * legible from the arrangement. A reader still gets it, because the arrangement
- * is the one thing a reader does not get.
+ * A band's name, announced but not drawn: the headings were noise next to bands
+ * that have none, and the arrangement already says it to anyone who can see it.
  *
- * A tier is named nowhere at all: it is the extraction's own rank and the game
+ * A tier is named nowhere at all — it is the extraction's rank, and the game
  * never shows a player one.
  *
- * `untiered` is empty across both shipped catalogs — everything that once
- * landed there is either an Infusion or a Godsent Hex — and stays as the arm
- * that catches whatever a patch adds next.
+ * `untiered` is empty in both shipped catalogs and stays as the catch-all for
+ * whatever a patch adds next.
  */
 const LABELS: Readonly<Record<BandKind, string | null>> = {
   tier: null,
@@ -337,12 +342,17 @@ function layOut(
 }
 
 /**
- * Order within a band: each node sits at the mean index of its prerequisites in
- * the bands above. One barycentre pass, which is enough at 8 to 16 wide. Nodes
- * with nothing above them fall to the end in name order.
+ * Order within a band: under the prerequisites it comes from, where it has any.
  *
- * Index, not a coordinate — bands wrap and the browser owns where things land.
- * Exact until a band wraps, a fair guess after.
+ * One barycentre pass — each node at the mean position of its sources in the
+ * bands already placed — which is the standard way to stop a layered graph
+ * crossing itself, and one pass is enough at 8 to 16 wide. A node with no
+ * source on an earlier band has no position to average and falls to the end in
+ * name order, which is the whole of the first band.
+ *
+ * Position here is the index in the band, not a coordinate: bands wrap on a
+ * narrow screen and the browser owns where anything lands. Index is exactly
+ * right until a band wraps and a fair approximation after.
  */
 function arrange(
   source: NodeSource,

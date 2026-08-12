@@ -64,8 +64,8 @@ function band(over: Partial<GraphBand>): GraphBand {
   return { key: "tier-1", kind: "tier", label: null, junctions: [], members: [], ...over };
 }
 
-function edge(from: string, to: string, taken = false): GraphEdge {
-  return { id: `${from}>${to}`, from, to, taken };
+function edge(from: string, to: string, taken = false, reached = false): GraphEdge {
+  return { id: `${from}>${to}`, from, to, taken, reached };
 }
 
 function page(graph: GodGraph, props: Partial<Parameters<typeof GodPage>[0]> = {}) {
@@ -89,7 +89,7 @@ const LADDER: GodGraph = {
     band({ key: "tier-1", members: [{ trait: "a", partner: null }, { trait: "b", partner: null }] }),
     band({
       key: "tier-2",
-      junctions: [{ id: "d#0", dependent: "d", min: 1, of: 4, status: "pending" }],
+      junctions: [{ id: "d#0", dependent: "d", min: 1, of: 4, status: "pending", reached: false }],
       members: [{ trait: "d", partner: null }],
     }),
   ],
@@ -208,6 +208,27 @@ describe("the connectors", () => {
     // Line style carries path status and nothing else: solid where the run
     // holds the prerequisite, dashed where the branch is still open.
     expect(wires().map((el) => el.getAttribute("data-taken"))).toEqual(["true", "false", "true"]);
+  });
+
+  it("lights the path to a boon the run has", () => {
+    // The same signal the node carries, carried back along what led there.
+    const held: GodGraph = {
+      ...LADDER,
+      bands: [
+        LADDER.bands[0]!,
+        band({
+          key: "tier-2",
+          junctions: [{ id: "d#0", dependent: "d", min: 1, of: 4, status: "satisfied", reached: true }],
+          members: [{ trait: "d", partner: null }],
+        }),
+      ],
+      edges: [edge("a", "d#0", true, true), edge("b", "d#0", false, true), edge("d#0", "d", true, true)],
+    };
+    render(page(held));
+    act(() => container.querySelector<HTMLInputElement>(".godpage__toggle input")!.click());
+
+    expect(wires().every((el) => el.getAttribute("data-reached") === "true")).toBe(true);
+    expect(container.querySelector(".junction")?.getAttribute("data-reached")).toBe("true");
   });
 
   it("offers no toggle on a god with nothing to connect", () => {

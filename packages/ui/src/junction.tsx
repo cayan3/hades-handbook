@@ -20,6 +20,8 @@ export interface JunctionProps {
   readonly min: number;
   /** How many it offers. */
   readonly of: number;
+  /** Whether the boon it feeds is in the run, which lights it. */
+  readonly reached?: boolean;
 }
 
 /**
@@ -28,11 +30,12 @@ export interface JunctionProps {
  * a tab stop here is a control with nothing for a keyboard to do. Still
  * announced: "any one of five" is a fact about the requirement, not decoration.
  */
-export function Junction({ status, min, of }: JunctionProps) {
+export function Junction({ status, min, of, reached = false }: JunctionProps) {
   return (
     <svg
       className="junction"
       data-status={status}
+      data-reached={reached}
       viewBox="0 0 16 16"
       role="img"
       aria-label={`Any ${min} of ${of} — ${junctionState(status)}`}
