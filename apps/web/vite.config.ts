@@ -90,8 +90,10 @@ export default defineConfig({
       injectRegister: null,
       registerType: "autoUpdate",
       workbox: {
-        // The art set is served from public/ and never fingerprinted, so it is
-        // matched at runtime instead of being listed in the precache manifest.
+        // The art set is not cached at all — it is served from public/, left
+        // out of this glob, and no runtime route picks it up. So an installed
+        // copy has no icons offline, which only passes while the fallback
+        // ladder is the default and draws no image anyway.
         //
         // The faces are precached even though they are not fingerprinted
         // either, and the difference is size against consequence: four files
