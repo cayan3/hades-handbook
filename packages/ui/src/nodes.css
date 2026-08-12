@@ -110,10 +110,12 @@
  */
 .node__shape {
   background: var(--frame);
-  /* Doubled: across a 45-degree edge the visible ring is about seven tenths of
-     the inset. */
-  padding: calc(var(--frame-weight, 2px) * 2);
-  margin: calc(var(--frame-weight, 2px) * -2);
+  /* Not doubled. The old inward version was, because a ring cut across a
+     45-degree edge shows about seven tenths of its inset — but growing outward
+     the ring is exactly as wide as the padding, and doubling it put 10px on
+     each side of a node into a 12px gap. They overlapped. */
+  padding: var(--frame-weight, 2px);
+  margin: calc(var(--frame-weight, 2px) * -1);
   box-sizing: content-box;
 }
 
@@ -390,7 +392,9 @@
 .godpage__junctions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  /* Wide enough for a 5px ring on each of two neighbours plus the glow, which
+     reaches further than the ring does. */
+  gap: 1.4rem;
   /* Centred, so a short band sits under the middle of the one above it and the
      connectors fan symmetrically instead of all leaning left. */
   justify-content: center;
