@@ -21,7 +21,10 @@
   /* The one colour a node carries, meaning which god granted the boon. Set per
      node through the style attribute; this is the no-god fallback. */
   --god: #c9bfb2;
-  --frame: var(--god);
+  /* Neutral, and deliberately not the god's colour. The ring is where rarity
+     is going to live, and rarity is the one thing it can mean — the god is
+     carried by the glow and, on the fallback ladder, by the fill. */
+  --frame: #f2ece4;
   --node-size: 4.5rem;
 
   /* The node takes the shape of the art it holds. Hades I draws its boons as
@@ -300,6 +303,12 @@
  * ---------------------------------------------------------------------------
  */
 
+/* No artwork, so the god's colour comes back onto the node itself — it is the
+   only identity channel left once there is no icon to carry it. */
+.node[data-ladder="fallback"] .node__shape {
+  background: var(--god);
+}
+
 /* Solid: with no artwork to bury, a fill costs nothing. The one step the two
    ladders do differently. */
 .node[data-ladder="fallback"][data-state="Obtained"] .node__fill {
@@ -384,8 +393,10 @@
   z-index: 1;
 }
 
+/* Roomy on purpose: the connectors run horizontally through the space between
+   two bands, so this gap is what keeps a line off the icons above and below. */
 .godpage__band + .godpage__band {
-  margin-top: 1.75rem;
+  margin-top: 3rem;
 }
 
 .godpage__nodes,
@@ -403,7 +414,7 @@
 /* The branch points feeding this band, in the strip above its nodes. */
 .godpage__junctions {
   gap: 1.5rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.9rem;
 }
 
 /* The rim: the Duos this god is half of, set apart from its own ladder. */
