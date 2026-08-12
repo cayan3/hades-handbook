@@ -1,0 +1,6 @@
+# Pinned because this runs once and its output is committed: a future resolve
+# that picked different versions would produce different bytes for the same
+# input, and nothing downstream would notice.
+numpy==2.5.2
+Pillow==12.0.0
+texture2ddecoder==1.0.6
