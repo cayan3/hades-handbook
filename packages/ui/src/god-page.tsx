@@ -73,16 +73,23 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
     setPlaces((before) => (settled(before, next) ? before : next));
   }, []);
 
+  // Anything that changes which endpoints exist, or where they are. Revealing
+  // the rim is one of them and the graph does not change when it happens, so
+  // leaving it out meant the new nodes were never measured — the page only
+  // recovered because it also got taller and the observer below noticed.
   useLayoutEffect(() => {
     measure();
-    // Absent in the test environment, and its absence is not a failure — the
-    // measurement above has already run once, and a page that never resizes is
-    // the ordinary case.
-    if (typeof ResizeObserver === "undefined") return;
+  }, [measure, graph, showDuos]);
+
+  // Set up once. Watching the canvas catches a rewrap, which is the case the
+  // measurement cannot predict. Absent under the test runner, and its absence
+  // is not a failure: the measurement above has already run.
+  useLayoutEffect(() => {
+    if (typeof ResizeObserver === "undefined" || canvas.current === null) return;
     const observer = new ResizeObserver(measure);
-    if (canvas.current !== null) observer.observe(canvas.current);
+    observer.observe(canvas.current);
     return () => observer.disconnect();
-  }, [measure, graph]);
+  }, [measure]);
 
   const around = useMemo(() => neighbourhood(graph, selected), [graph, selected]);
   const bands = graph.bands.filter((band) => showDuos || band.kind !== "duo");
