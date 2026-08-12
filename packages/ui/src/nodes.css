@@ -352,6 +352,10 @@
 .godpage {
   /* The wire layer is absolutely positioned against this. */
   position: relative;
+  /* Its own stacking context. Without one, the bands' `z-index: 1` competes at
+     the root and beats anything positioned without a number -- which is how a
+     graph ends up painted over a modal dialog and taking its clicks. */
+  isolation: isolate;
 }
 
 .godpage__bands,
@@ -458,9 +462,18 @@
   opacity: 0.45;
 }
 
+/*
+ * A modal, and it has to paint over everything and swallow every click aimed
+ * past it. It carried no stacking order at all until a page with one appeared
+ * underneath it: anything positioned with a `z-index` outranked it whatever the
+ * DOM order, so the graph took clicks through the shade and the toast and the
+ * Goals panel drew over it. The number is deliberately above every other one in
+ * this file rather than one more than the current largest.
+ */
 .sheet-scrim {
   position: fixed;
   inset: 0;
+  z-index: 100;
   display: grid;
   place-items: end center;
   background: rgb(0 0 0 / 55%);
@@ -793,6 +806,9 @@
 
 .loadout__tile {
   position: relative;
+  /* Same reason as the god page: the rarity band and the node inside are
+     ordered against each other and must not be ordered against the page. */
+  isolation: isolate;
   display: inline-flex;
   --node-size: 3.25rem;
 }

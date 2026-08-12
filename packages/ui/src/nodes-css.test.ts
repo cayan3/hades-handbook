@@ -66,6 +66,38 @@ describe("the node stylesheet", () => {
     expect(CSS).not.toMatch(/background-image\s*:/);
   });
 
+  /**
+   * The dialog outranks the page, and an inner layer cannot reach past its own
+   * component.
+   *
+   * Found by using it: the god page gave its bands a `z-index` so the connector
+   * layer could sit behind them, and the scrim had none at all -- so the graph
+   * painted over the open sheet and went on taking clicks through it. The toast
+   * and the Goals panel had outranked it the same way for longer.
+   *
+   * Checked here rather than in a component test because it is a fact about
+   * painting, and the runner does not paint.
+   */
+  it("puts the modal above everything and keeps inner layers inside", () => {
+    const layers = [...CSS.matchAll(/([^{}]*)\{([^}]*z-index:\s*(\d+)[^}]*)\}/g)].map((m) => ({
+      selector: m[1]!.trim(),
+      order: Number(m[3]),
+    }));
+    const scrim = layers.find((layer) => layer.selector.includes(".sheet-scrim"));
+    expect(scrim).toBeDefined();
+    for (const layer of layers) {
+      if (layer.selector.includes(".sheet-scrim")) continue;
+      expect(layer.order, `${layer.selector} is not below the scrim`).toBeLessThan(scrim!.order);
+    }
+
+    // Every rule that orders something against a sibling has to sit in a
+    // stacking context of its own, or the number leaks to the whole document.
+    for (const owner of [".godpage", ".loadout__tile"]) {
+      const rule = CSS.match(new RegExp(`\\${owner}\\s*\\{([^}]*)\\}`));
+      expect(rule?.[1], `${owner} does not isolate`).toMatch(/isolation:\s*isolate/);
+    }
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every
