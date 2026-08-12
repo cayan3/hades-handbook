@@ -66,13 +66,28 @@ describe("the node stylesheet", () => {
     expect(CSS).not.toMatch(/background-image\s*:/);
   });
 
-  it("draws every node as the same diamond", () => {
-    // Shape says nothing here. A Duo and a Legendary are told apart by what is
-    // inside the frame, never by its silhouette, so there is exactly one shape
-    // in the file. (A junction is drawn rather than clipped, and is smaller
-    // than a node because it is not one -- that is the only other shape in the
-    // package, and it is in the component rather than here.)
+  it("takes its shape from the game and from nothing else", () => {
+    // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
+    // as rounded squares, and one silhouette for both crops 44% off every
+    // Hades II icon. What shape still never says is what kind of boon this is --
+    // a Duo and a Legendary look alike inside one game. So the two shapes are
+    // allowed, and the thing worth guarding is what may choose between them.
     const shapes = new Set([...CSS.matchAll(/clip-path:\s*([^;]+);/g)].map((m) => m[1]!.trim()));
-    expect(shapes).toEqual(new Set(["polygon(50% 0, 100% 50%, 50% 100%, 0 50%)"]));
+    expect(shapes).toEqual(new Set(["var(--node-clip)"]));
+
+    // Comments first: this file explains itself at length, and a prose block
+    // mentioning a property reads as a rule setting one.
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const choosers = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+      .filter(([, , body]) => /--node-(clip|radius)\s*:/.test(body!))
+      .map(([, selector]) => selector!.trim().replace(/\s+/g, " "));
+    // A base for the node and a base for the loadout tile, which is not inside
+    // one, then a single override naming the game. Anything keyed on state or
+    // rarity would be shape-as-type coming back in through the stylesheet.
+    expect(choosers).toEqual([
+      ".node",
+      '.node[data-game="hades2"], .loadout__tile[data-game="hades2"]',
+      ".loadout__tile",
+    ]);
   });
 });

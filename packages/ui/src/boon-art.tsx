@@ -12,7 +12,9 @@ import { useEffect, useState } from "react";
  * a component owns the failure, it may as well own the URL.
  */
 const ART_BASE = "/art";
-const ART_FORMAT = "png";
+// WebP at quality 90: a third the size of PNG with nothing visible lost, which
+// puts the whole set under 3 MB. Anything that can install a PWA decodes it.
+const ART_FORMAT = "webp";
 
 export function artUrl(iconKey: string): string {
   return `${ART_BASE}/${iconKey}.${ART_FORMAT}`;

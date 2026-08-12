@@ -171,7 +171,7 @@ describe("BoonNode", () => {
 
   it("renders the path the resolver's key composes to, and nothing else", () => {
     render(<BoonNode view={view({ iconKey: "official/Zeus_01" })} />);
-    expect(container.querySelector("img")?.getAttribute("src")).toBe("/art/official/Zeus_01.png");
+    expect(container.querySelector("img")?.getAttribute("src")).toBe("/art/official/Zeus_01.webp");
   });
 
   it("falls back to the placeholder when a file will not load", () => {
@@ -179,7 +179,7 @@ describe("BoonNode", () => {
     const art = container.querySelector("img")!;
     act(() => art.dispatchEvent(new Event("error", { bubbles: true })));
     expect(container.querySelector("img")?.getAttribute("src")).toBe(
-      "/art/official/_missing.png",
+      "/art/official/_missing.webp",
     );
   });
 
@@ -254,7 +254,7 @@ describe("BoonNode", () => {
     // A hidden image is still fetched, and the fallback is for when there is
     // nothing to fetch.
     render(
-      <NodePresentation ladder="fallback">
+      <NodePresentation ladder="fallback" game="hades2">
         <BoonNode view={view()} />
       </NodePresentation>,
     );

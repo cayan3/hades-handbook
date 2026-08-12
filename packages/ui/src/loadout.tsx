@@ -4,6 +4,7 @@ import { type BoonGestures, BoonNode } from "./boon-node.js";
 import { OverrideMarker, RarityMark } from "./chrome.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
+import { useGame } from "./presentation.js";
 import { rarityColour } from "./rarity-palette.js";
 import type { CSSProperties } from "react";
 
@@ -196,10 +197,14 @@ function Tile({
 }: { readonly entry: LoadoutEntry; readonly selected: boolean } & BoonGestures) {
   const rarity = entry.view.rarity;
   const marked = rarity !== null && rarity !== "Common";
+  // The rarity band is a shape drawn behind the tile, so it has to follow the
+  // same silhouette the node does or a rounded icon gets a diamond halo.
+  const game = useGame();
 
   return (
     <span
       className="loadout__tile"
+      data-game={game}
       data-selected={selected ? "true" : undefined}
       data-rarity={marked ? rarity : undefined}
       style={marked ? ({ "--rarity": rarityColour(rarity) } as CSSProperties) : undefined}

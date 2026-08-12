@@ -24,6 +24,14 @@
   --frame: #f2ece4;
   --node-size: 4.5rem;
 
+  /* The node takes the shape of the art it holds. Hades I draws its boons as
+     diamonds and Hades II as rounded squares, so a single silhouette has to
+     crop one of them -- measured, the diamond cuts 44% of every Hades II icon.
+     Shape still never means anything: a Duo and a Legendary look the same
+     inside one game, which is the rule this is keeping. */
+  --node-clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  --node-radius: 0;
+
   /* The tooltip hangs off this box, so it has to be the containing block. */
   position: relative;
   display: inline-grid;
@@ -53,14 +61,19 @@
 }
 
 /*
- * Uniform diamond, for every boon. Shape says nothing here — not rarity, not
- * whether a boon is a Duo. Real boon art is diamond, so a diamond frame is what
- * official artwork drops into cleanly, and a Duo is told apart by what is inside
- * it. Shape as a type channel was tried and withdrawn: it fought the artwork and
+ * One shape per game, and it comes from the artwork. Hades I draws its boons as
+ * diamonds; Hades II draws them as rounded squares. A single silhouette for both
+ * was the original plan, on the belief that boon art is always diamond — that is
+ * true of Hades I only, and clipping the Hades II set to a diamond cuts 44% off
+ * every icon in it.
+ *
+ * What shape still never says is what kind of boon this is. Inside one game a
+ * Duo and a Legendary look alike and are told apart by what is in the frame.
+ * Shape as a type channel was tried and withdrawn: it fought the artwork and
  * made every silhouette a thing to learn.
  *
- * Sharp by default — hard-edged, no bevel and no rounding, which is what the
- * ladder's weights are legible against.
+ * Sharp by default — hard-edged, no bevel, which is what the ladder's weights
+ * are legible against.
  *
  * Three boxes, because a diamond will not take a border. A clip path cuts the
  * corners off the element, and takes an inset shadow and any absolutely
@@ -82,7 +95,8 @@
   place-items: center;
   width: 100%;
   height: 100%;
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  clip-path: var(--node-clip);
+  border-radius: var(--node-radius);
 }
 
 .node__shape {
@@ -101,7 +115,17 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  clip-path: var(--node-clip);
+  border-radius: var(--node-radius);
+}
+
+/* Hades II's icons are rounded squares. The frame is built by insetting one box
+   inside another, so the corner radius has to come off the same variable the
+   clip does, or the ring goes square at the corners while the art stays round. */
+.node[data-game="hades2"],
+.loadout__tile[data-game="hades2"] {
+  --node-clip: none;
+  --node-radius: 18%;
 }
 
 .node__name {
@@ -688,9 +712,14 @@
  * That is why raising its offset changed nothing visible. A sibling has its own
  * box and its own clip and is unaffected.
  *
- * The same diamond polygon, deliberately: this file draws exactly one
- * silhouette and a test keeps it that way.
+ * Shaped from the same variables the node uses, so the band follows the icon
+ * rather than sitting behind it as a different shape.
  */
+.loadout__tile {
+  --node-clip: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  --node-radius: 0;
+}
+
 .loadout__tile[data-rarity]::before {
   content: "";
   position: absolute;
@@ -702,7 +731,8 @@
   transform: translate(0.14rem, -0.14rem);
   z-index: 0;
   background: var(--rarity);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  clip-path: var(--node-clip);
+  border-radius: var(--node-radius);
 }
 
 .loadout__tile .node {

@@ -5,7 +5,7 @@ import { stateSentence } from "./describe.js";
 import { DormantGlyph, MarkerGlyph } from "./glyphs.js";
 import { godColour } from "./god-palette.js";
 import type { NodeView } from "./node-view.js";
-import { useLadder } from "./presentation.js";
+import { useGame, useLadder } from "./presentation.js";
 
 /**
  * One boon, as a node.
@@ -67,6 +67,17 @@ export interface BoonNodeProps extends BoonGestures {
    * reader gets depends on this.
    */
   readonly showName?: boolean;
+  /**
+   * The hue this node carries, where it is not the boon's own god's.
+   *
+   * God colour discriminates in proportion to how many gods share the screen,
+   * and on a single god's page that is one — colouring every node in that god's
+   * hue spends the strongest channel on nothing and competes with artwork that
+   * is already god-coloured. Such a page hands its own accent down instead, and
+   * keeps the palette for the one node that is not the page's god: a Duo, which
+   * takes its partner's.
+   */
+  readonly accent?: string | null;
 }
 
 /**
@@ -74,8 +85,8 @@ export interface BoonNodeProps extends BoonGestures {
  * page's content policy draws. A class per god would dodge the question and cost
  * a rule per god plus a build that knows the roster.
  */
-function godProperty(god: string | null): CSSProperties {
-  return { "--god": godColour(god) } as CSSProperties;
+function godProperty(god: string | null, accent: string | null | undefined): CSSProperties {
+  return { "--god": accent ?? godColour(god) } as CSSProperties;
 }
 
 export function BoonNode({
@@ -85,8 +96,10 @@ export function BoonNode({
   onOpen,
   onGoal,
   showName = true,
+  accent,
 }: BoonNodeProps) {
   const ladder = useLadder();
+  const game = useGame();
   const describedBy = useId();
   const held = view.state === "Obtained";
 
@@ -110,7 +123,13 @@ export function BoonNode({
   const tip = tipFor(view);
 
   return (
-    <div className="node" data-state={view.state} data-ladder={ladder} style={godProperty(view.god)}>
+    <div
+      className="node"
+      data-state={view.state}
+      data-ladder={ladder}
+      data-game={game}
+      style={godProperty(view.god, accent)}
+    >
       <button
         type="button"
         className="node__control"

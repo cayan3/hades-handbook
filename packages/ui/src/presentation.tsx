@@ -1,3 +1,4 @@
+import type { GameKey } from "@repo/catalog";
 import { createContext, type ReactNode, useContext } from "react";
 
 /**
@@ -15,6 +16,7 @@ import { createContext, type ReactNode, useContext } from "react";
 export type Ladder = "real-art" | "fallback";
 
 const LadderContext = createContext<Ladder>("real-art");
+const GameContext = createContext<GameKey>("hades2");
 
 /**
  * Context rather than a prop threaded through every node: which ladder is in
@@ -23,14 +25,29 @@ const LadderContext = createContext<Ladder>("real-art");
  */
 export function NodePresentation({
   ladder,
+  game,
   children,
 }: {
   readonly ladder: Ladder;
+  readonly game: GameKey;
   readonly children: ReactNode;
 }) {
-  return <LadderContext.Provider value={ladder}>{children}</LadderContext.Provider>;
+  return (
+    <LadderContext.Provider value={ladder}>
+      <GameContext.Provider value={game}>{children}</GameContext.Provider>
+    </LadderContext.Provider>
+  );
 }
 
 export function useLadder(): Ladder {
   return useContext(LadderContext);
+}
+
+/**
+ * The game is here because a node's silhouette follows the art, and the art is
+ * shaped differently in the two games. It rides alongside the ladder for the
+ * same reason that does: it is a fact about the page, not about a boon.
+ */
+export function useGame(): GameKey {
+  return useContext(GameContext);
 }

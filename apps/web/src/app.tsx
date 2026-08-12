@@ -280,7 +280,7 @@ function Run({
   const pickedView = picked === null || !facts.held.has(picked) ? null : view(picked);
 
   return (
-    <NodePresentation ladder={artwork ? "real-art" : "fallback"}>
+    <NodePresentation ladder={artwork ? "real-art" : "fallback"} game={game}>
       <div className="app">
         <header className="app__head">
           <h1>Hades Handbook</h1>
