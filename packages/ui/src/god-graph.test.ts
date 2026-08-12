@@ -80,7 +80,7 @@ describe("the bands", () => {
       null,
       "Infusions",
       null,
-      "Duos",
+      "Duos and Godsent Hexes",
     ]);
     expect(graph.bands.flatMap((band) => band.members.map((m) => m.trait))).toEqual([
       "a",
@@ -118,6 +118,43 @@ describe("the bands", () => {
 
     const ares = godGraph(source, ARES, makeFacts()).bands.at(-1);
     expect(ares?.members).toEqual([{ trait: "duo", partner: ZEUS }]);
+  });
+
+  it("puts a Godsent Hex on the rim beside the Duos", () => {
+    // The matching Hex plus a boon *or* the keepsake of one Olympian, which is
+    // the pair of leaf kinds nothing else produces. It answers to two gods the
+    // way a Duo does, so it is grouped and revealed with them rather than
+    // filed under a category the game does not have.
+    const hex: Requirement = all(
+      has("SpellPolymorphTrait"),
+      any(
+        { kind: "hasBoonFrom", god: ZEUS },
+        { kind: "hasKeepsake", keepsake: "ForceZeusBoonKeepsake" },
+      ),
+    );
+    const source = world(
+      record("a", { god: ZEUS, tier: 1 }),
+      record("hex", { god: ZEUS, prereq: hex }),
+      record("duo", { duoGods: [ZEUS, ARES] }),
+    );
+    const bands = godGraph(source, ZEUS, makeFacts()).bands;
+
+    expect(bands.at(-1)?.kind).toBe("duo");
+    expect(bands.at(-1)?.members.map((m) => m.trait).sort()).toEqual(["duo", "hex"]);
+    // A Hex belongs to this god outright, so it has no partner to name.
+    expect(bands.at(-1)?.members.find((m) => m.trait === "hex")?.partner).toBeNull();
+    expect(bands.some((band) => band.kind === "untiered")).toBe(false);
+  });
+
+  it("finds every Godsent Hex the shipped catalog carries, and only those", () => {
+    // Nine, one per Olympian, and Hades I has none.
+    const h2 = createNodeSource("hades2", stubRules(), stubLookups(), traitsFor("hades2"));
+    let hexes = 0;
+    for (const god of ["Zeus", "Hera", "Poseidon", "Demeter", "Apollo"] as GodId[]) {
+      const rim = godGraph(h2, god, makeFacts()).bands.find((b) => b.kind === "duo");
+      hexes += rim?.members.filter((m) => m.partner === null).length ?? 0;
+    }
+    expect(hexes).toBe(5);
   });
 
   it("orders a band under where its nodes come from", () => {

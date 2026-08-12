@@ -77,7 +77,7 @@ export interface BoonNodeProps extends BoonGestures {
    * keeps the palette for the one node that is not the page's god: a Duo, which
    * takes its partner's.
    */
-  readonly accent?: string | null;
+  readonly accent?: string | null | undefined;
 }
 
 /**

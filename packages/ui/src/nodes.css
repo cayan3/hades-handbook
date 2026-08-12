@@ -227,10 +227,17 @@
   --frame-weight: 5px;
 }
 
-.node[data-state="Available"] .node__frame {
-  /* The one accent reserved for "takeable now", so completing a requirement is
-     what moves on the page. Ink colour rather than one of its own: brightness,
-     not hue. */
+/*
+ * The glow is what the run *has*, not what it could take.
+ *
+ * It sat on Available for four sessions on the argument that "takeable now" is
+ * the thing that moves during a run. Using the page said otherwise: a god's
+ * ladder is mostly takeable at any moment, so the glow lit half the page at
+ * rest and the boons a player actually owned were the quiet ones. Reading your
+ * own build off the page is the commoner question, and it is the one the game
+ * itself answers this way.
+ */
+.node[data-state="Obtained"] .node__frame {
   filter: drop-shadow(0 0 0.35rem currentColor) drop-shadow(0 0 0.7rem currentColor);
 }
 
@@ -291,7 +298,7 @@
   background: var(--god);
 }
 
-.node[data-ladder="fallback"][data-state="Available"] .node__frame {
+.node[data-ladder="fallback"][data-state="Obtained"] .node__frame {
   filter: drop-shadow(0 0 0.4rem var(--god));
 }
 
@@ -393,20 +400,6 @@
   margin-bottom: 0.4rem;
 }
 
-/*
- * A band naming itself, which only the ones the game names ever do. There is no
- * tier heading anywhere and that is the point: the tier is the extraction's own
- * rank and the game shows a player no such thing.
- */
-.godpage__bandname {
-  margin: 0 0 0.5rem;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-align: center;
-  opacity: 0.55;
-}
-
 /* The rim: the Duos this god is half of, set apart from its own ladder. */
 .godpage__band[data-kind="duo"] {
   margin-top: 2.25rem;
@@ -421,11 +414,17 @@
   opacity: 0.6;
 }
 
-.godpage__showall {
+.godpage__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.1rem;
+  margin-bottom: 0.9rem;
+}
+
+.godpage__toggle {
   display: flex;
   gap: 0.4rem;
   align-items: center;
-  margin-bottom: 0.9rem;
   font-size: 0.78rem;
   opacity: 0.75;
 }
@@ -450,7 +449,7 @@
 
 .godpage__wire {
   fill: none;
-  stroke: var(--wire, #c8a951);
+  stroke: var(--wire, #c9bfb2);
   stroke-width: 2;
 }
 

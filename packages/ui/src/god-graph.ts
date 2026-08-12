@@ -96,7 +96,7 @@ function junctionOwner(id: string): TraitId {
 }
 
 /** The node an endpoint belongs to: itself, or a junction's dependent. */
-function ownerOf(id: string): TraitId {
+export function endpointOwner(id: string): TraitId {
   return isJunctionId(id) ? junctionOwner(id) : id;
 }
 
@@ -242,6 +242,10 @@ function bandOf(source: NodeSource, trait: TraitId): { kind: BandKind; tier: num
   if (record?.duoGods != null) return { kind: "duo", tier: 0 };
 
   const parts = leavesOf(record?.prereq ?? null);
+  // A Godsent Hex rides the rim beside the Duos: it answers to a god and to
+  // Selene both, so it is the same kind of thing as a Duo — a boon reached from
+  // two directions — and is grouped and revealed with them.
+  if (isGodsentHex(parts)) return { kind: "duo", tier: 0 };
   if (parts.length > 0 && parts.every((part) => part.kind === "hasElement")) {
     return { kind: "infusion", tier: 0 };
   }
@@ -249,20 +253,42 @@ function bandOf(source: NodeSource, trait: TraitId): { kind: BandKind; tier: num
   return { kind: "untiered", tier: 0 };
 }
 
+/**
+ * The Godsent Hex shape: the matching Hex, plus a boon *or* the keepsake of one
+ * Olympian. Detected by the pair of leaf kinds only that combination produces —
+ * measured, exactly the nine records that carry it, one per Olympian, and
+ * nothing else in either game.
+ */
+function isGodsentHex(parts: readonly Requirement[]): boolean {
+  return (
+    parts.some((part) => part.kind === "hasBoonFrom") &&
+    parts.some((part) => part.kind === "hasKeepsake")
+  );
+}
+
 function leavesOf(req: Requirement | null): readonly Requirement[] {
   if (req === null) return [];
   return req.kind === "all" || req.kind === "anyOf" ? req.of.flatMap(leavesOf) : [req];
 }
 
+/**
+ * A band's accessible name, which is no longer drawn on the page — the headings
+ * were noise beside bands that carry no heading at all, and the grouping is
+ * legible from the arrangement. A reader still gets it, because the arrangement
+ * is the one thing a reader does not get.
+ *
+ * A tier is named nowhere at all: it is the extraction's own rank and the game
+ * never shows a player one.
+ *
+ * `untiered` is empty across both shipped catalogs — everything that once
+ * landed there is either an Infusion or a Godsent Hex — and stays as the arm
+ * that catches whatever a patch adds next.
+ */
 const LABELS: Readonly<Record<BandKind, string | null>> = {
-  // The tier orders the page and is never written on it.
   tier: null,
   infusion: "Infusions",
-  // Whatever a god has that is neither tiered nor element-gated: the spell
-  // talents, and Hera's two multi-element boons. Naming that group would invent
-  // a category the game does not have, so it goes unlabelled.
   untiered: null,
-  duo: "Duos",
+  duo: "Duos and Godsent Hexes",
 };
 
 const ORDER: Readonly<Record<BandKind, number>> = {
@@ -337,9 +363,9 @@ function arrange(
 ): readonly TraitId[] {
   const sources = new Map<TraitId, number[]>();
   for (const edge of edges) {
-    const at = placed.get(ownerOf(edge.from));
+    const at = placed.get(endpointOwner(edge.from));
     if (at === undefined) continue;
-    const owner = ownerOf(edge.to);
+    const owner = endpointOwner(edge.to);
     const list = sources.get(owner);
     if (list === undefined) sources.set(owner, [at]);
     else list.push(at);
@@ -380,7 +406,7 @@ export function neighbourhood(graph: GodGraph, trait: TraitId | null): ReadonlyS
 
   const junctions = new Set<string>();
   for (const edge of graph.edges) {
-    if (ownerOf(edge.from) !== trait && ownerOf(edge.to) !== trait) continue;
+    if (endpointOwner(edge.from) !== trait && endpointOwner(edge.to) !== trait) continue;
     edges.add(edge.id);
     if (isJunctionId(edge.from)) junctions.add(edge.from);
     if (isJunctionId(edge.to)) junctions.add(edge.to);

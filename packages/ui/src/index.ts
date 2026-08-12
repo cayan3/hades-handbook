@@ -67,7 +67,7 @@ export type {
 
 export { catalogNaming } from "./naming.js";
 export type { Naming } from "./naming.js";
-export { GOD_VIEW_ACCENT, godColour, colouredGods } from "./god-palette.js";
+export { godColour, colouredGods } from "./god-palette.js";
 export {
   POOL_FULL_BODY,
   POOL_FULL_COPY,

@@ -124,6 +124,18 @@ function showGod(name: string): void {
 }
 
 /**
+ * Reveals the Duo/Godsent-Hex rim, which the god page keeps behind a control:
+ * it is the one band that is not this god's own ladder, and a player reading
+ * one god is usually not reading it.
+ */
+function showRim(): void {
+  const toggle = [...container.querySelectorAll<HTMLInputElement>(".godpage__toggle input")].find(
+    (input) => input.closest("label")?.textContent?.includes("Show Duos"),
+  );
+  if (toggle !== undefined && !toggle.checked) act(() => toggle.click());
+}
+
+/**
  * One boon's node, with its god's tab selected first — which is also an
  * assertion that every boon is reachable through the tabs. A Duo names no
  * single god and is reached through either of the two it belongs to.
@@ -133,6 +145,7 @@ function node(trait: string): HTMLElement {
   const god = record?.god ?? record?.duoGods?.[0];
   if (god === undefined) throw new Error(`${trait} belongs to no god and has no tab`);
   showGod(god);
+  showRim();
 
   const name = record?.name ?? trait;
   const found = [...container.querySelectorAll<HTMLElement>("button")].find((button) =>
@@ -197,6 +210,22 @@ describe("marking a boon", () => {
 
     expect(container.querySelector('.loadout__tile[data-rarity="Heroic"]')).not.toBeNull();
     expect(H2[APHRODITE_MELEE]?.rarity[0]).not.toBe("Heroic");
+  });
+});
+
+describe("marking opens nothing", () => {
+  /**
+   * The contract the marking test above left unasserted: a tap on a boon the
+   * run does not have marks it and puts *no* surface in front of the player.
+   * The test beside it proved the write landed and never that the screen
+   * stayed clear, which is the half a report of the opposite would land on.
+   */
+  it("opens no dialog on the tap that marks", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+    expect(container.querySelector('[role="dialog"]')).toBeNull();
+    expect(container.querySelector(".sheet-scrim")).toBeNull();
   });
 });
 
@@ -629,9 +658,12 @@ describe("the god page", () => {
 
     // More than one band, and no band anywhere names the rank that ordered it.
     expect(container.querySelectorAll(".godpage__band").length).toBeGreaterThan(1);
-    expect(texts(".godpage__bandname")).not.toContain("Tier 1");
-    // Zeus in this game has both of the bands that carry a name of their own.
-    expect(texts(".godpage__bandname")).toEqual(["Infusions", "Duos"]);
+    // A band names itself to a reader and never on the page, so the headings
+    // are in the document and out of sight. No tier is named to either.
+    expect(container.textContent).not.toMatch(/tier/i);
+    expect(texts(".godpage h3")).toEqual(["Infusions"]);
+    showRim();
+    expect(texts(".godpage h3")).toEqual(["Infusions", "Duos and Godsent Hexes"]);
 
     // Every junction says what it stands for, and the count is the gate's own
     // rather than the number of lines that happen to reach it here.
@@ -691,10 +723,13 @@ describe("what the boon list shows", () => {
     await mount();
     // Island Getaway is Aphrodite and Poseidon.
     showGod("Aphrodite");
+    showRim();
     expect(shownBoons()).toContain(H2.AllCloseBoon?.name);
     showGod("Poseidon");
+    showRim();
     expect(shownBoons()).toContain(H2.AllCloseBoon?.name);
     showGod("Hera");
+    showRim();
     expect(shownBoons()).not.toContain(H2.AllCloseBoon?.name);
   });
 

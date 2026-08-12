@@ -41,20 +41,6 @@ const GOD_COLOURS: Readonly<Record<GodId, string>> = Object.freeze({
 const UNASSIGNED = "#C9BFB2";
 
 /**
- * What a single god's page colours its nodes and its connectors with.
- *
- * Every node on such a page belongs to the same god, so painting them all in
- * that god's hue spends the strongest channel on zero information — and fights
- * both the state ladder and boon art that is already god-coloured. One neutral
- * accent instead, with the palette above kept for the surfaces where more than
- * one god is on screen and it genuinely tells them apart.
- *
- * An antique gold rather than a bright one, so it does not read as Zeus's
- * yellow above it in the tab strip.
- */
-export const GOD_VIEW_ACCENT = "#C8A951";
-
-/**
  * A custom property rather than a class, since a class per god means a rule per
  * god and a build that knows the roster. Custom properties go through the object
  * model, which the page's content policy does not govern: it forbids a style

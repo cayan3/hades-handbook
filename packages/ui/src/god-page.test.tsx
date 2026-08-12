@@ -16,7 +16,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { GodGraph, GraphBand, GraphEdge } from "./god-graph.js";
 import { GodPage } from "./god-page.js";
-import { GOD_VIEW_ACCENT, godColour } from "./god-palette.js";
+import { godColour } from "./god-palette.js";
 import type { NodeView } from "./node-view.js";
 
 declare global {
@@ -107,29 +107,60 @@ describe("the page as a path through", () => {
     expect([...container.querySelectorAll("[tabindex]")]).toEqual([]);
   });
 
-  it("groups into bands without naming a tier anywhere", () => {
+  it("names a band to a reader and never on the page", () => {
     render(
       page({
         ...LADDER,
         bands: [
           ...LADDER.bands,
-          band({ key: "duo", kind: "duo", label: "Duos", members: [{ trait: "duo", partner: "Ares" }] }),
+          band({
+            key: "infusion",
+            kind: "infusion",
+            label: "Infusions",
+            members: [{ trait: "inf", partner: null }],
+          }),
         ],
       }),
     );
 
     expect(container.querySelectorAll(".godpage__band")).toHaveLength(3);
-    expect(container.querySelectorAll(".godpage__bandname")).toHaveLength(1);
+    // The heading is in the document and not on the screen. The arrangement
+    // says what it says to everyone who can see the arrangement.
+    const heading = container.querySelector("h3");
+    expect(heading?.textContent).toBe("Infusions");
+    expect(heading?.className).toBe("visually-hidden");
+    expect(container.querySelectorAll("h3")).toHaveLength(1);
+
     // The tier is the game's own internal rank and the game never shows it, so
-    // it orders the page and is neither drawn nor announced. Rendered text and
-    // the accessibility tree, not the markup: `data-kind="tier"` is a styling
-    // hook carrying the kind rather than the number, and a reader never meets
-    // an attribute.
+    // it orders the page and is neither drawn nor announced. `data-kind="tier"`
+    // is a styling hook carrying the kind rather than the number, and a reader
+    // never meets an attribute.
     expect(container.textContent).not.toMatch(/tier/i);
     const announced = [...container.querySelectorAll("[aria-label]")].map((el) =>
       el.getAttribute("aria-label"),
     );
-    expect(announced.some((label) => /tier|\btier \d/i.test(label ?? ""))).toBe(false);
+    expect(announced.some((label) => /tier/i.test(label ?? ""))).toBe(false);
+  });
+
+  it("keeps the rim behind a control, since it is not this god's ladder", () => {
+    const withRim = {
+      ...LADDER,
+      bands: [
+        ...LADDER.bands,
+        band({
+          key: "duo",
+          kind: "duo",
+          label: "Duos and Godsent Hexes",
+          members: [{ trait: "duo", partner: "Ares" }],
+        }),
+      ],
+    };
+    render(page(withRim));
+
+    expect(names()).toEqual(["a", "b", "d"]);
+    const rim = [...container.querySelectorAll<HTMLInputElement>(".godpage__toggle input")].at(-1)!;
+    act(() => rim.click());
+    expect(names()).toEqual(["a", "b", "d", "duo"]);
   });
 
   it("says what a junction stands for without making it a stop", () => {
@@ -171,7 +202,7 @@ describe("the connectors", () => {
 
   it("draws the lot when asked, and says which paths are contributing", () => {
     render(page(LADDER));
-    const toggle = container.querySelector<HTMLInputElement>(".godpage__showall input")!;
+    const toggle = container.querySelector<HTMLInputElement>(".godpage__toggle input")!;
     act(() => toggle.click());
 
     // Line style carries path status and nothing else: solid where the run
@@ -182,7 +213,7 @@ describe("the connectors", () => {
   it("offers no toggle on a god with nothing to connect", () => {
     // Four gods in Hades II have no on-page prerequisite at all.
     render(page({ ...LADDER, edges: [] }));
-    expect(container.querySelector(".godpage__showall")).toBeNull();
+    expect(container.querySelector(".godpage__toggle")).toBeNull();
   });
 
   it("draws nothing for an endpoint that never reached the page", () => {
@@ -192,7 +223,7 @@ describe("the connectors", () => {
     render(
       <GodPage graph={LADDER} views={new Map([["b", view("b")], ["d", view("d")]])} />,
     );
-    act(() => container.querySelector<HTMLInputElement>(".godpage__showall input")!.click());
+    act(() => container.querySelector<HTMLInputElement>(".godpage__toggle input")!.click());
 
     // `a` was never rendered; `b`'s wire and the junction's own way down still
     // have both their ends, so exactly one of the three comes out empty.
@@ -203,19 +234,23 @@ describe("the connectors", () => {
   });
 });
 
-describe("the one hue a single-god page carries", () => {
-  it("gives its own boons the page accent rather than the god's colour", () => {
+describe("the colour a god's page carries", () => {
+  it("draws the god's own boons in the god's own colour", () => {
     render(page(LADDER));
     const nodes = [...container.querySelectorAll<HTMLElement>(".node")];
 
-    // Every node here belongs to the same god, so that god's hue would be the
-    // strongest channel on the page spent on nothing.
+    // Hue is identity and this page has one god, so it is that god's — the same
+    // colour the tab above it carries, which is what makes them read as the
+    // same thing. State stays structural: frame weight, glow and dimming.
     expect(nodes.map((el) => el.style.getPropertyValue("--god"))).toEqual([
-      GOD_VIEW_ACCENT,
-      GOD_VIEW_ACCENT,
-      GOD_VIEW_ACCENT,
+      godColour("Zeus"),
+      godColour("Zeus"),
+      godColour("Zeus"),
     ]);
-    expect(GOD_VIEW_ACCENT).not.toBe(godColour("Zeus"));
+    // The connectors take it too, handed down rather than set per wire.
+    expect(
+      container.querySelector<HTMLElement>(".godpage")?.style.getPropertyValue("--wire"),
+    ).toBe(godColour("Zeus"));
   });
 
   it("puts a Duo on the rim in its partner's colour, and in words as well", () => {
@@ -226,13 +261,14 @@ describe("the one hue a single-god page carries", () => {
           band({
             key: "duo",
             kind: "duo",
-            label: "Duos",
+            label: "Duos and Godsent Hexes",
             members: [{ trait: "duo", partner: "Ares" }],
           }),
         ],
         edges: [],
       }),
     );
+    act(() => container.querySelector<HTMLInputElement>(".godpage__toggle input")!.click());
 
     expect(container.querySelector<HTMLElement>(".node")?.style.getPropertyValue("--god")).toBe(
       godColour("Ares"),

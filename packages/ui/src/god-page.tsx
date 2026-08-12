@@ -1,8 +1,8 @@
 import type { TraitId } from "@repo/core";
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { type CSSProperties, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { type BoonGestures, BoonNode } from "./boon-node.js";
-import { type GodGraph, neighbourhood } from "./god-graph.js";
-import { GOD_VIEW_ACCENT, godColour } from "./god-palette.js";
+import { endpointOwner, type GodGraph, neighbourhood } from "./god-graph.js";
+import { godColour } from "./god-palette.js";
 import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
 
@@ -45,6 +45,12 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
   /** The node the connectors are drawn around: whatever is hovered or focused. */
   const [selected, setSelected] = useState<TraitId | null>(null);
   const [showAll, setShowAll] = useState(false);
+  /**
+   * The rim is behind a control because it is the one band that is not this
+   * god's ladder — a Duo and a Godsent Hex are both reached from two directions,
+   * and a player reading one god's page is usually not reading them.
+   */
+  const [showDuos, setShowDuos] = useState(false);
 
   const measure = useCallback(() => {
     const root = canvas.current;
@@ -82,20 +88,47 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
   }, [measure, graph]);
 
   const around = useMemo(() => neighbourhood(graph, selected), [graph, selected]);
-  const wires = graph.edges.filter((edge) => showAll || around.has(edge.id));
+  const bands = graph.bands.filter((band) => showDuos || band.kind !== "duo");
+  const drawn = new Set(bands.flatMap((band) => band.members.map((member) => member.trait)));
+  // A wire into a band nobody is showing has one end and would be drawn from
+  // nowhere; the measurement would drop it anyway, and filtering says why.
+  const wires = graph.edges.filter(
+    (edge) =>
+      (showAll || around.has(edge.id)) && drawn.has(endpointOwner(edge.from)) && drawn.has(endpointOwner(edge.to)),
+  );
+
+  const hasRim = graph.bands.some((band) => band.kind === "duo");
 
   return (
-    <div className="godpage" ref={canvas}>
-      {graph.edges.length === 0 ? null : (
-        <label className="godpage__showall">
-          <input
-            type="checkbox"
-            checked={showAll}
-            onChange={(event) => setShowAll(event.target.checked)}
-          />
-          Show all connections
-        </label>
-      )}
+    <div
+      className="godpage"
+      ref={canvas}
+      // Every node on this page belongs to this god, and the page says so in
+      // that god's colour. Handed down as a property so the wires take it too.
+      style={{ "--wire": godColour(graph.god) } as CSSProperties}
+    >
+      <div className="godpage__controls">
+        {graph.edges.length === 0 ? null : (
+          <label className="godpage__toggle">
+            <input
+              type="checkbox"
+              checked={showAll}
+              onChange={(event) => setShowAll(event.target.checked)}
+            />
+            Show all connections
+          </label>
+        )}
+        {!hasRim ? null : (
+          <label className="godpage__toggle">
+            <input
+              type="checkbox"
+              checked={showDuos}
+              onChange={(event) => setShowDuos(event.target.checked)}
+            />
+            Show Duos
+          </label>
+        )}
+      </div>
 
       {/*
        * The drawing, and only the drawing. Every relationship on it is written
@@ -114,13 +147,15 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
       </svg>
 
       <ol className="godpage__bands">
-        {graph.bands.map((band) => (
+        {bands.map((band) => (
           <li className="godpage__band" key={band.key} data-kind={band.kind}>
-            {/* A tier band has no heading. The tier is the extraction's own
-                rank, the game never shows a player a rank, and announcing it
-                would tell a reader something no sighted player is told. The
-                other bands are categories the game does name. */}
-            {band.label === null ? null : <h3 className="godpage__bandname">{band.label}</h3>}
+            {/* Named for a reader and not on the page. The headings were noise
+                beside bands that carry none at all, and the arrangement already
+                says what they said — to everyone except the reader who cannot
+                see the arrangement, which is who this is for. A tier is named
+                to nobody: it is the extraction's rank and the game shows a
+                player no such thing. */}
+            {band.label === null ? null : <h3 className="visually-hidden">{band.label}</h3>}
 
             {band.junctions.length === 0 ? null : (
               <ul className="godpage__junctions">
@@ -152,7 +187,10 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
                     <BoonNode
                       view={view}
                       pinned={pinned?.has(trait) ?? false}
-                      accent={partner === null ? GOD_VIEW_ACCENT : godColour(partner)}
+                      // A Duo answers to two gods and one of them is not this
+                      // page's, so it takes the *other* one's colour. Everything
+                      // else has the page's god on the record already.
+                      accent={partner === null ? undefined : godColour(partner)}
                       {...gestures}
                     />
                     {/* A Duo answers to two gods and this page is one of them.
@@ -174,19 +212,27 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
 }
 
 /**
- * A connector from the bottom of one endpoint to the top of the next.
+ * A connector from the bottom of one endpoint to the top of the next, routed in
+ * right angles: straight down out of the source, across, straight down into the
+ * target. Every segment is parallel or perpendicular to every other, which is
+ * what makes a fan of them readable — a bundle of curves at slightly different
+ * angles reads as noise at this density, where a bundle of parallel lines reads
+ * as a bus.
  *
- * Curved rather than straight so that the ~5% of edges joining two nodes in the
- * same band bow clear of the row instead of striking through it; measured over
- * both catalogs, 43 of 859 do that and none runs upward.
+ * The horizontal run sits midway between the two rows. Where the target is
+ * beside rather than below the source — the ~5% of edges joining two nodes in
+ * the same band — the midpoint is inside both, so the run is pushed clear below
+ * them instead of drawn through them.
  *
  * An unmeasured endpoint yields an empty path, which draws nothing. That is the
  * first frame, and it is also every frame under a test runner with no layout.
  */
 function wire(from: Place | undefined, to: Place | undefined): string {
   if (from === undefined || to === undefined) return "";
-  const drop = Math.max(14, (to.top - from.bottom) * 0.45);
-  return `M ${from.x} ${from.bottom} C ${from.x} ${from.bottom + drop} ${to.x} ${to.top - drop} ${to.x} ${to.top}`;
+  const gap = to.top - from.bottom;
+  const run = gap > 8 ? from.bottom + gap / 2 : from.bottom + 12;
+  if (Math.abs(to.x - from.x) < 0.5) return `M ${from.x} ${from.bottom} L ${to.x} ${to.top}`;
+  return `M ${from.x} ${from.bottom} L ${from.x} ${run} L ${to.x} ${run} L ${to.x} ${to.top}`;
 }
 
 function settled(before: ReadonlyMap<string, Place>, next: ReadonlyMap<string, Place>): boolean {
