@@ -388,17 +388,18 @@
  * second colour.
  */
 /*
- * No ring on this page.
+ * The ring, in the god's colour.
  *
- * The frame is the ladder's loudest channel everywhere else, and here it was
- * a white box around every icon saying the same thing about all of them. The
- * two things allowed behind a boon here are the rarity band -- and only for the
- * rarities a player cannot choose -- and the god-coloured glow on what the run
- * holds. The ring keeps its geometry so the spacing does not jump between
- * states; it just stops being visible.
+ * It went transparent for a round, on the argument that a white box around
+ * every icon said the same thing about all of them. True of the colour and not
+ * of the ring: weight is the ladder's clearest step, and with it gone the
+ * brightness ladder underneath was too subtle to read. So the ring returns and
+ * takes the god's hue, which is the one identity this page has -- and rarity
+ * stays off it here, because on the God View rarity is a band behind the icon
+ * and only for the rarities a player cannot choose.
  */
 .godpage .node {
-  --frame: transparent;
+  --frame: var(--god);
 }
 
 .godpage {
@@ -544,6 +545,19 @@
   .sheet {
     border-radius: 0.75rem;
   }
+}
+
+/* The word carries the meaning and the colour decorates it, which is what makes
+   two identical rarity colours survivable. */
+.rarity {
+  color: var(--rarity);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sheet__title .rarity {
+  margin-left: 0.5rem;
 }
 
 .sheet__head {
@@ -755,6 +769,17 @@
   border-top: 1px solid rgb(255 255 255 / 10%);
 }
 
+/*
+ * The Goals panel scrolls, and a scroll container clips on both axes whatever
+ * you asked for -- so a tip centred on its node ran off the panel's edge and
+ * was cut. Anchored to the left of the card here instead of centred, which
+ * keeps it inside a panel narrower than the tip is wide.
+ */
+.goal .node__tip {
+  left: 0;
+  transform: none;
+}
+
 .goal__head {
   display: flex;
   gap: 0.8rem;
@@ -838,15 +863,23 @@
 }
 
 /*
- * No state glow in here. Every boon in the Loadout is Obtained by definition,
- * so the glow meaning "you have this" tells you nothing and only bleeds into
- * the tile beside it.
+ * Nothing rings a tile in here and nothing glows.
  *
- * The channel is not free for the taking, though: it is spoken for by the
- * Loadout's own held-open card, which does not exist yet. Nothing lights a tile
- * until it does.
+ * Every boon in the Loadout is Obtained, so a glow meaning "you have this"
+ * tells you nothing and only bleeds into the tile beside it; the ring is
+ * reserved for rarity, which is what the game puts there. The glow is spoken
+ * for by the held-open card, which does not exist yet.
+ *
+ * **Both selectors carry a `[data-state]` on purpose.** The ladder's own rules
+ * are `.node[data-state="X"] .node__frame`, which is three classes' worth of
+ * specificity; the first version of this was two and quietly lost, leaving the
+ * glow on every tile.
  */
-.loadout__tile .node__frame {
+.loadout__tile .node[data-state] {
+  --frame: transparent;
+}
+
+.loadout__tile .node[data-state] .node__frame {
   filter: none;
 }
 

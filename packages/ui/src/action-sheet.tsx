@@ -1,4 +1,4 @@
-import { type KeyboardEvent, useEffect, useId, useRef } from "react";
+import { type KeyboardEvent, useEffect, useId, useMemo, useRef } from "react";
 import { type BoonActions, BoonActionBar } from "./boon-actions.js";
 import { RarityMark } from "./chrome.js";
 import { displacementLines, stateSentence } from "./describe.js";
@@ -50,6 +50,27 @@ export function ActionSheet({
   const sheet = useRef<HTMLDivElement>(null);
   const titleId = useId();
   const held = view.state === "Obtained";
+
+  /**
+   * Every edit closes the sheet behind it.
+   *
+   * The sheet is a dialog you opened to do one thing — say what rarity you took
+   * it at, hand a field back, record that it is gone — and leaving it standing
+   * afterwards means the answer to "did that work" is behind the thing you were
+   * answering it about. Wrapped here rather than at each control, so an action
+   * added later cannot forget.
+   */
+  const closing: BoonActions = useMemo(() => {
+    const wrapped: Record<string, unknown> = {};
+    for (const [name, act] of Object.entries(actions)) {
+      if (typeof act !== "function") continue;
+      wrapped[name] = (...args: unknown[]) => {
+        (act as (...a: unknown[]) => void)(...args);
+        onClose();
+      };
+    }
+    return wrapped as BoonActions;
+  }, [actions, onClose]);
 
   useEffect(() => {
     // Captured before focus moves and restored on the way out. Without it,
@@ -120,6 +141,9 @@ export function ActionSheet({
         <div className="sheet__head">
           <h2 className="sheet__title" id={titleId}>
             {view.name}
+            {/* Beside the name rather than on a line of its own, and only where
+                the record says this boon has rarities at all. */}
+            {view.rarity === null ? null : <RarityMark rarity={view.rarity} />}
           </h2>
           <button type="button" className="sheet__close" onClick={onClose}>
             Close
@@ -131,15 +155,6 @@ export function ActionSheet({
           {pinned ? " Pinned to a goal." : null}
         </p>
 
-        {view.rarity === null ? null : (
-          <p className="sheet__rarity">
-            {/* Only where the data says this boon has rarities at all, and as
-                its own colour rather than as a labelled line — the name is
-                still there for a pointer and for a reader. */}
-            <RarityMark rarity={view.rarity} />
-          </p>
-        )}
-
         {!overridden ? null : (
           <p className="sheet__overridden">
             <strong>{OVERRIDDEN_LABEL}.</strong> {OVERRIDDEN_HINT}
@@ -147,7 +162,7 @@ export function ActionSheet({
               <button
                 type="button"
                 className="sheet__handback"
-                onClick={() => actions.clearOverride?.(view.trait)}
+                onClick={() => closing.clearOverride?.(view.trait)}
               >
                 Hand it back
               </button>
@@ -206,7 +221,7 @@ export function ActionSheet({
           <p className="sheet__description">{detail.description}</p>
         )}
 
-        <BoonActionBar view={view} held={held} pinned={pinned} actions={actions} />
+        <BoonActionBar view={view} held={held} pinned={pinned} actions={closing} />
       </div>
     </div>
   );

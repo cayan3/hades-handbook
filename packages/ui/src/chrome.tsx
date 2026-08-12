@@ -99,26 +99,19 @@ export function UndoToast({ what, cost = [], onUndo, onDismiss }: UndoToastProps
 }
 
 /**
- * The rarity a run holds, as its colour rather than as a word.
+ * The rarity a run holds: the word, in its own colour, beside the boon's name.
  *
- * The word was taking a line of its own beside every entry, which is a lot of
- * furniture for a value that is decoration in most of the product — rarity is
- * display state and no requirement reads it. As a swatch it costs a glyph.
- *
- * **The name still reaches every reader**: a title for a pointer, and a
- * visually-hidden span for anyone not using one. Colour alone would be
- * unreadable to a colourblind player and silent to a screen reader, and two of
- * the game's own rarity colours are identical anyway.
+ * It was a swatch for a while, on the argument that the word cost a line of its
+ * own. Beside the name it costs nothing — and the swatch had the usual problem
+ * with colour, which is that two of the game's own rarity colours are
+ * identical, so the dot could not be told apart at all in those cases. The word
+ * carries the meaning and the colour decorates it, rather than the other way
+ * round, so nothing depends on distinguishing two hues or on reading any.
  */
 export function RarityMark({ rarity }: { readonly rarity: Rarity }) {
   return (
-    <span
-      className="rarity"
-      title={rarity}
-      style={{ "--rarity": rarityColour(rarity) } as CSSProperties}
-    >
-      <span aria-hidden="true" className="rarity__swatch" />
-      <span className="visually-hidden">{rarity}</span>
+    <span className="rarity" style={{ "--rarity": rarityColour(rarity) } as CSSProperties}>
+      {rarity}
     </span>
   );
 }

@@ -220,12 +220,38 @@ describe("ActionSheet", () => {
     expect(description.children).toHaveLength(0);
   });
 
-  it("shows a rarity only when the derivation gave it one", () => {
+  it("names the rarity beside the boon, only when the derivation gave it one", () => {
     render(<ActionSheet view={view()} detail={detail()} onClose={noop} />);
-    expect(container.querySelector(".sheet__rarity")).toBeNull();
+    expect(container.querySelector(".rarity")).toBeNull();
 
+    // The word rather than a swatch, and in the heading rather than on a line
+    // of its own: two of the game's own rarity colours are identical, so a dot
+    // could not be told apart at all in those two cases.
     render(<ActionSheet view={view({ rarity: "Epic" })} detail={detail()} onClose={noop} />);
-    expect(container.querySelector(".sheet__rarity")?.textContent).toContain("Epic");
+    expect(container.querySelector(".rarity")?.textContent).toBe("Epic");
+    expect(container.querySelector(".sheet__title")?.textContent).toContain("Epic");
+  });
+
+  it("closes behind any edit it was opened to make", () => {
+    // The sheet is a dialog you opened to do one thing. Left standing, the
+    // answer to "did that work" is behind the thing you were asking about.
+    const onClose = vi.fn();
+    const mark = vi.fn();
+    render(
+      <ActionSheet
+        view={view({ state: "Obtained", rarity: "Common", rarities: ["Common", "Epic"] })}
+        detail={detail()}
+        onClose={onClose}
+        actions={{ mark }}
+      />,
+    );
+
+    const epic = [...container.querySelectorAll<HTMLElement>("button")].find(
+      (button) => button.textContent === "Epic",
+    );
+    act(() => epic!.click());
+    expect(mark).toHaveBeenCalledWith("ZeusWeaponTrait", "Epic");
+    expect(onClose).toHaveBeenCalled();
   });
 });
 
