@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { iconFor, keepsakeNameFor, nameFor, textFor } from "./assets.js";
+import { godIconFor, iconFor, keepsakeNameFor, nameFor, textFor } from "./assets.js";
 import { keepsakesFor } from "./keepsakes.js";
 import { traitsFor } from "./traits.js";
 
@@ -22,11 +22,37 @@ describe("iconFor", () => {
     expect(iconFor("hades1", "AmmoBoltTrait")).toMatch(/^official\//);
   });
 
+  it("keeps the two games' art apart", () => {
+    // 16 keys are used by both games, so a flat set would have one of them
+    // serving the other's drawing for those. Pinned on a shared key rather than
+    // an arbitrary one, since an unshared key passes this whatever the layout.
+    expect(iconFor("hades1", "ZeusWeaponTrait")).toMatch(/^official\/hades1\//);
+    expect(iconFor("hades2", "AphroditeCastBoon")).toMatch(/^official\/hades2\//);
+  });
+
   it("resolves a record with no icon and an id it has never heard of alike", () => {
     // Two different absences that look identical from here, and neither can be
     // told from a file that fails to load until a browser has tried. They land
     // on the same placeholder because to a player they are the same thing.
     expect(iconFor("hades1", "NoSuchTraitAnywhere")).toBe("official/_missing");
+  });
+});
+
+describe("godIconFor", () => {
+  it("keeps a god's symbol per-game, which is the case that looks shared", () => {
+    // Every god carries one icon key across both games, so a game-independent
+    // resolver typechecks and reads fine -- and would be one signature change
+    // away from every tab the day a symbol turns out to have been redrawn. The
+    // two sets are authored at different resolutions (360 against 512) and may
+    // well be the same design; this pins the seam rather than the answer.
+    expect(godIconFor("hades1", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
+    expect(godIconFor("hades2", "Zeus")).toBe("official/hades2/BoonSymbolZeus");
+  });
+
+  it("lands on the shared placeholder for a god it has never heard of", () => {
+    // Same absence as a trait with no icon, and the placeholder is deliberately
+    // not per-game: it is ours to draw, not either game's.
+    expect(godIconFor("hades2", "NoSuchGod")).toBe("official/_missing");
   });
 });
 

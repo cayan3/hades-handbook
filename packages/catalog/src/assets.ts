@@ -1,7 +1,7 @@
-import type { KeepsakeId, TraitId } from "@repo/core";
+import type { GodId, KeepsakeId, TraitId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
 import { keepsakesFor } from "./keepsakes.js";
-import type { TraitRecord } from "./schema.js";
+import type { GodRecord, TraitRecord } from "./schema.js";
 import { traitsFor } from "./traits.js";
 
 /**
@@ -38,7 +38,31 @@ export function iconFor(game: GameKey, traitId: TraitId): string {
    * error event actually arrives).
    */
   if (key === undefined || key === null) return `${ART_SET}/_missing`;
-  return `${ART_SET}/${key}`;
+  /**
+   * The game is in the path because 16 keys are used by both games, and a
+   * shared key is never the same drawing — Zeus's symbol is 191x302 in Hades I
+   * and 509x508 in Hades II. Flat, one game would serve the other's art. The
+   * placeholder stays shared; it's ours, not either game's.
+   */
+  return `${ART_SET}/${game}/${key}`;
+}
+
+/**
+ * A god's own symbol, withdrawn by the same edit as everything else here.
+ *
+ * Separate from `iconFor` because a god is keyed by its bare name rather than a
+ * trait id — the same reason `nameFor` and `keepsakeNameFor` are two functions.
+ *
+ * It takes the game even though every god uses one key in both, which makes the
+ * parameter look spare. The two sets are drawn at different resolutions and may
+ * or may not be the same artwork; nobody has compared them. Keeping it costs a
+ * duplicated file if they match, against a signature change on every tab if
+ * they don't.
+ */
+export function godIconFor(game: GameKey, god: GodId): string {
+  const key = (dataFor(game).gods as Record<string, GodRecord>)[god]?.iconKey;
+  if (key === undefined || key === null || key === "") return `${ART_SET}/_missing`;
+  return `${ART_SET}/${game}/${key}`;
 }
 
 /**
