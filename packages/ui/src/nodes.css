@@ -38,6 +38,10 @@
      smaller node wears them the same rather than louder. A fifth is what 0.9rem
      was against the size above. */
   --corner: calc(var(--node-size) * 0.2);
+  /* The element symbol is drawn art rather than a two-tone glyph and has to say
+     which of five, so it reads at a size the other two do not need — a junction's
+     1.1rem, which is what it comes to on a Hades II node. */
+  --element: calc(var(--node-size) * 0.28);
 
   /* The node takes the shape of the art it holds. Hades I draws its boons as
      diamonds and Hades II as rounded squares, so a single silhouette has to
@@ -224,8 +228,7 @@
  * the corners are exactly what gets clipped away.
  */
 .node__marker,
-.node__dormant,
-.node__element {
+.node__dormant {
   position: absolute;
   width: var(--corner);
   height: var(--corner);
@@ -245,8 +248,11 @@
    and are not the same aspect, so a stretch would make Water taller than Fire
    at the same nominal size. */
 .node__element {
-  top: calc(var(--corner) * -0.22);
-  left: calc(var(--corner) * -0.22);
+  position: absolute;
+  top: calc(var(--element) * -0.22);
+  left: calc(var(--element) * -0.22);
+  width: var(--element);
+  height: var(--element);
   object-fit: contain;
 }
 
@@ -389,14 +395,17 @@
   overflow: visible;
 }
 
+/* The page's god, the same hue its nodes and wires carry, so a branch point
+   reads as part of the ladder it sits in rather than as page furniture. Status
+   stays structural — filled, outline, faded — and none of the three is a hue. */
 .junction polygon {
   fill: none;
-  stroke: currentColor;
+  stroke: var(--wire, currentColor);
   stroke-width: 2;
 }
 
 .junction[data-status="satisfied"] polygon {
-  fill: currentColor;
+  fill: var(--wire, currentColor);
 }
 
 .junction[data-status="unsatisfiable"] {
@@ -445,11 +454,12 @@
 
 /* A Hades II node is smaller because its silhouette shows more of itself: over
    the shipped art a Hades I box is 49.7% opaque against Hades II's 87.9%, so
-   the same box puts 1.77x the ink on screen. Equal area is 0.752 of Hades I's,
-   which is also where the diamond's inscribed square lands. This surface only —
-   the Loadout sets its own size and was not what read large. */
+   the same box puts 1.77x the ink on screen. Equal area came to 3.4rem and read
+   too small; this is that plus the outline, which grows outward, so the icon is
+   now the size the whole node used to be — 1.33x the ink rather than 1.77x.
+   This surface only: the Loadout sets its own size and was not what read large. */
 .godpage .node[data-game="hades2"] {
-  --node-size: 3.4rem;
+  --node-size: 3.9rem;
 }
 
 .godpage__bands,

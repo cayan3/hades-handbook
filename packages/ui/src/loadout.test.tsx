@@ -215,6 +215,15 @@ describe("a tile's card", () => {
 });
 
 describe("the panel itself", () => {
+  it("marks no tile with an element, the count being the panel's own question", () => {
+    // Every tile here declares one, so an empty result is the panel refusing
+    // rather than the fixture having nothing to draw.
+    const withElement = ENTRIES.map((e) => ({ ...e, view: { ...e.view, element: "Fire" as const } }));
+    render(panel({ entries: withElement }));
+    expect(tiles()).not.toHaveLength(0);
+    expect(container.querySelectorAll(".node__element")).toHaveLength(0);
+  });
+
   it("expands under the pointer and collapses again when it leaves", () => {
     render(panel({ expanded: false }));
     expect(tiles()).toHaveLength(2);

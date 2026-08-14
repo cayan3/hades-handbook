@@ -69,6 +69,13 @@ export interface BoonNodeProps extends BoonGestures {
    */
   readonly showName?: boolean;
   /**
+   * Draws the element symbol in the top-left corner. Off in the Loadout, which
+   * answers "how much of each element does this run have" with a count over the
+   * whole panel rather than a mark per tile. The affinity stays in the node's
+   * description either way.
+   */
+  readonly showElement?: boolean;
+  /**
    * The hue this node carries, where it is not the boon's own god's.
    *
    * God colour discriminates in proportion to how many gods share the screen,
@@ -133,6 +140,7 @@ export function BoonNode({
   onOpen,
   onGoal,
   showName = true,
+  showElement = true,
   accent,
   outline,
   kindNamed = false,
@@ -223,7 +231,9 @@ export function BoonNode({
               {ladder === "real-art" ? <BoonArt iconKey={view.iconKey} /> : null}
             </span>
           </span>
-          {view.element === null ? null : <ElementArt game={game} element={view.element} />}
+          {!showElement || view.element === null ? null : (
+            <ElementArt game={game} element={view.element} />
+          )}
           {pinned ? <MarkerGlyph /> : null}
           {view.dormant ? <DormantGlyph /> : null}
         </span>

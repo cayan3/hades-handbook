@@ -309,6 +309,9 @@ function Tile({
       <BoonNode
         view={entry.view}
         showName={false}
+        // The panel answers the element question once, over the whole run,
+        // rather than a mark on every tile.
+        showElement={false}
         expanded={open.includes(trait)}
         onOpen={onToggle}
         // The touch equivalent of hovering: a long press raises `contextmenu`

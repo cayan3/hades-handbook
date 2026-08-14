@@ -144,10 +144,20 @@ describe("the node stylesheet", () => {
     expect(sizers).toEqual([".node", '.godpage .node[data-game="hades2"]', ".loadout__tile"]);
   });
 
-  it("scales the corner glyphs with the node rather than pinning them", () => {
-    const corners = CSS.match(/\.node__marker,\s*\.node__dormant,\s*\.node__element\s*\{([^}]*)\}/);
-    expect(corners?.[1]).toMatch(/width:\s*var\(--corner\)/);
-    expect(corners?.[1]).not.toMatch(/width:\s*[\d.]+rem/);
+  it("scales every corner mark with the node rather than pinning it", () => {
+    // Two sizes, not one: the element symbol is drawn art saying which of five
+    // and reads at a junction's 1.1rem, where a pin only has to say that it is
+    // there. Both are shares of the node, which is what a fixed length loses.
+    const glyphs = CSS.match(/\.node__marker,\s*\.node__dormant\s*\{([^}]*)\}/);
+    expect(glyphs?.[1]).toMatch(/width:\s*var\(--corner\)/);
+    const element = CSS.match(/\.node__element\s*\{([^}]*)\}/);
+    expect(element?.[1]).toMatch(/width:\s*var\(--element\)/);
+    for (const body of [glyphs?.[1], element?.[1]]) {
+      expect(body).not.toMatch(/width:\s*[\d.]+rem/);
+    }
+    for (const token of ["--corner", "--element"]) {
+      expect(CSS).toMatch(new RegExp(`${token}:\\s*calc\\(var\\(--node-size\\)`));
+    }
   });
 
   /**

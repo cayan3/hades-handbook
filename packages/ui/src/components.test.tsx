@@ -140,6 +140,14 @@ describe("BoonNode", () => {
     expect(container.querySelector(".node__element")).toBeNull();
   });
 
+  it("drops the element corner where the surface asks, and keeps the words", () => {
+    // The Loadout answers the element question once over the whole run rather
+    // than marking every tile, so what a reader hears must not depend on it.
+    render(<BoonNode view={view({ element: "Water" })} showElement={false} />);
+    expect(container.querySelector(".node__element")).toBeNull();
+    expect(container.querySelector("[hidden]")?.textContent).toContain("Water affinity.");
+  });
+
   it("puts the whole of a verdict where a reader will hear it", () => {
     render(
       <BoonNode
