@@ -12,12 +12,12 @@ import { useGame, useLadder } from "./presentation.js";
  *
  * It is a real control, which is what the accessible path rests on: a diamond in
  * a graph is the least reachable shape here, so each is a focusable button whose
- * accessible name carries its state in words rather than in a frame weight or a
- * glow. The linear surfaces are still the primary accessible rendering, but a
+ * accessible name carries its state in words rather than in an outline weight or
+ * a glow. The linear surfaces are still the primary accessible rendering, but a
  * node that is only a shape leaves the graph a picture of the data instead of a
  * second way through it.
  *
- * State is structural: every step of the ladder is frame weight, brightness or
+ * State is structural: every step of the ladder is outline weight, brightness or
  * saturation, and none of them is a hue. Hue means which god granted the boon,
  * and a channel meaning two things means neither. The ladder is legible in
  * greyscale as a consequence, which is the cheap way to be sure it survives
@@ -78,15 +78,34 @@ export interface BoonNodeProps extends BoonGestures {
    * takes its partner's.
    */
   readonly accent?: string | null | undefined;
+  /**
+   * The outline's colour, where the surface says it is not this node's hue.
+   *
+   * Distinct from `accent`, which they are easy to confuse: `accent` replaces
+   * the node's *identity* colour and therefore moves the fill on the fallback
+   * ladder too, which is right for a Duo, whose partner is a god. This moves
+   * only the outline — a Legendary is still its own god's boon, so the fallback
+   * ladder must go on saying so while the outline says which kind it is.
+   */
+  readonly outline?: string | null | undefined;
 }
 
 /**
  * Through the object model rather than a style element, which is the line the
  * page's content policy draws. A class per god would dodge the question and cost
  * a rule per god plus a build that knows the roster.
+ *
+ * The outline is set only where there is one to set: left alone it falls to the
+ * stylesheet's default, which is this node's own hue.
  */
-function godProperty(god: string | null, accent: string | null | undefined): CSSProperties {
-  return { "--god": accent ?? godColour(god) } as CSSProperties;
+function nodeColours(
+  god: string | null,
+  accent: string | null | undefined,
+  outline: string | null | undefined,
+): CSSProperties {
+  const colours: Record<string, string> = { "--god": accent ?? godColour(god) };
+  if (outline != null) colours["--outline"] = outline;
+  return colours as CSSProperties;
 }
 
 export function BoonNode({
@@ -97,6 +116,7 @@ export function BoonNode({
   onGoal,
   showName = true,
   accent,
+  outline,
 }: BoonNodeProps) {
   const ladder = useLadder();
   const game = useGame();
@@ -128,7 +148,7 @@ export function BoonNode({
       data-state={view.state}
       data-ladder={ladder}
       data-game={game}
-      style={godProperty(view.god, accent)}
+      style={nodeColours(view.god, accent, outline)}
     >
       <button
         type="button"
@@ -156,12 +176,12 @@ export function BoonNode({
               }
         }
       >
-        {/* Three elements, each load-bearing. The frame positions the corner
+        {/* Three elements, each load-bearing. The outer box positions the corner
             glyphs and is deliberately not clipped, since a clip here cuts them
-            off — which it did. The shape is the diamond, filled with the frame
-            colour; the fill sits inside it by the frame's weight, and the ring
-            showing between the two is the frame. */}
-        <span className="node__frame">
+            off — which it did. The shape is filled with the outline's colour;
+            the fill sits inside it by the outline's weight, and what shows
+            between the two is the outline. */}
+        <span className="node__box">
           <span className="node__shape">
             <span className="node__fill">
               {/* No artwork at all on the fallback ladder rather than artwork

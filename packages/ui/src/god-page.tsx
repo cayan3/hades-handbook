@@ -5,6 +5,7 @@ import { endpointOwner, type GodGraph, neighbourhood } from "./god-graph.js";
 import { godColour } from "./god-palette.js";
 import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
+import { kindColour } from "./rarity-palette.js";
 
 /**
  * One god's boons as a vertical tiered graph: tier 1 on top, each lower tier
@@ -60,7 +61,7 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
       if (id === undefined) continue;
       // The diamond rather than the whole cell: the name sits under it, and a
       // wire leaving from below the name reads as leaving from nothing.
-      const shape = cell.querySelector(".node__frame") ?? cell;
+      const shape = cell.querySelector(".node__box") ?? cell;
       const at = shape.getBoundingClientRect();
       next.set(id, {
         x: at.left - box.left + at.width / 2,
@@ -178,7 +179,7 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
             )}
 
             <ul className="godpage__nodes">
-              {band.members.map(({ trait, partner }) => {
+              {band.members.map(({ trait, partner, kind }) => {
                 const view = views.get(trait);
                 if (view === undefined) return null;
                 return (
@@ -201,6 +202,13 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
                       // page's, so it takes the *other* one's colour. Everything
                       // else has the page's god on the record already.
                       accent={partner === null ? undefined : godColour(partner)}
+                      // The three kinds that are not this god's ordinary reward
+                      // and are not a Duo either. A Duo is left out here on
+                      // purpose: its colour is the partner's, above, which says
+                      // more on this page than the Duo colour would — the Duo
+                      // colour is the same on every Duo, and which god the other
+                      // half belongs to is the question a player is asking.
+                      outline={kind === null ? undefined : kindColour(kind)}
                       {...gestures}
                     />
                     {/* A Duo answers to two gods and this page is one of them.

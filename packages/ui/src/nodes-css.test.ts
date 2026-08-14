@@ -98,6 +98,39 @@ describe("the node stylesheet", () => {
     }
   });
 
+  /**
+   * The rarity treatment follows the icon's shape, and the two games draw
+   * different icons.
+   *
+   * Hades I's diamond takes a wedge along its upper-right edge, which is a
+   * shape behind the tile shifted up and to the right. Applied unchanged to
+   * Hades II's rounded square that same shift draws a coloured corner peeking
+   * out from behind the icon — not a rarity anybody reads, and not what the
+   * game draws. So Hades II undoes the shift and gets an even ring.
+   *
+   * Read out of the stylesheet because it is a fact about painting, and because
+   * the rule that would break it is one line in the base that forgets there are
+   * two silhouettes now.
+   */
+  it("rings a Hades II tile and wedges a Hades I one", () => {
+    // A selector is full of characters a regex reads as its own, so it is
+    // escaped whole rather than by hand — the version that escaped only the
+    // leading dot matched nothing and passed by finding nothing to check.
+    const rule = (selector: string) => {
+      const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return CSS.match(new RegExp(`${literal}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+    };
+
+    const base = rule(".loadout__tile[data-rarity]::before");
+    expect(base).toMatch(/transform:\s*translate\(/);
+
+    const hades2 = rule('.loadout__tile[data-game="hades2"][data-rarity]::before');
+    expect(hades2, "Hades II does not undo the wedge's offset").toMatch(/transform:\s*none/);
+    // Concentric with the icon inside it, or the ring pinches at every corner:
+    // the outer box is the larger of the two and wants the larger radius.
+    expect(hades2).toMatch(/border-radius:\s*calc\(var\(--node-radius\)/);
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every

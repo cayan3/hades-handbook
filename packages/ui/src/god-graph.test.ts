@@ -114,10 +114,90 @@ describe("the bands", () => {
 
     const zeus = godGraph(source, ZEUS, makeFacts()).bands.at(-1);
     expect(zeus?.kind).toBe("duo");
-    expect(zeus?.members).toEqual([{ trait: "duo", partner: ARES }]);
+    expect(zeus?.members).toEqual([{ trait: "duo", partner: ARES, kind: "duo" }]);
 
     const ares = godGraph(source, ARES, makeFacts()).bands.at(-1);
-    expect(ares?.members).toEqual([{ trait: "duo", partner: ZEUS }]);
+    expect(ares?.members).toEqual([{ trait: "duo", partner: ZEUS, kind: "duo" }]);
+  });
+
+  /**
+   * Which of the four kinds a member is, which is what decides whether its
+   * outline is the page's god colour or one of its own.
+   *
+   * The order the four are asked in is the whole of what these check. Three of
+   * them are found by shape or by gate and a Legendary is found by what the
+   * record says it can be offered as — and the games hand out `Legendary` far
+   * more widely than the word suggests, so the rarity question has to be asked
+   * last and asked exactly.
+   */
+  describe("which kind a member is", () => {
+    const kindOnPage = (source: ReturnType<typeof world>, god: GodId, trait: TraitId) =>
+      godGraph(source, god, makeFacts())
+        .bands.flatMap((band) => band.members)
+        .find((member) => member.trait === trait)?.kind;
+
+    it("calls an ordinary boon of this god no kind at all", () => {
+      const source = world(record("plain", { god: ZEUS, tier: 1, rarity: ["Common", "Epic"] }));
+      expect(kindOnPage(source, ZEUS, "plain")).toBeNull();
+    });
+
+    it("finds a Legendary by a rarity list that offers nothing else", () => {
+      const source = world(record("leg", { god: ZEUS, tier: 2, rarity: ["Legendary"] }));
+      expect(kindOnPage(source, ZEUS, "leg")).toBe("legendary");
+      // And it stays on the god's own ladder: a Legendary is the top of that
+      // ladder, not a category beside it.
+      const bands = godGraph(source, ZEUS, makeFacts()).bands;
+      expect(bands.at(-1)?.kind).toBe("tier");
+    });
+
+    it("does not call a boon Legendary for offering it alongside four others", () => {
+      // 163 Hades II records offer Legendary as the top of an ordinary ladder
+      // they can also be rolled at the bottom of. Reading "contains Legendary"
+      // would paint every one of them.
+      const source = world(
+        record("ladder", {
+          god: ZEUS,
+          tier: 1,
+          rarity: ["Common", "Rare", "Epic", "Heroic", "Legendary"],
+        }),
+      );
+      expect(kindOnPage(source, ZEUS, "ladder")).toBeNull();
+    });
+
+    it("calls a Duo a Duo even where the game gives it the Legendary rarity", () => {
+      // Hades I has no Duo rarity: all 28 of its Duos declare `Legendary` and
+      // nothing else, so asking about rarity first would take them off the rim.
+      const source = world(record("duo", { duoGods: [ZEUS, ARES], rarity: ["Legendary"] }));
+      expect(kindOnPage(source, ZEUS, "duo")).toBe("duo");
+    });
+
+    it("calls a Godsent Hex a Hex even where it declares Legendary too", () => {
+      // Five of the nine do.
+      const source = world(
+        record("hex", {
+          god: ZEUS,
+          rarity: ["Legendary"],
+          prereq: all(
+            has("SpellPolymorphTrait"),
+            any(
+              { kind: "hasBoonFrom", god: ZEUS },
+              { kind: "hasKeepsake", keepsake: "ForceZeusBoonKeepsake" },
+            ),
+          ),
+        }),
+      );
+      expect(kindOnPage(source, ZEUS, "hex")).toBe("hex");
+    });
+
+    it("finds an Infusion by its gate, which is the only thing that can find one", () => {
+      // Not one record in either game declares the Elemental rarity, so there
+      // is nothing to read it off — the gate being every leaf an element count
+      // is the whole test.
+      const source = world(
+        record("inf", { god: ZEUS, rarity: ["Common"], prereq: fire(2) }),
+      );
+      expect(kindOnPage(source, ZEUS, "inf")).toBe("infusion");
+    });
   });
 
   it("puts a Godsent Hex on the rim beside the Duos", () => {
@@ -329,7 +409,7 @@ describe("what a page carries", () => {
     const zeus = godGraph(source, "Zeus" as GodId, makeFacts());
 
     expect(zeus.bands.find((band) => band.kind === "infusion")?.members).toEqual([
-      { trait: "ElementalDamageFloorBoon", partner: null },
+      { trait: "ElementalDamageFloorBoon", partner: null, kind: "infusion" },
     ]);
     // Hades I has no Elements, so it has no such band anywhere.
     const h1 = createNodeSource("hades1", stubRules(), stubLookups(), traitsFor("hades1"));

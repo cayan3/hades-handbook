@@ -14,7 +14,7 @@ import type { TraitId } from "@repo/core";
 import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { GodGraph, GraphBand, GraphEdge } from "./god-graph.js";
+import type { GodGraph, GraphBand, GraphEdge, GraphMember } from "./god-graph.js";
 import { GodPage } from "./god-page.js";
 import { godColour } from "./god-palette.js";
 import type { NodeView } from "./node-view.js";
@@ -60,6 +60,10 @@ function view(trait: TraitId, over: Partial<NodeView> = {}): NodeView {
   };
 }
 
+function member(trait: TraitId, over: Partial<GraphMember> = {}): GraphMember {
+  return { trait, partner: null, kind: null, ...over };
+}
+
 function band(over: Partial<GraphBand>): GraphBand {
   return { key: "tier-1", kind: "tier", label: null, junctions: [], members: [], ...over };
 }
@@ -86,11 +90,11 @@ const wires = () => [...container.querySelectorAll(".godpage__wire")];
 const LADDER: GodGraph = {
   god: "Zeus",
   bands: [
-    band({ key: "tier-1", members: [{ trait: "a", partner: null }, { trait: "b", partner: null }] }),
+    band({ key: "tier-1", members: [member("a"), member("b")] }),
     band({
       key: "tier-2",
       junctions: [{ id: "d#0", dependent: "d", min: 1, of: 4, status: "pending", reached: false }],
-      members: [{ trait: "d", partner: null }],
+      members: [member("d")],
     }),
   ],
   edges: [edge("a", "d#0", true), edge("b", "d#0"), edge("d#0", "d", true)],
@@ -117,7 +121,7 @@ describe("the page as a path through", () => {
             key: "infusion",
             kind: "infusion",
             label: "Infusions",
-            members: [{ trait: "inf", partner: null }],
+            members: [member("inf")],
           }),
         ],
       }),
@@ -151,7 +155,7 @@ describe("the page as a path through", () => {
           key: "duo",
           kind: "duo",
           label: "Duos and Godsent Hexes",
-          members: [{ trait: "duo", partner: "Ares" }],
+          members: [member("duo", { partner: "Ares", kind: "duo" })],
         }),
       ],
     };
@@ -219,7 +223,7 @@ describe("the connectors", () => {
         band({
           key: "tier-2",
           junctions: [{ id: "d#0", dependent: "d", min: 1, of: 4, status: "satisfied", reached: true }],
-          members: [{ trait: "d", partner: null }],
+          members: [member("d")],
         }),
       ],
       edges: [edge("a", "d#0", true, true), edge("b", "d#0", false, true), edge("d#0", "d", true, true)],
@@ -283,7 +287,7 @@ describe("the colour a god's page carries", () => {
             key: "duo",
             kind: "duo",
             label: "Duos and Godsent Hexes",
-            members: [{ trait: "duo", partner: "Ares" }],
+            members: [member("duo", { partner: "Ares", kind: "duo" })],
           }),
         ],
         edges: [],
@@ -297,6 +301,54 @@ describe("the colour a god's page carries", () => {
     // A hue is the one thing the linear surfaces cannot repeat, so the partner
     // is named as well as coloured.
     expect(container.querySelector(".godpage__partner")?.textContent).toBe("with Ares");
+    // And the outline is left alone, so it falls to the stylesheet's default,
+    // which is the hue above. A Duo carries its partner rather than the Duo
+    // colour: which god the other half belongs to is the question being asked,
+    // and the Duo colour is the same on every Duo in the game.
+    expect(container.querySelector<HTMLElement>(".node")?.style.getPropertyValue("--outline")).toBe(
+      "",
+    );
+  });
+
+  /**
+   * The three kinds whose outline is not this god's colour.
+   *
+   * The page is one god's, so the outline saying which god it is says the same
+   * thing about every node on it — except for the handful that are not that
+   * god's ordinary reward, where saying *which kind* is the more useful thing a
+   * colour can do. The god stays on `--god`, so the fallback ladder's fill goes
+   * on carrying identity underneath.
+   */
+  it.each([
+    ["legendary", "#FF9000"],
+    ["hex", "#FFFFFF"],
+    ["infusion", "#FF4BFF"],
+  ] as const)("gives a %s its own outline and leaves the god alone", (kind, colour) => {
+    render(
+      page({
+        god: "Zeus",
+        bands: [band({ key: "tier-1", members: [member("x", { kind })] })],
+        edges: [],
+      }),
+    );
+
+    const node = container.querySelector<HTMLElement>(".node");
+    expect(node?.style.getPropertyValue("--outline")).toBe(colour);
+    expect(node?.style.getPropertyValue("--god")).toBe(godColour("Zeus"));
+  });
+
+  it("leaves an ordinary boon's outline to the page's god", () => {
+    render(
+      page({
+        god: "Zeus",
+        bands: [band({ key: "tier-1", members: [member("x")] })],
+        edges: [],
+      }),
+    );
+
+    const node = container.querySelector<HTMLElement>(".node");
+    expect(node?.style.getPropertyValue("--outline")).toBe("");
+    expect(node?.style.getPropertyValue("--god")).toBe(godColour("Zeus"));
   });
 });
 

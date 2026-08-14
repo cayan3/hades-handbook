@@ -4,10 +4,10 @@ import { createContext, type ReactNode, useContext } from "react";
 /**
  * Which of the two ladders the nodes below are drawn on.
  *
- * `real-art` is the design: state rides on the frame and on what is done to the
+ * `real-art` is the design: state rides on the outline and on what is done to the
  * artwork, since official icons are detailed and already coloured and a fill
  * over one would bury it. `fallback` is the same five steps with no artwork at
- * all, carried by fill and frame, with god colour back on the node.
+ * all, carried by the fill and the outline, with god colour on the fill too.
  *
  * One component and one stylesheet with both ladders in it, never two
  * components — the second would be the one nobody looked at until the day it

@@ -8,23 +8,31 @@
  * through the object model, which the policy does not govern.
  *
  * The rule this file exists to keep: state is structural, never hue. Every step
- * below is frame weight, brightness, saturation or shadow, and none of them sets
+ * below is outline weight, brightness, saturation or shadow, and none of them sets
  * a colour. A test reads this file and says so, because a rule kept only by
  * everyone remembering it is a rule with a date on it. Hue belongs to god
  * identity, and a channel meaning two things means neither.
  *
  * No hatching anywhere: it reads as texture rather than rank, can't be told from
- * a dimmed frame at this size, and collides with the artwork it sits over.
+ * a dimmed outline at this size, and collides with the artwork it sits over.
  */
 
 .node {
   /* The one colour a node carries, meaning which god granted the boon. Set per
      node through the style attribute; this is the no-god fallback. */
   --god: #c9bfb2;
-  /* Neutral, and deliberately not the god's colour. The ring is where rarity
-     is going to live, and rarity is the one thing it can mean — the god is
-     carried by the glow and, on the fallback ladder, by the fill. */
-  --frame: #f2ece4;
+  /*
+   * The outline's colour belongs to the surface it is drawn on, and each one
+   * names its own: the god's hue on a god's page, rarity's in the Loadout.
+   * The default is the god so a node drawn outside either still carries
+   * identity — there is deliberately no neutral value here.
+   *
+   * It was a literal #f2ece4 for a round, which is the page's own ink colour
+   * copied out of its token by hand. That made every node on every surface the
+   * same near-white, and a copied literal is invisible to every check that
+   * would otherwise catch it.
+   */
+  --outline: var(--god);
   --node-size: 4.5rem;
 
   /* The node takes the shape of the art it holds. Hades I draws its boons as
@@ -71,7 +79,7 @@
  * every icon in it.
  *
  * What shape still never says is what kind of boon this is. Inside one game a
- * Duo and a Legendary look alike and are told apart by what is in the frame.
+ * Duo and a Legendary look alike and are told apart by what is inside them.
  * Shape as a type channel was tried and withdrawn: it fought the artwork and
  * made every silhouette a thing to learn.
  *
@@ -80,13 +88,13 @@
  *
  * Three boxes, because a diamond will not take a border. A clip path cuts the
  * corners off the element, and takes an inset shadow and any absolutely
- * positioned child with them — so the first version drew a frame nobody could
+ * positioned child with them — so the first version drew an outline nobody could
  * see and hid both corner glyphs the same way. Instead the shape is filled with
- * the frame's colour, the fill is a smaller copy inside it, and the ring between
- * the two is the frame. The outer box stays unclipped so the glyphs hanging off
+ * the outline's colour, the fill is a smaller copy inside it, and what shows
+ * between the two is the outline. The outer box stays unclipped so the glyphs hanging off
  * the corners survive.
  */
-.node__frame {
+.node__box {
   position: relative;
   width: var(--node-size);
   height: var(--node-size);
@@ -103,25 +111,25 @@
 }
 
 /*
- * The ring grows outward, not inward.
+ * The outline grows outward, not inward.
  *
- * It used to be padding on a border-box, which meant a heavier frame ate the
+ * It used to be padding on a border-box, which meant a heavier outline ate the
  * icon: an Obtained node showed its art at 52px where a Locked one showed the
  * same art at 68px. Owning a boon made it harder to see, which is backwards.
- * Content-box plus a negative margin puts the ring outside the fill instead, so
- * the icon is `--node-size` on every rung and only the ring changes.
+ * Content-box plus a negative margin puts the outline outside the fill instead, so
+ * the icon is `--node-size` on every rung and only the outline changes.
  */
 /* Concentric with the fill inside it: same centre, radius larger by exactly the
-   ring's width. Give both the same radius and the ring pinches at each corner. */
+   outline width. Give both the same radius and the outline pinches at each corner. */
 .node__shape {
-  border-radius: calc(var(--node-radius) + var(--frame-weight, 2px));
-  background: var(--frame);
-  /* Not doubled. The old inward version was, because a ring cut across a
+  border-radius: calc(var(--node-radius) + var(--outline-weight, 2px));
+  background: var(--outline);
+  /* Not doubled. The old inward version was, because an outline cut across a
      45-degree edge shows about seven tenths of its inset — but growing outward
-     the ring is exactly as wide as the padding, and doubling it put 10px on
+     the outline is exactly as wide as the padding, and doubling it put 10px on
      each side of a node into a 12px gap. They overlapped. */
-  padding: var(--frame-weight, 2px);
-  margin: calc(var(--frame-weight, 2px) * -1);
+  padding: var(--outline-weight, 2px);
+  margin: calc(var(--outline-weight, 2px) * -1);
   box-sizing: content-box;
 }
 
@@ -137,13 +145,13 @@
   border-radius: var(--node-radius);
 }
 
-/* Hades II's icons are rounded squares. The frame is built by insetting one box
+/* Hades II's icons are rounded squares. The outline is built by insetting one box
    inside another, so the corner radius has to come off the same variable the
-   clip does, or the ring goes square at the corners while the art stays round.
+   clip does, or the outline goes square at the corners while the art stays round.
 
    A length rather than a percentage, and derived from the node so it still
    scales with it: a percentage resolves against each box's own size, and the
-   ring is a larger box than the fill, so its corners came out *tighter* than
+   outline is a larger box than the fill, so its corners came out *tighter* than
    the icon's and the two did not meet. */
 .node[data-game="hades2"],
 .loadout__tile[data-game="hades2"] {
@@ -207,7 +215,7 @@
 
 /*
  * Top right is the pin's, freed by dropping the checkmark an Obtained node used
- * to carry. Bottom right is the dormant ring's, since a boon can be pinned and
+ * to carry. Bottom right is the dormant badge's, since a boon can be pinned and
  * inert at once. Both sit outside the clip path, or the corners are exactly what
  * gets clipped away.
  */
@@ -231,23 +239,23 @@
 /*
  * ---------------------------------------------------------------------------
  * The real-art ladder — the default. With artwork on the node, state rides on
- * the frame and on what is done to the art. A fill would bury a detailed,
+ * the outline and on what is done to the art. A fill would bury a detailed,
  * already-colourful icon, which is why this differs from the ladder below.
  *
- * Obtained    full-colour art, solid bright frame
- * Available   full-colour art, bright frame, glow — takeable now
- * Pending     full-colour art, plain frame, no glow — on the way
- * Locked      dimmed art, bright thin frame — not started, reachable
- * Impossible  desaturated art, low-contrast frame — can't happen this run
+ * Obtained    full-colour art, solid bright outline, glow — you have this
+ * Available   full-colour art, bright outline, no glow — takeable now
+ * Pending     full-colour art, plain outline, no glow — on the way
+ * Locked      dimmed art, bright thin outline — not started, reachable
+ * Impossible  desaturated art, low-contrast outline — can't happen this run
  * ---------------------------------------------------------------------------
  */
 
 .node[data-state="Obtained"] {
-  --frame-weight: 5px;
+  --outline-weight: 5px;
 }
 
 .node[data-state="Available"] {
-  --frame-weight: 5px;
+  --outline-weight: 5px;
 }
 
 /*
@@ -260,19 +268,19 @@
  * own build off the page is the commoner question, and it is the one the game
  * itself answers this way.
  */
-.node[data-state="Obtained"] .node__frame {
+.node[data-state="Obtained"] .node__box {
   filter: drop-shadow(0 0 0.35rem var(--god)) drop-shadow(0 0 0.7rem var(--god));
 }
 
 .node[data-state="Pending"] {
-  --frame-weight: 3px;
+  --outline-weight: 3px;
 }
 
 /*
  * Pending dims the art a little, where Locked dims it a lot. Doubly encoded on
- * purpose: the ring carries this step everywhere it is drawn, and the god page
- * does not draw one, so without this Available and Pending are the same picture
- * there.
+ * purpose, and both single-channel versions have been tried: with the outline
+ * gone the brightness step alone was too subtle to call, and the weight step
+ * alone is 5px against 3px on a 72px node. Neither carried it by itself.
  */
 .node[data-ladder="real-art"][data-state="Pending"] .node__fill {
   filter: brightness(0.78);
@@ -283,12 +291,12 @@
  * Desaturation is the "not this run" signal and says nothing to a reader already
  * seeing the page without colour, which is every reader this ladder was made
  * structural for. Checked by looking: dimmed the same way, Locked and Impossible
- * were the same picture in greyscale. So Locked keeps a bright frame around
+ * were the same picture in greyscale. So Locked keeps a bright outline around
  * dimmed art — the boon is untouched and still ahead of you — and Impossible
- * dims the frame with it.
+ * dims the outline with it.
  */
 .node[data-state="Locked"] {
-  --frame-weight: 2px;
+  --outline-weight: 2px;
 }
 
 .node[data-state="Locked"] .node__fill {
@@ -300,10 +308,10 @@
 }
 
 .node[data-state="Impossible"] {
-  --frame-weight: 1px;
+  --outline-weight: 1px;
 }
 
-.node[data-state="Impossible"] .node__frame {
+.node[data-state="Impossible"] .node__box {
   filter: grayscale(1) opacity(0.55);
 }
 
@@ -315,7 +323,7 @@
  * ---------------------------------------------------------------------------
  * The fallback ladder — no artwork at all, which is what this product looks like
  * if the shipped art has to come down. The same five steps carried by fill and
- * frame, with god colour back on the node since it is the only identity channel
+ * outline, with god colour on the fill as well, that being the only identity channel
  * left. Same component, one stylesheet along: a second component would be the
  * one nobody looked at until the day it was the only one.
  * ---------------------------------------------------------------------------
@@ -335,7 +343,7 @@
 
 /* Locked dims the art on the default ladder and here there is none. Dimming the
    empty middle only darkens it past the page behind it, which reads as a filled
-   node rather than a faded one, so the frame takes the dimming instead. */
+   node rather than a faded one, so the outline takes the dimming instead. */
 .node[data-ladder="fallback"][data-state="Locked"] .node__fill {
   filter: none;
 }
@@ -388,20 +396,22 @@
  * second colour.
  */
 /*
- * The ring, in the god's colour.
+ * The outline on this page is the god's colour, and it needs no rule here: that
+ * is the node's own default, and the four kinds of boon that carry a colour of
+ * their own get it handed down per node instead.
  *
  * It went transparent for a round, on the argument that a white box around
  * every icon said the same thing about all of them. True of the colour and not
- * of the ring: weight is the ladder's clearest step, and with it gone the
- * brightness ladder underneath was too subtle to read. So the ring returns and
- * takes the god's hue, which is the one identity this page has -- and rarity
- * stays off it here, because on the God View rarity is a band behind the icon
- * and only for the rarities a player cannot choose.
+ * of the outline: weight is the ladder's clearest step, and with it gone the
+ * brightness ladder underneath was too subtle to read.
+ *
+ * Rarity rides this outline rather than sitting behind the icon as a second
+ * shape. Only for the four a player cannot simply be offered — a Duo, a
+ * Legendary, a Godsent Hex, an Infusion — which is what keeps it off the third
+ * channel a node has no room for. A Duo takes its partner god's hue rather
+ * than the Duo colour, that being the one node on the page belonging to
+ * somebody else and the hue the one thing saying so.
  */
-.godpage .node {
-  --frame: var(--god);
-}
-
 .godpage {
   /* The wire layer is absolutely positioned against this. */
   position: relative;
@@ -436,8 +446,8 @@
 .godpage__junctions {
   display: flex;
   flex-wrap: wrap;
-  /* Wide enough for a 5px ring on each of two neighbours plus the glow, which
-     reaches further than the ring does. */
+  /* Wide enough for a 5px outline on each of two neighbours plus the glow,
+     which reaches further than the outline does. */
   gap: 1.4rem;
   /* Centred, so a short band sits under the middle of the one above it and the
      connectors fan symmetrically instead of all leaning left. */
@@ -863,23 +873,25 @@
 }
 
 /*
- * Nothing rings a tile in here and nothing glows.
+ * The node draws no outline of its own in here, and nothing glows yet.
  *
- * Every boon in the Loadout is Obtained, so a glow meaning "you have this"
- * tells you nothing and only bleeds into the tile beside it; the ring is
- * reserved for rarity, which is what the game puts there. The glow is spoken
- * for by the held-open card, which does not exist yet.
+ * The outline here belongs to rarity, which is where the game puts it, and it
+ * is drawn as a shape behind the tile rather than on the node — see the band
+ * below for why it cannot be a shadow. The glow is spoken for too: every boon
+ * in the Loadout is Obtained, so "you have this" discriminates nothing and only
+ * bleeds into the neighbouring tile, and the signal that earns it is a card
+ * held open or hovered. Neither is built.
  *
- * **Both selectors carry a `[data-state]` on purpose.** The ladder's own rules
- * are `.node[data-state="X"] .node__frame`, which is three classes' worth of
+ * Both selectors carry a `[data-state]` on purpose. The ladder's own rules are
+ * `.node[data-state="X"] .node__box`, which is three classes' worth of
  * specificity; the first version of this was two and quietly lost, leaving the
  * glow on every tile.
  */
 .loadout__tile .node[data-state] {
-  --frame: transparent;
+  --outline: transparent;
 }
 
-.loadout__tile .node[data-state] .node__frame {
+.loadout__tile .node[data-state] .node__box {
   filter: none;
 }
 
@@ -908,9 +920,11 @@
 }
 
 /*
- * The rarity, along the tile's upper-right edge — the same place and the same
- * channel the game puts it on. Common sets no property and gets no treatment,
- * so a coloured tile means something.
+ * The rarity, in the place and the channel the game puts it on — which is not
+ * the same place in the two games, because the icons are not the same shape.
+ * Hades I gets a wedge along the tile's upper-right edge; Hades II gets a thin
+ * ring around the whole icon, below. Common sets no property and gets no
+ * treatment, so a coloured tile means something.
  *
  * A shape behind the tile, offset up and to the right so that only its
  * upper-right edges clear the diamond — the lower-left ones are pulled in
@@ -943,6 +957,23 @@
   background: var(--rarity);
   clip-path: var(--node-clip);
   border-radius: var(--node-radius);
+}
+
+/*
+ * Hades II wants a ring rather than a wedge, and the offset above is what has
+ * to go: a rounded square shifted up and to the right shows as a coloured
+ * corner peeking out from behind the icon, which is neither what the game draws
+ * nor a rarity anyone would read. Undo the shift and the same shape becomes an
+ * even border on all four sides.
+ *
+ * The radius is the icon's plus the ring's width, which is what makes two
+ * rounded rectangles concentric — give both the same radius and the ring
+ * pinches at every corner, the outer box being the larger of the two.
+ */
+.loadout__tile[data-game="hades2"][data-rarity]::before {
+  inset: -0.16rem;
+  transform: none;
+  border-radius: calc(var(--node-radius) + 0.16rem);
 }
 
 .loadout__tile .node {
@@ -1066,8 +1097,9 @@
   font-size: 0.78rem;
 }
 
-/* Which tile the card is about. Its own channel: the rarity band is a colour
-   behind the tile and the state is the frame, so this is an outline. */
+/* Which tile the card is about. Its own channel, and the last one free here:
+   rarity is the shape behind the tile and the glow belongs to a card held open,
+   so selection gets the browser's own `outline` property, drawn outside both. */
 .loadout__tile[data-selected] {
   outline: 2px solid currentColor;
   outline-offset: 3px;
