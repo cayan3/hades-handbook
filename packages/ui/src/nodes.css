@@ -491,8 +491,12 @@
   margin-top: 0.9rem;
 }
 
+/* The long half of the gap, and it has to stay long: the drop from a junction
+   to the boon it feeds carries a right angle at each end, and at 2.4rem the
+   whole fall was 42px — too little for 26px of clearance on both sides, so the
+   bar landed mid-way and the 45s ate what was left of the verticals. */
 .godpage__branches + .godpage__band {
-  margin-top: 2.4rem;
+  margin-top: 4rem;
 }
 
 .godpage__nodes,

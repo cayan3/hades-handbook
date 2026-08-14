@@ -59,28 +59,51 @@ describe("lanesFor", () => {
     expect(new Set(lanes.values()).size).toBe(1);
   });
 
-  it("shares a height between the bars furthest apart, never adjacent ones", () => {
-    // Ordered by where the target sits, so the pair forced to share is the pair
-    // least likely to overlap along the way. 180 - 60 - 52 = 68 of room, which
-    // is eight lanes, so three targets get three heights and none doubles up.
+  it("puts targets asking for the same things on one bar", () => {
+    // The bus in the game's own dependency charts: several boons behind one
+    // requirement hang off a single line rather than each drawing its own.
+    // Measured over both catalogs, 158 of 452 targets are in such a group and
+    // the largest gathers eight.
     const roomy = new Map<string, Place>([
       ["a", place(0, 0)],
       ["x", place(0, 180)],
       ["y", place(100, 180)],
       ["z", place(200, 180)],
     ]);
-    const lanes = lanesFor([edge("a", "x"), edge("a", "y"), edge("a", "z")], roomy);
-    expect(new Set(lanes.values()).size).toBe(3);
+    const same = lanesFor([edge("a", "x"), edge("a", "y"), edge("a", "z")], roomy);
+    expect(new Set(same.values()).size).toBe(1);
+  });
 
-    // The same three in a gap that holds one bar all share it, which is the
-    // degradation rather than a bar drawn over an icon.
+  it("keeps a bar of its own for a target that asks for something else", () => {
+    // Merging is on the ask being identical, not on it overlapping: `z` wants a
+    // second boon, so it is not on the same requirement and not on the bar.
+    const roomy = new Map<string, Place>([
+      ["a", place(0, 0)],
+      ["b", place(300, 0)],
+      ["x", place(0, 180)],
+      ["y", place(100, 180)],
+      ["z", place(200, 180)],
+    ]);
+    const mixed = lanesFor(
+      [edge("a", "x"), edge("a", "y"), edge("a", "z"), edge("b", "z")],
+      roomy,
+    );
+    expect(mixed.get("a>x")).toBe(mixed.get("a>y"));
+    expect(mixed.get("a>z")).not.toBe(mixed.get("a>x"));
+    expect(mixed.get("a>z")).toBe(mixed.get("b>z"));
+  });
+
+  it("shares a height once the gap has run out of room for another", () => {
+    // The gap decides how many heights there are, and a tight one holds a
+    // single lane — which is the degradation rather than a bar over an icon.
     const tight = new Map<string, Place>([
       ["a", place(0, 0)],
+      ["b", place(300, 0)],
       ["x", place(0, 120)],
-      ["y", place(100, 120)],
-      ["z", place(200, 120)],
+      ["y", place(200, 120)],
     ]);
-    expect(new Set(lanesFor([edge("a", "x"), edge("a", "y"), edge("a", "z")], tight).values()).size).toBe(1);
+    const lanes = lanesFor([edge("a", "x"), edge("b", "y")], tight);
+    expect(new Set(lanes.values()).size).toBe(1);
   });
 
   it("keeps a bar clear of the icons at both ends", () => {
@@ -105,9 +128,11 @@ describe("lanesFor", () => {
 });
 
 describe("wire", () => {
-  it("routes down, across its bar, and down again", () => {
+  it("routes down, across its bar, and down again, on 45s", () => {
+    // Right angles cut back by 16px, which is the only other angle the page
+    // draws. The horizontal survives; what goes is the corner itself.
     expect(wire(place(100, 0), place(200, 200), 150)).toBe(
-      "M 100 60 L 100 150 L 200 150 L 200 200",
+      "M 100 60 L 100 134 L 116 150 L 184 150 L 200 166 L 200 200",
     );
   });
 
@@ -126,18 +151,18 @@ describe("wire", () => {
     // Two nodes in one band: `lanesFor` skips the pair, so the run drops below
     // the row rather than cutting back through it.
     expect(wire(place(100, 0), place(200, 0), undefined)).toBe(
-      "M 100 60 L 100 86 L 200 86 L 200 0",
+      "M 100 60 L 100 73 L 113 86 L 184 86 L 200 70 L 200 0",
     );
   });
 
-  it("leans a nearly-aligned run rather than stepping it", () => {
+  it("turns a sidestep into one 45 rather than two right angles", () => {
     // Measured on Hera, 17 of 68 segments were a step of 14px or less between
-    // two right angles — which reads as a mistake, where the same 14px leaned
-    // over a 300px fall is invisible. The threshold grows with the drop.
-    expect(wire(place(100, 0), place(114, 400), 200)).toBe("M 100 60 L 114 400");
-    // A short fall has no room to hide it, so 14px there is still a step.
-    expect(wire(place(100, 0), place(114, 90), 75)).toBe(
-      "M 100 60 L 100 75 L 114 75 L 114 90",
+    // two right angles, which reads as a slip. At that width the two chamfers
+    // meet in the middle and the whole turn becomes a single dogleg — one
+    // segment, because a corner drawn where the line does not turn is a corner
+    // that will one day be drawn with a join on it.
+    expect(wire(place(100, 0), place(114, 400), 200)).toBe(
+      "M 100 60 L 100 193 L 114 207 L 114 400",
     );
   });
 
@@ -147,7 +172,7 @@ describe("wire", () => {
     // halfway to the row below, so the corner that begins it is not a stub.
     const blocker = place(100, 120);
     expect(wire(place(100, 0), place(300, 400), 380, [blocker])).toBe(
-      "M 100 60 L 100 90 L 300 90 L 300 400",
+      "M 100 60 L 100 75 L 115 90 L 284 90 L 300 106 L 300 400",
     );
   });
 
@@ -170,11 +195,23 @@ describe("wire", () => {
     expect(path.split(" L ").length).toBeGreaterThan(2);
   });
 
-  it("draws no corner where the direction does not change", () => {
-    // A route can leave a corner between two runs going the same way, and a
-    // path with a point in the middle of a straight line is a path that will
-    // one day be drawn with a join on it.
-    const path = wire(place(100, 0), place(200, 200), 150);
-    expect(path.split(" L ")).toHaveLength(4);
+  it("draws only right angles and 45s, and nothing between", () => {
+    // The whole angle vocabulary of the page. Every segment runs vertically,
+    // horizontally, or at exactly 45 degrees; anything else is a lean, which
+    // reads as a mistake beside a page of square corners.
+    const paths = [
+      wire(place(100, 0), place(200, 200), 150),
+      wire(place(100, 0), place(114, 400), 200),
+      wire(place(100, 0), place(300, 400), 380, [place(100, 120)]),
+    ];
+    for (const path of paths) {
+      const pts = path.split(/[ML] /).filter(Boolean).map((s) => s.trim().split(" ").map(Number));
+      for (let i = 1; i < pts.length; i += 1) {
+        const dx = Math.abs(pts[i]![0]! - pts[i - 1]![0]!);
+        const dy = Math.abs(pts[i]![1]! - pts[i - 1]![1]!);
+        const ok = dx < 0.01 || dy < 0.01 || Math.abs(dx - dy) < 0.01;
+        expect(ok, `${path} has a segment of ${dx} by ${dy}`).toBe(true);
+      }
+    }
   });
 });

@@ -396,21 +396,42 @@ export function lanesFor(
     ids: string[];
   }
 
-  const bars = new Map<string, Bar>();
+  // Everything feeding one target, so two targets asking for the same thing can
+  // be told apart from two that merely overlap.
+  const feeding = new Map<string, string[]>();
   for (const edge of edges) {
     const from = places.get(edge.from);
     const to = places.get(edge.to);
     // A wire inside one band has no gap to sit in and is `wire`'s own case.
     if (from === undefined || to === undefined || from.bottom >= to.top) continue;
-    const bar = bars.get(edge.to);
+    feeding.set(edge.to, [...(feeding.get(edge.to) ?? []), edge.id]);
+  }
+
+  const bars = new Map<string, Bar>();
+  for (const [target, ids] of feeding) {
+    const to = places.get(target)!;
+    // Two boons wanting the same things share one bar rather than drawing two
+    // at different heights — 158 of the 452 targets across both catalogs are in
+    // such a group, and the largest gathers eight. The row is in the key
+    // because a wrapped band puts identical asks on different lines.
+    const asks = ids
+      .map((id) => edges.find((edge) => edge.id === id)?.from ?? "")
+      .sort()
+      .join("|");
+    const key = `${Math.round(to.top)}|${asks}`;
+    const bar = bars.get(key);
+    const lowest = Math.max(
+      ...ids.map((id) => places.get(edges.find((edge) => edge.id === id)!.from)!.bottom),
+    );
     if (bar === undefined) {
-      bars.set(edge.to, { x: to.x, top: to.top, source: from.bottom, ids: [edge.id] });
+      bars.set(key, { x: to.x, top: to.top, source: lowest, ids: [...ids] });
       continue;
     }
     // The lowest source is what the bar has to clear, having to sit below every
     // icon it leaves.
-    bar.source = Math.max(bar.source, from.bottom);
-    bar.ids.push(edge.id);
+    bar.source = Math.max(bar.source, lowest);
+    bar.x = Math.min(bar.x, to.x);
+    bar.ids.push(...ids);
   }
 
   // Per target row rather than per page: a bar is placed against its own
@@ -503,9 +524,7 @@ function clearColumn(
  * down into the target. Every segment is parallel or perpendicular to the rest,
  * which is what lets a fan of them read as a bus rather than as noise.
  *
- * Nearly aligned goes straight, on a threshold that grows with the drop: a 14px
- * step between two right angles reads as a slip, where the same 14px leaned over
- * a 300px fall is invisible. Measured on Hera, 17 of 68 segments were that step.
+ * Right angles only here; `chamfer` is what turns the tight ones into 45s.
  *
  * A run that would cross an icon goes around it instead — into the gap below the
  * source's row, along to the near side of what is in the way, and down. A band
@@ -517,15 +536,10 @@ export function route(
   at: number,
   obstacles: readonly Place[],
 ): ReadonlyArray<readonly [number, number]> {
-  const fall = Math.max(to.top - from.bottom, 0);
-  // Leaning it is only better than stepping it where the lean is clear. A run
-  // that would pass through an icon takes the corners instead, however little
-  // it has to move sideways: not crossing beats not stepping.
-  const aligned = Math.abs(to.x - from.x) <= Math.max(8, fall * 0.12);
+  // A column, so there is nothing to turn for.
   if (
-    aligned &&
-    !crosses(from.x, from.bottom, to.top, obstacles) &&
-    !crosses(to.x, from.bottom, to.top, obstacles)
+    Math.abs(to.x - from.x) < 0.5 &&
+    !crosses(from.x, from.bottom, to.top, obstacles)
   ) {
     return [
       [from.x, from.bottom],
@@ -565,6 +579,64 @@ export function route(
   ];
 }
 
+/** The most a corner is cut back, so a chamfer stays a detail and not a curve. */
+const CHAMFER = 16;
+
+/**
+ * Every corner cut to 45 degrees, by half the shorter of the two runs meeting
+ * there so two chamfers can never overlap.
+ *
+ * It is what keeps a 14px sidestep from being drawn as two right angles a
+ * fingernail apart: at that width the two chamfers meet in the middle and the
+ * whole turn becomes one 45-degree dogleg, which is the only other angle the
+ * page is allowed. A long run keeps its horizontal and gets 45s at each end.
+ */
+export function chamfer(
+  corners: ReadonlyArray<readonly [number, number]>,
+  obstacles: readonly Place[] = [],
+  max = CHAMFER,
+): ReadonlyArray<readonly [number, number]> {
+  if (corners.length < 3) return corners;
+  const out: Array<readonly [number, number]> = [corners[0]!];
+  for (let i = 1; i < corners.length - 1; i += 1) {
+    const [px, py] = corners[i - 1]!;
+    const [vx, vy] = corners[i]!;
+    const [nx, ny] = corners[i + 1]!;
+    const back = Math.hypot(vx - px, vy - py);
+    const on = Math.hypot(nx - vx, ny - vy);
+    // Half of each run, which is what lets a short one be consumed entirely and
+    // come out as a single dogleg. A third leaves a few pixels of flat between
+    // the two chamfers, which is the sidestep it exists to remove.
+    const r = Math.min(max, back / 2, on / 2);
+    const from: readonly [number, number] = [
+      vx - ((vx - px) / back) * r,
+      vy - ((vy - py) / back) * r,
+    ];
+    const to: readonly [number, number] = [
+      vx + ((nx - vx) / on) * r,
+      vy + ((ny - vy) / on) * r,
+    ];
+    // A square corner clear of everything can still cut across one diagonally,
+    // which is where the last crossings on Zeus, Poseidon and Apollo came from.
+    // The corner keeps its right angle rather than the route being re-run.
+    const cuts = obstacles.some(
+      (o) =>
+        Math.max(from[0], to[0]) > o.left + 1 &&
+        Math.min(from[0], to[0]) < o.right - 1 &&
+        Math.max(from[1], to[1]) > o.top + 1 &&
+        Math.min(from[1], to[1]) < o.bottom - 1,
+    );
+    if (r < 0.5 || cuts) {
+      out.push(corners[i]!);
+      continue;
+    }
+    out.push(from);
+    out.push(to);
+  }
+  out.push(corners.at(-1)!);
+  return out;
+}
+
 /**
  * The path, with the corners a route left in that say nothing — a segment of no
  * length, and a corner between two runs in the same direction.
@@ -579,7 +651,7 @@ export function wire(
   obstacles: readonly Place[] = [],
 ): string {
   if (from === undefined || to === undefined) return "";
-  const corners = route(from, to, at ?? from.bottom + CLEARANCE, obstacles);
+  const corners = chamfer(route(from, to, at ?? from.bottom + CLEARANCE, obstacles), obstacles);
   const kept: Array<readonly [number, number]> = [];
   for (const corner of corners) {
     const last = kept.at(-1);
@@ -587,13 +659,14 @@ export function wire(
       continue;
     }
     const before = kept.at(-2);
-    if (
-      last !== undefined &&
-      before !== undefined &&
-      ((before[0] === last[0] && last[0] === corner[0]) ||
-        (before[1] === last[1] && last[1] === corner[1]))
-    ) {
-      kept.pop();
+    // Any direction, not just the two axes: two chamfers meeting in the middle
+    // of a short run make one 45-degree dogleg, and left as two it is a corner
+    // drawn where the line does not turn.
+    if (last !== undefined && before !== undefined) {
+      const turn =
+        (last[0] - before[0]) * (corner[1] - last[1]) -
+        (last[1] - before[1]) * (corner[0] - last[0]);
+      if (Math.abs(turn) < 0.01) kept.pop();
     }
     kept.push(corner);
   }
