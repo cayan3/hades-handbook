@@ -386,21 +386,34 @@ function partnerOf(source: NodeSource, god: GodId, trait: TraitId): GodId | null
 }
 
 /**
- * The edges and junctions to draw around one node — everything reaching it,
+ * The edges and junctions to draw around one endpoint — everything reaching it,
  * everything leaving it, and the branch points on either path.
  *
  * The resting page draws none of them. A page carries up to 66 connectors and
  * a gate offering "any one of nine" fans that far on its own, so drawing them
  * all at rest is the hairball this layout exists to avoid; the light-up on
  * satisfaction only reads against a quiet page.
+ *
+ * A junction is an endpoint too, and is told apart rather than passed through
+ * `endpointOwner`, which answers with its dependent.
  */
-export function neighbourhood(graph: GodGraph, trait: TraitId | null): ReadonlySet<string> {
+export function neighbourhood(graph: GodGraph, endpoint: string | null): ReadonlySet<string> {
   const edges = new Set<string>();
-  if (trait === null) return edges;
+  if (endpoint === null) return edges;
+
+  // Strictly a subset of what its dependent's own selection draws, which is why
+  // a junction still needs no tab stop: a keyboard reaches the same lines, and
+  // more of them, through the node underneath it.
+  if (isJunctionId(endpoint)) {
+    for (const edge of graph.edges) {
+      if (edge.from === endpoint || edge.to === endpoint) edges.add(edge.id);
+    }
+    return edges;
+  }
 
   const junctions = new Set<string>();
   for (const edge of graph.edges) {
-    if (endpointOwner(edge.from) !== trait && endpointOwner(edge.to) !== trait) continue;
+    if (endpointOwner(edge.from) !== endpoint && endpointOwner(edge.to) !== endpoint) continue;
     edges.add(edge.id);
     if (isJunctionId(edge.from)) junctions.add(edge.from);
     if (isJunctionId(edge.to)) junctions.add(edge.to);

@@ -398,6 +398,20 @@ describe("the drawn neighbourhood", () => {
     // reads as a dead end rather than as the thing it unlocks.
     expect([...neighbourhood(graph, "a")].sort()).toEqual(["a>d#0", "d#0>d"]);
   });
+
+  it("takes a junction as an endpoint and narrows to that one gate", () => {
+    // Passed through `endpointOwner` a junction id answers with its dependent,
+    // which would light everything around `d` instead of the gate hovered.
+    expect([...neighbourhood(graph, "d#0")].sort()).toEqual(["a>d#0", "b>d#0", "d#0>d"]);
+  });
+
+  it("lights nothing its dependent does not light already", () => {
+    // The whole of why a junction still needs no tab stop: a keyboard reaching
+    // the node underneath gets these lines and more.
+    const gate = neighbourhood(graph, "d#0");
+    const dependent = neighbourhood(graph, "d");
+    for (const edge of gate) expect(dependent.has(edge)).toBe(true);
+  });
 });
 
 describe("what a page carries", () => {

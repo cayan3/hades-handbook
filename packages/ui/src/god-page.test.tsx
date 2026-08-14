@@ -207,6 +207,19 @@ describe("the connectors", () => {
     expect(wires()).toHaveLength(0);
   });
 
+  it("draws a gate's own lines when the junction is hovered", () => {
+    render(page(LADDER));
+    const cell = container.querySelector(".godpage__junctions li")!;
+    act(() => cell.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+
+    // All three: the two branches into it and its own way down. Hovering a
+    // junction is the narrow question — this gate, not everything around `d`.
+    expect(wires()).toHaveLength(3);
+
+    act(() => cell.dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    expect(wires()).toHaveLength(0);
+  });
+
   it("draws the lot when asked, and says which paths are contributing", () => {
     render(page(LADDER));
     const toggle = container.querySelector<HTMLInputElement>(".godpage__toggle input")!;

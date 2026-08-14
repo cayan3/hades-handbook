@@ -46,8 +46,12 @@ const NOWHERE: ReadonlyMap<string, Place> = new Map();
 export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPageProps) {
   const canvas = useRef<HTMLDivElement>(null);
   const [places, setPlaces] = useState(NOWHERE);
-  /** The node the connectors are drawn around: whatever is hovered or focused. */
-  const [selected, setSelected] = useState<TraitId | null>(null);
+  /**
+   * The endpoint the connectors are drawn around: whatever is hovered or
+   * focused. A junction id as readily as a trait id — hovering one narrows the
+   * picture to that gate, and `isJunctionId` is what tells the two apart.
+   */
+  const [selected, setSelected] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   /**
    * The rim is behind a control because it is the one band that is not this
@@ -172,7 +176,18 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
             {band.junctions.length === 0 ? null : (
               <ul className="godpage__junctions">
                 {band.junctions.map((junction) => (
-                  <li key={junction.id} data-endpoint={junction.id}>
+                  <li
+                    key={junction.id}
+                    data-endpoint={junction.id}
+                    // Hover only, and it stays that way: a junction is not a tab
+                    // stop, and what it lights is a subset of what its dependent
+                    // already lights, so a keyboard loses nothing by not having
+                    // one more control to step through.
+                    onMouseEnter={() => setSelected(junction.id)}
+                    onMouseLeave={() =>
+                      setSelected((now) => (now === junction.id ? null : now))
+                    }
+                  >
                     <Junction
                       status={junction.status}
                       min={junction.min}
