@@ -115,6 +115,39 @@ describe("the bands", () => {
     expect(bands[1]?.junctions.map((j) => j.dependent)).toEqual(["reachable"]);
   });
 
+  it("leads the top layer with the core slots, in the game's order", () => {
+    // Declared and named backwards, so neither the declared order nor the name
+    // order can produce the answer. `spare` has no core slot and goes after all
+    // of them however early its name sorts.
+    const source = world(
+      record("aaa-spare", { god: ZEUS, slot: "Other" }),
+      record("zzz-dash", { god: ZEUS, slot: "Rush" }),
+      record("yyy-attack", { god: ZEUS, slot: "Melee" }),
+    );
+    const bands = godGraph(source, ZEUS, makeFacts(), ["Melee", "Secondary", "Rush"]).bands;
+
+    expect(bands[0]?.members.map((m) => m.trait)).toEqual([
+      "yyy-attack",
+      "zzz-dash",
+      "aaa-spare",
+    ]);
+    // And the rule between the two groups is drawn off this, on the first cell
+    // that is not a core one.
+    expect(bands[0]?.members.map((m) => m.core)).toEqual([true, true, false]);
+  });
+
+  it("orders nothing by slot where the caller names none", () => {
+    // The slot list is the caller's, so a page built without one falls back to
+    // the arrangement it had rather than to an arbitrary order.
+    const source = world(
+      record("b", { god: ZEUS, slot: "Rush" }),
+      record("a", { god: ZEUS, slot: "Melee" }),
+    );
+    const bands = godGraph(source, ZEUS, makeFacts()).bands;
+    expect(bands[0]?.members.map((m) => m.trait)).toEqual(["a", "b"]);
+    expect(bands[0]?.members.every((m) => !m.core)).toBe(true);
+  });
+
   it("gives an Infusion its own band whatever shape the element gate takes", () => {
     // Three shapes in the data and a check on the top-level kind catches one:
     // a bare count, a choice of counts, and one count per element.
@@ -138,10 +171,14 @@ describe("the bands", () => {
 
     const zeus = godGraph(source, ZEUS, makeFacts()).bands.at(-1);
     expect(zeus?.kind).toBe("duo");
-    expect(zeus?.members).toEqual([{ trait: "duo", partner: ARES, kind: "duo", hex: null }]);
+    expect(zeus?.members).toEqual([
+      { trait: "duo", partner: ARES, kind: "duo", hex: null, core: false },
+    ]);
 
     const ares = godGraph(source, ARES, makeFacts()).bands.at(-1);
-    expect(ares?.members).toEqual([{ trait: "duo", partner: ZEUS, kind: "duo", hex: null }]);
+    expect(ares?.members).toEqual([
+      { trait: "duo", partner: ZEUS, kind: "duo", hex: null, core: false },
+    ]);
   });
 
   /**
@@ -484,7 +521,13 @@ describe("what a page carries", () => {
     const zeus = godGraph(source, "Zeus" as GodId, makeFacts());
 
     expect(zeus.bands.find((band) => band.kind === "infusion")?.members).toEqual([
-      { trait: "ElementalDamageFloorBoon", partner: null, kind: "infusion", hex: null },
+      {
+        trait: "ElementalDamageFloorBoon",
+        partner: null,
+        kind: "infusion",
+        hex: null,
+        core: false,
+      },
     ]);
     // Hades I has no Elements, so it has no such band anywhere.
     const h1 = createNodeSource("hades1", stubRules(), stubLookups(), traitsFor("hades1"));

@@ -514,6 +514,16 @@
   justify-content: space-evenly;
 }
 
+/* The spine of a build, set apart from the rest of its layer by a rule rather
+   than by a band of its own: they are on the same rung and a second band would
+   say they were not. Drawn on the first cell that is not one, so it lands
+   between the two groups and nowhere else. */
+.godpage__nodes li[data-core] + li:not([data-core]) {
+  margin-left: 0.5rem;
+  padding-left: 1.4rem;
+  border-left: 1px solid rgb(255 255 255 / 18%);
+}
+
 /* The rim: the Duos this god is half of, set apart from its own ladder. */
 .godpage__band[data-kind="duo"] {
   margin-top: 2.25rem;

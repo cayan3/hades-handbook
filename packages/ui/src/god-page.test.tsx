@@ -63,7 +63,7 @@ function view(trait: TraitId, over: Partial<NodeView> = {}): NodeView {
 }
 
 function member(trait: TraitId, over: Partial<GraphMember> = {}): GraphMember {
-  return { trait, partner: null, kind: null, hex: null, ...over };
+  return { trait, partner: null, kind: null, hex: null, core: false, ...over };
 }
 
 function band(over: Partial<GraphBand>): GraphBand {

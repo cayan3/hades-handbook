@@ -218,7 +218,7 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
               {band.label === null ? null : <h3 className="visually-hidden">{band.label}</h3>}
 
               <ul className="godpage__nodes">
-                {band.members.map(({ trait, partner, kind, hex }) => {
+                {band.members.map(({ trait, partner, kind, hex, core }) => {
                   const view = views.get(trait);
                   if (view === undefined) return null;
                   // The rim is reached from two directions and this line says
@@ -234,6 +234,10 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
                     <li
                       key={trait}
                       data-endpoint={trait}
+                      // The slots every run fills lead the top layer, and the
+                      // rule between them and the rest is drawn off this: a
+                      // core cell followed by one that is not.
+                      data-core={core ? "true" : undefined}
                       // Selection lives on the cell rather than in the node,
                       // because which node a page is drawing around is a fact
                       // about the page. Focus counts as well as hover, or the

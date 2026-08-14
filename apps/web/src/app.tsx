@@ -190,7 +190,10 @@ function Run({
   const view = useCallback((trait: TraitId) => cache.viewOf(trait, facts), [cache, facts]);
   // The page's shape and the page's state, derived together because the
   // connectors carry path status and that is a fact about the run.
-  const graph = useMemo(() => godGraph(source, showing, facts), [source, showing, facts]);
+  const graph = useMemo(
+    () => godGraph(source, showing, facts, CORE_SLOTS[game]),
+    [source, showing, facts, game],
+  );
   const boonViews = useMemo(
     () => new Map(graphTraits(graph).map((trait) => [trait, view(trait)])),
     [graph, view],

@@ -55,6 +55,12 @@ export interface GraphMember {
    * the shipped text stays behind the one resolver that can withdraw it.
    */
   readonly hex: TraitId | null;
+  /**
+   * One of the slots every run fills — Attack, Special, Cast, Dash, and the
+   * fifth each game names differently. They lead the top layer in the game's own
+   * slot order rather than in name order, being the spine of a build.
+   */
+  readonly core: boolean;
 }
 
 export interface GraphJunction {
@@ -140,7 +146,18 @@ export function graphTraits(graph: GodGraph): TraitId[] {
   return graph.bands.flatMap((band) => band.members.map((member) => member.trait));
 }
 
-export function godGraph(source: NodeSource, god: GodId, facts: RunFacts): GodGraph {
+/**
+ * `coreSlots` is the game's own slot order and the caller's, the same list the
+ * Loadout is handed: which slots exist and in what order is a fact about the
+ * game that neither the records nor this file state. Left out, the page loses
+ * the ordering and nothing else.
+ */
+export function godGraph(
+  source: NodeSource,
+  god: GodId,
+  facts: RunFacts,
+  coreSlots: readonly string[] = [],
+): GodGraph {
   const traits = pageTraits(source, god);
   const onPage = new Set(traits);
 
@@ -159,7 +176,7 @@ export function godGraph(source: NodeSource, god: GodId, facts: RunFacts): GodGr
     }
   }
 
-  return { god, bands: layOut(source, god, traits, junctions, edges), edges };
+  return { god, bands: layOut(source, god, traits, junctions, edges, coreSlots), edges };
 }
 
 /**
@@ -336,7 +353,15 @@ function layOut(
   traits: readonly TraitId[],
   junctions: readonly GraphJunction[],
   edges: readonly GraphEdge[],
+  coreSlots: readonly string[],
 ): readonly GraphBand[] {
+  // Where a core boon sits in the game's own slot order, and past the end of it
+  // for everything else, so the two groups sort apart without a second pass.
+  const rank = (trait: TraitId): number => {
+    const slot = source.records[trait]?.slot;
+    const at = slot == null ? -1 : coreSlots.indexOf(slot);
+    return at === -1 ? coreSlots.length : at;
+  };
   const kinds = new Map(traits.map((trait) => [trait, bandOf(source, trait)]));
   const tiered = new Set(traits.filter((trait) => kinds.get(trait) === "tier"));
   const layer = layerOf(tiered, edges);
@@ -357,7 +382,7 @@ function layOut(
 
   const placed = new Map<TraitId, number>();
   return ordered.map(([key, band]) => {
-    const members = arrange(source, band.members, edges, placed);
+    const members = arrange(source, band.members, edges, placed, rank);
     members.forEach((trait, index) => placed.set(trait, index));
 
     const order = new Map(members.map((trait, index) => [trait, index]));
@@ -373,6 +398,7 @@ function layOut(
         partner: partnerOf(source, god, trait),
         kind: kindOf(source.records[trait]),
         hex: hexOf(source.records[trait]),
+        core: rank(trait) < coreSlots.length,
       })),
     };
   });
@@ -396,6 +422,7 @@ function arrange(
   members: readonly TraitId[],
   edges: readonly GraphEdge[],
   placed: ReadonlyMap<TraitId, number>,
+  rank: (trait: TraitId) => number,
 ): readonly TraitId[] {
   const sources = new Map<TraitId, number[]>();
   for (const edge of edges) {
@@ -408,6 +435,9 @@ function arrange(
   }
 
   return [...members].sort((a, b) => {
+    // The slot order first, and it only ever separates anything on the top
+    // layer: a core boon has no prerequisites, so nothing deeper carries one.
+    if (rank(a) !== rank(b)) return rank(a) - rank(b);
     const left = barycentre(sources.get(a));
     const right = barycentre(sources.get(b));
     if (left !== right) return left - right;
