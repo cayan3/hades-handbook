@@ -1,5 +1,5 @@
 import type { Rarity } from "@repo/core";
-import type { NodeKind } from "./god-graph.js";
+import type { NodeKind, NodeView } from "./node-view.js";
 
 /**
  * The rarity colours, verbatim from both games, which agree on every tier they
@@ -37,12 +37,46 @@ export function rarityColour(rarity: Rarity): string {
 }
 
 /**
- * The colour a god page's outline takes for the four kinds of boon that are not
- * an ordinary offer from that god, `null` for a Duo and for everything else.
+ * The word a surface shows about a boon, and the colour to draw it in.
  *
- * A Duo is `null` because its hue is not fixed: it takes its *partner's*, which
- * only the page knows, and which is the one colour on a single-god page that
- * discriminates anything.
+ * One function because it is one rule: a boon with a **kind** shows that kind's
+ * name and no rarity, and a kindless boon is the only thing that shows one.
+ *
+ * A null colour is not "no word" — Common has no treatment anywhere and still
+ * writes its name, in ink. Ask about the colour to paint something, about the
+ * word to write it.
+ */
+export interface RarityTreatment {
+  readonly word: string;
+  /** `null` where nothing is painted, which is Common and a rarity we don't know. */
+  readonly colour: string | null;
+}
+
+export function treatmentOf(view: NodeView): RarityTreatment | null {
+  if (view.kind !== null) return { word: kindWord(view.kind), colour: kindWordColour(view.kind) };
+  if (view.rarity === null) return null;
+  return { word: view.rarity, colour: RARITY_COLOURS[view.rarity] ?? null };
+}
+
+/** What each kind is called wherever one is named. */
+const KIND_WORDS: Readonly<Record<NodeKind, string>> = {
+  duo: "Duo",
+  hex: "Godsent Hex",
+  infusion: "Infusion",
+  legendary: "Legendary",
+};
+
+export function kindWord(kind: NodeKind): string {
+  return KIND_WORDS[kind];
+}
+
+/**
+ * The colour a **god page's outline** takes for the four kinds of boon that are
+ * not an ordinary offer from that god, `null` for a Duo.
+ *
+ * A Duo is `null` because on that surface its hue is not fixed: it takes its
+ * *partner's*, which only the page knows, and which is the one colour on a
+ * single-god page that discriminates anything.
  *
  * Three of the four values are the game's own and are the same hexes as above.
  * The Godsent Hex is ours: the game declares no rarity for one, and white is
@@ -56,13 +90,23 @@ export function rarityColour(rarity: Rarity): string {
  * declares an Elemental rarity, so the palette entry has never had a record to
  * come from.
  */
-const KIND_COLOURS: Readonly<Record<NodeKind, string | null>> = {
-  duo: null,
+const KIND_COLOURS: Readonly<Record<Exclude<NodeKind, "duo">, string>> = {
   legendary: RARITY_COLOURS["Legendary"]!,
   hex: "#FFFFFF",
   infusion: RARITY_COLOURS["Elemental"]!,
 };
 
-export function kindColour(kind: NodeKind): string | null {
-  return KIND_COLOURS[kind];
+export function kindOutlineColour(kind: NodeKind): string | null {
+  return kind === "duo" ? null : KIND_COLOURS[kind];
+}
+
+/**
+ * The colour a kind's **word** is written in, wherever one is written.
+ *
+ * One entry apart from the outline above, and the difference is the surface
+ * rather than the boon: a god page has a partner to hand a Duo, and a Loadout
+ * tile has no page god at all, so there it takes the games' own Duo colour.
+ */
+export function kindWordColour(kind: NodeKind): string {
+  return kind === "duo" ? RARITY_COLOURS["Duo"]! : KIND_COLOURS[kind];
 }

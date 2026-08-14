@@ -138,6 +138,24 @@ describe("what a node declines to show", () => {
     const declared = Object.values(H1).find((r) => r.rarity.length > 0);
     expect(deriveNodeView(h1(), declared!.id, makeFacts()).rarity).toBeNull();
   });
+
+  it("offers no rarity at all for a boon that has a kind", () => {
+    // Lightning Rod is a Duo, and this game has no Duo rarity — all 28 of them
+    // declare Legendary and nothing else, so a held one used to read
+    // "Legendary" and wear the Legendary orange on four surfaces. The kind is
+    // the word now, and there is nothing left to offer.
+    const view = deriveNodeView(h1(), LIGHTNING_ROD, h1Facts("selected", LIGHTNING_ROD));
+    expect(view.kind).toBe("duo");
+    expect(view.rarity).toBeNull();
+    expect(view.rarities).toEqual([]);
+  });
+
+  it("leaves a kindless boon its rarity", () => {
+    const view = deriveNodeView(h1(), TIER_TWO, makeFacts({ held: held([TIER_TWO, "Epic"]) }));
+    expect(view.kind).toBeNull();
+    expect(view.rarity).toBe("Epic");
+    expect(view.rarities.length).toBeGreaterThan(0);
+  });
 });
 
 describe("the dormant badge", () => {

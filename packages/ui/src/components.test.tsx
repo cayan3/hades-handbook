@@ -44,6 +44,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
     god: "Zeus",
     tier: 2,
     iconKey: "official/Zeus_01",
+    kind: null,
     rarity: null,
     rarities: [],
     notice: null,
@@ -143,6 +144,16 @@ describe("BoonNode", () => {
       "Impossible for now. Equip this god's keepsake next region to invite them to your pool.",
     );
     expect(description).toContain("Conch Shell");
+  });
+
+  it("says what kind of boon it is where it has one, and the rarity otherwise", () => {
+    // A held Hades I Duo used to read "Legendary" here, that game having no
+    // Duo rarity and all 28 of them declaring it.
+    render(<BoonNode view={view({ state: "Obtained", kind: "duo" })} />);
+    expect(container.querySelector("[hidden]")?.textContent).toContain("Duo.");
+
+    render(<BoonNode view={view({ state: "Obtained", rarity: "Epic" })} />);
+    expect(container.querySelector("[hidden]")?.textContent).toContain("Epic.");
   });
 
   it("describes the node without naming it twice", () => {

@@ -194,7 +194,7 @@ describe("marking a boon", () => {
     // name still in the tile's description rather than in a column of text.
     tap(APHRODITE_MELEE);
     click("Rare");
-    expect(container.querySelector('.loadout__tile[data-rarity="Rare"]')).not.toBeNull();
+    expect(container.querySelector('.loadout__tile[data-treatment="Rare"]')).not.toBeNull();
   });
 
   /**
@@ -208,7 +208,7 @@ describe("marking a boon", () => {
     tap(APHRODITE_MELEE);
     click("Heroic");
 
-    expect(container.querySelector('.loadout__tile[data-rarity="Heroic"]')).not.toBeNull();
+    expect(container.querySelector('.loadout__tile[data-treatment="Heroic"]')).not.toBeNull();
     expect(H2[APHRODITE_MELEE]?.rarity[0]).not.toBe("Heroic");
   });
 });
@@ -458,11 +458,11 @@ describe("the Loadout", () => {
     // this boon is Common — and Common draws nothing, which is what makes a
     // coloured tile mean something.
     tap(APHRODITE_MELEE);
-    expect(container.querySelector(".loadout__tile[data-rarity]")).toBeNull();
+    expect(container.querySelector(".loadout__tile[data-treatment]")).toBeNull();
 
     tap(APHRODITE_MELEE);
     click("Epic");
-    expect(container.querySelector('.loadout__tile[data-rarity="Epic"]')).not.toBeNull();
+    expect(container.querySelector('.loadout__tile[data-treatment="Epic"]')).not.toBeNull();
   });
 
   /**

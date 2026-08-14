@@ -43,6 +43,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
     god: "Zeus",
     tier: 2,
     iconKey: "official/Zeus_01",
+    kind: null,
     rarity: null,
     rarities: [],
     notice: null,
@@ -230,6 +231,13 @@ describe("ActionSheet", () => {
     render(<ActionSheet view={view({ rarity: "Epic" })} detail={detail()} onClose={noop} />);
     expect(container.querySelector(".rarity")?.textContent).toBe("Epic");
     expect(container.querySelector(".sheet__title")?.textContent).toContain("Epic");
+  });
+
+  it("names the boon's kind in place of a rarity", () => {
+    // What the record declares is not what a player was offered: a Hades I Duo
+    // declares Legendary because that game has no Duo rarity.
+    render(<ActionSheet view={view({ kind: "duo" })} detail={detail()} onClose={noop} />);
+    expect(container.querySelector(".rarity")?.textContent).toBe("Duo");
   });
 
   it("closes behind any edit it was opened to make", () => {

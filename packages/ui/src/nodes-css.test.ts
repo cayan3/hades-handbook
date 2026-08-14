@@ -121,10 +121,10 @@ describe("the node stylesheet", () => {
       return CSS.match(new RegExp(`${literal}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
     };
 
-    const base = rule(".loadout__tile[data-rarity]::before");
+    const base = rule(".loadout__tile[data-treatment]::before");
     expect(base).toMatch(/transform:\s*translate\(/);
 
-    const hades2 = rule('.loadout__tile[data-game="hades2"][data-rarity]::before');
+    const hades2 = rule('.loadout__tile[data-game="hades2"][data-treatment]::before');
     expect(hades2, "Hades II does not undo the wedge's offset").toMatch(/transform:\s*none/);
     // Concentric with the icon inside it, or the ring pinches at every corner:
     // the outer box is the larger of the two and wants the larger radius.

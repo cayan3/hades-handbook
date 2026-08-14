@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { kindColour, rarityColour } from "./rarity-palette.js";
+import type { NodeKind, NodeView } from "./node-view.js";
+import {
+  kindOutlineColour,
+  kindWordColour,
+  rarityColour,
+  treatmentOf,
+} from "./rarity-palette.js";
 
 /**
  * The colours that are not a god's, and the two rules about them that are easy
@@ -29,19 +35,56 @@ describe("the four kinds a god page colours", () => {
   it("hands a Duo back nothing, because its hue is the partner's", () => {
     // Only the page knows who the partner is, and the Duo colour would be the
     // same on every Duo in the game.
-    expect(kindColour("duo")).toBeNull();
+    expect(kindOutlineColour("duo")).toBeNull();
   });
 
   it("gives the other three a colour", () => {
-    expect(kindColour("legendary")).toBe("#FF9000");
-    expect(kindColour("infusion")).toBe("#FF4BFF");
-    expect(kindColour("hex")).toBe("#FFFFFF");
+    expect(kindOutlineColour("legendary")).toBe("#FF9000");
+    expect(kindOutlineColour("infusion")).toBe("#FF4BFF");
+    expect(kindOutlineColour("hex")).toBe("#FFFFFF");
   });
 
   it("does not hand a Godsent Hex Selene's own colour", () => {
     // Two roles, two values. A Hex rides somebody else's page; Selene's colour
     // is hers on the god tabs and the cross-god surfaces, and one value for
     // both would collide on her own tab.
-    expect(kindColour("hex")).not.toBe("#7E90C4");
+    expect(kindOutlineColour("hex")).not.toBe("#7E90C4");
+  });
+
+  it("gives the Duo's word a colour where there is no page god to ask", () => {
+    // The Loadout and the Action Sheet have no partner to take a hue from, so
+    // the one entry the two tables differ in is the one that matters there.
+    expect(kindWordColour("duo")).toBe("#D2FF61");
+    expect(kindWordColour("hex")).toBe(kindOutlineColour("hex"));
+  });
+});
+
+describe("the word a surface shows", () => {
+  function view(over: Partial<NodeView>): NodeView {
+    return { kind: null, rarity: null, ...over } as NodeView;
+  }
+
+  it("says the kind, not the rarity the record declares", () => {
+    // The defect this rule exists for: a Hades I Duo declares Legendary and
+    // nothing else, so it used to say "Legendary" and wear the Legendary
+    // orange on four surfaces.
+    for (const [kind, word] of [
+      ["duo", "Duo"],
+      ["hex", "Godsent Hex"],
+      ["infusion", "Infusion"],
+      ["legendary", "Legendary"],
+    ] as const satisfies readonly (readonly [NodeKind, string])[]) {
+      expect(treatmentOf(view({ kind }))?.word).toBe(word);
+    }
+  });
+
+  it("writes Common's word and paints nothing behind it", () => {
+    const treatment = treatmentOf(view({ rarity: "Common" }));
+    expect(treatment?.word).toBe("Common");
+    expect(treatment?.colour).toBeNull();
+  });
+
+  it("says nothing about a boon with neither", () => {
+    expect(treatmentOf(view({}))).toBeNull();
   });
 });

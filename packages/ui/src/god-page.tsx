@@ -5,7 +5,7 @@ import { endpointOwner, type GodGraph, neighbourhood } from "./god-graph.js";
 import { godColour } from "./god-palette.js";
 import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
-import { kindColour } from "./rarity-palette.js";
+import { kindOutlineColour } from "./rarity-palette.js";
 
 /**
  * One god's boons as a vertical tiered graph: tier 1 on top, each lower tier
@@ -208,7 +208,7 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
                       // more on this page than the Duo colour would — the Duo
                       // colour is the same on every Duo, and which god the other
                       // half belongs to is the question a player is asking.
-                      outline={kind === null ? undefined : kindColour(kind)}
+                      outline={kind === null ? undefined : kindOutlineColour(kind)}
                       {...gestures}
                     />
                     {/* A Duo answers to two gods and this page is one of them.

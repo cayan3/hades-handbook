@@ -1,7 +1,7 @@
 import { keepsakesFor } from "@repo/catalog";
 import type { GodId, Requirement, RunFacts, Status, TraitId } from "@repo/core";
 import { evaluate } from "@repo/core";
-import type { NodeSource } from "./node-view.js";
+import { kindOf, type NodeKind, type NodeSource } from "./node-view.js";
 
 /**
  * One god's page as a laid-out graph: bands top to bottom, connectors from
@@ -49,22 +49,6 @@ export interface GraphMember {
   /** Which of the four this is, or `null` for an ordinary offer from this god. */
   readonly kind: NodeKind | null;
 }
-
-/**
- * The four kinds of boon a player cannot simply be offered, and the only four
- * whose outline is not the page's god colour.
- *
- * Everything else on a god's page is that god's ordinary reward and takes their
- * hue, which is the page saying which god it is. These four are not: a Duo and a
- * Godsent Hex answer to two gods, an Infusion answers to the elements rather
- * than to a god at all, and a Legendary is the one rung of the god's own ladder
- * a player cannot ask for.
- *
- * Not to be confused with **Boon Category** in the glossary, which is a
- * different partition entirely — Standard Olympian against Non-Standard against
- * NPC/Ally — and is about which rules a god plays by.
- */
-export type NodeKind = "duo" | "hex" | "infusion" | "legendary";
 
 export interface GraphJunction {
   /** Also its endpoint id on an edge. */
@@ -258,7 +242,7 @@ function walk(
  * catches only the first. Hades II carries 11 and Hades I none.
  */
 function bandOf(source: NodeSource, trait: TraitId): { kind: BandKind; tier: number } {
-  const kind = kindOf(source, trait);
+  const kind = kindOf(source.records[trait]);
   // A Godsent Hex rides the rim beside the Duos: it answers to a god and to
   // Selene both, so it is the same kind of thing as a Duo — a boon reached from
   // two directions — and is grouped and revealed with them.
@@ -270,53 +254,6 @@ function bandOf(source: NodeSource, trait: TraitId): { kind: BandKind; tier: num
   const record = source.records[trait];
   if (record?.tier != null) return { kind: "tier", tier: record.tier };
   return { kind: "untiered", tier: 0 };
-}
-
-/**
- * Which of the four a record is, in the order they have to be asked.
- *
- * **Order is load-bearing twice over.** Five of the nine Godsent Hexes declare
- * `Legendary` and nothing else, so asking about rarity first would file them as
- * Legendaries and take them off the rim; and every Hades I Duo declares
- * `Legendary` too, that game having no Duo rarity at all, so the `duoGods`
- * check has to come before both.
- *
- * **A Legendary is the only one found by what the record says it can be offered
- * as** — the other three are found by shape or by gate. Exactly-`["Legendary"]`
- * rather than "contains Legendary", because 163 Hades II records offer
- * Legendary as the top of an ordinary rarity ladder they can also be rolled at
- * the bottom of. Measured over what reaches a page: 11 Legendaries in Hades I
- * and 10 in Hades II, against 28 and 37 Duos, 9 Hexes and 10 Infusions.
- */
-function kindOf(source: NodeSource, trait: TraitId): NodeKind | null {
-  const record = source.records[trait];
-  if (record?.duoGods != null) return "duo";
-
-  const parts = leavesOf(record?.prereq ?? null);
-  if (isGodsentHex(parts)) return "hex";
-  if (parts.length > 0 && parts.every((part) => part.kind === "hasElement")) return "infusion";
-
-  const rarity = record?.rarity ?? [];
-  if (rarity.length === 1 && rarity[0] === "Legendary") return "legendary";
-  return null;
-}
-
-/**
- * The Godsent Hex shape: the matching Hex, plus a boon *or* the keepsake of one
- * Olympian. Detected by the pair of leaf kinds only that combination produces —
- * measured, exactly the nine records that carry it, one per Olympian, and
- * nothing else in either game.
- */
-function isGodsentHex(parts: readonly Requirement[]): boolean {
-  return (
-    parts.some((part) => part.kind === "hasBoonFrom") &&
-    parts.some((part) => part.kind === "hasKeepsake")
-  );
-}
-
-function leavesOf(req: Requirement | null): readonly Requirement[] {
-  if (req === null) return [];
-  return req.kind === "all" || req.kind === "anyOf" ? req.of.flatMap(leavesOf) : [req];
 }
 
 /**
@@ -385,7 +322,7 @@ function layOut(
       members: members.map((trait) => ({
         trait,
         partner: partnerOf(source, god, trait),
-        kind: kindOf(source, trait),
+        kind: kindOf(source.records[trait]),
       })),
     };
   });

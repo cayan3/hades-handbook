@@ -40,7 +40,8 @@ export type { ActionSheetProps } from "./action-sheet.js";
 export { BoonActionBar } from "./boon-actions.js";
 export type { BoonActions } from "./boon-actions.js";
 export { NoticeBar, OverrideMarker, RarityMark, UndoToast } from "./chrome.js";
-export { rarityColour } from "./rarity-palette.js";
+export { kindWord, rarityColour, treatmentOf } from "./rarity-palette.js";
+export type { RarityTreatment } from "./rarity-palette.js";
 export type { NoticeBarProps, UndoToastProps } from "./chrome.js";
 export { GoalCard, GoalsPanel } from "./goals.js";
 export type { Goal, GoalsPanelProps } from "./goals.js";
@@ -50,8 +51,8 @@ export { NodePresentation, useGame, useLadder } from "./presentation.js";
 export type { Ladder } from "./presentation.js";
 export { MarkerGlyph, DormantGlyph } from "./glyphs.js";
 
-export { createNodeSource, deriveNodeView, deriveNodeDetail } from "./node-view.js";
-export type { NodeDetail, NodeSource, NodeView, RequirementRow } from "./node-view.js";
+export { createNodeSource, deriveNodeView, deriveNodeDetail, kindOf } from "./node-view.js";
+export type { NodeDetail, NodeKind, NodeSource, NodeView, RequirementRow } from "./node-view.js";
 export { createNodeCache } from "./node-cache.js";
 export type { NodeCache } from "./node-cache.js";
 
@@ -63,7 +64,6 @@ export type {
   GraphEdge,
   GraphJunction,
   GraphMember,
-  NodeKind,
 } from "./god-graph.js";
 
 export { catalogNaming } from "./naming.js";

@@ -50,6 +50,7 @@ function view(trait: TraitId, over: Partial<NodeView> = {}): NodeView {
     god: "Zeus",
     tier: 1,
     iconKey: "official/Zeus_01",
+    kind: null,
     rarity: null,
     rarities: [],
     notice: null,

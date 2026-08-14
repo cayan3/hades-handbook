@@ -944,7 +944,7 @@
   --node-radius: 0;
 }
 
-.loadout__tile[data-rarity]::before {
+.loadout__tile[data-treatment]::before {
   content: "";
   position: absolute;
   /* Grown and shifted by the same amount, so the trailing edges land flush
@@ -970,7 +970,7 @@
  * rounded rectangles concentric — give both the same radius and the ring
  * pinches at every corner, the outer box being the larger of the two.
  */
-.loadout__tile[data-game="hades2"][data-rarity]::before {
+.loadout__tile[data-game="hades2"][data-treatment]::before {
   inset: -0.16rem;
   transform: none;
   border-radius: calc(var(--node-radius) + 0.16rem);

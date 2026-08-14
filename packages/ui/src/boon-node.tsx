@@ -6,6 +6,7 @@ import { DormantGlyph, MarkerGlyph } from "./glyphs.js";
 import { godColour } from "./god-palette.js";
 import type { NodeView } from "./node-view.js";
 import { useGame, useLadder } from "./presentation.js";
+import { treatmentOf } from "./rarity-palette.js";
 
 /**
  * One boon, as a node.
@@ -131,10 +132,14 @@ export function BoonNode({
    */
   const primary = held ? onOpen : onMark;
 
+  // The kind where the boon has one and the rarity otherwise, which the view
+  // has already settled between.
+  const treatment = treatmentOf(view);
+
   const description = [
     stateSentence(view.state),
     view.dormant ? DORMANT_SENTENCE : null,
-    view.rarity === null ? null : `${view.rarity}.`,
+    treatment === null ? null : `${treatment.word}.`,
     view.notice === null ? null : noticeText(view.notice),
   ]
     .filter((part): part is string => part !== null)

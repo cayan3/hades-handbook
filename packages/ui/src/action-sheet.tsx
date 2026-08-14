@@ -141,9 +141,10 @@ export function ActionSheet({
         <div className="sheet__head">
           <h2 className="sheet__title" id={titleId}>
             {view.name}
-            {/* Beside the name rather than on a line of its own, and only where
+            {/* Beside the name rather than on a line of its own: the boon's
+                kind where it has one, and otherwise the rarity, and only where
                 the record says this boon has rarities at all. */}
-            {view.rarity === null ? null : <RarityMark rarity={view.rarity} />}
+            <RarityMark view={view} />
           </h2>
           <button type="button" className="sheet__close" onClick={onClose}>
             Close

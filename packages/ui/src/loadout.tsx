@@ -5,7 +5,7 @@ import { OverrideMarker, RarityMark } from "./chrome.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 import { useGame } from "./presentation.js";
-import { rarityColour } from "./rarity-palette.js";
+import { treatmentOf } from "./rarity-palette.js";
 import type { CSSProperties } from "react";
 
 /**
@@ -185,18 +185,21 @@ function Tiles({
 }
 
 /**
- * One held boon as a tile. The rarity is a custom property rather than a class
- * per rarity, so the palette stays in one module and a rarity the data adds
- * later needs no rule; Common sets nothing, which is what makes a coloured tile
- * mean something.
+ * One held boon as a tile. The treatment's colour is a custom property rather
+ * than a class per rarity, so the palette stays in one module and a rarity the
+ * data adds later needs no rule; Common sets nothing, which is what makes a
+ * treated tile mean something.
+ *
+ * The attribute carries the *word*, which is the boon's kind where it has one —
+ * a Hades I Duo is `Duo` here and not the `Legendary` its record declares.
  */
 function Tile({
   entry,
   selected,
   ...gestures
 }: { readonly entry: LoadoutEntry; readonly selected: boolean } & BoonGestures) {
-  const rarity = entry.view.rarity;
-  const marked = rarity !== null && rarity !== "Common";
+  const treatment = treatmentOf(entry.view);
+  const painted = treatment !== null && treatment.colour !== null;
   // The rarity band is a shape drawn behind the tile, so it has to follow the
   // same silhouette the node does or a rounded icon gets a diamond halo.
   const game = useGame();
@@ -206,8 +209,8 @@ function Tile({
       className="loadout__tile"
       data-game={game}
       data-selected={selected ? "true" : undefined}
-      data-rarity={marked ? rarity : undefined}
-      style={marked ? ({ "--rarity": rarityColour(rarity) } as CSSProperties) : undefined}
+      data-treatment={painted ? treatment.word : undefined}
+      style={painted ? ({ "--rarity": treatment.colour } as CSSProperties) : undefined}
     >
       <BoonNode view={entry.view} showName={false} {...gestures} />
     </span>
@@ -237,7 +240,7 @@ function BoonCard({
     <article className="loadout__card" data-state={view.state}>
       <div className="loadout__cardhead">
         <h3 className="loadout__cardname">{view.name}</h3>
-        {view.rarity === null ? null : <RarityMark rarity={view.rarity} />}
+        <RarityMark view={view} />
         <button type="button" className="loadout__cardclose" aria-label="Close" onClick={onClose}>
           ×
         </button>

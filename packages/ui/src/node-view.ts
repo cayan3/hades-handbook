@@ -51,6 +51,12 @@ export interface NodeView {
   /** What the icon resolver returned. Not a URL — the art component makes one. */
   readonly iconKey: string;
   /**
+   * Which of the four kinds this boon is, or `null` for an ordinary offer from
+   * its god. Where it is set, it is the word every surface shows in place of a
+   * rarity, and the two fields below are empty.
+   */
+  readonly kind: NodeKind | null;
+  /**
    * The rarity of the copy the run holds, and `null` far more often than that
    * sentence suggests. See the note on `declaredRarity`.
    */
@@ -179,6 +185,70 @@ export function createNodeSource(
 const NO_GATE: Requirement = Object.freeze({ kind: "all", of: [] });
 
 /**
+ * The four kinds of boon a player cannot simply be offered.
+ *
+ * A Duo and a Godsent Hex answer to two gods, an Infusion answers to the
+ * elements rather than to a god at all, and a Legendary is the one rung of a
+ * god's own ladder a player cannot ask for. Every surface names the kind where
+ * there is one, and offers no rarity beside it.
+ *
+ * It lives here rather than with the god page's graph because three of the four
+ * surfaces that show the word — the node's description, the Loadout tile and
+ * the Action Sheet — never see a graph.
+ *
+ * Not to be confused with **Boon Category** in the glossary, which is a
+ * different partition entirely — Standard Olympian against Non-Standard against
+ * NPC/Ally — and is about which rules a god plays by.
+ */
+export type NodeKind = "duo" | "hex" | "infusion" | "legendary";
+
+/**
+ * Which of the four a record is, in the order they have to be asked.
+ *
+ * **Order is load-bearing twice over.** Five of the nine Godsent Hexes declare
+ * `Legendary` and nothing else, so asking about rarity first would file them as
+ * Legendaries and take them off the rim; and every Hades I Duo declares
+ * `Legendary` too, that game having no Duo rarity at all, so the `duoGods`
+ * check has to come before both.
+ *
+ * **A Legendary is the only one found by what the record says it can be offered
+ * as** — the other three are found by shape or by gate. Exactly-`["Legendary"]`
+ * rather than "contains Legendary", because 163 Hades II records offer
+ * Legendary as the top of an ordinary rarity ladder they can also be rolled at
+ * the bottom of. Measured over what reaches a page: 11 Legendaries in Hades I
+ * and 10 in Hades II, against 28 and 37 Duos, 9 Hexes and 10 Infusions.
+ */
+export function kindOf(record: TraitRecord | undefined): NodeKind | null {
+  if (record?.duoGods != null) return "duo";
+
+  const parts = leavesOf(record?.prereq ?? null);
+  if (isGodsentHex(parts)) return "hex";
+  if (parts.length > 0 && parts.every((part) => part.kind === "hasElement")) return "infusion";
+
+  const rarity = record?.rarity ?? [];
+  if (rarity.length === 1 && rarity[0] === "Legendary") return "legendary";
+  return null;
+}
+
+/**
+ * The Godsent Hex shape: the matching Hex, plus a boon *or* the keepsake of one
+ * Olympian. Detected by the pair of leaf kinds only that combination produces —
+ * measured, exactly the nine records that carry it, one per Olympian, and
+ * nothing else in either game.
+ */
+function isGodsentHex(parts: readonly Requirement[]): boolean {
+  return (
+    parts.some((part) => part.kind === "hasBoonFrom") &&
+    parts.some((part) => part.kind === "hasKeepsake")
+  );
+}
+
+function leavesOf(req: Requirement | null): readonly Requirement[] {
+  if (req === null) return [];
+  return req.kind === "all" || req.kind === "anyOf" ? req.of.flatMap(leavesOf) : [req];
+}
+
+/**
  * The rarity to show, which is usually none.
  *
  * A held boon always carries one and for many of them nobody observed it: 191
@@ -221,6 +291,18 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
   const tier = record?.tier ?? null;
   const name = naming.trait(trait);
 
+  /**
+   * A boon that has a kind shows that kind's name and is offered no rarity at
+   * all, so both rarity fields empty out here rather than at each of the four
+   * surfaces that draw one.
+   *
+   * The rule is enforced at the derivation because the alternative is four
+   * places remembering it. What the run *stores* is untouched: a mark still
+   * records whatever rarity it was given, and this is a display rule in the
+   * same sense that showing no rarity where the data declares none is.
+   */
+  const kind = kindOf(record);
+
   return {
     trait,
     name,
@@ -228,8 +310,9 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
     god,
     tier,
     iconKey: iconFor(game, trait),
-    rarity: declaredRarity(state, facts, trait, record?.rarity ?? []),
-    rarities: record?.rarity ?? [],
+    kind,
+    rarity: kind === null ? declaredRarity(state, facts, trait, record?.rarity ?? []) : null,
+    rarities: kind === null ? (record?.rarity ?? []) : [],
     notice:
       state === "Impossible"
         ? impossibleNotice(reasonFor(source, trait, prereq, facts), naming, source.forcingKeepsake)

@@ -1,7 +1,7 @@
-import type { Rarity } from "@repo/core";
 import type { CSSProperties, ReactNode } from "react";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
-import { rarityColour } from "./rarity-palette.js";
+import type { NodeView } from "./node-view.js";
+import { treatmentOf } from "./rarity-palette.js";
 
 /**
  * The furniture a run wears: what a load could not carry, what a save could not
@@ -99,7 +99,8 @@ export function UndoToast({ what, cost = [], onUndo, onDismiss }: UndoToastProps
 }
 
 /**
- * The rarity a run holds: the word, in its own colour, beside the boon's name.
+ * What a boon is, in a word, beside its name: its **kind** where it has one and
+ * its rarity otherwise, in that word's own colour.
  *
  * It was a swatch for a while, on the argument that the word cost a line of its
  * own. Beside the name it costs nothing — and the swatch had the usual problem
@@ -107,11 +108,19 @@ export function UndoToast({ what, cost = [], onUndo, onDismiss }: UndoToastProps
  * identical, so the dot could not be told apart at all in those cases. The word
  * carries the meaning and the colour decorates it, rather than the other way
  * round, so nothing depends on distinguishing two hues or on reading any.
+ *
+ * Common paints nothing and still writes its word, which is why the colour is
+ * allowed to be absent while the word is not.
  */
-export function RarityMark({ rarity }: { readonly rarity: Rarity }) {
+export function RarityMark({ view }: { readonly view: NodeView }) {
+  const treatment = treatmentOf(view);
+  if (treatment === null) return null;
   return (
-    <span className="rarity" style={{ "--rarity": rarityColour(rarity) } as CSSProperties}>
-      {rarity}
+    <span
+      className="rarity"
+      style={{ "--rarity": treatment.colour ?? "currentColor" } as CSSProperties}
+    >
+      {treatment.word}
     </span>
   );
 }
