@@ -557,7 +557,7 @@
   padding: 1rem 1.1rem 1.4rem;
   overflow-y: auto;
   border-radius: 0.75rem 0.75rem 0 0;
-  background: #1b1815;
+  background: var(--surface, #1b1815);
 }
 
 @media (min-width: 48rem) {
@@ -885,10 +885,6 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
-  /* The side that gives when the card beside it will not: without this a flex
-     item refuses to shrink below its content, and the card gets pushed under
-     the grid instead. */
-  min-width: 0;
 }
 
 .loadout__list {
@@ -1109,29 +1105,16 @@
  * The grid and the cards beside it, which is how the game's own boon menu
  * reads: icons on the left, the text of whichever one you picked next to them.
  *
- * **The cards stay to the right whatever the grid is doing.** Wrapping put them
- * underneath the moment the panel expanded — the grid got wide enough to fill
- * the row, and a card is 14rem of basis that then had nowhere to go — which is
- * the one arrangement this surface is not allowed to take: the card is a thing
- * you read *against* the grid. So the row does not wrap, and the grid is the
- * side that gives: it has its own wrapping and can take as many rows as it
- * needs to.
- *
- * A phone stacks them, which is the query below, and there the card under the
- * grid is right — a 20rem screen has no beside.
+ * On a wide screen the cards are lifted out of the flow — see below. Here they
+ * are in it, which is the phone's arrangement: the grid, then the cards under
+ * it, because a phone has no beside.
  */
 .loadout__panel {
+  position: relative;
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 0.9rem;
   align-items: flex-start;
-}
-
-
-@media (max-width: 32rem) {
-  .loadout__panel {
-    flex-wrap: wrap;
-  }
 }
 
 .loadout__card {
@@ -1192,6 +1175,34 @@
   flex-direction: column;
   gap: 0.6rem;
   min-width: 0;
+}
+
+/*
+ * Where there is room beside the panel, the cards lie over the page rather than
+ * take a share of it.
+ *
+ * In the flow they had to come out of something: either the grid gave up width
+ * and squeezed its tiles, or the cards themselves got narrower. Out of it,
+ * neither — the grid keeps the width it would have had with no card open, and
+ * the card covers what is to its right for as long as it is up.
+ *
+ * 48rem is where the app puts its two columns side by side, so it is also
+ * where there is something to lie over.
+ */
+@media (min-width: 48rem) {
+  .loadout__cards {
+    position: absolute;
+    top: 0;
+    left: calc(100% + 0.9rem);
+    z-index: 5;
+    width: 17rem;
+  }
+
+  /* Opaque, because it is over the page now rather than on it. */
+  .loadout__card {
+    background: var(--surface, #1b1815);
+    box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
+  }
 }
 
 /*
