@@ -63,6 +63,7 @@ export type {
   GraphEdge,
   GraphJunction,
   GraphMember,
+  NodeKind,
 } from "./god-graph.js";
 
 export { catalogNaming } from "./naming.js";
