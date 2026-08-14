@@ -184,6 +184,19 @@ describe("a tile's card", () => {
     expect(cards()).toEqual([]);
   });
 
+  it("takes a previewed card away too, and leaves nothing behind it", () => {
+    // A boon can leave the run while the pointer is still on the tile that was
+    // holding it. The stack is pruned for exactly that and the preview was not,
+    // so the panel drew an empty frame where the card had been.
+    render(panel());
+    hover("a");
+    expect(cards()).toEqual(["a"]);
+
+    render(panel({ entries: ENTRIES.filter((each) => each.view.trait !== "a") }));
+    expect(cards()).toEqual([]);
+    expect(container.querySelector(".loadout__cards")).toBeNull();
+  });
+
   it("puts every card away when the pointer leaves the panel", () => {
     render(panel());
     hover("a");

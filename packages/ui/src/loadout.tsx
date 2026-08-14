@@ -111,26 +111,25 @@ export function Loadout({
   const full = open.length >= capacity;
 
   /**
-   * A hovered tile is in the held-open view too, so the **Glow** and the stack
-   * are one set rather than two things to keep straight — *except* when the
-   * stack is full, where nothing further can be added or lit. That is the one
-   * place the two come apart, and it is written with its exception rather than
-   * absolutely: a tile that lit on hover and then refused to open would be the
+   * A hovered tile is in the held-open view too, so the glow and the stack are
+   * one set — except when the stack is full, where nothing further can be added
+   * or lit. A tile that lit on hover and then refused to open would be the
    * panel lying about what a click does.
+   *
+   * `held` is asked here as well as of the stack, and for the same reason: a
+   * boon can leave the run while the pointer is still on its tile.
    */
-  const preview = hovered !== null && !open.includes(hovered) && !full ? hovered : null;
+  const preview =
+    hovered !== null && held.has(hovered) && !open.includes(hovered) && !full ? hovered : null;
   const shown = preview === null ? open : [...open, preview];
 
   /**
-   * Clicking a held-open tile takes it back out. The gesture is a toggle, so
-   * the control that put a card in the stack is the control that removes it and
-   * there is no second affordance to find.
+   * Clicking a held-open tile takes it back out, so the control that opened a
+   * card is the one that closes it.
    *
-   * Taking one out drops the hover with it, and that is not tidiness: the
-   * pointer is still on the tile it was clicked with, so the preview rule would
-   * put the card straight back and the second click would look like it did
-   * nothing. The pointer has to leave and come back to preview it again, which
-   * is what a player who just put a card away means.
+   * Taking one out drops the hover with it. The pointer is still on the tile
+   * that was clicked, so otherwise the preview rule puts the card straight back
+   * and the second click looks like it did nothing.
    */
   function toggle(trait: TraitId): void {
     if (!open.includes(trait)) {
