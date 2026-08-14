@@ -466,6 +466,22 @@ describe("the Loadout", () => {
   });
 
   /**
+   * The art ships, so there is nothing to choose between.
+   *
+   * The header carried an Artwork checkbox for two sessions, from the round
+   * where the art set was two placeholder files. It was a way to look at the
+   * other ladder, never a feature — and the fallback ladder is a withdrawal
+   * path, which is not a thing a player picks.
+   */
+  it("draws the real art and offers no way to turn it off", async () => {
+    await mount();
+
+    expect(container.querySelector<HTMLElement>(".node")?.dataset["ladder"]).toBe("real-art");
+    const controls = [...container.querySelectorAll("label")].map((el) => el.textContent);
+    expect(controls.some((text) => text?.includes("Artwork"))).toBe(false);
+  });
+
+  /**
    * The core column is read by position, so it is the same column every run
    * whatever order the player filled it in — Attack, Special, Cast, Dash,
    * then the fifth. The boons that hold no slot keep the order they arrived in,

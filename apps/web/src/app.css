@@ -136,14 +136,6 @@ h1,
   align-items: center;
 }
 
-.app__artwork {
-  display: inline-flex;
-  gap: 0.35rem;
-  align-items: center;
-  font-size: 0.85rem;
-  opacity: 0.8;
-}
-
 .app__addgod select {
   padding: 0.35rem 0.5rem;
   border: 1px dashed rgb(255 255 255 / 35%);

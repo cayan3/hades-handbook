@@ -146,23 +146,6 @@ function Run({
   const [cost, setCost] = useState<readonly string[]>([]);
   const [god, setGod] = useState<string | null>(null);
   /**
-   * The fallback ladder is the default because **no art set is shipped**.
-   *
-   * The real-art ladder puts state on the frame and on what is done to the
-   * artwork, on the argument that a fill would bury a detailed, already
-   * colourful icon. With every icon resolving to the missing-art placeholder
-   * there is no icon to bury and nothing for half the ladder to ride on: every
-   * node is the same flat square, and the frame weights are being asked to
-   * carry the whole ladder on their own. The fallback is the same five steps
-   * built for exactly this — no image element at all, god colour back on the
-   * node as the identity channel.
-   *
-   * A toggle rather than a detection, because whether a file loads is something
-   * only the browser finds out, one image at a time, and a page that changed
-   * ladder as art trickled in would be worse than either.
-   */
-  const [artwork, setArtwork] = useState(false);
-  /**
    * Closed by default. It used to open by default, on the argument that Goals
    * is the phone's home and half the accessible path — but the panel is fixed
    * over the right-hand edge and the run is keyed on the game, so switching
@@ -287,19 +270,24 @@ function Run({
   // boon nobody holds.
   const pickedView = picked === null || !facts.held.has(picked) ? null : view(picked);
 
+  /*
+   * The art ships, so the real-art ladder is what the product is.
+   *
+   * There was a header checkbox here for a while, from the round where the art
+   * set was two placeholder files and every icon was a grey box. The set is
+   * complete now, and a control letting a player turn the artwork off was never
+   * a feature anyone asked for — it was a way to look at the other ladder while
+   * the first one had nothing to draw.
+   *
+   * The fallback ladder itself stays and is not deprecated: it is the path by
+   * which the art comes down if it ever has to, and it is one line from here.
+   * What went is a player's ability to choose between them.
+   */
   return (
-    <NodePresentation ladder={artwork ? "real-art" : "fallback"} game={game}>
+    <NodePresentation ladder="real-art" game={game}>
       <div className="app">
         <header className="app__head">
           <h1>Hades Handbook</h1>
-          <label className="app__artwork">
-            <input
-              type="checkbox"
-              checked={artwork}
-              onChange={(event) => setArtwork(event.target.checked)}
-            />
-            Artwork
-          </label>
           <nav className="app__games" aria-label="Game">
             {(["hades1", "hades2"] as const).map((id) => (
               <button
