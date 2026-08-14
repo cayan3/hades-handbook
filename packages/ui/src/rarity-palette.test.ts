@@ -41,7 +41,7 @@ describe("the four kinds a god page colours", () => {
   it("gives the other three a colour", () => {
     expect(kindOutlineColour("legendary")).toBe("#FF9000");
     expect(kindOutlineColour("infusion")).toBe("#FF4BFF");
-    expect(kindOutlineColour("hex")).toBe("#FFFFFF");
+    expect(kindOutlineColour("hex")).toBe("#D2D4DE");
   });
 
   it("does not hand a Godsent Hex Selene's own colour", () => {

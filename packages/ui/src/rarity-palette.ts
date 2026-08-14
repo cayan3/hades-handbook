@@ -79,11 +79,18 @@ export function kindWord(kind: NodeKind): string {
  * single-god page that discriminates anything.
  *
  * Three of the four values are the game's own and are the same hexes as above.
- * The Godsent Hex is ours: the game declares no rarity for one, and white is
- * free now that Common has none — moonlight, which is what a Hex is. It is
+ * The Godsent Hex is ours: the game declares no rarity for one, and near-white
+ * is free now that Common has none — moonlight, which is what a Hex is. It is
  * **not** Selene's `#7E90C4`, which is her god colour on cross-god surfaces; a
  * Hex rides somebody else's page, so the two are different roles and would
  * collide on Selene's own tab if they were one value.
+ *
+ * It was `#FFFFFF` for a round and read too bright, which the measurement had
+ * predicted: 19:1 on the page's ground made it the brightest thing on any page.
+ * This is 12.8:1, and every distance that chose it is wider than white's — 21.5
+ * to Demeter against the 13.2 that ruled out the first candidate, 14.8 to the
+ * no-god outline against the 7.9 that ruled out silver. Its nearest neighbour
+ * is the ink at 13.0, which is body text and never an outline.
  *
  * An Infusion takes the colour the games name **Elemental**, and is found by
  * its gate rather than by that name: measured, not one record in either game
@@ -92,7 +99,7 @@ export function kindWord(kind: NodeKind): string {
  */
 const KIND_COLOURS: Readonly<Record<Exclude<NodeKind, "duo">, string>> = {
   legendary: RARITY_COLOURS["Legendary"]!,
-  hex: "#FFFFFF",
+  hex: "#D2D4DE",
   infusion: RARITY_COLOURS["Elemental"]!,
 };
 

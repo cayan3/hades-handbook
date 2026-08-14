@@ -258,6 +258,14 @@
   --outline-weight: 5px;
 }
 
+/* A rounded square has a longer perimeter than a diamond in the same box, so
+   the same weight draws more ink and reads heavier. Hades II runs 4/3/2/1 where
+   Hades I runs 5/3/2/1; the top two rungs still differ only by the glow. */
+.node[data-game="hades2"][data-state="Obtained"],
+.node[data-game="hades2"][data-state="Available"] {
+  --outline-weight: 4px;
+}
+
 /*
  * The glow is what the run *has*, not what it could take.
  *
@@ -877,6 +885,10 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
+  /* The side that gives when the card beside it will not: without this a flex
+     item refuses to shrink below its content, and the card gets pushed under
+     the grid instead. */
+  min-width: 0;
 }
 
 .loadout__list {
@@ -910,20 +922,30 @@
 }
 
 /*
- * The gold is the one this page had for a round as a god-page accent, before
- * god identity took that channel back. It has one job now and it is this one:
- * the tile whose card is up, and nothing else in the panel is lit at all.
+ * The gold the god page carried for a round as an accent, before god identity
+ * took that channel back. Its one job now is the tile whose card is up, and
+ * nothing else in the panel is lit at all.
  *
- * The selector has to out-specify the rule above, which is why it names the
- * attribute as well.
+ * On the tile rather than on the node inside it, which is what puts the glow
+ * behind the rarity treatment: a drop-shadow paints under its own element, so
+ * from here it takes the silhouette of ring and icon together. On the node it
+ * spread over the ring and turned a Hades II rarity colour gold.
+ *
+ * Hades II gets the wider one — its ring starts further out, so the glow needs
+ * more room to read as a halo rather than as an edge.
  */
 .loadout {
   --held-open: #c8a951;
 }
 
-.loadout__tile[data-lit] .node[data-state] .node__box {
-  filter: drop-shadow(0 0 0.3rem var(--held-open))
-    drop-shadow(0 0 0.6rem var(--held-open));
+.loadout__tile[data-lit] {
+  filter: drop-shadow(0 0 0.35rem var(--held-open))
+    drop-shadow(0 0 0.7rem var(--held-open));
+}
+
+.loadout__tile[data-game="hades2"][data-lit] {
+  filter: drop-shadow(0 0 0.5rem var(--held-open))
+    drop-shadow(0 0 1rem var(--held-open));
 }
 
 /* The core slots are a column and stay one, whatever else arrives beside them. */
@@ -948,18 +970,27 @@
   isolation: isolate;
   display: inline-flex;
   --node-size: 3.25rem;
+  /* Named because the rarity treatment below subtracts it: that shape is
+     positioned against the tile, and the tile is this much bigger than the icon
+     on every side. Two copies of the number would drift invisibly. */
+  --tile-pad: 0.15rem;
 }
 
 /*
- * The rarity, in the place and the channel the game puts it on — which is not
- * the same place in the two games, because the icons are not the same shape.
- * Hades I gets a wedge along the tile's upper-right edge; Hades II gets a thin
- * ring around the whole icon, below. Common sets no property and gets no
- * treatment, so a coloured tile means something.
+ * The rarity, in the place the game puts it — not the same place in the two
+ * games, because the icons are not the same shape. Hades I gets a wedge along
+ * the upper-right edge of the diamond; Hades II gets a thin ring around the
+ * whole icon, below. Common sets no property and gets no treatment, so a
+ * coloured tile means something.
  *
- * A shape behind the tile, offset up and to the right so that only its
- * upper-right edges clear the diamond — the lower-left ones are pulled in
- * behind it and never show.
+ * Measured from the icon, not from the tile. The tile is the control's padding
+ * bigger than the icon on every side, so a shape inset against it starts
+ * outside the icon all the way round — which is why the wedge showed on three
+ * edges for three rounds of nobody being able to thin it.
+ *
+ * The arithmetic is worth stating because it is not obvious: growing a
+ * diamond's box by X moves each edge out by X/√2, while shifting it up-right
+ * moves the upper-right edge by X√2 and the two side edges by nothing at all.
  *
  * The obvious implementation is a `drop-shadow` on the diamond itself, and it
  * does not work: `clip-path` is applied *after* `filter`, so the element's own
@@ -978,14 +1009,12 @@
 .loadout__tile[data-treatment]::before {
   content: "";
   position: absolute;
-  /* Grown and shifted by the same amount, so the trailing edges land flush
-     against the tile and the leading ones carry the whole band. The visible
-     width is not this number: across a 45-degree edge it is the growth plus the
-     shift, over the root of two — about 0.13rem here, or 2px at the default
-     root size. It was 0.14rem a side and read as 3.2px, which was reported as
-     too thick, and thinning it is a wedge rather than a second silhouette. */
-  inset: -0.09rem;
-  transform: translate(0.09rem, -0.09rem);
+  /* The icon's box, less a hair so the three edges that are not the band stay
+     behind it rather than flush with it. */
+  inset: calc(var(--tile-pad) + 0.015rem);
+  /* The whole band. The shift runs along the upper-right edge's own normal, so
+     the width you see is the shift times root two: 4.8px at a 16px root. */
+  transform: translate(0.22rem, -0.22rem);
   z-index: 0;
   background: var(--rarity);
   clip-path: var(--node-clip);
@@ -1004,7 +1033,9 @@
  * pinches at every corner, the outer box being the larger of the two.
  */
 .loadout__tile[data-game="hades2"][data-treatment]::before {
-  inset: -0.16rem;
+  /* Out from the icon by the ring's own width, which is what the number now
+     means: measured from the tile it drew 4.1px where it said 1.7px. */
+  inset: calc(var(--tile-pad) - 0.16rem);
   transform: none;
   border-radius: calc(var(--node-radius) + 0.16rem);
 }
@@ -1016,7 +1047,7 @@
 
 .loadout__tile .node__control {
   width: auto;
-  padding: 0.15rem;
+  padding: var(--tile-pad);
 }
 
 .loadout__more {
@@ -1074,11 +1105,33 @@
  * rather than fixed at two columns, so a phone stacks them instead of shrinking
  * both past legibility.
  */
+/*
+ * The grid and the cards beside it, which is how the game's own boon menu
+ * reads: icons on the left, the text of whichever one you picked next to them.
+ *
+ * **The cards stay to the right whatever the grid is doing.** Wrapping put them
+ * underneath the moment the panel expanded — the grid got wide enough to fill
+ * the row, and a card is 14rem of basis that then had nowhere to go — which is
+ * the one arrangement this surface is not allowed to take: the card is a thing
+ * you read *against* the grid. So the row does not wrap, and the grid is the
+ * side that gives: it has its own wrapping and can take as many rows as it
+ * needs to.
+ *
+ * A phone stacks them, which is the query below, and there the card under the
+ * grid is right — a 20rem screen has no beside.
+ */
 .loadout__panel {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.9rem;
   align-items: flex-start;
+}
+
+
+@media (max-width: 32rem) {
+  .loadout__panel {
+    flex-wrap: wrap;
+  }
 }
 
 .loadout__card {
@@ -1129,9 +1182,9 @@
 }
 
 /*
- * The cards beside the grid, stacked in the order they were opened. A column
- * rather than a pile, because a player holding three open is comparing them and
- * a pile answers only about its top one.
+ * The cards beside the grid, in the order they were opened. A column rather
+ * than a pile, because a player holding three open is comparing them and a pile
+ * answers only about its top one.
  */
 .loadout__cards {
   display: flex;

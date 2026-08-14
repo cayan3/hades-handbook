@@ -357,7 +357,7 @@ describe("the colour a god's page carries", () => {
    */
   it.each([
     ["legendary", "#FF9000"],
-    ["hex", "#FFFFFF"],
+    ["hex", "#D2D4DE"],
     ["infusion", "#FF4BFF"],
   ] as const)("gives a %s its own outline and leaves the god alone", (kind, colour) => {
     render(
