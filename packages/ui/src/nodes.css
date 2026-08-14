@@ -955,9 +955,11 @@
   /* Grown and shifted by the same amount, so the trailing edges land flush
      against the tile and the leading ones carry the whole band. The visible
      width is not this number: across a 45-degree edge it is the growth plus the
-     shift, over the root of two — about 0.2rem here. */
-  inset: -0.14rem;
-  transform: translate(0.14rem, -0.14rem);
+     shift, over the root of two — about 0.13rem here, or 2px at the default
+     root size. It was 0.14rem a side and read as 3.2px, which was reported as
+     too thick, and thinning it is a wedge rather than a second silhouette. */
+  inset: -0.09rem;
+  transform: translate(0.09rem, -0.09rem);
   z-index: 0;
   background: var(--rarity);
   clip-path: var(--node-clip);
