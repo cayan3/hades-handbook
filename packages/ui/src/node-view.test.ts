@@ -28,6 +28,8 @@ const TIER_TWO = "AphroditeWeakenTrait" as TraitId;
 
 /** Self Healing: obtainable at 2 Fire, and inert until 3. */
 const SELF_HEALING = "ElementalRallyBoon" as TraitId;
+/** Flame Strike: Hestia's attack, and one of the 190 records with an affinity. */
+const FLAME_STRIKE = "HestiaWeaponBoon" as TraitId;
 
 function h1(rules = stubRules(), records = H1) {
   return createNodeSource("hades1", rules, stubLookups(), records);
@@ -155,6 +157,29 @@ describe("what a node declines to show", () => {
     expect(view.kind).toBeNull();
     expect(view.rarity).toBe("Epic");
     expect(view.rarities.length).toBeGreaterThan(0);
+  });
+});
+
+describe("the element affinity", () => {
+  const h2 = createNodeSource("hades2", stubRules(), stubLookups(), H2);
+
+  it("comes off the record, in the game that has elements", () => {
+    // Flame Strike is Hestia's attack and counts toward Fire. Read from the
+    // shipped record rather than stated, because which element a boon carries
+    // is the extraction's fact and not this file's.
+    expect(deriveNodeView(h2, FLAME_STRIKE, makeFacts({ game: "hades2" })).element).toBe("Fire");
+  });
+
+  it("is empty on an Infusion, which is gated on elements rather than carrying one", () => {
+    // The case that looks backwards and is the schema's own rule: an Infusion
+    // asks for element counts, so it counts toward nothing itself. Written down
+    // because picking one for the test above is the obvious mistake.
+    expect(deriveNodeView(h2, SELF_HEALING, makeFacts({ game: "hades2" })).element).toBeNull();
+  });
+
+  it("is null throughout Hades I", () => {
+    // 0 of 449, so this is the whole game rather than the boon picked for it.
+    expect(deriveNodeView(h1(), TIER_TWO, makeFacts()).element).toBeNull();
   });
 });
 

@@ -26,7 +26,14 @@ export type { GameData, GameKey } from "./data.js";
 export { createLookups } from "./lookups.js";
 export { forcingKeepsakes, keepsakesFor } from "./keepsakes.js";
 export { poolGods } from "./gods.js";
-export { godIconFor, iconFor, keepsakeNameFor, nameFor, textFor } from "./assets.js";
+export {
+  elementIconFor,
+  godIconFor,
+  iconFor,
+  keepsakeNameFor,
+  nameFor,
+  textFor,
+} from "./assets.js";
 export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
 export { refusedTraits, traitsFor } from "./traits.js";

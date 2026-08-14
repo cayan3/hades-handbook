@@ -1,3 +1,5 @@
+import { type GameKey, elementIconFor } from "@repo/catalog";
+import type { Element } from "@repo/core";
 import { useEffect, useState } from "react";
 
 /**
@@ -49,6 +51,34 @@ export function BoonArt({ iconKey }: BoonArtProps) {
   return (
     <img
       className="node__art"
+      src={src}
+      alt=""
+      draggable={false}
+      onError={() => setSrc(MISSING_ART)}
+    />
+  );
+}
+
+export interface ElementArtProps {
+  readonly game: GameKey;
+  readonly element: Element;
+}
+
+/**
+ * Which element a Hades II boon counts toward, in its top-left corner. Fetched
+ * rather than drawn like the two glyphs beside it, because this has to say which
+ * of five and they only have to say that something is true. Decorative: the
+ * affinity is a sentence in the node's description too.
+ */
+export function ElementArt({ game, element }: ElementArtProps) {
+  const url = artUrl(elementIconFor(game, element));
+  const [src, setSrc] = useState(url);
+
+  useEffect(() => setSrc(url), [url]);
+
+  return (
+    <img
+      className="node__element"
       src={src}
       alt=""
       draggable={false}

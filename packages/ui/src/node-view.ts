@@ -9,6 +9,7 @@ import {
 import type {
   BoonState,
   CatalogLookups,
+  Element,
   GameRules,
   GodId,
   KeepsakeId,
@@ -67,6 +68,12 @@ export interface NodeView {
    * with this and stays silent without it.
    */
   readonly rarities: readonly Rarity[];
+  /**
+   * The element this boon counts toward, which is a Hades II fact and null in
+   * every Hades I record. 190 of the 218 records reaching a page carry one, and
+   * the 37 Aether ones are exactly the Duos.
+   */
+  readonly element: Element | null;
   /** Present exactly when the state is **Impossible**. */
   readonly notice: ImpossibleNotice | null;
   /**
@@ -331,6 +338,7 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
     kind,
     rarity: kind === null ? declaredRarity(state, facts, trait, record?.rarity ?? []) : null,
     rarities: kind === null ? (record?.rarity ?? []) : [],
+    element: record?.elementAffinity ?? null,
     notice:
       state === "Impossible"
         ? impossibleNotice(reasonFor(source, trait, prereq, facts), naming, source.forcingKeepsake)

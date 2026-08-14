@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { godIconFor, iconFor, keepsakeNameFor, nameFor, textFor } from "./assets.js";
+import {
+  elementIconFor,
+  godIconFor,
+  iconFor,
+  keepsakeNameFor,
+  nameFor,
+  textFor,
+} from "./assets.js";
 import { keepsakesFor } from "./keepsakes.js";
 import { traitsFor } from "./traits.js";
 
@@ -53,6 +60,22 @@ describe("godIconFor", () => {
     // Same absence as a trait with no icon, and the placeholder is deliberately
     // not per-game: it is ours to draw, not either game's.
     expect(godIconFor("hades2", "NoSuchGod")).toBe("official/_missing");
+  });
+});
+
+describe("elementIconFor", () => {
+  it("builds the key from the element, no record naming one", () => {
+    // The one resolver whose key comes from neither a record nor a name: a
+    // boon's affinity is a field, and the picture for it belongs to the element.
+    expect(elementIconFor("hades2", "Fire")).toBe("official/hades2/Element_Fire");
+    expect(elementIconFor("hades2", "Aether")).toBe("official/hades2/Element_Aether");
+  });
+
+  it("has nothing to answer with in Hades I", () => {
+    // Elements are Hades II's, and 0 of 449 Hades I records carry an affinity.
+    // The placeholder rather than a Hades II path, which would serve one game's
+    // art on the other's page.
+    expect(elementIconFor("hades1", "Fire")).toBe("official/_missing");
   });
 });
 

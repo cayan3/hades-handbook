@@ -47,6 +47,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
     kind: null,
     rarity: null,
     rarities: [],
+    element: null,
     notice: null,
     dormant: false,
     replaces: null,
@@ -120,6 +121,23 @@ describe("BoonNode", () => {
     expect(container.querySelector<HTMLElement>(".node")?.dataset["state"]).toBe("Obtained");
     expect(container.querySelector(".node__dormant")).not.toBeNull();
     expect(container.querySelector("[hidden]")?.textContent).toContain("not active yet");
+  });
+
+  it("marks a boon's element in a corner and in words both", () => {
+    // The symbol is the game's own art rather than a drawn glyph, so it says
+    // *which* element — which is the thing five hollow rings could not. A
+    // reader who never meets a picture gets the same fact as a sentence.
+    render(<BoonNode view={view({ element: "Fire" })} />);
+    const marker = container.querySelector<HTMLImageElement>(".node__element");
+    expect(marker?.getAttribute("src")).toContain("Element_Fire");
+    expect(marker?.getAttribute("alt")).toBe("");
+    expect(container.querySelector("[hidden]")?.textContent).toContain("Fire affinity.");
+  });
+
+  it("draws no element corner where the record declares none", () => {
+    // 28 of the 218 Hades II records reaching a page, and all 449 Hades I ones.
+    render(<BoonNode view={view()} />);
+    expect(container.querySelector(".node__element")).toBeNull();
   });
 
   it("puts the whole of a verdict where a reader will hear it", () => {

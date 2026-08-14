@@ -214,13 +214,14 @@
 }
 
 /*
- * Top right is the pin's, freed by dropping the checkmark an Obtained node used
- * to carry. Bottom right is the dormant badge's, since a boon can be pinned and
- * inert at once. Both sit outside the clip path, or the corners are exactly what
- * gets clipped away.
+ * Three corners, one meaning each, and the pin keeps the top right in both games.
+ * The element symbol takes the top right in the game's own drawing, which is the
+ * collision this arrangement resolves. All three sit outside the clip path, or
+ * the corners are exactly what gets clipped away.
  */
 .node__marker,
-.node__dormant {
+.node__dormant,
+.node__element {
   position: absolute;
   width: 0.9rem;
   height: 0.9rem;
@@ -232,8 +233,17 @@
 }
 
 .node__dormant {
-  right: -0.2rem;
+  left: -0.2rem;
   bottom: -0.2rem;
+}
+
+/* Not scaled to fit its box: the five symbols are between 54 and 66 pixels wide
+   and are not the same aspect, so a stretch would make Water taller than Fire
+   at the same nominal size. */
+.node__element {
+  top: -0.2rem;
+  left: -0.2rem;
+  object-fit: contain;
 }
 
 /*

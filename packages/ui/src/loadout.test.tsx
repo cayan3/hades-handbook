@@ -50,6 +50,7 @@ function view(trait: TraitId): NodeView {
     kind: null,
     rarity: null,
     rarities: [],
+    element: null,
     notice: null,
     dormant: false,
     replaces: null,

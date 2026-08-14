@@ -53,6 +53,7 @@ function view(trait: TraitId, over: Partial<NodeView> = {}): NodeView {
     kind: null,
     rarity: null,
     rarities: [],
+    element: null,
     notice: null,
     dormant: false,
     replaces: null,

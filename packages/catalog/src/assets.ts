@@ -1,4 +1,4 @@
-import type { GodId, KeepsakeId, TraitId } from "@repo/core";
+import type { Element, GodId, KeepsakeId, TraitId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
 import { keepsakesFor } from "./keepsakes.js";
 import type { GodRecord, TraitRecord } from "./schema.js";
@@ -63,6 +63,16 @@ export function godIconFor(game: GameKey, god: GodId): string {
   const key = (dataFor(game).gods as Record<string, GodRecord>)[god]?.iconKey;
   if (key === undefined || key === null || key === "") return `${ART_SET}/_missing`;
   return `${ART_SET}/${game}/${key}`;
+}
+
+/**
+ * An element's own symbol, withdrawn by the same edit as the rest. A third
+ * function rather than a case in `iconFor` because no record names one — the key
+ * is built from the element, the way a god's is built from its name.
+ */
+export function elementIconFor(game: GameKey, element: Element): string {
+  if (game !== "hades2") return `${ART_SET}/_missing`;
+  return `${ART_SET}/${game}/Element_${element}`;
 }
 
 /**

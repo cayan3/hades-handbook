@@ -26,10 +26,10 @@ export function MarkerGlyph() {
 }
 
 /**
- * The dormant ring, bottom right, since the top right is the pin's and a boon
- * can be both. Hollow is the message: you own it and it is not switched on yet.
- * A mark on a state rather than a sixth state, because owning a thing and that
- * thing working are different questions.
+ * The dormant ring, bottom left, since both top corners are spoken for and a
+ * boon can be pinned and inert at once. Hollow is the message: you own it and it
+ * is not switched on yet. A mark on a state rather than a sixth state, because
+ * owning a thing and that thing working are different questions.
  */
 export function DormantGlyph() {
   return (

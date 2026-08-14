@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { useId } from "react";
-import { BoonArt } from "./boon-art.js";
+import { BoonArt, ElementArt } from "./boon-art.js";
 import { stateSentence } from "./describe.js";
 import { DormantGlyph, MarkerGlyph } from "./glyphs.js";
 import { godColour } from "./god-palette.js";
@@ -160,6 +160,9 @@ export function BoonNode({
     stateSentence(view.state),
     view.dormant ? DORMANT_SENTENCE : null,
     treatment === null ? null : `${treatment.word}.`,
+    // The corner symbol says this in a picture, so a reader who never meets one
+    // is owed the word.
+    view.element === null ? null : `${view.element} affinity.`,
     view.notice === null ? null : noticeText(view.notice),
   ]
     .filter((part): part is string => part !== null)
@@ -220,6 +223,7 @@ export function BoonNode({
               {ladder === "real-art" ? <BoonArt iconKey={view.iconKey} /> : null}
             </span>
           </span>
+          {view.element === null ? null : <ElementArt game={game} element={view.element} />}
           {pinned ? <MarkerGlyph /> : null}
           {view.dormant ? <DormantGlyph /> : null}
         </span>
