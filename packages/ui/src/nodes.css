@@ -575,6 +575,14 @@
   margin-left: 0.5rem;
 }
 
+/* Beside the rarity, and quieter than it: the sheet opens on a held boon, so
+   this is a confirmation rather than news. */
+.sheet__held {
+  margin-left: 0.4rem;
+  font-size: 0.72rem;
+  opacity: 0.65;
+}
+
 .sheet__head {
   display: flex;
   gap: 1rem;

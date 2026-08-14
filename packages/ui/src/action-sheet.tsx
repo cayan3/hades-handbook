@@ -52,6 +52,18 @@ export function ActionSheet({
   const held = view.state === "Obtained";
 
   /**
+   * What is left to say about the run once the heading has said whether the
+   * boon is held: the state, for a boon the run does not have, and the goal.
+   *
+   * Nothing opens a sheet on an unheld boon today — a click on one marks it —
+   * but this component takes any view, and dropping the sentence would be
+   * relying on that staying true.
+   */
+  const status = [held ? null : stateSentence(view.state), pinned ? "Pinned to a goal." : null]
+    .filter((part): part is string => part !== null)
+    .join(" ");
+
+  /**
    * Every edit closes the sheet behind it.
    *
    * The sheet is a dialog you opened to do one thing — say what rarity you took
@@ -141,20 +153,26 @@ export function ActionSheet({
         <div className="sheet__head">
           <h2 className="sheet__title" id={titleId}>
             {view.name}
-            {/* Beside the name rather than on a line of its own: the boon's
-                kind where it has one, and otherwise the rarity, and only where
-                the record says this boon has rarities at all. */}
+            {/* Beside the name rather than on a line of its own: the kind
+                where the boon has one, the rarity otherwise, and holding it in
+                a parenthesis after that — the sheet opens on a held boon, so
+                that is a confirmation rather than news. */}
             <RarityMark view={view} />
+            {held ? <span className="sheet__held">(held)</span> : null}
           </h2>
           <button type="button" className="sheet__close" onClick={onClose}>
             Close
           </button>
         </div>
 
-        <p className="sheet__state">
-          {stateSentence(view.state)}
-          {pinned ? " Pinned to a goal." : null}
-        </p>
+        {detail.description === null ? null : (
+          // The game's own words lead, where "Held." used to. Extracted text,
+          // through the resolver that can withdraw it, as text rather than
+          // markup.
+          <p className="sheet__description">{detail.description}</p>
+        )}
+
+        {status === "" ? null : <p className="sheet__state">{status}</p>}
 
         {!overridden ? null : (
           <p className="sheet__overridden">
@@ -214,12 +232,6 @@ export function ActionSheet({
               <p key={line}>{line}</p>
             ))}
           </section>
-        )}
-
-        {detail.description === null ? null : (
-          // Extracted game text, through the resolver that can withdraw it, as
-          // text rather than markup.
-          <p className="sheet__description">{detail.description}</p>
         )}
 
         <BoonActionBar view={view} held={held} pinned={pinned} actions={closing} />

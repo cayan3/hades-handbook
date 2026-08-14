@@ -233,6 +233,36 @@ describe("ActionSheet", () => {
     expect(container.querySelector(".sheet__title")?.textContent).toContain("Epic");
   });
 
+  it("leads with the boon's own text, and says held beside the rarity", () => {
+    // The sheet opens on a boon the run already holds, so a line reading
+    // "Held." was the one thing on it the player already knew. The game's own
+    // words go there instead and the state moves into the heading.
+    render(
+      <ActionSheet
+        view={view({ state: "Obtained", rarity: "Epic" })}
+        detail={detail({ description: "Your Special is stronger." })}
+        onClose={noop}
+      />,
+    );
+
+    const first = container.querySelector(".sheet")?.children[1];
+    expect(first?.className).toBe("sheet__description");
+    expect(first?.textContent).toBe("Your Special is stronger.");
+
+    const title = container.querySelector(".sheet__title");
+    expect(title?.textContent).toContain("Epic");
+    expect(title?.querySelector(".sheet__held")?.textContent).toBe("(held)");
+    expect(container.textContent).not.toContain("Held.");
+  });
+
+  it("still says the state where the boon is not held", () => {
+    // Nothing opens a sheet on one today, and a surface that stopped saying it
+    // would be relying on that staying true.
+    render(<ActionSheet view={view({ state: "Pending" })} detail={detail()} onClose={noop} />);
+    expect(container.querySelector(".sheet__state")?.textContent).toBe("On the way.");
+    expect(container.querySelector(".sheet__title")?.textContent).toBe("Storm Lightning");
+  });
+
   it("names the boon's kind in place of a rarity", () => {
     // What the record declares is not what a player was offered: a Hades I Duo
     // declares Legendary because that game has no Duo rarity.
