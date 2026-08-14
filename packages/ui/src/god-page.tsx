@@ -42,9 +42,15 @@ export interface GodPageProps extends BoonGestures {
   readonly nameOf: (trait: TraitId) => string;
 }
 
-/** Where an endpoint sits, in the canvas's own pixels. */
+/**
+ * Where an endpoint sits, in the canvas's own pixels. The edges as well as the
+ * centre, because a route has to know what is in its way and a centre cannot
+ * say how wide the thing is.
+ */
 export interface Place {
   readonly x: number;
+  readonly left: number;
+  readonly right: number;
   readonly top: number;
   readonly bottom: number;
 }
@@ -83,6 +89,8 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
       const at = shape.getBoundingClientRect();
       next.set(id, {
         x: at.left - box.left + at.width / 2,
+        left: at.left - box.left,
+        right: at.right - box.left,
         top: at.top - box.top,
         bottom: at.bottom - box.top,
       });
@@ -92,13 +100,26 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
     setPlaces((before) => (settled(before, next) ? before : next));
   }, []);
 
+  const junctionAt = useMemo(() => {
+    const all = new Map<string, number>();
+    for (const band of graph.bands) {
+      const ids = band.junctions.map((junction) => junction.id);
+      for (const [id, x] of junctionPlaces(ids, graph.edges, places)) all.set(id, x);
+    }
+    return all;
+  }, [graph, places]);
+
   // Anything that changes which endpoints exist, or where they are. Revealing
   // the rim is one of them and the graph does not change when it happens, so
-  // leaving it out meant the new nodes were never measured — the page only
-  // recovered because it also got taller and the observer below noticed.
+  // leaving it out meant the new nodes were never measured.
+  //
+  // Placing the junctions is the other, and it bites: it takes their row out of
+  // the flow, lifting every band below by a few pixels. Left out, wires drew
+  // 6px stale and ended inside the icon they pointed at. It settles because a
+  // junction's place comes from the boons above it, never from another junction.
   useLayoutEffect(() => {
     measure();
-  }, [measure, graph, showDuos]);
+  }, [measure, graph, showDuos, junctionAt]);
 
   // Set up once. Watching the canvas catches a rewrap, which is the case the
   // measurement cannot predict. Absent under the test runner, and its absence
@@ -124,6 +145,13 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
   // Over every edge the graph has, not just the drawn ones: a bar's height
   // would otherwise move as the selection changed which of its siblings show.
   const lanes = useMemo(() => lanesFor(graph.edges, places), [graph.edges, places]);
+  // Every icon a run could cross, which is every node the page is drawing. A
+  // junction is not one: it is small, a run reaching it is meant to touch it,
+  // and treating it as an obstacle would push its own lines off it.
+  const obstacles = useMemo(
+    () => [...drawn].map((trait) => places.get(trait)).filter((p): p is Place => p !== undefined),
+    [drawn, places],
+  );
 
   return (
     <div
@@ -168,7 +196,7 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
             className="godpage__wire"
             data-taken={edge.taken}
             data-reached={edge.reached}
-            d={wire(places.get(edge.from), places.get(edge.to), lanes.get(edge.id))}
+            d={wire(places.get(edge.from), places.get(edge.to), lanes.get(edge.id), obstacles)}
           />
         ))}
       </svg>
@@ -182,11 +210,19 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
                 also where the game's own dependency charts put the bus. */}
             {band.junctions.length === 0 ? null : (
               <li className="godpage__branches">
-                <ul className="godpage__junctions">
+                <ul className="godpage__junctions" data-placed={junctionAt.size > 0 || undefined}>
                   {band.junctions.map((junction) => (
                     <li
                       key={junction.id}
                       data-endpoint={junction.id}
+                      // Over the middle of what feeds it, which needs the
+                      // measurement — so a row with nothing measured yet falls
+                      // back to the even spread the stylesheet gives it.
+                      style={
+                        junctionAt.has(junction.id)
+                          ? ({ left: `${junctionAt.get(junction.id)}px` } as CSSProperties)
+                          : undefined
+                      }
                       // Hover only, and it stays that way: a junction is not a
                       // tab stop, and what it lights is a subset of what its
                       // dependent already lights, so a keyboard loses nothing by
@@ -284,9 +320,58 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
   );
 }
 
-/** How far a horizontal run keeps off an icon, and the step between two runs. */
-const CLEARANCE = 14;
+/**
+ * How far a horizontal run keeps off an icon, and the step between two runs.
+ *
+ * 26 because the boon's name sits 6 to 21px under its icon and a bar was being
+ * drawn straight through it — and because it is also the shortest segment a
+ * right angle can be justified by, a 14px one reading as a slip rather than a
+ * turn. Row gaps measured 57 to 105px, so the tightest still holds one bar.
+ */
+const CLEARANCE = 26;
 const LANE = 9;
+/** The least a junction keeps from its neighbour, centre to centre. */
+const APART = 44;
+
+/**
+ * Where each junction sits: over the middle of the branches it gathers, so the
+ * lines into it fan symmetrically instead of all leaning one way. Spread evenly
+ * by flex they bore no relation to it — measured on Hera, six of them sat 61 to
+ * 229px from the middle of what fed them.
+ *
+ * Two wanting one place are pushed apart in order, left to right then back, so
+ * a crowded row spreads rather than piling up at one end. One row at a time:
+ * separating every junction on the page together shoved Hera's lower row 118 to
+ * 317px off its branches.
+ */
+export function junctionPlaces(
+  ids: readonly string[],
+  edges: readonly GraphEdge[],
+  places: ReadonlyMap<string, Place>,
+): ReadonlyMap<string, number> {
+  const wanted: Array<{ id: string; x: number }> = [];
+  for (const id of ids) {
+    const branches = edges
+      .filter((edge) => edge.to === id)
+      .map((edge) => places.get(edge.from)?.x)
+      .filter((x): x is number => x !== undefined);
+    if (branches.length === 0) continue;
+    wanted.push({ id, x: branches.reduce((sum, x) => sum + x, 0) / branches.length });
+  }
+  wanted.sort((a, b) => a.x - b.x);
+
+  for (let i = 1; i < wanted.length; i += 1) {
+    const left = wanted[i - 1]!;
+    const here = wanted[i]!;
+    if (here.x - left.x < APART) here.x = left.x + APART;
+  }
+  for (let i = wanted.length - 2; i >= 0; i -= 1) {
+    const right = wanted[i + 1]!;
+    const here = wanted[i]!;
+    if (right.x - here.x < APART) here.x = right.x - APART;
+  }
+  return new Map(wanted.map(({ id, x }) => [id, x]));
+}
 
 /**
  * The height each wire's horizontal run sits at, by edge id.
@@ -358,26 +443,161 @@ export function lanesFor(
   return lanes;
 }
 
+/** How far a vertical run stays off an icon's edge before it reads as clear. */
+const BESIDE = 10;
+
+/** The icons a vertical run at `x` between two heights would touch. */
+function blockers(
+  x: number,
+  y1: number,
+  y2: number,
+  obstacles: readonly Place[],
+): readonly Place[] {
+  const top = Math.min(y1, y2);
+  const bottom = Math.max(y1, y2);
+  return obstacles.filter(
+    (o) => x > o.left - BESIDE && x < o.right + BESIDE && bottom > o.top && top < o.bottom,
+  );
+}
+
+function crosses(x: number, y1: number, y2: number, obstacles: readonly Place[]): boolean {
+  return blockers(x, y1, y2, obstacles).length > 0;
+}
+
 /**
- * A connector, routed in right angles: down out of the source, across on its
- * bar, down into the target. Every segment is parallel or perpendicular to the
- * rest, which is what lets a fan of them read as a bus rather than as noise.
+ * The nearest x to `want` where a vertical run over these heights touches
+ * nothing — the outside of whatever is in the way, which is the shortest
+ * detour that is still a detour.
+ */
+function clearColumn(
+  want: number,
+  y1: number,
+  y2: number,
+  obstacles: readonly Place[],
+): number {
+  const top = Math.min(y1, y2);
+  const bottom = Math.max(y1, y2);
+  const blocked: Array<[number, number]> = [];
+  for (const o of obstacles) {
+    if (bottom <= o.top || top >= o.bottom) continue;
+    blocked.push([o.left - BESIDE, o.right + BESIDE]);
+  }
+  blocked.sort((a, b) => a[0] - b[0]);
+
+  const spans: Array<[number, number]> = [];
+  for (const span of blocked) {
+    const last = spans.at(-1);
+    if (last !== undefined && span[0] <= last[1]) last[1] = Math.max(last[1], span[1]);
+    else spans.push([span[0], span[1]]);
+  }
+
+  const inside = spans.find(([l, r]) => want > l && want < r);
+  if (inside === undefined) return want;
+  // Its own two edges are the nearest clear x by construction, since the spans
+  // either side of it are separated from it by clear ground.
+  return want - inside[0] <= inside[1] - want ? inside[0] : inside[1];
+}
+
+/**
+ * A connector as a list of corners: down out of the source, across on its bar,
+ * down into the target. Every segment is parallel or perpendicular to the rest,
+ * which is what lets a fan of them read as a bus rather than as noise.
  *
- * For the ~5% of edges joining two nodes in one band there is no gap to sit in,
- * so the run drops clear below them instead.
+ * Nearly aligned goes straight, on a threshold that grows with the drop: a 14px
+ * step between two right angles reads as a slip, where the same 14px leaned over
+ * a 300px fall is invisible. Measured on Hera, 17 of 68 segments were that step.
  *
- * An unmeasured endpoint gives an empty path, which draws nothing — the first
- * frame, and every frame under a runner with no layout.
+ * A run that would cross an icon goes around it instead — into the gap below the
+ * source's row, along to the near side of what is in the way, and down. A band
+ * wide enough to wrap is where that happens.
+ */
+export function route(
+  from: Place,
+  to: Place,
+  at: number,
+  obstacles: readonly Place[],
+): ReadonlyArray<readonly [number, number]> {
+  const fall = Math.max(to.top - from.bottom, 0);
+  // Leaning it is only better than stepping it where the lean is clear. A run
+  // that would pass through an icon takes the corners instead, however little
+  // it has to move sideways: not crossing beats not stepping.
+  const aligned = Math.abs(to.x - from.x) <= Math.max(8, fall * 0.12);
+  if (
+    aligned &&
+    !crosses(from.x, from.bottom, to.top, obstacles) &&
+    !crosses(to.x, from.bottom, to.top, obstacles)
+  ) {
+    return [
+      [from.x, from.bottom],
+      [to.x, to.top],
+    ];
+  }
+
+  // The bar is the one part of the route free to move, so it takes the strain
+  // where the drop *into* the target is blocked — a junction placed under a
+  // node leaves that drop crossing it, and neither end can shift sideways.
+  const under = blockers(to.x, at, to.top, obstacles);
+  const bar = under.length === 0 ? at : Math.max(...under.map((o) => o.bottom)) + BESIDE;
+
+  const plain = [
+    [from.x, from.bottom],
+    [from.x, bar],
+    [to.x, bar],
+    [to.x, to.top],
+  ] as const;
+  if (!crosses(from.x, from.bottom, bar, obstacles)) return plain;
+
+  // Halfway to whatever is next, so the corner that starts the detour is not a
+  // stub: an 18px one is exactly the unjustified right angle to avoid.
+  const below = obstacles
+    .filter((o) => o.top >= from.bottom)
+    .map((o) => o.top)
+    .concat(bar);
+  const gap = (from.bottom + Math.min(...below)) / 2;
+  const via = clearColumn(to.x, gap, bar, obstacles);
+  return [
+    [from.x, from.bottom],
+    [from.x, gap],
+    [via, gap],
+    [via, bar],
+    [to.x, bar],
+    [to.x, to.top],
+  ];
+}
+
+/**
+ * The path, with the corners a route left in that say nothing — a segment of no
+ * length, and a corner between two runs in the same direction.
+ *
+ * An unmeasured endpoint draws nothing at all: the first frame, and every frame
+ * under a runner with no layout.
  */
 export function wire(
   from: Place | undefined,
   to: Place | undefined,
   at: number | undefined,
+  obstacles: readonly Place[] = [],
 ): string {
   if (from === undefined || to === undefined) return "";
-  if (Math.abs(to.x - from.x) < 0.5) return `M ${from.x} ${from.bottom} L ${to.x} ${to.top}`;
-  const run = at ?? from.bottom + CLEARANCE;
-  return `M ${from.x} ${from.bottom} L ${from.x} ${run} L ${to.x} ${run} L ${to.x} ${to.top}`;
+  const corners = route(from, to, at ?? from.bottom + CLEARANCE, obstacles);
+  const kept: Array<readonly [number, number]> = [];
+  for (const corner of corners) {
+    const last = kept.at(-1);
+    if (last !== undefined && Math.abs(last[0] - corner[0]) < 0.5 && Math.abs(last[1] - corner[1]) < 0.5) {
+      continue;
+    }
+    const before = kept.at(-2);
+    if (
+      last !== undefined &&
+      before !== undefined &&
+      ((before[0] === last[0] && last[0] === corner[0]) ||
+        (before[1] === last[1] && last[1] === corner[1]))
+    ) {
+      kept.pop();
+    }
+    kept.push(corner);
+  }
+  return kept.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x} ${y}`).join(" ");
 }
 
 function settled(before: ReadonlyMap<string, Place>, next: ReadonlyMap<string, Place>): boolean {
@@ -386,6 +606,7 @@ function settled(before: ReadonlyMap<string, Place>, next: ReadonlyMap<string, P
     const was = before.get(id);
     if (was === undefined) return false;
     if (was.x !== place.x || was.top !== place.top || was.bottom !== place.bottom) return false;
+    if (was.left !== place.left || was.right !== place.right) return false;
   }
   return true;
 }

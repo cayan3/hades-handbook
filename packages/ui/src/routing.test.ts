@@ -11,8 +11,9 @@ import { lanesFor, type Place, wire } from "./god-page.js";
  * places are stated here and the arithmetic is the thing under test.
  */
 
-function place(x: number, top: number, height = 60): Place {
-  return { x, top, bottom: top + height };
+/** A node is 62px across on the god page, so the default is that icon. */
+function place(x: number, top: number, height = 60, width = 62): Place {
+  return { x, left: x - width / 2, right: x + width / 2, top, bottom: top + height };
 }
 
 function edge(from: string, to: string): GraphEdge {
@@ -60,24 +61,33 @@ describe("lanesFor", () => {
 
   it("shares a height between the bars furthest apart, never adjacent ones", () => {
     // Ordered by where the target sits, so the pair forced to share is the pair
-    // least likely to overlap along the way.
-    const four = new Map<string, Place>([
+    // least likely to overlap along the way. 180 - 60 - 52 = 68 of room, which
+    // is eight lanes, so three targets get three heights and none doubles up.
+    const roomy = new Map<string, Place>([
+      ["a", place(0, 0)],
+      ["x", place(0, 180)],
+      ["y", place(100, 180)],
+      ["z", place(200, 180)],
+    ]);
+    const lanes = lanesFor([edge("a", "x"), edge("a", "y"), edge("a", "z")], roomy);
+    expect(new Set(lanes.values()).size).toBe(3);
+
+    // The same three in a gap that holds one bar all share it, which is the
+    // degradation rather than a bar drawn over an icon.
+    const tight = new Map<string, Place>([
       ["a", place(0, 0)],
       ["x", place(0, 120)],
       ["y", place(100, 120)],
       ["z", place(200, 120)],
     ]);
-    // 120 - 60 - 28 = 32 of room, which is three lanes, so the fourth target
-    // would be the first to double up.
-    const lanes = lanesFor([edge("a", "x"), edge("a", "y"), edge("a", "z")], four);
-    expect(new Set(lanes.values()).size).toBe(3);
+    expect(new Set(lanesFor([edge("a", "x"), edge("a", "y"), edge("a", "z")], tight).values()).size).toBe(1);
   });
 
   it("keeps a bar clear of the icons at both ends", () => {
     const lanes = lanesFor([edge("a", "x")], PLACES);
     const at = lanes.get("a>x")!;
-    expect(at).toBeLessThanOrEqual(200 - 14);
-    expect(at).toBeGreaterThanOrEqual(60 + 14);
+    expect(at).toBeLessThanOrEqual(200 - 26);
+    expect(at).toBeGreaterThanOrEqual(60 + 26);
   });
 
   it("falls back to the midpoint where the gap cannot hold the clearance", () => {
@@ -116,7 +126,55 @@ describe("wire", () => {
     // Two nodes in one band: `lanesFor` skips the pair, so the run drops below
     // the row rather than cutting back through it.
     expect(wire(place(100, 0), place(200, 0), undefined)).toBe(
-      "M 100 60 L 100 74 L 200 74 L 200 0",
+      "M 100 60 L 100 86 L 200 86 L 200 0",
     );
+  });
+
+  it("leans a nearly-aligned run rather than stepping it", () => {
+    // Measured on Hera, 17 of 68 segments were a step of 14px or less between
+    // two right angles — which reads as a mistake, where the same 14px leaned
+    // over a 300px fall is invisible. The threshold grows with the drop.
+    expect(wire(place(100, 0), place(114, 400), 200)).toBe("M 100 60 L 114 400");
+    // A short fall has no room to hide it, so 14px there is still a step.
+    expect(wire(place(100, 0), place(114, 90), 75)).toBe(
+      "M 100 60 L 100 75 L 114 75 L 114 90",
+    );
+  });
+
+  it("goes around an icon in the way rather than through it", () => {
+    // The wrapped-band case, and the only crossing Hera had: a source on the
+    // first row of a band falls straight through the second. The detour starts
+    // halfway to the row below, so the corner that begins it is not a stub.
+    const blocker = place(100, 120);
+    expect(wire(place(100, 0), place(300, 400), 380, [blocker])).toBe(
+      "M 100 60 L 100 90 L 300 90 L 300 400",
+    );
+  });
+
+  it("passes an icon on its near side, which is the shortest detour", () => {
+    // Both ends sit inside the blocker's column, so neither the drop out of the
+    // source nor a drop straight to the target is clear. 141 is the blocker's
+    // right edge plus the 10px that reads as clear of it, and it is nearer than
+    // the left edge at 59.
+    const blocker = place(100, 120);
+    const path = wire(place(100, 0), place(120, 400), 380, [blocker]);
+    expect(path).toContain("L 141 ");
+    expect(path.endsWith("L 120 400")).toBe(true);
+  });
+
+  it("takes the corners over a lean where the lean would cross an icon", () => {
+    // Rule against rule: 20px over a 340px fall is well inside "nearly
+    // aligned", and going straight there would draw through the blocker.
+    const blocker = place(100, 120);
+    const path = wire(place(100, 0), place(120, 400), 380, [blocker]);
+    expect(path.split(" L ").length).toBeGreaterThan(2);
+  });
+
+  it("draws no corner where the direction does not change", () => {
+    // A route can leave a corner between two runs going the same way, and a
+    // path with a point in the middle of a straight line is a path that will
+    // one day be drawn with a join on it.
+    const path = wire(place(100, 0), place(200, 200), 150);
+    expect(path.split(" L ")).toHaveLength(4);
   });
 });

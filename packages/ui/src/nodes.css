@@ -515,6 +515,23 @@
   justify-content: space-evenly;
 }
 
+/* Once the page has measured its boons, each junction is placed over the middle
+   of the ones it gathers instead. Absolute, so the row keeps a height of its
+   own — its children no longer give it one. The fallback above is what the
+   first frame draws, and what a runner with no layout draws forever. */
+.godpage__junctions[data-placed] {
+  position: relative;
+  display: block;
+  height: 1.1rem;
+}
+
+.godpage__junctions[data-placed] > li {
+  position: absolute;
+  top: 0;
+  /* The centre, not the left edge: `left` is where the middle of it goes. */
+  transform: translateX(-50%);
+}
+
 /* The spine of a build, set apart from the rest of its layer by a rule rather
    than by a band of its own: they are on the same rung and a second band would
    say they were not. Drawn on the first cell that is not one, so it lands
