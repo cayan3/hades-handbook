@@ -183,6 +183,43 @@ describe("the page as a path through", () => {
     ]);
   });
 
+  it("draws one diamond for two gates that ask for the same thing", () => {
+    // Measured over both catalogs, 117 of 237 junctions stand for the same
+    // "any of these" as another. Each drew its own diamond beside the last.
+    const shared: GodGraph = {
+      god: "Zeus",
+      bands: [
+        band({ key: "tier-1", members: [member("a"), member("b")] }),
+        band({
+          key: "tier-2",
+          junctions: [
+            { id: "c#0", dependent: "c", min: 1, of: 2, status: "pending", reached: false },
+            { id: "d#0", dependent: "d", min: 1, of: 2, status: "pending", reached: false },
+          ],
+          members: [member("c"), member("d")],
+        }),
+      ],
+      edges: [
+        edge("a", "c#0"),
+        edge("b", "c#0"),
+        edge("c#0", "c"),
+        edge("a", "d#0"),
+        edge("b", "d#0"),
+        edge("d#0", "d"),
+      ],
+    };
+    render(page(shared));
+    expect(container.querySelectorAll(".junction")).toHaveLength(1);
+
+    // A gate asking for something else keeps its own.
+    const apart = {
+      ...shared,
+      edges: [...shared.edges.filter((e) => e.id !== "b>d#0")],
+    };
+    render(page(apart));
+    expect(container.querySelectorAll(".junction")).toHaveLength(2);
+  });
+
   it("says what a junction stands for without making it a stop", () => {
     render(page(LADDER));
     const junction = container.querySelector(".junction")!;

@@ -11,9 +11,21 @@ import { lanesFor, type Place, wire } from "./god-page.js";
  * places are stated here and the arithmetic is the thing under test.
  */
 
-/** A node is 62px across on the god page, so the default is that icon. */
-function place(x: number, top: number, height = 60, width = 62): Place {
-  return { x, left: x - width / 2, right: x + width / 2, top, bottom: top + height };
+/**
+ * A node is 62px across on the god page, so the default is that icon. `text` is
+ * how far the name reaches below and beside it — names measure 50 to 102px
+ * against that 62px icon, so the guard is wider as well as taller.
+ */
+function place(x: number, top: number, height = 60, width = 62, text = 0, textWidth = width): Place {
+  const wide = Math.max(width, textWidth);
+  return {
+    x,
+    left: x - wide / 2,
+    right: x + wide / 2,
+    top,
+    bottom: top + height,
+    guard: top + height + text,
+  };
 }
 
 function edge(from: string, to: string): GraphEdge {
@@ -193,6 +205,29 @@ describe("wire", () => {
     const blocker = place(100, 120);
     const path = wire(place(100, 0), place(120, 400), 380, [blocker]);
     expect(path.split(" L ").length).toBeGreaterThan(2);
+  });
+
+  it("keeps clear of a boon's name, not only its icon", () => {
+    // Nine segments on Hera were drawn across a name. The column here is 45px
+    // off the blocker's centre: outside its 62px icon and inside its 120px
+    // name, so only a guard that counts the text sees it at all.
+    const named = place(300, 120, 60, 62, 40, 120);
+    const bare = place(300, 120, 60, 62, 0, 62);
+    const from = place(345, 0);
+    const to = place(345, 400);
+
+    expect(wire(from, to, 380, [bare])).toBe("M 345 60 L 345 400");
+    expect(wire(from, to, 380, [named])).not.toBe("M 345 60 L 345 400");
+  });
+
+  it("does not treat its own two ends as things to avoid", () => {
+    // A wire leaves through the underside of its source's icon and therefore
+    // across that source's own name. That is the anchor doing what it was
+    // chosen to do, and reading it as a crossing would send every wire on a
+    // detour around itself.
+    const from = place(100, 0, 60, 62, 40);
+    const to = place(100, 300, 60, 62, 40);
+    expect(wire(from, to, 250, [from, to])).toBe("M 100 60 L 100 300");
   });
 
   it("draws only right angles and 45s, and nothing between", () => {

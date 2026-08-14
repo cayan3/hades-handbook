@@ -9,7 +9,13 @@ import {
   useState,
 } from "react";
 import { type BoonGestures, BoonNode } from "./boon-node.js";
-import { endpointOwner, type GodGraph, type GraphEdge, neighbourhood } from "./god-graph.js";
+import {
+  endpointOwner,
+  type GodGraph,
+  type GraphEdge,
+  isJunctionId,
+  neighbourhood,
+} from "./god-graph.js";
 import { godColour } from "./god-palette.js";
 import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
@@ -43,16 +49,23 @@ export interface GodPageProps extends BoonGestures {
 }
 
 /**
- * Where an endpoint sits, in the canvas's own pixels. The edges as well as the
- * centre, because a route has to know what is in its way and a centre cannot
- * say how wide the thing is.
+ * Where an endpoint sits, in the canvas's own pixels.
+ *
+ * Two boxes in one. A wire *attaches* to the icon — `x`, `top`, `bottom` — since
+ * one leaving from under the name reads as leaving from nothing. What it has to
+ * *avoid* is the icon and the name together, which is wider and taller: names
+ * measure 50 to 102px against a 62px icon, and nine segments on Hera were
+ * drawn across one.
  */
 export interface Place {
   readonly x: number;
-  readonly left: number;
-  readonly right: number;
   readonly top: number;
   readonly bottom: number;
+  /** The wider of the icon and its name. */
+  readonly left: number;
+  readonly right: number;
+  /** The name's bottom, or the icon's where a caller states no name. */
+  readonly guard: number;
 }
 
 const NOWHERE: ReadonlyMap<string, Place> = new Map();
@@ -87,12 +100,16 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
       // wire leaving from below the name reads as leaving from nothing.
       const shape = cell.querySelector(".node__box") ?? cell;
       const at = shape.getBoundingClientRect();
+      // The name is what the guard adds. Not the whole cell, which is 120px
+      // wide against a 142px pitch and would leave no clear column anywhere.
+      const label = cell.querySelector(".node__name")?.getBoundingClientRect();
       next.set(id, {
         x: at.left - box.left + at.width / 2,
-        left: at.left - box.left,
-        right: at.right - box.left,
+        left: Math.min(at.left, label?.left ?? at.left) - box.left,
+        right: Math.max(at.right, label?.right ?? at.right) - box.left,
         top: at.top - box.top,
         bottom: at.bottom - box.top,
+        guard: (label?.bottom ?? at.bottom) - box.top,
       });
     }
     // Bailing on an unchanged measurement is what stops this: the effect writes
@@ -100,14 +117,47 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
     setPlaces((before) => (settled(before, next) ? before : next));
   }, []);
 
+  /**
+   * Junctions standing for the same requirement, drawn once. Measured over both
+   * catalogs, 117 of 237 stand for the same "any of these" as another — 45
+   * groups — and each was drawing its own diamond beside the last.
+   *
+   * A grouping rather than a change to the graph: `endpointOwner` answers with a
+   * junction's dependent, which the layering and the neighbourhood both walk, so
+   * one junction serving two dependents would make that answer ambiguous. The
+   * band is in the key, so two identical asks feeding different rows stay apart.
+   */
+  const sameAsk = useMemo(() => {
+    const branches = new Map<string, string[]>();
+    for (const edge of graph.edges) {
+      if (isJunctionId(edge.to)) branches.set(edge.to, [...(branches.get(edge.to) ?? []), edge.from]);
+    }
+    const first = new Map<string, string>();
+    const canonical = new Map<string, string>();
+    for (const band of graph.bands) {
+      for (const junction of band.junctions) {
+        const ask = [...(branches.get(junction.id) ?? [])].sort().join(",");
+        const key = `${band.key}|${junction.min}/${junction.of}|${ask}`;
+        const seen = first.get(key);
+        if (seen === undefined) first.set(key, junction.id);
+        canonical.set(junction.id, seen ?? junction.id);
+      }
+    }
+    return canonical;
+  }, [graph]);
+  /** The endpoint a wire really meets, once the identical asks are one diamond. */
+  const endpoint = useCallback((id: string) => sameAsk.get(id) ?? id, [sameAsk]);
+
   const junctionAt = useMemo(() => {
     const all = new Map<string, number>();
     for (const band of graph.bands) {
-      const ids = band.junctions.map((junction) => junction.id);
+      const ids = band.junctions
+        .map((junction) => junction.id)
+        .filter((id) => endpoint(id) === id);
       for (const [id, x] of junctionPlaces(ids, graph.edges, places)) all.set(id, x);
     }
     return all;
-  }, [graph, places]);
+  }, [graph, places, endpoint]);
 
   // Anything that changes which endpoints exist, or where they are. Revealing
   // the rim is one of them and the graph does not change when it happens, so
@@ -131,7 +181,17 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
     return () => observer.disconnect();
   }, [measure]);
 
-  const around = useMemo(() => neighbourhood(graph, selected), [graph, selected]);
+  const around = useMemo(() => {
+    if (selected === null || !isJunctionId(selected)) return neighbourhood(graph, selected);
+    // A shared diamond stands for every gate it was drawn for, so hovering it
+    // lights all of them rather than whichever one happens to own the id.
+    const lit = new Set<string>();
+    for (const [id, canonical] of sameAsk) {
+      if (canonical !== selected) continue;
+      for (const edge of neighbourhood(graph, id)) lit.add(edge);
+    }
+    return lit;
+  }, [graph, selected, sameAsk]);
   const bands = graph.bands.filter((band) => showDuos || band.kind !== "duo");
   const drawn = new Set(bands.flatMap((band) => band.members.map((member) => member.trait)));
   // A wire into a band nobody is showing has one end and would be drawn from
@@ -144,7 +204,11 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
   const hasRim = graph.bands.some((band) => band.kind === "duo");
   // Over every edge the graph has, not just the drawn ones: a bar's height
   // would otherwise move as the selection changed which of its siblings show.
-  const lanes = useMemo(() => lanesFor(graph.edges, places), [graph.edges, places]);
+  const grouped = useMemo(
+    () => graph.edges.map((edge) => ({ ...edge, from: endpoint(edge.from), to: endpoint(edge.to) })),
+    [graph.edges, endpoint],
+  );
+  const lanes = useMemo(() => lanesFor(grouped, places), [grouped, places]);
   // Every icon a run could cross, which is every node the page is drawing. A
   // junction is not one: it is small, a run reaching it is meant to touch it,
   // and treating it as an obstacle would push its own lines off it.
@@ -196,7 +260,12 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
             className="godpage__wire"
             data-taken={edge.taken}
             data-reached={edge.reached}
-            d={wire(places.get(edge.from), places.get(edge.to), lanes.get(edge.id), obstacles)}
+            d={wire(
+              places.get(endpoint(edge.from)),
+              places.get(endpoint(edge.to)),
+              lanes.get(edge.id),
+              obstacles,
+            )}
           />
         ))}
       </svg>
@@ -211,7 +280,9 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
             {band.junctions.length === 0 ? null : (
               <li className="godpage__branches">
                 <ul className="godpage__junctions" data-placed={junctionAt.size > 0 || undefined}>
-                  {band.junctions.map((junction) => (
+                  {band.junctions
+                    .filter((junction) => endpoint(junction.id) === junction.id)
+                    .map((junction) => (
                     <li
                       key={junction.id}
                       data-endpoint={junction.id}
@@ -236,7 +307,13 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
                         status={junction.status}
                         min={junction.min}
                         of={junction.of}
-                        reached={junction.reached}
+                        // Any of the gates it stands for being in the run. The
+                        // status is the requirement's and identical across them
+                        // by construction; whether the boon at the far end is
+                        // held is not, and belongs to the edge out anyway.
+                        reached={band.junctions.some(
+                          (other) => endpoint(other.id) === junction.id && other.reached,
+                        )}
                       />
                     </li>
                   ))}
@@ -477,7 +554,7 @@ function blockers(
   const top = Math.min(y1, y2);
   const bottom = Math.max(y1, y2);
   return obstacles.filter(
-    (o) => x > o.left - BESIDE && x < o.right + BESIDE && bottom > o.top && top < o.bottom,
+    (o) => x > o.left - BESIDE && x < o.right + BESIDE && bottom > o.top && top < o.guard,
   );
 }
 
@@ -500,7 +577,7 @@ function clearColumn(
   const bottom = Math.max(y1, y2);
   const blocked: Array<[number, number]> = [];
   for (const o of obstacles) {
-    if (bottom <= o.top || top >= o.bottom) continue;
+    if (bottom <= o.top || top >= o.guard) continue;
     blocked.push([o.left - BESIDE, o.right + BESIDE]);
   }
   blocked.sort((a, b) => a[0] - b[0]);
@@ -520,6 +597,36 @@ function clearColumn(
 }
 
 /**
+ * A bar's height, moved off anything it would otherwise run across.
+ *
+ * `lanesFor` picks the height from the target's icon and knows nothing of what
+ * the run passes over on its way there — which is how two bars on Hera came to
+ * be drawn through the words *Fine Line*. Whichever side of the obstacle is
+ * nearer, since a node the run merely passes is not one it is about.
+ */
+function clearOf(
+  at: number,
+  from: Place,
+  to: Place,
+  obstacles: readonly Place[],
+): number {
+  const left = Math.min(from.x, to.x);
+  const right = Math.max(from.x, to.x);
+  const across = obstacles.filter((o) => right > o.left - BESIDE && left < o.right + BESIDE);
+  const hit = across.find((o) => at > o.top - BESIDE && at < o.guard + BESIDE);
+  if (hit === undefined) return at;
+
+  const above = hit.top - BESIDE;
+  const below = hit.guard + BESIDE;
+  // Room is what decides it: above must still clear the source it leaves, and
+  // below must still leave the drop into the target worth drawing.
+  const roomAbove = above >= from.guard + BESIDE;
+  const roomBelow = below <= to.top - BESIDE;
+  if (roomAbove && (!roomBelow || at - above <= below - at)) return above;
+  return roomBelow ? below : at;
+}
+
+/**
  * A connector as a list of corners: down out of the source, across on its bar,
  * down into the target. Every segment is parallel or perpendicular to the rest,
  * which is what lets a fan of them read as a bus rather than as noise.
@@ -534,8 +641,12 @@ export function route(
   from: Place,
   to: Place,
   at: number,
-  obstacles: readonly Place[],
+  everything: readonly Place[],
 ): ReadonlyArray<readonly [number, number]> {
+  // Its own two ends are not in its way. A wire leaves through the underside of
+  // its source's icon and therefore across that source's own name, which is the
+  // anchor doing what it was chosen to do rather than a crossing.
+  const obstacles = everything.filter((o) => o !== from && o !== to);
   // A column, so there is nothing to turn for.
   if (
     Math.abs(to.x - from.x) < 0.5 &&
@@ -551,7 +662,8 @@ export function route(
   // where the drop *into* the target is blocked — a junction placed under a
   // node leaves that drop crossing it, and neither end can shift sideways.
   const under = blockers(to.x, at, to.top, obstacles);
-  const bar = under.length === 0 ? at : Math.max(...under.map((o) => o.bottom)) + BESIDE;
+  const dropped = under.length === 0 ? at : Math.max(...under.map((o) => o.guard)) + BESIDE;
+  const bar = clearOf(dropped, from, to, obstacles);
 
   const plain = [
     [from.x, from.bottom],
@@ -624,7 +736,7 @@ export function chamfer(
         Math.max(from[0], to[0]) > o.left + 1 &&
         Math.min(from[0], to[0]) < o.right - 1 &&
         Math.max(from[1], to[1]) > o.top + 1 &&
-        Math.min(from[1], to[1]) < o.bottom - 1,
+        Math.min(from[1], to[1]) < o.guard - 1,
     );
     if (r < 0.5 || cuts) {
       out.push(corners[i]!);
@@ -680,6 +792,7 @@ function settled(before: ReadonlyMap<string, Place>, next: ReadonlyMap<string, P
     if (was === undefined) return false;
     if (was.x !== place.x || was.top !== place.top || was.bottom !== place.bottom) return false;
     if (was.left !== place.left || was.right !== place.right) return false;
+    if (was.guard !== place.guard) return false;
   }
   return true;
 }
