@@ -881,7 +881,7 @@
 
 .loadout__list {
   display: flex;
-  /* Wide enough for a tile's rarity band and, on a pinned one, its glow. */
+  /* Wide enough for a tile's rarity band and, on a held-open one, its glow. */
   gap: 1rem;
 }
 
