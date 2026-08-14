@@ -1226,6 +1226,14 @@
  * where there is something to lie over.
  */
 @media (min-width: 48rem) {
+  /* Hugging the grid rather than filling the column, because the cards hang off
+     this box's right edge. Filling it put them at the column edge in both
+     states — measured, 370px against a collapsed grid ending at 113px, so a
+     card sat over the god page with 258px of nothing beside it. */
+  .loadout__panel {
+    width: fit-content;
+  }
+
   .loadout__cards {
     position: absolute;
     top: 0;

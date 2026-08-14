@@ -150,6 +150,23 @@ describe("the node stylesheet", () => {
     expect(corners?.[1]).not.toMatch(/width:\s*[\d.]+rem/);
   });
 
+  /**
+   * The card hangs off the panel's right edge, so the panel has to be as wide
+   * as the grid and not as wide as the column. Filling the column put the card
+   * at 370px in both states — measured against a collapsed grid ending at
+   * 113px, which left it over the god page with 258px of nothing beside it.
+   * Both rules have to be in the query that takes the card out of the flow: in
+   * the flow, below it, the panel is what the two of them share.
+   */
+  it("sizes the card's anchor to the grid, in the query that floats it", () => {
+    const floated = CSS.match(/@media \(min-width: 48rem\) \{([\s\S]*?)\n\}/g)?.find((block) =>
+      block.includes(".loadout__cards"),
+    );
+    expect(floated).toBeDefined();
+    expect(floated).toMatch(/\.loadout__panel\s*\{[^}]*width:\s*fit-content/);
+    expect(floated).toMatch(/\.loadout__cards\s*\{[^}]*position:\s*absolute/);
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every
