@@ -34,6 +34,10 @@
    */
   --outline: var(--god);
   --node-size: 4.5rem;
+  /* The corner glyphs are a share of the node rather than a fixed length, so a
+     smaller node wears them the same rather than louder. A fifth is what 0.9rem
+     was against the size above. */
+  --corner: calc(var(--node-size) * 0.2);
 
   /* The node takes the shape of the art it holds. Hades I draws its boons as
      diamonds and Hades II as rounded squares, so a single silhouette has to
@@ -223,26 +227,26 @@
 .node__dormant,
 .node__element {
   position: absolute;
-  width: 0.9rem;
-  height: 0.9rem;
+  width: var(--corner);
+  height: var(--corner);
 }
 
 .node__marker {
-  top: -0.2rem;
-  right: -0.2rem;
+  top: calc(var(--corner) * -0.22);
+  right: calc(var(--corner) * -0.22);
 }
 
 .node__dormant {
-  left: -0.2rem;
-  bottom: -0.2rem;
+  left: calc(var(--corner) * -0.22);
+  bottom: calc(var(--corner) * -0.22);
 }
 
 /* Not scaled to fit its box: the five symbols are between 54 and 66 pixels wide
    and are not the same aspect, so a stretch would make Water taller than Fire
    at the same nominal size. */
 .node__element {
-  top: -0.2rem;
-  left: -0.2rem;
+  top: calc(var(--corner) * -0.22);
+  left: calc(var(--corner) * -0.22);
   object-fit: contain;
 }
 
@@ -437,6 +441,15 @@
      the root and beats anything positioned without a number -- which is how a
      graph ends up painted over a modal dialog and taking its clicks. */
   isolation: isolate;
+}
+
+/* A Hades II node is smaller because its silhouette shows more of itself: over
+   the shipped art a Hades I box is 49.7% opaque against Hades II's 87.9%, so
+   the same box puts 1.77x the ink on screen. Equal area is 0.752 of Hades I's,
+   which is also where the diamond's inscribed square lands. This surface only —
+   the Loadout sets its own size and was not what read large. */
+.godpage .node[data-game="hades2"] {
+  --node-size: 3.4rem;
 }
 
 .godpage__bands,

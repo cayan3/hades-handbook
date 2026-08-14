@@ -131,6 +131,25 @@ describe("the node stylesheet", () => {
     expect(hades2).toMatch(/border-radius:\s*calc\(var\(--node-radius\)/);
   });
 
+  /**
+   * A Hades II node is smaller because a rounded square shows 87.9% of its box
+   * where a diamond shows 49.7% — 1.77x the ink, measured over the 241 and 166
+   * shipped icons. Scoped to the god page, since an unscoped rule would resize
+   * the Loadout too, and that is what these two guard.
+   */
+  it("sizes a Hades II node down, and only where the report was", () => {
+    const sizers = [...CSS.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^}]*)\}/g)]
+      .filter(([, , body]) => /--node-size\s*:/.test(body!))
+      .map(([, selector]) => selector!.trim().replace(/\s+/g, " "));
+    expect(sizers).toEqual([".node", '.godpage .node[data-game="hades2"]', ".loadout__tile"]);
+  });
+
+  it("scales the corner glyphs with the node rather than pinning them", () => {
+    const corners = CSS.match(/\.node__marker,\s*\.node__dormant,\s*\.node__element\s*\{([^}]*)\}/);
+    expect(corners?.[1]).toMatch(/width:\s*var\(--corner\)/);
+    expect(corners?.[1]).not.toMatch(/width:\s*[\d.]+rem/);
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every
