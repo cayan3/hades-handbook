@@ -677,9 +677,15 @@ describe("the god page", () => {
     // A band names itself to a reader and never on the page, so the headings
     // are in the document and out of sight. No tier is named to either.
     expect(container.textContent).not.toMatch(/tier/i);
-    expect(texts(".godpage h3")).toEqual(["Infusions"]);
+    // A Legendary takes a band under every layer rather than the layer its
+    // prerequisites put it in, so it names itself here too.
+    expect(texts(".godpage h3")).toEqual(["Legendaries", "Infusions"]);
     showRim();
-    expect(texts(".godpage h3")).toEqual(["Infusions", "Duos and Godsent Hexes"]);
+    expect(texts(".godpage h3")).toEqual([
+      "Legendaries",
+      "Infusions",
+      "Duos and Godsent Hexes",
+    ]);
 
     // Every junction says what it stands for, and the count is the gate's own
     // rather than the number of lines that happen to reach it here.

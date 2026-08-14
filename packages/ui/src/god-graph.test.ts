@@ -66,29 +66,53 @@ describe("the bands", () => {
     );
     const graph = godGraph(source, ZEUS, makeFacts());
 
-    expect(graph.bands.map((band) => band.kind)).toEqual([
-      "tier",
-      "tier",
-      "infusion",
-      "untiered",
-      "duo",
-    ]);
-    // The tier is the extraction's own rank and the game never shows it, so it
-    // orders the page and is written nowhere on it.
+    // `c` and `talent` share a layer: neither has a prerequisite this page
+    // draws, so neither is under anything. The catalog's tier does not place
+    // them — a layer is one more than the deepest thing feeding it, here.
+    expect(graph.bands.map((band) => band.kind)).toEqual(["tier", "infusion", "duo"]);
+    // A layer is this page's own arithmetic and the game never shows a player a
+    // rank, so it orders the page and is written nowhere on it.
     expect(graph.bands.map((band) => band.label)).toEqual([
       null,
-      null,
       "Infusions",
-      null,
       "Duos and Godsent Hexes",
     ]);
     expect(graph.bands.flatMap((band) => band.members.map((m) => m.trait))).toEqual([
       "a",
       "c",
-      "infusion",
       "talent",
+      "infusion",
       "duo",
     ]);
+  });
+
+  /**
+   * The case the catalog's `tier` gets wrong, and it is not a data defect: that
+   * field is the cheapest way in, so a boon reachable through "this god's boon
+   * or somebody else's" is tier 1 and a run can hold it from the first room.
+   * Laid out by it, the boon sits in the top row with a line climbing into it —
+   * which is where the junction over the top band came from, on 12 pages.
+   */
+  it("puts a boon under what feeds it, whatever tier the catalog declares", () => {
+    const source = world(
+      record("core", { god: ZEUS, tier: 1 }),
+      // Tier 1 because the second branch needs nothing of this god's; the page
+      // still draws a line from `core`, so it cannot sit beside it.
+      record("reachable", {
+        god: ZEUS,
+        tier: 1,
+        prereq: any(has("core"), { kind: "hasBoonFrom", god: ARES }),
+      }),
+    );
+    const bands = godGraph(source, ZEUS, makeFacts()).bands;
+
+    expect(bands.map((band) => band.members.map((m) => m.trait))).toEqual([
+      ["core"],
+      ["reachable"],
+    ]);
+    // And the junction moves down with it, off the top of the page.
+    expect(bands[0]?.junctions).toEqual([]);
+    expect(bands[1]?.junctions.map((j) => j.dependent)).toEqual(["reachable"]);
   });
 
   it("gives an Infusion its own band whatever shape the element gate takes", () => {
@@ -106,7 +130,7 @@ describe("the bands", () => {
     expect(infusions?.members.map((m) => m.trait)).toEqual(["bare", "choice", "every"]);
     // A gate naming a boon is a prerequisite gate however much element it also
     // asks for, so it stays on the ladder.
-    expect(bands.find((band) => band.kind === "untiered")?.members).toHaveLength(1);
+    expect(bands.find((band) => band.kind === "tier")?.members).toHaveLength(1);
   });
 
   it("puts a Duo on the rim of both its gods' pages and names the other one", () => {
@@ -144,10 +168,12 @@ describe("the bands", () => {
     it("finds a Legendary by a rarity list that offers nothing else", () => {
       const source = world(record("leg", { god: ZEUS, tier: 2, rarity: ["Legendary"] }));
       expect(kindOnPage(source, ZEUS, "leg")).toBe("legendary");
-      // And it stays on the god's own ladder: a Legendary is the top of that
-      // ladder, not a category beside it.
+      // And it takes a band of its own under every layer rather than the one
+      // its prerequisites put it in. Measured, no Legendary is a prerequisite
+      // of any tiered boon in either game, so the bottom points nothing upward.
       const bands = godGraph(source, ZEUS, makeFacts()).bands;
-      expect(bands.at(-1)?.kind).toBe("tier");
+      expect(bands.at(-1)?.kind).toBe("legendary");
+      expect(bands.at(-1)?.label).toBe("Legendaries");
     });
 
     it("does not call a boon Legendary for offering it alongside four others", () => {
@@ -227,7 +253,7 @@ describe("the bands", () => {
     expect(bands.at(-1)?.members.find((m) => m.trait === "hex")?.hex).toBe(
       "SpellPolymorphTrait",
     );
-    expect(bands.some((band) => band.kind === "untiered")).toBe(false);
+    expect(bands.some((band) => band.kind === "duo")).toBe(true);
   });
 
   it("finds one Hex behind every Godsent Hex the catalog ships", () => {
@@ -286,10 +312,10 @@ describe("the bands", () => {
     );
     const bands = godGraph(source, ZEUS, makeFacts()).bands;
 
-    expect(bands[0]?.members.map((m) => m.trait)).toEqual(["a", "b"]);
-    // `z` has no prerequisite on an earlier band, so it has no position to
-    // average and falls to the end.
-    expect(bands[1]?.members.map((m) => m.trait)).toEqual(["y", "x", "z"]);
+    // `z` declares tier 2 and nothing on this page feeds it, so it is under
+    // nothing and joins the top layer. The declared tier does not place it.
+    expect(bands[0]?.members.map((m) => m.trait)).toEqual(["a", "b", "z"]);
+    expect(bands[1]?.members.map((m) => m.trait)).toEqual(["y", "x"]);
   });
 });
 

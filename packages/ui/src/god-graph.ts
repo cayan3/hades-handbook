@@ -22,11 +22,11 @@ export interface GodGraph {
 }
 
 /**
- * A band is a group with no heading where it stands for a tier, because the
- * tier is the extraction's own rank and the game never shows it to a player.
+ * A band is a group with no heading where it stands for a layer, because the
+ * layer is this page's own arithmetic and the game never shows a player a rank.
  * The other three name categories the game does.
  */
-export type BandKind = "tier" | "infusion" | "untiered" | "duo";
+export type BandKind = "tier" | "legendary" | "infusion" | "duo";
 
 export interface GraphBand {
   /** Stable across renders; never drawn. */
@@ -240,7 +240,7 @@ function walk(
 }
 
 /**
- * Which band a record sits in.
+ * Which band a record sits in, leaving the layer of a tiered one to `layOut`.
  *
  * An Infusion is a boon gated on element counts rather than on prerequisite
  * boons, so the test is the gate itself: every leaf a `hasElement`. That catches
@@ -248,50 +248,87 @@ function walk(
  * all-of over one count per element — where a check on the top-level kind
  * catches only the first. Hades II carries 11 and Hades I none.
  */
-function bandOf(source: NodeSource, trait: TraitId): { kind: BandKind; tier: number } {
+function bandOf(source: NodeSource, trait: TraitId): BandKind {
   const kind = kindOf(source.records[trait]);
   // A Godsent Hex rides the rim beside the Duos: it answers to a god and to
   // Selene both, so it is the same kind of thing as a Duo — a boon reached from
   // two directions — and is grouped and revealed with them.
-  if (kind === "duo" || kind === "hex") return { kind: "duo", tier: 0 };
-  if (kind === "infusion") return { kind: "infusion", tier: 0 };
+  if (kind === "duo" || kind === "hex") return "duo";
+  if (kind === "infusion") return "infusion";
+  // A band of its own under every layer rather than the one its prerequisites
+  // put it in. Measured, no Legendary is a prerequisite of any tiered boon in
+  // either game, so the bottom never points an edge upward.
+  if (kind === "legendary") return "legendary";
+  return "tier";
+}
 
-  // A Legendary is not a band of its own: it is the top of this god's own
-  // ladder and sits in the tier its prerequisites put it in.
-  const record = source.records[trait];
-  if (record?.tier != null) return { kind: "tier", tier: record.tier };
-  return { kind: "untiered", tier: 0 };
+/**
+ * How deep on this page a boon sits: one more than the deepest thing feeding it,
+ * counting only what the page draws.
+ *
+ * The catalog's `tier` cannot order this page, answering a different question —
+ * it is the cheapest way in, so a boon reachable through "this god's boon or
+ * anyone's" is tier 1 and laid out by it sits in the top row with a line
+ * climbing into it from below. Measured, 32 of 299 tiered records move under
+ * this rule and 12 god pages stop drawing a junction over their top band.
+ *
+ * Longest path rather than shortest, so no edge points upward. None does.
+ */
+function layerOf(
+  members: ReadonlySet<TraitId>,
+  edges: readonly GraphEdge[],
+): ReadonlyMap<TraitId, number> {
+  const sources = new Map<TraitId, TraitId[]>();
+  for (const edge of edges) {
+    const from = endpointOwner(edge.from);
+    const to = endpointOwner(edge.to);
+    if (from === to || !members.has(from) || !members.has(to)) continue;
+    sources.set(to, [...(sources.get(to) ?? []), from]);
+  }
+
+  const depth = new Map<TraitId, number>();
+  // The extractor fails its run on a prerequisite cycle, so this guards against
+  // a hand-built source rather than against the shipped data.
+  const walking = new Set<TraitId>();
+  const of = (trait: TraitId): number => {
+    const known = depth.get(trait);
+    if (known !== undefined) return known;
+    if (walking.has(trait)) return 1;
+    walking.add(trait);
+    const answer = 1 + Math.max(0, ...(sources.get(trait) ?? []).map(of));
+    walking.delete(trait);
+    depth.set(trait, answer);
+    return answer;
+  };
+  for (const trait of members) of(trait);
+  return depth;
 }
 
 /**
  * A band's name, announced but not drawn: the headings were noise next to bands
  * that have none, and the arrangement already says it to anyone who can see it.
  *
- * A tier is named nowhere at all — it is the extraction's rank, and the game
- * never shows a player one.
- *
- * `untiered` is empty in both shipped catalogs and stays as the catch-all for
- * whatever a patch adds next.
+ * A layer is named nowhere at all — it is this page's own arithmetic, and the
+ * game never shows a player a rank.
  */
 const LABELS: Readonly<Record<BandKind, string | null>> = {
   tier: null,
+  legendary: "Legendaries",
   infusion: "Infusions",
-  untiered: null,
   duo: "Duos and Godsent Hexes",
 };
 
 const ORDER: Readonly<Record<BandKind, number>> = {
   tier: 0,
-  infusion: 1,
-  untiered: 2,
+  legendary: 1,
+  infusion: 2,
   duo: 3,
 };
 
 /**
- * Bands in reading order — tiers ascending, then the Infusions in a band of
- * their own, then whatever is left, then the Duos on the rim. That order is
- * also the tab order, because tab order is DOM order and nothing sets a tab
- * index.
+ * Bands in reading order — layers ascending, then the Legendaries, then the
+ * Infusions, then the Duos on the rim. That order is also the tab order, because
+ * tab order is DOM order and nothing sets a tab index.
  */
 function layOut(
   source: NodeSource,
@@ -300,17 +337,22 @@ function layOut(
   junctions: readonly GraphJunction[],
   edges: readonly GraphEdge[],
 ): readonly GraphBand[] {
-  const grouped = new Map<string, { kind: BandKind; tier: number; members: TraitId[] }>();
+  const kinds = new Map(traits.map((trait) => [trait, bandOf(source, trait)]));
+  const tiered = new Set(traits.filter((trait) => kinds.get(trait) === "tier"));
+  const layer = layerOf(tiered, edges);
+
+  const grouped = new Map<string, { kind: BandKind; depth: number; members: TraitId[] }>();
   for (const trait of traits) {
-    const { kind, tier } = bandOf(source, trait);
-    const key = kind === "tier" ? `tier-${tier}` : kind;
+    const kind = kinds.get(trait) ?? "tier";
+    const depth = kind === "tier" ? (layer.get(trait) ?? 1) : 0;
+    const key = kind === "tier" ? `tier-${depth}` : kind;
     const band = grouped.get(key);
-    if (band === undefined) grouped.set(key, { kind, tier, members: [trait] });
+    if (band === undefined) grouped.set(key, { kind, depth, members: [trait] });
     else band.members.push(trait);
   }
 
   const ordered = [...grouped.entries()].sort(
-    ([, a], [, b]) => ORDER[a.kind] - ORDER[b.kind] || a.tier - b.tier,
+    ([, a], [, b]) => ORDER[a.kind] - ORDER[b.kind] || a.depth - b.depth,
   );
 
   const placed = new Map<TraitId, number>();
