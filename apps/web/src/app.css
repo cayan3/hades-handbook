@@ -267,6 +267,25 @@ h1,
     align-items: start;
     gap: 1.5rem;
   }
+
+  /*
+   * A held-open card needs room the collapsed column does not have: at 20rem
+   * two cards cannot sit side by side whatever the panel asks for, so laying
+   * them out sideways inside it would change nothing.
+   *
+   * **This moves the boons, and that is the cost to weigh.** One shape at every
+   * width is what keeps this layout steady, and the rule the Goals panel obeys
+   * is that opening it never reflows what is underneath. This is the same class
+   * of motion, bought deliberately: a card is a thing you opened, so a change
+   * where you are looking is expected in a way an arriving column is not. The
+   * column count still does not move.
+   *
+   * `:has` rather than a class the app sets, because *which* cards are open is
+   * the panel's own state and nothing above it knows.
+   */
+  .app__body:has(.loadout__card) {
+    grid-template-columns: minmax(14rem, 34rem) minmax(0, 1fr);
+  }
 }
 
 /*
