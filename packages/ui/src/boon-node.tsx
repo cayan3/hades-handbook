@@ -90,14 +90,22 @@ export interface BoonNodeProps extends BoonGestures {
    */
   readonly outline?: string | null | undefined;
   /**
-   * Whether the surface already writes this boon's kind beside the node.
-   *
-   * The God View's rim does, for a Godsent Hex: *"Godsent Hex for 'Dark Side'"*
-   * sits under it, and a reader meeting the description as well would hear the
-   * phrase twice for no gain. Nowhere else names a kind, so everywhere else the
-   * description is the only place it appears.
+   * Whether the surface already writes this boon's kind beside the node. The
+   * God View's rim does, for a Godsent Hex — *"Godsent Hex for 'Dark Side'"*
+   * sits under it — and a reader meeting the description too would hear the
+   * phrase twice. Nowhere else names a kind.
    */
   readonly kindNamed?: boolean;
+  /**
+   * Whether this node's own disclosure is open, where the surface has one. The
+   * Loadout does: a click sticks the boon's card beside the grid and a second
+   * takes it away.
+   *
+   * Not the state `aria-pressed` was dropped for — that control advertised
+   * something its own activation did not change, and this one toggles exactly
+   * what it says. Undefined elsewhere, where a click opens a dialog instead.
+   */
+  readonly expanded?: boolean;
 }
 
 /**
@@ -128,6 +136,7 @@ export function BoonNode({
   accent,
   outline,
   kindNamed = false,
+  expanded,
 }: BoonNodeProps) {
   const ladder = useLadder();
   const game = useGame();
@@ -177,9 +186,14 @@ export function BoonNode({
          * and nothing is lost by dropping it: the accessible name carries
          * "Obtained" in words, which is what a reader hears first.
          *
-         * A sheet is claimed only where there is one, which is a held boon.
+         * A sheet is claimed only where there is one, which is a held boon —
+         * and not where the surface says the click discloses something beside
+         * the node instead, which is what `expanded` means.
          */
-        aria-haspopup={held && onOpen !== undefined ? "dialog" : undefined}
+        aria-haspopup={
+          held && onOpen !== undefined && expanded === undefined ? "dialog" : undefined
+        }
+        aria-expanded={expanded}
         aria-current={pinned ? "true" : undefined}
         onClick={primary === undefined ? undefined : () => primary(view.trait)}
         onContextMenu={

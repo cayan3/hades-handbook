@@ -886,14 +886,15 @@
 }
 
 /*
- * The node draws no outline of its own in here, and nothing glows yet.
+ * The node draws no outline of its own in here, and glows only where its card
+ * is up.
  *
  * The outline here belongs to rarity, which is where the game puts it, and it
  * is drawn as a shape behind the tile rather than on the node — see the band
- * below for why it cannot be a shadow. The glow is spoken for too: every boon
- * in the Loadout is Obtained, so "you have this" discriminates nothing and only
- * bleeds into the neighbouring tile, and the signal that earns it is a card
- * held open or hovered. Neither is built.
+ * below for why it cannot be a shadow. The glow was spoken for too: every boon
+ * in the Loadout is Obtained, so "you have this" discriminated nothing and only
+ * bled into the neighbouring tile. What earns it is a card **held open** or
+ * hovered, which is one set rather than two.
  *
  * Both selectors carry a `[data-state]` on purpose. The ladder's own rules are
  * `.node[data-state="X"] .node__box`, which is three classes' worth of
@@ -906,6 +907,23 @@
 
 .loadout__tile .node[data-state] .node__box {
   filter: none;
+}
+
+/*
+ * The gold is the one this page had for a round as a god-page accent, before
+ * god identity took that channel back. It has one job now and it is this one:
+ * the tile whose card is up, and nothing else in the panel is lit at all.
+ *
+ * The selector has to out-specify the rule above, which is why it names the
+ * attribute as well.
+ */
+.loadout {
+  --held-open: #c8a951;
+}
+
+.loadout__tile[data-lit] .node[data-state] .node__box {
+  filter: drop-shadow(0 0 0.3rem var(--held-open))
+    drop-shadow(0 0 0.6rem var(--held-open));
 }
 
 /* The core slots are a column and stay one, whatever else arrives beside them. */
@@ -1064,8 +1082,6 @@
 }
 
 .loadout__card {
-  flex: 1 1 14rem;
-  min-width: 0;
   padding: 0.7rem 0.8rem;
   border: 1px solid rgb(255 255 255 / 18%);
   border-radius: 0.35rem;
@@ -1112,13 +1128,27 @@
   font-size: 0.78rem;
 }
 
-/* Which tile the card is about. Its own channel, and the last one free here:
-   rarity is the shape behind the tile and the glow belongs to a card held open,
-   so selection gets the browser's own `outline` property, drawn outside both. */
-.loadout__tile[data-selected] {
-  outline: 2px solid currentColor;
-  outline-offset: 3px;
-  border-radius: 0.2rem;
+/*
+ * The cards beside the grid, stacked in the order they were opened. A column
+ * rather than a pile, because a player holding three open is comparing them and
+ * a pile answers only about its top one.
+ */
+.loadout__cards {
+  display: flex;
+  flex: 1 1 14rem;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+/*
+ * Hovering a held-open tile brings its card forward and leaves it where it is
+ * in the stack. Moving it would rearrange the other cards under the pointer,
+ * which is the one thing a stack of things being compared must not do.
+ */
+.loadout__card[data-front] {
+  border-color: var(--held-open);
+  box-shadow: 0 0 0.6rem rgb(0 0 0 / 45%);
 }
 
 /*
