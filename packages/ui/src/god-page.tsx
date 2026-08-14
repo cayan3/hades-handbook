@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 import { type BoonGestures, BoonNode } from "./boon-node.js";
-import { endpointOwner, type GodGraph, neighbourhood } from "./god-graph.js";
+import { endpointOwner, type GodGraph, type GraphEdge, neighbourhood } from "./god-graph.js";
 import { godColour } from "./god-palette.js";
 import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
@@ -43,7 +43,7 @@ export interface GodPageProps extends BoonGestures {
 }
 
 /** Where an endpoint sits, in the canvas's own pixels. */
-interface Place {
+export interface Place {
   readonly x: number;
   readonly top: number;
   readonly bottom: number;
@@ -121,6 +121,9 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
   );
 
   const hasRim = graph.bands.some((band) => band.kind === "duo");
+  // Over every edge the graph has, not just the drawn ones: a bar's height
+  // would otherwise move as the selection changed which of its siblings show.
+  const lanes = useMemo(() => lanesFor(graph.edges, places), [graph.edges, places]);
 
   return (
     <div
@@ -165,7 +168,7 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
             className="godpage__wire"
             data-taken={edge.taken}
             data-reached={edge.reached}
-            d={wire(places.get(edge.from), places.get(edge.to))}
+            d={wire(places.get(edge.from), places.get(edge.to), lanes.get(edge.id))}
           />
         ))}
       </svg>
@@ -277,23 +280,99 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
   );
 }
 
+/** How far a horizontal run keeps off an icon, and the step between two runs. */
+const CLEARANCE = 14;
+const LANE = 9;
+
 /**
- * A connector, routed in right angles: down out of the source, across, down into
- * the target. Every segment is parallel or perpendicular to the rest, which is
- * what lets a fan of them read as a bus rather than as noise.
+ * The height each wire's horizontal run sits at, by edge id.
  *
- * The horizontal run sits halfway between the rows. For the ~5% of edges that
- * join two nodes in the same band there is no gap to sit in, so it drops clear
- * below them instead.
+ * One bar per *target*, so everything feeding a node meets on one line and
+ * drops into it once. Neighbouring targets take different heights: every wire
+ * between two bands used to sit at the midpoint and the lot drew as one line.
+ *
+ * How many heights a row gets is what its gap can hold. Packing bars by overlap
+ * was the first attempt and wants 5 to 10 lanes in one row over the shipped
+ * graphs — Hera and Poseidon reach 10 — so most would have missed the gap and
+ * fallen back to the midpoint, which is the line this breaks up.
+ */
+export function lanesFor(
+  edges: readonly GraphEdge[],
+  places: ReadonlyMap<string, Place>,
+): ReadonlyMap<string, number> {
+  interface Bar {
+    x: number;
+    top: number;
+    source: number;
+    ids: string[];
+  }
+
+  const bars = new Map<string, Bar>();
+  for (const edge of edges) {
+    const from = places.get(edge.from);
+    const to = places.get(edge.to);
+    // A wire inside one band has no gap to sit in and is `wire`'s own case.
+    if (from === undefined || to === undefined || from.bottom >= to.top) continue;
+    const bar = bars.get(edge.to);
+    if (bar === undefined) {
+      bars.set(edge.to, { x: to.x, top: to.top, source: from.bottom, ids: [edge.id] });
+      continue;
+    }
+    // The lowest source is what the bar has to clear, having to sit below every
+    // icon it leaves.
+    bar.source = Math.max(bar.source, from.bottom);
+    bar.ids.push(edge.id);
+  }
+
+  // Per target row rather than per page: a bar is placed against its own
+  // target's top, so two in different rows cannot collide however far they run.
+  // Rounded, because a wrapped row is a different row and a row is not.
+  const rows = new Map<number, Bar[]>();
+  for (const bar of bars.values()) {
+    rows.set(Math.round(bar.top), [...(rows.get(Math.round(bar.top)) ?? []), bar]);
+  }
+
+  const lanes = new Map<string, number>();
+  for (const row of rows.values()) {
+    const room = Math.min(...row.map((bar) => bar.top - bar.source - 2 * CLEARANCE));
+    const capacity = Math.max(1, Math.floor(room / LANE) + 1);
+    // By where the target sits, so the bars that share a height are the ones
+    // furthest apart across the row.
+    [...row]
+      .sort((a, b) => a.x - b.x)
+      .forEach((bar, index) => {
+        // Measured up from the target, not down from the source: the bar belongs
+        // to the node it feeds, and a source two bands above would otherwise put
+        // it nowhere near one.
+        const at =
+          room < 0
+            ? (bar.source + bar.top) / 2
+            : bar.top - CLEARANCE - (index % capacity) * LANE;
+        for (const id of bar.ids) lanes.set(id, at);
+      });
+  }
+  return lanes;
+}
+
+/**
+ * A connector, routed in right angles: down out of the source, across on its
+ * bar, down into the target. Every segment is parallel or perpendicular to the
+ * rest, which is what lets a fan of them read as a bus rather than as noise.
+ *
+ * For the ~5% of edges joining two nodes in one band there is no gap to sit in,
+ * so the run drops clear below them instead.
  *
  * An unmeasured endpoint gives an empty path, which draws nothing — the first
  * frame, and every frame under a runner with no layout.
  */
-function wire(from: Place | undefined, to: Place | undefined): string {
+export function wire(
+  from: Place | undefined,
+  to: Place | undefined,
+  at: number | undefined,
+): string {
   if (from === undefined || to === undefined) return "";
-  const gap = to.top - from.bottom;
-  const run = gap > 8 ? from.bottom + gap / 2 : from.bottom + 12;
   if (Math.abs(to.x - from.x) < 0.5) return `M ${from.x} ${from.bottom} L ${to.x} ${to.top}`;
+  const run = at ?? from.bottom + CLEARANCE;
   return `M ${from.x} ${from.bottom} L ${from.x} ${run} L ${to.x} ${run} L ${to.x} ${to.top}`;
 }
 
