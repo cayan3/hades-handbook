@@ -11,10 +11,16 @@ import type { GodId } from "@repo/core";
  *
  * Each god's own loot colour, hue-spread where two collided, and the same hex in
  * both games. Demeter is retuned to pale ice blue: frost theme, and it also
- * separates her from Poseidon in the first game. Selene is designed, her
- * extracted value being a placeholder shared with Chaos. Hades grants boons in
- * the second game and gets no colour — no loot data entry to take one from, and
- * his scope is unclear, so any hue would be invented.
+ * separates her from Poseidon in the first game. Hades grants boons in the
+ * second game and gets no colour — no loot data entry to take one from, and his
+ * scope is unclear, so any hue would be invented.
+ *
+ * Selene is designed twice over: her extracted value is a placeholder shared
+ * with Chaos, and the violet that replaced it was never moonlight. This one is,
+ * and it is darker than a moonlit blue wants to be for a reason — Demeter
+ * already holds the pale ice-blue end of this hue, so the only axis left to
+ * separate on is lightness. Measured, it clears her by 24 in CIE Lab, which is
+ * the closest any candidate in this family gets without colliding outright.
  */
 const GOD_COLOURS: Readonly<Record<GodId, string>> = Object.freeze({
   Zeus: "#FFE81F",
@@ -30,7 +36,7 @@ const GOD_COLOURS: Readonly<Record<GodId, string>> = Object.freeze({
   Poseidon: "#00C8FF",
   Demeter: "#ADD1FF",
   Artemis: "#6EFF00",
-  Selene: "#A46BFF",
+  Selene: "#7E90C4",
 });
 
 /**
