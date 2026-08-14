@@ -19,6 +19,13 @@ SIZE_SUFFIXES = ("", "_Large", "_Small")
 GOD_KEY = re.compile(r"^BoonSymbol(\w+)$")
 GOD_SPRITE = "GUI\\Screens\\BoonSelectSymbols\\%s"
 
+# An element symbol is not in the table either, and unlike everything else it is
+# in the atlas several times over -- Fire is there at 18, 33 and 66 pixels, on
+# three different pages. The largest is taken, since the leaf lookup below would
+# hand back whichever came first.
+ELEMENT_KEY = re.compile(r"^Element_(\w+)$")
+ELEMENT_SPRITE = "GUI\\Icons\\Element_%s"
+
 
 def animation_map(content_root):
     """Icon key -> sprite path, from the game's animation tables.
@@ -43,8 +50,12 @@ class Resolver:
         self.animations = animation_map(content_root)
         self.by_name = {s["name"]: s for s in sprites}
         self.by_leaf = {}
+        self.biggest = {}
         for s in sprites:
             self.by_leaf.setdefault(s["name"].split("\\")[-1], s)
+            best = self.biggest.get(s["name"])
+            if best is None or s["w"] * s["h"] > best["w"] * best["h"]:
+                self.biggest[s["name"]] = s
 
     def __call__(self, key):
         for suffix in SIZE_SUFFIXES:
@@ -56,6 +67,11 @@ class Resolver:
         god = GOD_KEY.match(key)
         if god:
             found = self.by_name.get(GOD_SPRITE % god.group(1))
+            if found:
+                return found
+        element = ELEMENT_KEY.match(key)
+        if element:
+            found = self.biggest.get(ELEMENT_SPRITE % element.group(1))
             if found:
                 return found
         # Duo art is named for the pairing and needs no indirection.

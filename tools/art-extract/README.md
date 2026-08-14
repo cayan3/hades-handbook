@@ -22,7 +22,11 @@ python3 -m venv .venv
 touching the packages or writing anything. It is the quick way to see whether a
 catalog change has left a record without art.
 
-`--scope` takes `all` (the default), `boons` or `gods`.
+`--scope` takes `all` (the default), `boons`, `gods` or `elements`.
+
+`elements` is Hades II only and pulls the five element symbols, which a node
+draws in its top-left corner. They are the one thing here not named by a record:
+the key is built from the element, the way a god's is built from its name.
 
 Both games are expected in the default macOS Steam library. Nothing here reads
 an environment variable yet; if your install lives elsewhere, edit `GAMES` at the

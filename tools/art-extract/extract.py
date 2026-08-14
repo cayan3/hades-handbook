@@ -44,6 +44,11 @@ HEXES = {
     "SpellMeteorTrait", "SpellTransformTrait", "SpellMoonBeamTrait",
 }
 
+# Hades II only, and asked for by element rather than by an `icon` field: no
+# record carries one, because an element symbol marks a boon's affinity from the
+# outside instead of being that boon's own picture.
+ELEMENTS = ("Aether", "Air", "Earth", "Fire", "Water")
+
 # Visually indistinguishable from lossless on this art at a third of the size,
 # measured over extracted icons rather than assumed.
 QUALITY = 90
@@ -69,13 +74,16 @@ def wanted(game, scope):
         for name, record in gods.items():
             if record.get("iconKey"):
                 keys.setdefault(record["iconKey"], []).append("god:" + name)
+    if scope in ("all", "elements") and game == "hades2":
+        for element in ELEMENTS:
+            keys.setdefault("Element_" + element, []).append("element:" + element)
     return keys
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--game", choices=sorted(GAMES), required=True)
-    ap.add_argument("--scope", choices=("all", "boons", "gods"), default="all")
+    ap.add_argument("--scope", choices=("all", "boons", "gods", "elements"), default="all")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
