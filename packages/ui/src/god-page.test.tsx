@@ -170,6 +170,19 @@ describe("the page as a path through", () => {
     expect(names()).toEqual(["a", "b", "d", "duo"]);
   });
 
+  it("puts a branch layer between two bands, not inside the lower one", () => {
+    // A junction belongs to the boons it gathers, so it is drawn under them
+    // rather than over the one it feeds. As the first child of the lower band
+    // it read as the latter, which is what this asserts against.
+    render(page(LADDER));
+    const rows = [...container.querySelectorAll(".godpage__bands > li")];
+    expect(rows.map((el) => el.className)).toEqual([
+      "godpage__band",
+      "godpage__branches",
+      "godpage__band",
+    ]);
+  });
+
   it("says what a junction stands for without making it a stop", () => {
     render(page(LADDER));
     const junction = container.querySelector(".junction")!;

@@ -473,6 +473,17 @@
   margin-top: 3rem;
 }
 
+/* A branch layer splits that gap rather than adding to it. The junctions hug
+   the boons they gather and the room goes underneath, so a junction reads as
+   belonging to the row above it instead of hovering over the one it feeds. */
+.godpage__band + .godpage__branches {
+  margin-top: 0.9rem;
+}
+
+.godpage__branches + .godpage__band {
+  margin-top: 2.4rem;
+}
+
 .godpage__nodes,
 .godpage__junctions {
   display: flex;
@@ -485,10 +496,12 @@
   justify-content: center;
 }
 
-/* The branch points feeding this band, in the strip above its nodes. */
+/* Spread rather than clustered: centred, a row of five bunched in the middle
+   while the boons they gather were spread across the whole width, so every wire
+   into them leaned inward. */
 .godpage__junctions {
   gap: 1.5rem;
-  margin-bottom: 0.9rem;
+  justify-content: space-evenly;
 }
 
 /* The rim: the Duos this god is half of, set apart from its own ladder. */

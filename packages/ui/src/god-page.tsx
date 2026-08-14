@@ -1,5 +1,13 @@
 import type { TraitId } from "@repo/core";
-import { type CSSProperties, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  Fragment,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { type BoonGestures, BoonNode } from "./boon-node.js";
 import { endpointOwner, type GodGraph, neighbourhood } from "./god-graph.js";
 import { godColour } from "./god-palette.js";
@@ -164,95 +172,105 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
 
       <ol className="godpage__bands">
         {bands.map((band) => (
-          <li className="godpage__band" key={band.key} data-kind={band.kind}>
-            {/* Named for a reader and not on the page. The headings were noise
-                beside bands that carry none at all, and the arrangement already
-                says what they said — to everyone except the reader who cannot
-                see the arrangement, which is who this is for. A tier is named
-                to nobody: it is the extraction's rank and the game shows a
-                player no such thing. */}
-            {band.label === null ? null : <h3 className="visually-hidden">{band.label}</h3>}
-
+          <Fragment key={band.key}>
+            {/* A row of its own between two bands rather than the first thing
+                inside the lower one. A junction belongs to the boons it gathers,
+                so it is drawn under them and the gap goes below it — which is
+                also where the game's own dependency charts put the bus. */}
             {band.junctions.length === 0 ? null : (
-              <ul className="godpage__junctions">
-                {band.junctions.map((junction) => (
-                  <li
-                    key={junction.id}
-                    data-endpoint={junction.id}
-                    // Hover only, and it stays that way: a junction is not a tab
-                    // stop, and what it lights is a subset of what its dependent
-                    // already lights, so a keyboard loses nothing by not having
-                    // one more control to step through.
-                    onMouseEnter={() => setSelected(junction.id)}
-                    onMouseLeave={() =>
-                      setSelected((now) => (now === junction.id ? null : now))
-                    }
-                  >
-                    <Junction
-                      status={junction.status}
-                      min={junction.min}
-                      of={junction.of}
-                      reached={junction.reached}
-                    />
-                  </li>
-                ))}
-              </ul>
+              <li className="godpage__branches">
+                <ul className="godpage__junctions">
+                  {band.junctions.map((junction) => (
+                    <li
+                      key={junction.id}
+                      data-endpoint={junction.id}
+                      // Hover only, and it stays that way: a junction is not a
+                      // tab stop, and what it lights is a subset of what its
+                      // dependent already lights, so a keyboard loses nothing by
+                      // not having one more control to step through.
+                      onMouseEnter={() => setSelected(junction.id)}
+                      onMouseLeave={() =>
+                        setSelected((now) => (now === junction.id ? null : now))
+                      }
+                    >
+                      <Junction
+                        status={junction.status}
+                        min={junction.min}
+                        of={junction.of}
+                        reached={junction.reached}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </li>
             )}
 
-            <ul className="godpage__nodes">
-              {band.members.map(({ trait, partner, kind, hex }) => {
-                const view = views.get(trait);
-                if (view === undefined) return null;
-                // The rim is reached from two directions and this line says
-                // which second one: the other god of a Duo, and the Hex a
-                // Godsent Hex was granted for.
-                const note =
-                  partner !== null
-                    ? `with ${partner}`
-                    : hex === null
-                      ? null
-                      : `Godsent Hex for '${nameOf(hex)}'`;
-                return (
-                  <li
-                    key={trait}
-                    data-endpoint={trait}
-                    // Selection lives on the cell rather than in the node,
-                    // because which node a page is drawing around is a fact
-                    // about the page. Focus counts as well as hover, or the
-                    // connectors are a thing only a mouse can see.
-                    onMouseEnter={() => setSelected(trait)}
-                    onMouseLeave={() => setSelected((now) => (now === trait ? null : now))}
-                    onFocus={() => setSelected(trait)}
-                    onBlur={() => setSelected((now) => (now === trait ? null : now))}
-                  >
-                    <BoonNode
-                      view={view}
-                      pinned={pinned?.has(trait) ?? false}
-                      // A Duo answers to two gods and one of them is not this
-                      // page's, so it takes the *other* one's colour. Everything
-                      // else has the page's god on the record already.
-                      accent={partner === null ? undefined : godColour(partner)}
-                      // The three kinds that are not this god's ordinary reward
-                      // and are not a Duo either. A Duo is left out here on
-                      // purpose: its colour is the partner's, above, which says
-                      // more on this page than the Duo colour would — the Duo
-                      // colour is the same on every Duo, and which god the other
-                      // half belongs to is the question a player is asking.
-                      outline={kind === null ? undefined : kindOutlineColour(kind)}
-                      // The line below already says "Godsent Hex", so the
-                      // node's description does not say it a second time.
-                      kindNamed={hex !== null}
-                      {...gestures}
-                    />
-                    {/* Named in words and not only in the colour it carries,
-                        since a hue is the one thing the linear surfaces cannot
-                        repeat. */}
-                    {note === null ? null : <span className="godpage__note">{note}</span>}
-                  </li>
-                );
-              })}
-            </ul>
-          </li>
+            <li className="godpage__band" data-kind={band.kind}>
+              {/* Named for a reader and not on the page. The headings were noise
+                  beside bands that carry none at all, and the arrangement already
+                  says what they said — to everyone except the reader who cannot
+                  see the arrangement, which is who this is for. A tier is named
+                  to nobody: it is the extraction's rank and the game shows a
+                  player no such thing. */}
+              {band.label === null ? null : <h3 className="visually-hidden">{band.label}</h3>}
+
+              <ul className="godpage__nodes">
+                {band.members.map(({ trait, partner, kind, hex }) => {
+                  const view = views.get(trait);
+                  if (view === undefined) return null;
+                  // The rim is reached from two directions and this line says
+                  // which second one: the other god of a Duo, and the Hex a
+                  // Godsent Hex was granted for.
+                  const note =
+                    partner !== null
+                      ? `with ${partner}`
+                      : hex === null
+                        ? null
+                        : `Godsent Hex for '${nameOf(hex)}'`;
+                  return (
+                    <li
+                      key={trait}
+                      data-endpoint={trait}
+                      // Selection lives on the cell rather than in the node,
+                      // because which node a page is drawing around is a fact
+                      // about the page. Focus counts as well as hover, or the
+                      // connectors are a thing only a mouse can see.
+                      onMouseEnter={() => setSelected(trait)}
+                      onMouseLeave={() => setSelected((now) => (now === trait ? null : now))}
+                      onFocus={() => setSelected(trait)}
+                      onBlur={() => setSelected((now) => (now === trait ? null : now))}
+                    >
+                      <BoonNode
+                        view={view}
+                        pinned={pinned?.has(trait) ?? false}
+                        // A Duo answers to two gods and one of them is not this
+                        // page's, so it takes the *other* one's colour.
+                        // Everything else has the page's god on the record
+                        // already.
+                        accent={partner === null ? undefined : godColour(partner)}
+                        // The three kinds that are not this god's ordinary
+                        // reward and are not a Duo either. A Duo is left out
+                        // here on purpose: its colour is the partner's, above,
+                        // which says more on this page than the Duo colour
+                        // would — the Duo colour is the same on every Duo, and
+                        // which god the other half belongs to is the question a
+                        // player is asking.
+                        outline={kind === null ? undefined : kindOutlineColour(kind)}
+                        // The line below already says "Godsent Hex", so the
+                        // node's description does not say it a second time.
+                        kindNamed={hex !== null}
+                        {...gestures}
+                      />
+                      {/* Named in words and not only in the colour it carries,
+                          since a hue is the one thing the linear surfaces
+                          cannot repeat. */}
+                      {note === null ? null : <span className="godpage__note">{note}</span>}
+                    </li>
+                  );
+                })}
+              </ul>
+            </li>
+          </Fragment>
         ))}
       </ol>
     </div>
