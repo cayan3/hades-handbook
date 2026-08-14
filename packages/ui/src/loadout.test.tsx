@@ -99,7 +99,14 @@ function hover(trait: TraitId): void {
   });
 }
 
+/**
+ * A click, with the hover a pointer always arrives with. The runner does not
+ * synthesise one and a browser does, so a bare `.click()` here would be testing
+ * a sequence no player can produce — and the cards render only while the panel
+ * has the pointer.
+ */
 function click(trait: TraitId): void {
+  hover(trait);
   act(() => tile(trait).querySelector("button")!.click());
 }
 
@@ -200,8 +207,9 @@ describe("a tile's card", () => {
 
   it("puts every card away when the pointer leaves the panel", () => {
     render(panel());
-    hover("a");
     click("b");
+    hover("a");
+    // One held open and one only previewed, so this says something about both.
     expect(cards()).toEqual(["b", "a"]);
 
     act(() => {
@@ -209,8 +217,32 @@ describe("a tile's card", () => {
         .querySelector(".loadout")!
         .dispatchEvent(new MouseEvent("mouseout", { bubbles: true }));
     });
-    // The one that was only being previewed goes; the one held open stays.
-    expect(cards()).toEqual(["b"]);
+    // Every card goes with the pointer, the previewed one and the held-open one
+    // alike: a card lies over the god page and one left behind covers something
+    // nobody is reading the Loadout to see.
+    expect(cards()).toEqual([]);
+  });
+
+  it("brings the same cards back on the next hover", () => {
+    // What goes away is the drawing, not the stack. Otherwise leaving the panel
+    // would silently undo the clicks that filled it, and the toggle would have
+    // a second way to fire that nothing pressed.
+    render(panel());
+    click("b");
+    click("a");
+    expect(cards()).toEqual(["b", "a"]);
+
+    act(() => {
+      container
+        .querySelector(".loadout")!
+        .dispatchEvent(new MouseEvent("mouseout", { bubbles: true }));
+    });
+    expect(cards()).toEqual([]);
+    // Still held open while nothing is drawn, which is what the tile says too.
+    expect(tile("a").querySelector("button")?.getAttribute("aria-expanded")).toBe("true");
+
+    hover("c");
+    expect(cards()).toEqual(["b", "a", "c"]);
   });
 });
 

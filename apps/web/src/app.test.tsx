@@ -165,7 +165,14 @@ function tap(trait: string): void {
   // which is itself an act, and a nested one does not flush until the outer
   // one finishes — so the node would be looked for on the previous tab.
   const control = node(trait);
-  act(() => control.click());
+  act(() => {
+    // The hover a pointer always arrives with, which the runner synthesises
+    // and a browser does not need told. A Loadout tile is only drawn with its
+    // card while the panel has the pointer, so a bare click here would be a
+    // sequence no player can produce.
+    control.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    control.click();
+  });
 }
 
 /**

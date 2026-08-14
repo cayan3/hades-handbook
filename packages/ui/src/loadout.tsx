@@ -197,7 +197,12 @@ export function Loadout({
                 />
               ) : null}
             </div>
-            {shown.length === 0 || detailOf === undefined ? null : (
+            {/* Only while the panel has the pointer or the focus, the same rule
+                the rest of the grid follows. The stack itself is untouched, so
+                the cards that come back are the ones that were there — a card
+                lies over the god page, and one left behind is covering
+                something nobody is reading the Loadout to see. */}
+            {!inside || shown.length === 0 || detailOf === undefined ? null : (
               <div className="loadout__cards">
                 {shown.map((trait) => {
                   const entry = cardFor(trait);
