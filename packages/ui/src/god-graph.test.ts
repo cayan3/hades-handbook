@@ -114,10 +114,10 @@ describe("the bands", () => {
 
     const zeus = godGraph(source, ZEUS, makeFacts()).bands.at(-1);
     expect(zeus?.kind).toBe("duo");
-    expect(zeus?.members).toEqual([{ trait: "duo", partner: ARES, kind: "duo" }]);
+    expect(zeus?.members).toEqual([{ trait: "duo", partner: ARES, kind: "duo", hex: null }]);
 
     const ares = godGraph(source, ARES, makeFacts()).bands.at(-1);
-    expect(ares?.members).toEqual([{ trait: "duo", partner: ZEUS, kind: "duo" }]);
+    expect(ares?.members).toEqual([{ trait: "duo", partner: ZEUS, kind: "duo", hex: null }]);
   });
 
   /**
@@ -223,7 +223,42 @@ describe("the bands", () => {
     expect(bands.at(-1)?.members.map((m) => m.trait).sort()).toEqual(["duo", "hex"]);
     // A Hex belongs to this god outright, so it has no partner to name.
     expect(bands.at(-1)?.members.find((m) => m.trait === "hex")?.partner).toBeNull();
+    // What it names instead is its Hex, which is the gate's one trait leaf.
+    expect(bands.at(-1)?.members.find((m) => m.trait === "hex")?.hex).toBe(
+      "SpellPolymorphTrait",
+    );
     expect(bands.some((band) => band.kind === "untiered")).toBe(false);
+  });
+
+  it("finds one Hex behind every Godsent Hex the catalog ships", () => {
+    // Derived rather than listed, which only works because the shape is exact:
+    // all nine gates carry exactly one trait leaf. A gate carrying two would be
+    // a data change, and this is what would notice.
+    const h2 = createNodeSource("hades2", stubRules(), stubLookups(), traitsFor("hades2"));
+    const olympians = [
+      "Aphrodite",
+      "Apollo",
+      "Ares",
+      "Demeter",
+      "Hephaestus",
+      "Hera",
+      "Hestia",
+      "Poseidon",
+      "Zeus",
+    ] as GodId[];
+    const hexes = olympians.flatMap(
+      (god) =>
+        godGraph(h2, god, makeFacts())
+          .bands.find((band) => band.kind === "duo")
+          ?.members.filter((member) => member.kind === "hex") ?? [],
+    );
+
+    expect(hexes).toHaveLength(9);
+    expect(hexes.filter((member) => member.hex !== null)).toHaveLength(9);
+    // Every one of them resolves to a record with a name of its own, which is
+    // what the line under the node is going to draw.
+    const named = hexes.map((member) => traitsFor("hades2")[member.hex!]?.name);
+    expect(named.filter((name) => typeof name === "string" && name.length > 0)).toHaveLength(9);
   });
 
   it("finds every Godsent Hex the shipped catalog carries, and only those", () => {
@@ -409,7 +444,7 @@ describe("what a page carries", () => {
     const zeus = godGraph(source, "Zeus" as GodId, makeFacts());
 
     expect(zeus.bands.find((band) => band.kind === "infusion")?.members).toEqual([
-      { trait: "ElementalDamageFloorBoon", partner: null, kind: "infusion" },
+      { trait: "ElementalDamageFloorBoon", partner: null, kind: "infusion", hex: null },
     ]);
     // Hades I has no Elements, so it has no such band anywhere.
     const h1 = createNodeSource("hades1", stubRules(), stubLookups(), traitsFor("hades1"));

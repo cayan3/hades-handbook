@@ -89,6 +89,15 @@ export interface BoonNodeProps extends BoonGestures {
    * ladder must go on saying so while the outline says which kind it is.
    */
   readonly outline?: string | null | undefined;
+  /**
+   * Whether the surface already writes this boon's kind beside the node.
+   *
+   * The God View's rim does, for a Godsent Hex: *"Godsent Hex for 'Dark Side'"*
+   * sits under it, and a reader meeting the description as well would hear the
+   * phrase twice for no gain. Nowhere else names a kind, so everywhere else the
+   * description is the only place it appears.
+   */
+  readonly kindNamed?: boolean;
 }
 
 /**
@@ -118,6 +127,7 @@ export function BoonNode({
   showName = true,
   accent,
   outline,
+  kindNamed = false,
 }: BoonNodeProps) {
   const ladder = useLadder();
   const game = useGame();
@@ -133,8 +143,9 @@ export function BoonNode({
   const primary = held ? onOpen : onMark;
 
   // The kind where the boon has one and the rarity otherwise, which the view
-  // has already settled between.
-  const treatment = treatmentOf(view);
+  // has already settled between, and nothing at all where the surface has
+  // written the kind out beside the node itself.
+  const treatment = kindNamed ? null : treatmentOf(view);
 
   const description = [
     stateSentence(view.state),

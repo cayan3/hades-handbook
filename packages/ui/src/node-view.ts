@@ -231,6 +231,24 @@ export function kindOf(record: TraitRecord | undefined): NodeKind | null {
 }
 
 /**
+ * The Hex a Godsent Hex is granted for, and `null` for anything else.
+ *
+ * Derived rather than listed: a Hex's gate is `all[Hex, anyOf(hasBoonFrom,
+ * hasKeepsake)]`, so the Hex is its single `hasTrait` leaf, and all nine carry
+ * exactly one. Two leaves would be a data change rather than a boon with two
+ * Hexes, so that answers nothing rather than guessing.
+ *
+ * The id travels and the name is resolved where it is drawn, which keeps it
+ * behind the resolver that can withdraw the shipped text.
+ */
+export function hexOf(record: TraitRecord | undefined): TraitId | null {
+  if (kindOf(record) !== "hex") return null;
+  const named = leavesOf(record?.prereq ?? null).filter((leaf) => leaf.kind === "hasTrait");
+  const only = named.length === 1 ? named[0] : undefined;
+  return only !== undefined && only.kind === "hasTrait" ? only.trait : null;
+}
+
+/**
  * The Godsent Hex shape: the matching Hex, plus a boon *or* the keepsake of one
  * Olympian. Detected by the pair of leaf kinds only that combination produces —
  * measured, exactly the nine records that carry it, one per Olympian, and

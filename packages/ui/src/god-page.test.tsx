@@ -62,7 +62,7 @@ function view(trait: TraitId, over: Partial<NodeView> = {}): NodeView {
 }
 
 function member(trait: TraitId, over: Partial<GraphMember> = {}): GraphMember {
-  return { trait, partner: null, kind: null, ...over };
+  return { trait, partner: null, kind: null, hex: null, ...over };
 }
 
 function band(over: Partial<GraphBand>): GraphBand {
@@ -79,6 +79,7 @@ function page(graph: GodGraph, props: Partial<Parameters<typeof GodPage>[0]> = {
     <GodPage
       graph={graph}
       views={new Map(traits.map((trait) => [trait, view(trait)]))}
+      nameOf={(trait) => `name of ${trait}`}
       {...props}
     />
   );
@@ -247,7 +248,11 @@ describe("the connectors", () => {
     // it has no geometry — an empty path rather than a line to the origin. The
     // same guard covers the first frame, before any measurement has run.
     render(
-      <GodPage graph={LADDER} views={new Map([["b", view("b")], ["d", view("d")]])} />,
+      <GodPage
+        graph={LADDER}
+        views={new Map([["b", view("b")], ["d", view("d")]])}
+        nameOf={(trait) => trait}
+      />,
     );
     act(() => container.querySelector<HTMLInputElement>(".godpage__toggle input")!.click());
 
@@ -301,7 +306,7 @@ describe("the colour a god's page carries", () => {
     );
     // A hue is the one thing the linear surfaces cannot repeat, so the partner
     // is named as well as coloured.
-    expect(container.querySelector(".godpage__partner")?.textContent).toBe("with Ares");
+    expect(container.querySelector(".godpage__note")?.textContent).toBe("with Ares");
     // And the outline is left alone, so it falls to the stylesheet's default,
     // which is the hue above. A Duo carries its partner rather than the Duo
     // colour: which god the other half belongs to is the question being asked,
@@ -309,6 +314,36 @@ describe("the colour a god's page carries", () => {
     expect(container.querySelector<HTMLElement>(".node")?.style.getPropertyValue("--outline")).toBe(
       "",
     );
+  });
+
+  it("names the Hex a Godsent Hex was granted for, and says it once", () => {
+    render(
+      page(
+        {
+          god: "Zeus",
+          bands: [
+            band({
+              key: "duo",
+              kind: "duo",
+              label: "Duos and Godsent Hexes",
+              members: [member("hex", { kind: "hex", hex: "SpellTransformTrait" })],
+            }),
+          ],
+          edges: [],
+        },
+        { nameOf: (trait) => (trait === "SpellTransformTrait" ? "Dark Side" : trait) },
+      ),
+    );
+    act(() => container.querySelector<HTMLInputElement>(".godpage__toggle input")!.click());
+
+    // Where a Duo says which god the other half belongs to, a Hex says which
+    // Hex it came with — the same question about the other direction.
+    expect(container.querySelector(".godpage__note")?.textContent).toBe(
+      "Godsent Hex for 'Dark Side'",
+    );
+    // And the node's own description does not say it a second time. It is
+    // invisible on screen, which is how it would have shipped.
+    expect(container.querySelector("[hidden]")?.textContent).not.toContain("Godsent Hex");
   });
 
   /**

@@ -467,7 +467,12 @@
   border-top: 1px solid rgb(255 255 255 / 12%);
 }
 
-.godpage__partner {
+/*
+ * The line under a rim node: the other god of a Duo, or the Hex a Godsent Hex
+ * was granted for. Both answer the same question — a rim node is reached from
+ * two directions, and this says which second one.
+ */
+.godpage__note {
   display: block;
   font-size: 0.7rem;
   text-align: center;

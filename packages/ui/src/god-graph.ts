@@ -1,7 +1,7 @@
 import { keepsakesFor } from "@repo/catalog";
 import type { GodId, Requirement, RunFacts, Status, TraitId } from "@repo/core";
 import { evaluate } from "@repo/core";
-import { kindOf, type NodeKind, type NodeSource } from "./node-view.js";
+import { hexOf, kindOf, type NodeKind, type NodeSource } from "./node-view.js";
 
 /**
  * One god's page as a laid-out graph: bands top to bottom, connectors from
@@ -48,6 +48,13 @@ export interface GraphMember {
   readonly partner: GodId | null;
   /** Which of the four this is, or `null` for an ordinary offer from this god. */
   readonly kind: NodeKind | null;
+  /**
+   * For a Godsent Hex, the Hex it is granted for; `null` for everything else.
+   *
+   * The id rather than the name, so the page resolves it where it draws it and
+   * the shipped text stays behind the one resolver that can withdraw it.
+   */
+  readonly hex: TraitId | null;
 }
 
 export interface GraphJunction {
@@ -323,6 +330,7 @@ function layOut(
         trait,
         partner: partnerOf(source, god, trait),
         kind: kindOf(source.records[trait]),
+        hex: hexOf(source.records[trait]),
       })),
     };
   });

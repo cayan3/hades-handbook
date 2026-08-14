@@ -437,6 +437,7 @@ function Run({
             <GodPage
               graph={graph}
               views={boonViews}
+              nameOf={source.naming.trait}
               pinned={intent.pins}
               onMark={markOrOpen}
               onOpen={setOpened}

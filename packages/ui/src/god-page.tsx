@@ -26,6 +26,12 @@ export interface GodPageProps extends BoonGestures {
   readonly views: ReadonlyMap<TraitId, NodeView>;
   /** Which boons are pinned to a goal. Intent, so it is passed and never derived. */
   readonly pinned?: ReadonlySet<TraitId>;
+  /**
+   * A name for a trait that is not a node on this page — today, the Hex a
+   * Godsent Hex is granted for. Supplied rather than looked up here, so the
+   * shipped text stays behind the catalog's own resolver.
+   */
+  readonly nameOf: (trait: TraitId) => string;
 }
 
 /** Where an endpoint sits, in the canvas's own pixels. */
@@ -37,7 +43,7 @@ interface Place {
 
 const NOWHERE: ReadonlyMap<string, Place> = new Map();
 
-export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
+export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPageProps) {
   const canvas = useRef<HTMLDivElement>(null);
   const [places, setPlaces] = useState(NOWHERE);
   /** The node the connectors are drawn around: whatever is hovered or focused. */
@@ -179,9 +185,18 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
             )}
 
             <ul className="godpage__nodes">
-              {band.members.map(({ trait, partner, kind }) => {
+              {band.members.map(({ trait, partner, kind, hex }) => {
                 const view = views.get(trait);
                 if (view === undefined) return null;
+                // The rim is reached from two directions and this line says
+                // which second one: the other god of a Duo, and the Hex a
+                // Godsent Hex was granted for.
+                const note =
+                  partner !== null
+                    ? `with ${partner}`
+                    : hex === null
+                      ? null
+                      : `Godsent Hex for '${nameOf(hex)}'`;
                 return (
                   <li
                     key={trait}
@@ -209,15 +224,15 @@ export function GodPage({ graph, views, pinned, ...gestures }: GodPageProps) {
                       // colour is the same on every Duo, and which god the other
                       // half belongs to is the question a player is asking.
                       outline={kind === null ? undefined : kindOutlineColour(kind)}
+                      // The line below already says "Godsent Hex", so the
+                      // node's description does not say it a second time.
+                      kindNamed={hex !== null}
                       {...gestures}
                     />
-                    {/* A Duo answers to two gods and this page is one of them.
-                        Named in words and not only in the colour it carries,
+                    {/* Named in words and not only in the colour it carries,
                         since a hue is the one thing the linear surfaces cannot
                         repeat. */}
-                    {partner === null ? null : (
-                      <span className="godpage__partner">with {partner}</span>
-                    )}
+                    {note === null ? null : <span className="godpage__note">{note}</span>}
                   </li>
                 );
               })}
