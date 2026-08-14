@@ -39,9 +39,10 @@
      was against the size above. */
   --corner: calc(var(--node-size) * 0.2);
   /* The element symbol is drawn art rather than a two-tone glyph and has to say
-     which of five, so it reads at a size the other two do not need — a junction's
-     1.1rem, which is what it comes to on a Hades II node. */
-  --element: calc(var(--node-size) * 0.28);
+     which of five, so it reads at a size the other two do not need — half again
+     the junction it was first matched to, which a corner mark can carry because
+     it sits outside the icon rather than over it. */
+  --element: calc(var(--node-size) * 0.42);
 
   /* The node takes the shape of the art it holds. Hades I draws its boons as
      diamonds and Hades II as rounded squares, so a single silhouette has to
