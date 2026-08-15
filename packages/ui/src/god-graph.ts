@@ -95,6 +95,12 @@ export interface GraphEdge {
   readonly taken: boolean;
   /** Whether the boon at the end of this path is in the run. Lights the path. */
   readonly reached: boolean;
+  /**
+   * What else would satisfy the gate this line stands for, where the gate had
+   * one branch here and was drawn as a plain line. Without it the other eight
+   * Cast boons are simply not on the page, and the line reads as the only way.
+   */
+  readonly also?: string;
 }
 
 /**
@@ -232,7 +238,10 @@ function walk(
         // the detail surface, which is where the other eight were always read.
         if (branches.length === 1) {
           const only = branches[0]!;
-          return [{ ...only, id: `${only.from}>${target}`, to: target }];
+          const also = otherwise(source, req, only.from);
+          return [
+            { ...only, id: `${only.from}>${target}`, to: target, ...(also === null ? {} : { also }) },
+          ];
         }
 
         const status = evaluate(req, facts, source.rules, source.lookups).kind;
@@ -262,6 +271,27 @@ function walk(
   };
 
   return into(prereq, dependent);
+}
+
+/**
+ * What else would satisfy a gate whose only drawn branch is `shown`.
+ *
+ * Where every other branch names a boon in one equip position — nine Cast boons,
+ * one per god — that is the sentence worth reading, and it is the whole of what
+ * the drawn line leaves out. Otherwise the count says it: the gate offers more
+ * than the page can show.
+ */
+function otherwise(source: NodeSource, req: Requirement, shown: TraitId): string | null {
+  if (req.kind !== "anyOf") return null;
+  const others = req.of
+    .filter((child) => child.kind === "hasTrait" && child.trait !== shown)
+    .map((child) => (child as { trait: TraitId }).trait);
+  if (others.length === 0) return null;
+
+  const slots = new Set(others.map((trait) => source.records[trait]?.slot ?? ""));
+  const only = slots.size === 1 ? source.naming.slot([...slots][0] ?? "") : null;
+  if (only !== null) return `Or any other god's ${only} boon.`;
+  return `Or any ${others.length === 1 ? "one other" : `1 of ${others.length} others`}.`;
 }
 
 /**

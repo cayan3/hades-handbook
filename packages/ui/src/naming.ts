@@ -15,6 +15,8 @@ export interface Naming {
   keepsake(id: KeepsakeId): string;
   talent(id: TalentId): string;
   aspect(id: AspectId): string;
+  /** The equip position a player knows, from the one the data files under. */
+  slot(id: string): string | null;
 }
 
 /**
@@ -39,5 +41,34 @@ export function catalogNaming(game: GameKey): Naming {
     keepsake: (id) => keepsakeNameFor(game, id),
     talent: (id) => id,
     aspect: (id) => nameFor(game, id),
+    slot: (id) => SLOTS[game][id] ?? null,
   };
 }
+
+/**
+ * What the games call the positions their data files under other names. The
+ * data says Melee and Ranged where a player reads Attack and Cast, and the two
+ * games diverge at the fifth: Hades I has a Call and Hades II a Magick with a
+ * Hex after it.
+ *
+ * Written here rather than resolved from the catalog because there is nothing to
+ * resolve — no record carries a slot's display name, and these are the words on
+ * the game's own equip bar.
+ */
+const SLOTS: Readonly<Record<GameKey, Readonly<Record<string, string>>>> = {
+  hades1: {
+    Melee: "Attack",
+    Secondary: "Special",
+    Ranged: "Cast",
+    Rush: "Dash",
+    Shout: "Call",
+  },
+  hades2: {
+    Melee: "Attack",
+    Secondary: "Special",
+    Ranged: "Cast",
+    Rush: "Dash",
+    Mana: "Magick",
+    Spell: "Hex",
+  },
+};

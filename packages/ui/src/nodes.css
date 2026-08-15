@@ -536,6 +536,18 @@
   transform: translateX(-50%);
 }
 
+/* A branch point shows with the lines through it and not before: a diamond on a
+   page drawing no connectors stands for a choice nobody can see. `visibility`
+   rather than `display`, so the row keeps its height and nothing below it moves
+   when a wire lights up. */
+.godpage__junctions > li {
+  visibility: hidden;
+}
+
+.godpage__junctions > li[data-lit] {
+  visibility: visible;
+}
+
 /* The spine of a build, set apart from the rest of its layer by a rule rather
    than by a band of its own: they are on the same rung and a second band would
    say they were not. Drawn on the first cell that is not one, so it lands
@@ -963,6 +975,30 @@
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
+}
+
+/* A total over the panel below it, so it reads above the grid rather than as a
+   row of it. The count is the number a player is tracking; the symbol says
+   which, and the element's name is there for a reader who meets neither. */
+.loadout__elements {
+  display: flex;
+  gap: 0.9rem;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.loadout__elements li {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.loadout__element {
+  width: 1.1rem;
+  height: 1.1rem;
+  object-fit: contain;
 }
 
 .loadout__list {

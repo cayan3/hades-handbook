@@ -62,6 +62,12 @@ export function BoonArt({ iconKey }: BoonArtProps) {
 export interface ElementArtProps {
   readonly game: GameKey;
   readonly element: Element;
+  /**
+   * Where it is drawn. The default is the node's corner, which is positioned
+   * absolutely — a caller putting one in a row has to say so, or it is taken out
+   * of that row's flow.
+   */
+  readonly className?: string;
 }
 
 /**
@@ -70,7 +76,7 @@ export interface ElementArtProps {
  * of five and they only have to say that something is true. Decorative: the
  * affinity is a sentence in the node's description too.
  */
-export function ElementArt({ game, element }: ElementArtProps) {
+export function ElementArt({ game, element, className = "node__element" }: ElementArtProps) {
   const url = artUrl(elementIconFor(game, element));
   const [src, setSrc] = useState(url);
 
@@ -78,7 +84,7 @@ export function ElementArt({ game, element }: ElementArtProps) {
 
   return (
     <img
-      className="node__element"
+      className={className}
       src={src}
       alt=""
       draggable={false}

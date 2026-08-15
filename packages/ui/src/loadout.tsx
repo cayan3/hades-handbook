@@ -1,6 +1,7 @@
-import type { SlotId, TraitId } from "@repo/core";
+import type { Element, SlotId, TraitId } from "@repo/core";
 import { type CSSProperties, useState } from "react";
 import { type BoonActions, BoonActionBar } from "./boon-actions.js";
+import { ElementArt } from "./boon-art.js";
 import { BoonNode } from "./boon-node.js";
 import { OverrideMarker, RarityMark } from "./chrome.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
@@ -45,6 +46,13 @@ export interface LoadoutProps {
   /** The equipped kit, which is not the Loadout and is shown beside it. */
   readonly equipped?: readonly { readonly label: string; readonly value: string }[];
   /**
+   * How much of each Element the run has, which is a Hades II question and empty
+   * in Hades I. Asked once over the whole panel rather than marked on every
+   * tile: which element a boon counts toward is on the node in the God View, and
+   * how many of them a run has is a fact about the run.
+   */
+  readonly elements?: ReadonlyMap<Element, number>;
+  /**
    * Starts expanded. Collapsed by default, which is the core slots alone — and
    * the panel expands under the pointer regardless, so this is the state that
    * survives the pointer leaving.
@@ -72,12 +80,15 @@ export function Loadout({
   entries,
   coreSlots = [],
   equipped = [],
+  elements,
   expanded = false,
   onExpanded,
   detailOf,
   capacity = 3,
   actions,
 }: LoadoutProps) {
+  // The element symbols are the game's own art, and the two games' sets differ.
+  const game = useGame();
   /**
    * The cards stuck beside the grid, and the tile under the pointer. Neither is
    * a fact about the run, which is why they live here: the node views are
@@ -243,6 +254,21 @@ export function Loadout({
             </button>
           )}
         </>
+      )}
+
+      {elements === undefined || elements.size === 0 ? null : (
+        /* Above the grid, because it is a total over everything below it. Only
+           the elements the run has actually met: a row of five zeroes is a row
+           about nothing. */
+        <ul className="loadout__elements">
+          {[...elements].map(([element, count]) => (
+            <li key={element}>
+              <ElementArt game={game} element={element} className="loadout__element" />
+              <span>{count}</span>
+              <span className="visually-hidden">{element}</span>
+            </li>
+          ))}
+        </ul>
       )}
 
       {equipped.length === 0 ? null : (

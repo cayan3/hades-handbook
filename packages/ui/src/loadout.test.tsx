@@ -270,6 +270,25 @@ describe("the panel itself", () => {
     ).toBe("1");
   });
 
+  it("counts the run's elements once, over the whole panel", () => {
+    // The tiles carry no element mark, so this row is the only place a Hades II
+    // run's elements are said at all — which is what made removing the mark
+    // from a tile safe.
+    render(panel({ elements: new Map([["Fire" as const, 3], ["Water" as const, 1]]) }));
+    const row = [...container.querySelectorAll(".loadout__elements li")];
+    expect(row.map((li) => li.textContent)).toEqual(["3Fire", "1Water"]);
+    expect(container.querySelectorAll(".node__element")).toHaveLength(0);
+  });
+
+  it("draws no element row where the run has met none", () => {
+    // Every Hades I run, and a Hades II one before its first boon. A row of
+    // zeroes is a row about nothing.
+    render(panel({ elements: new Map() }));
+    expect(container.querySelector(".loadout__elements")).toBeNull();
+    render(panel());
+    expect(container.querySelector(".loadout__elements")).toBeNull();
+  });
+
   it("expands under the pointer and collapses again when it leaves", () => {
     render(panel({ expanded: false }));
     expect(tiles()).toHaveLength(2);

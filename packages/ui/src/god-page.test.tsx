@@ -220,6 +220,26 @@ describe("the page as a path through", () => {
     expect(container.querySelectorAll(".junction")).toHaveLength(2);
   });
 
+  it("shows a branch point only once its lines are drawn", () => {
+    // A diamond on a page drawing no connectors stands for a choice nobody can
+    // see. It follows the lines: quiet at rest, up with them on a hover, and up
+    // with all of them behind the control.
+    render(page(LADDER));
+    const junction = () => container.querySelector<HTMLElement>(".godpage__junctions li")!;
+    expect(junction().dataset["lit"]).toBeUndefined();
+
+    const toggle = container.querySelector<HTMLInputElement>(".godpage__toggle input")!;
+    act(() => toggle.click());
+    expect(junction().dataset["lit"]).toBe("true");
+    act(() => toggle.click());
+    expect(junction().dataset["lit"]).toBeUndefined();
+
+    // And on a hover, with the wires it belongs to.
+    const [first] = [...container.querySelectorAll<HTMLElement>("button")];
+    act(() => first!.focus());
+    expect(junction().dataset["lit"]).toBe("true");
+  });
+
   it("says what a junction stands for without making it a stop", () => {
     render(page(LADDER));
     const junction = container.querySelector(".junction")!;

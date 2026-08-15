@@ -415,6 +415,9 @@ function Run({
             entries={entries}
             coreSlots={CORE_SLOTS[game]}
             equipped={equippedItems(facts)}
+            // A total over the panel: which element a boon counts toward is on
+            // the node in the God View, and how many the run has is this.
+            elements={facts.elements}
             expanded={loadoutOpen}
             onExpanded={setLoadoutOpen}
             detailOf={(trait) => deriveNodeDetail(source, view(trait), facts, intent.pins)}

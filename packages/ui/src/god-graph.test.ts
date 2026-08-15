@@ -416,6 +416,31 @@ describe("the connectors", () => {
     expect(graph.bands.map((band) => band.members.map((m) => m.trait))).toEqual([["a"], ["d"]]);
   });
 
+  it("says what else would have done, where the drawn line is not the only way", () => {
+    // The line loses eight of nine options by being a line, and this is the
+    // sentence that gives them back. Where they all sit in one equip position
+    // that is the whole of it; otherwise the count has to say it.
+    const cast = (id: TraitId) => record(id, { god: ARES, slot: "Ranged" });
+    const source = world(
+      record("mine", { god: ZEUS, slot: "Ranged" }),
+      cast("theirs"),
+      cast("theirsToo"),
+      record("d", { god: ZEUS, prereq: any(has("mine"), has("theirs"), has("theirsToo")) }),
+    );
+    expect(godGraph(source, ZEUS, makeFacts()).edges[0]?.also).toBe(
+      "Or any other god's slot:Ranged boon.",
+    );
+
+    // Branches spread over different positions have no such sentence.
+    const mixed = world(
+      record("mine", { god: ZEUS, slot: "Ranged" }),
+      record("a", { god: ARES, slot: "Melee" }),
+      record("b", { god: ARES, slot: "Rush" }),
+      record("d", { god: ZEUS, prereq: any(has("mine"), has("a"), has("b")) }),
+    );
+    expect(godGraph(mixed, ZEUS, makeFacts()).edges[0]?.also).toBe("Or any 1 of 2 others.");
+  });
+
   it("marks a path as reached once the run holds the boon it leads to", () => {
     const source = world(
       record("a", { god: ZEUS, tier: 1 }),

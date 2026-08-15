@@ -140,11 +140,11 @@ describe("lanesFor", () => {
 });
 
 describe("wire", () => {
-  it("routes down, across its bar, and down again, on 45s", () => {
-    // Right angles cut back by 16px, which is the only other angle the page
-    // draws. The horizontal survives; what goes is the corner itself.
+  it("routes down, across its bar, and down again, all square", () => {
+    // A run long enough to read as a run keeps its right angles: 90 is what the
+    // page draws where 90 works, and 45 is the fallback for where it does not.
     expect(wire(place(100, 0), place(200, 200), 150)).toBe(
-      "M 100 60 L 100 134 L 116 150 L 184 150 L 200 166 L 200 200",
+      "M 100 60 L 100 150 L 200 150 L 200 200",
     );
   });
 
@@ -163,8 +163,19 @@ describe("wire", () => {
     // Two nodes in one band: `lanesFor` skips the pair, so the run drops below
     // the row rather than cutting back through it.
     expect(wire(place(100, 0), place(200, 0), undefined)).toBe(
-      "M 100 60 L 100 73 L 113 86 L 184 86 L 200 70 L 200 0",
+      "M 100 60 L 100 86 L 200 86 L 200 0",
     );
+  });
+
+  it("keeps a long run's corners square and cuts only the stubby one", () => {
+    // The whole of "90 where it works, 45 where it does not". A 200px run is a
+    // run; a 14px one between two square turns is a slip.
+    const long = wire(place(100, 0), place(300, 300), 200);
+    expect(long).toBe("M 100 60 L 100 200 L 300 200 L 300 300");
+
+    const short = wire(place(100, 0), place(114, 400), 200);
+    expect(short.split(" L ")).toHaveLength(4);
+    expect(short).toContain("L 100 193");
   });
 
   it("turns a sidestep into one 45 rather than two right angles", () => {
@@ -184,7 +195,7 @@ describe("wire", () => {
     // halfway to the row below, so the corner that begins it is not a stub.
     const blocker = place(100, 120);
     expect(wire(place(100, 0), place(300, 400), 380, [blocker])).toBe(
-      "M 100 60 L 100 75 L 115 90 L 284 90 L 300 106 L 300 400",
+      "M 100 60 L 100 90 L 300 90 L 300 400",
     );
   });
 

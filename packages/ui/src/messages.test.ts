@@ -14,6 +14,7 @@ const naming: Naming = {
   keepsake: (id) => `keepsake:${id}`,
   talent: (id) => `talent:${id}`,
   aspect: (id) => `aspect:${id}`,
+  slot: (id) => `slot:${id}`,
 };
 
 const edit = (over: Partial<UndoableEdit>): UndoableEdit => ({

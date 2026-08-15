@@ -207,6 +207,21 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
   );
 
   const hasRim = graph.bands.some((band) => band.kind === "duo");
+  /**
+   * The junctions a drawn wire actually touches. A diamond standing alone with
+   * no lines into it says nothing, so it follows the connectors it belongs to —
+   * the resting page is quiet, and hovering a boon brings its gates up with its
+   * lines.
+   */
+  const litJunctions = useMemo(() => {
+    const lit = new Set<string>();
+    for (const edge of wires) {
+      for (const end of [endpoint(edge.from), endpoint(edge.to)]) {
+        if (isJunctionId(end)) lit.add(end);
+      }
+    }
+    return lit;
+  }, [wires, endpoint]);
   // Over every edge the graph has, not just the drawn ones: a bar's height
   // would otherwise move as the selection changed which of its siblings show.
   const grouped = useMemo(
@@ -291,6 +306,10 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
                     <li
                       key={junction.id}
                       data-endpoint={junction.id}
+                      // Drawn always and shown only when lit: hiding it outright
+                      // would collapse the row, move every band under it, and
+                      // send the wires back to be measured again.
+                      data-lit={litJunctions.has(junction.id) ? "true" : undefined}
                       // Over the middle of what feeds it, which needs the
                       // measurement — so a row with nothing measured yet falls
                       // back to the even spread the stylesheet gives it.
@@ -384,6 +403,11 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
                         // The line below already says "Godsent Hex", so the
                         // node's description does not say it a second time.
                         kindNamed={hex !== null}
+                        // What else would satisfy a gate this page drew as a
+                        // plain line, having only one of its branches here.
+                        also={graph.edges
+                          .filter((edge) => edge.to === trait && edge.also !== undefined)
+                          .map((edge) => edge.also!)}
                         {...gestures}
                       />
                       {/* Named in words and not only in the colour it carries,
@@ -713,13 +737,16 @@ export function route(
 const CHAMFER = 16;
 
 /**
- * Every corner cut to 45 degrees, by half the shorter of the two runs meeting
- * there so two chamfers can never overlap.
+ * The 45s, and only where a right angle will not do.
  *
- * It is what keeps a 14px sidestep from being drawn as two right angles a
- * fingernail apart: at that width the two chamfers meet in the middle and the
- * whole turn becomes one 45-degree dogleg, which is the only other angle the
- * page is allowed. A long run keeps its horizontal and gets 45s at each end.
+ * A short run between two corners reads as a slip — 14px of horizontal with a
+ * square turn at each end. Cutting both ends by half of it makes the two meet
+ * in the middle, and the whole thing becomes a single 45-degree dogleg.
+ *
+ * Every other corner stays square, which is the order the two angles were asked
+ * for: 90 where it works, 45 as the fallback. A run long enough to read as a run
+ * is left alone, and so is either end of the wire, since those attach to a node
+ * rather than to another corner.
  */
 export function chamfer(
   corners: ReadonlyArray<readonly [number, number]>,
@@ -727,6 +754,16 @@ export function chamfer(
   max = CHAMFER,
 ): ReadonlyArray<readonly [number, number]> {
   if (corners.length < 3) return corners;
+  // A run with a corner at both ends and too little between them. The first and
+  // last are excluded: they meet a node, and a wire entering one at 45 degrees
+  // is a different complaint.
+  const stubby = corners.map((_, i) => {
+    if (i === 0 || i >= corners.length - 2) return false;
+    const [ax, ay] = corners[i]!;
+    const [bx, by] = corners[i + 1]!;
+    return Math.hypot(bx - ax, by - ay) < 2 * max;
+  });
+
   const out: Array<readonly [number, number]> = [corners[0]!];
   for (let i = 1; i < corners.length - 1; i += 1) {
     const [px, py] = corners[i - 1]!;
@@ -734,10 +771,13 @@ export function chamfer(
     const [nx, ny] = corners[i + 1]!;
     const back = Math.hypot(vx - px, vy - py);
     const on = Math.hypot(nx - vx, ny - vy);
-    // Half of each run, which is what lets a short one be consumed entirely and
-    // come out as a single dogleg. A third leaves a few pixels of flat between
-    // the two chamfers, which is the sidestep it exists to remove.
-    const r = Math.min(max, back / 2, on / 2);
+    // Only where one of the two runs at this corner is the stubby one, and by
+    // half of it, so its two chamfers meet and it goes away entirely.
+    const shortest = Math.min(
+      stubby[i - 1] === true ? back : Number.POSITIVE_INFINITY,
+      stubby[i] === true ? on : Number.POSITIVE_INFINITY,
+    );
+    const r = Math.min(max, shortest / 2);
     const from: readonly [number, number] = [
       vx - ((vx - px) / back) * r,
       vy - ((vy - py) / back) * r,
@@ -756,7 +796,7 @@ export function chamfer(
         Math.max(from[1], to[1]) > o.top + 1 &&
         Math.min(from[1], to[1]) < o.guard - 1,
     );
-    if (r < 0.5 || cuts) {
+    if (!Number.isFinite(shortest) || r < 0.5 || cuts) {
       out.push(corners[i]!);
       continue;
     }

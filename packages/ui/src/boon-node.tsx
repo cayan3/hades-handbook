@@ -104,6 +104,12 @@ export interface BoonNodeProps extends BoonGestures {
    */
   readonly kindNamed?: boolean;
   /**
+   * What else would satisfy a gate the page drew as a plain line, because only
+   * one of its branches is here. Supplied by the surface, which is the only
+   * thing that knows what it left out.
+   */
+  readonly also?: readonly string[];
+  /**
    * Whether this node's own disclosure is open, where the surface has one. The
    * Loadout does: a click sticks the boon's card beside the grid and a second
    * takes it away.
@@ -144,6 +150,7 @@ export function BoonNode({
   accent,
   outline,
   kindNamed = false,
+  also,
   expanded,
 }: BoonNodeProps) {
   const ladder = useLadder();
@@ -172,11 +179,12 @@ export function BoonNode({
     // is owed the word.
     view.element === null ? null : `${view.element} affinity.`,
     view.notice === null ? null : noticeText(view.notice),
+    ...(also ?? []),
   ]
     .filter((part): part is string => part !== null)
     .join(" ");
 
-  const tip = tipFor(view);
+  const tip = tipFor(view, also ?? []);
 
   return (
     <div
@@ -290,14 +298,21 @@ const DORMANT_SENTENCE = "Owned, and not active yet.";
  * keyed on facts. It reads beside the undo, where the mark has already happened
  * and there is something to press.
  */
-function tipFor(view: NodeView): { lead: string | null; body: string } | null {
+function tipFor(
+  view: NodeView,
+  also: readonly string[],
+): { lead: string | null; body: string } | null {
+  // Last, because it is the only one that is not about this run: the others
+  // stop a player, and this one tells them the drawn line is not the only way.
+  const extra = also.length === 0 ? "" : ` ${also.join(" ")}`;
   if (view.notice !== null) {
     const { lead, body, keepsake } = view.notice;
-    return { lead, body: keepsake === null ? body : `${body} The keepsake is ${keepsake}.` };
+    const whole = keepsake === null ? body : `${body} The keepsake is ${keepsake}.`;
+    return { lead, body: `${whole}${extra}` };
   }
-  if (view.dormant) return { lead: null, body: DORMANT_SENTENCE };
+  if (view.dormant) return { lead: null, body: `${DORMANT_SENTENCE}${extra}` };
   if (view.replaces !== null) {
-    return { lead: null, body: `Taking this replaces ${view.replaces.name}.` };
+    return { lead: null, body: `Taking this replaces ${view.replaces.name}.${extra}` };
   }
-  return null;
+  return also.length === 0 ? null : { lead: null, body: also.join(" ") };
 }
