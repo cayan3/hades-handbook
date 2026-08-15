@@ -762,11 +762,13 @@
   opacity: 0.75;
 }
 
-/* The corner, and out of the row's way. It is still first in the document,
-   which is what decides where focus lands and where tab starts. */
+/* Above the row and out of its way, rather than floated beside it: the row is a
+   flex container, so it would avoid the float by narrowing and leave a notch in
+   its own frame. First in the document either way, which is what decides where
+   focus lands and where tab starts. */
 .sheet__close {
-  float: right;
-  margin: 0 0 0.5rem 0.6rem;
+  display: block;
+  margin: 0 0 0.6rem auto;
 }
 
 .sheet h3 {
