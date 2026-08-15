@@ -168,13 +168,16 @@
   --node-radius: calc(var(--node-size) * 0.18);
 }
 
+/* The one size that did not grow with the rest of the type. Names sit in the
+   7.5rem column under the box and already wrap: the widest reaching a page is
+   21 characters and the widest single word is 13. */
 .node__name {
   font-size: 0.78rem;
   line-height: 1.25;
 }
 
 .node__lead {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 700;
 }
 
@@ -205,7 +208,7 @@
   background: #12100f;
   box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 55%);
   color: #eae3d8;
-  font-size: 0.75rem;
+  font-size: 0.88rem;
   line-height: 1.35;
   text-align: left;
   visibility: hidden;
@@ -585,7 +588,7 @@
  */
 .godpage__note {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   text-align: center;
   opacity: 0.6;
 }
@@ -601,7 +604,7 @@
   display: flex;
   gap: 0.4rem;
   align-items: center;
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   opacity: 0.75;
 }
 
@@ -677,7 +680,7 @@
    two identical rarity colours survivable. */
 .rarity {
   color: var(--rarity);
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -690,7 +693,7 @@
    this is a confirmation rather than news. */
 .sheet__held {
   margin-left: 0.4rem;
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   opacity: 0.65;
 }
 
@@ -703,12 +706,12 @@
 
 .sheet__title {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
 }
 
 .sheet h3 {
   margin: 1rem 0 0.3rem;
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   opacity: 0.6;
@@ -885,7 +888,7 @@
 .sheet__rarities legend,
 .sheet__removals legend {
   padding: 0 0.3rem;
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.6;
@@ -922,13 +925,13 @@
 
 .goal__name {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
 .goal__state {
   margin: 0;
   opacity: 0.7;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .goal__what {
@@ -999,7 +1002,7 @@
   margin: 0 0 0.6rem;
   padding: 0;
   list-style: none;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
 }
 
 .loadout__elements li {
@@ -1188,7 +1191,7 @@
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   cursor: pointer;
 }
 
@@ -1206,7 +1209,7 @@
 }
 
 .loadout__equipped dt {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.55;
@@ -1226,7 +1229,7 @@
   flex-direction: column;
   gap: 0.15rem;
   opacity: 0.8;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
 }
 
 /*
@@ -1267,7 +1270,7 @@
 .loadout__cardname {
   flex: 1;
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
 }
 
 .loadout__cardclose {
@@ -1282,20 +1285,20 @@
 
 .loadout__carddesc {
   margin: 0.5rem 0 0;
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   line-height: 1.4;
 }
 
 .loadout__cardlines {
   margin: 0.5rem 0 0;
   padding-left: 1rem;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   opacity: 0.85;
 }
 
 .loadout__overridden {
   margin: 0.4rem 0 0;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
 }
 
 /*

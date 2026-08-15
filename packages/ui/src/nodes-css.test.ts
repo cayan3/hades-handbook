@@ -216,6 +216,34 @@ describe("the node stylesheet", () => {
     expect(faded).not.toMatch(/opacity/);
   });
 
+  /**
+   * Everything a surface writes is at least 0.85rem, and the boon's name is the
+   * one exemption — it sits in the 7.5rem column under the box, where the widest
+   * name reaching a page is 21 characters and already wraps.
+   *
+   * A floor rather than a fixed scale: the sizes above it carry a hierarchy
+   * worth keeping, and the thing that was reported is that the small end of it
+   * was too small.
+   */
+  it("keeps every size off the floor except the boon's name", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const sized = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)].flatMap(([, selector, body]) =>
+      [...body!.matchAll(/font-size:\s*([\d.]+)rem/g)].map((m) => ({
+        selector: selector!.trim().replace(/\s+/g, " "),
+        rem: Number(m[1]),
+      })),
+    );
+    expect(sized.length).toBeGreaterThan(15);
+
+    const name = sized.filter((rule) => rule.selector === ".node__name");
+    expect(name).toEqual([{ selector: ".node__name", rem: 0.78 }]);
+
+    for (const rule of sized) {
+      if (rule.selector === ".node__name") continue;
+      expect(rule.rem, `${rule.selector} is ${rule.rem}rem`).toBeGreaterThanOrEqual(0.85);
+    }
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every
