@@ -1,4 +1,4 @@
-import { type GameKey, elementIconFor, godIconFor, godIconSetFor } from "@repo/catalog";
+import { type GameKey, elementIconFor, godIconFor } from "@repo/catalog";
 import type { Element, GodId } from "@repo/core";
 import { useEffect, useState } from "react";
 
@@ -74,10 +74,6 @@ export interface ElementArtProps {
  * A god's own symbol. Decorative like the others: whatever draws one carries the
  * god's name in text, which it has to — Hades reaches a tab in both games and
  * has no symbol in either set.
- *
- * `data-set` is which game's file this is rather than which game's page, and the
- * two differ wherever one set borrows the other's. Framing follows the file:
- * Hades II ships a glow card whose glyph is under a third of the canvas.
  */
 export function GodArt({
   game,
@@ -96,7 +92,6 @@ export function GodArt({
   return (
     <img
       className={className}
-      data-set={godIconSetFor(game, god)}
       src={src}
       alt=""
       draggable={false}

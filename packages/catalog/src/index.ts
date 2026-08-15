@@ -29,7 +29,6 @@ export { poolGods } from "./gods.js";
 export {
   elementIconFor,
   godIconFor,
-  godIconSetFor,
   iconFor,
   keepsakeNameFor,
   nameFor,

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   elementIconFor,
   godIconFor,
-  godIconSetFor,
   iconFor,
   keepsakeNameFor,
   nameFor,
@@ -47,39 +46,26 @@ describe("iconFor", () => {
 });
 
 describe("godIconFor", () => {
-  it("draws every god Hades I has from Hades I's set, in either game", () => {
-    // The two sets are the same designs framed differently: Hades I ships the
-    // glyph in a box its own size, Hades II the same glyph inside a glow card
-    // that is mostly padding. A bar mixing them reads as two styles, so the
-    // tight one wins wherever it has the god -- 9 of the 14 reaching a Hades II
-    // tab. That is sound for a god and would be a defect for a trait, where a
-    // shared key is never the same drawing.
+  it("keeps a god's symbol per-game, which is the case that looks shared", () => {
+    // Every god carries one icon key across both games, so a game-independent
+    // resolver typechecks and reads fine -- and would be one signature change
+    // away from every tab the day a symbol turns out to have been redrawn. The
+    // two sets are framed alike now, the extractor re-framing Hades II's glow
+    // cards on emit, which is what lets each game keep its own art.
     expect(godIconFor("hades1", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
-    expect(godIconFor("hades2", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
-    for (const god of ["Artemis", "Athena", "Dionysus", "Poseidon"]) {
-      expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
-    }
-  });
-
-  it("keeps the Hades II file for a god Hades I never had", () => {
-    // The four Hades II Olympians with no Hades I counterpart. They keep the
-    // glow card, and whatever draws one corrects for its framing, until art in
-    // the other style is found for them.
+    expect(godIconFor("hades2", "Zeus")).toBe("official/hades2/BoonSymbolZeus");
     for (const god of ["Apollo", "Hephaestus", "Hera", "Hestia"]) {
       expect(godIconFor("hades2", god)).toBe(`official/hades2/BoonSymbol${god}`);
     }
   });
 
-  /**
-   * Whatever draws a symbol needs to know which set the file came from, not
-   * which game's page it is on: the two sets frame a symbol differently and the
-   * framing follows the file.
-   */
-  it("says which set a symbol actually came from", () => {
-    expect(godIconSetFor("hades2", "Zeus")).toBe("hades1");
-    expect(godIconSetFor("hades2", "Hera")).toBe("hades2");
-    // Neither set draws Hades, so the answer is the game that was asked.
-    expect(godIconSetFor("hades2", "Hades")).toBe("hades2");
+  it("borrows the other game's symbol where this one draws none", () => {
+    // Hades II attributes boons to three gods it has no symbol for, all Hades I
+    // Olympians, so their tabs would carry the placeholder. A god's symbol is
+    // that god in either game, which a trait's key is emphatically not.
+    for (const god of ["Artemis", "Athena", "Dionysus"]) {
+      expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
+    }
   });
 
   it("lands on the shared placeholder for a god neither game draws", () => {

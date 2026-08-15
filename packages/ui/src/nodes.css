@@ -930,14 +930,6 @@
   cursor: pointer;
 }
 
-/* Hades II ships a god's symbol as a glow card and Hades I ships the glyph:
-   measured at 200 alpha, the Hades II glyph is 28-31% of its 509x508 canvas
-   against Hades I's 68-82%, so two and a half times brings them level. Keyed on
-   the file's own set, three Hades II gods borrowing an already-tight one. */
-img[data-set="hades2"] {
-  transform: scale(2.5);
-}
-
 /* An L: beside the control with the first entry level with it, the rest
    dropping from there. Flush, because a margin is a gap the pointer crosses on
    its way in and the crossing closes the list. Capped and scrolling because

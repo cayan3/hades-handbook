@@ -60,27 +60,26 @@ export function iconFor(game: GameKey, traitId: TraitId): string {
  * they don't.
  */
 /**
- * Which game's set a god's symbol came from, which is not always the game that
- * asked. Whatever draws one needs this: the two sets **frame** a symbol
- * differently, so the correction follows the file rather than the page.
- */
-export function godIconSetFor(game: GameKey, god: GodId): GameKey {
-  return godIconKey("hades1", god) !== null ? "hades1" : game;
-}
-
-/**
- * Hades I's set wins wherever it has the god, in either game: its files ship the
- * glyph in a box its own size where Hades II's wrap it in a glow card, so a bar
- * mixing the two reads as two styles. 9 of the 14 gods reaching a Hades II tab
- * come from Hades I this way. Apollo, Hephaestus, Hera and Hestia have no Hades I
- * counterpart and keep the glow card; Hades has no symbol in either set.
+ * Each game's own symbol, and the other game's only where this one draws none.
+ *
+ * Hades II attributes boons to Artemis, Athena and Dionysus and has a symbol for
+ * none of them, so their tabs would carry the placeholder. Borrowing is sound
+ * for a god where it would be a defect for a trait: a shared trait key is never
+ * the same drawing, and a god's symbol is that god. Hades has none in either set
+ * and still falls through.
+ *
+ * **The two sets are framed alike now**, which they were not: Hades II ships a
+ * god's symbol as a glow card and the extractor re-frames it on emit. That is
+ * why this can prefer a game's own art again rather than taking Hades I's
+ * outright.
  */
 export function godIconFor(game: GameKey, god: GodId): string {
-  const preferred = godIconKey("hades1", god);
-  if (preferred !== null) return `${ART_SET}/hades1/${preferred}`;
-
   const own = godIconKey(game, god);
-  return own === null ? `${ART_SET}/_missing` : `${ART_SET}/${game}/${own}`;
+  if (own !== null) return `${ART_SET}/${game}/${own}`;
+
+  const other: GameKey = game === "hades1" ? "hades2" : "hades1";
+  const borrowed = godIconKey(other, god);
+  return borrowed === null ? `${ART_SET}/_missing` : `${ART_SET}/${other}/${borrowed}`;
 }
 
 function godIconKey(game: GameKey, god: GodId): string | null {

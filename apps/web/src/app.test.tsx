@@ -946,8 +946,7 @@ describe("what the boon list shows", () => {
   /**
    * The symbol and nothing drawn beside it. Three of the Hades II gods borrow
    * the other game's file — measured, Artemis, Athena and Dionysus reach a tab
-   * here and have no symbol of their own — and the borrowed ones are already
-   * framed tightly, so the correction is keyed on the set the file came from.
+   * here and have no symbol of their own.
    */
   it("draws a tab as its god's symbol, with the name in text a reader gets", async () => {
     await mount();
@@ -957,9 +956,9 @@ describe("what the boon list shows", () => {
       (button) => button.textContent?.trim() === "Artemis",
     );
     expect(tab).toBeDefined();
-    const art = tab?.querySelector<HTMLImageElement>(".app__godart");
-    expect(art?.getAttribute("src")).toBe("/art/official/hades1/BoonSymbolArtemis.webp");
-    expect(art?.dataset["set"]).toBe("hades1");
+    expect(tab?.querySelector<HTMLImageElement>(".app__godart")?.getAttribute("src")).toBe(
+      "/art/official/hades1/BoonSymbolArtemis.webp",
+    );
 
     // Nothing about which god this is depends on the picture arriving: the name
     // is the control's accessible name and its tooltip, just not drawn.
@@ -967,7 +966,7 @@ describe("what the boon list shows", () => {
     expect(tab?.getAttribute("title")).toBe("Artemis");
   });
 
-  /** A god this game does draw keeps its own file, and is the one scaled up. */
+  /** A god this game draws keeps its own art, the two sets being framed alike. */
   it("keeps a Hades II god on the Hades II set", async () => {
     await mount();
     showGod("Hera");
@@ -975,7 +974,9 @@ describe("what the boon list shows", () => {
     const tab = [...container.querySelectorAll<HTMLElement>(".app__godtab")].find(
       (button) => button.textContent?.trim() === "Hera",
     );
-    expect(tab?.querySelector<HTMLImageElement>(".app__godart")?.dataset["set"]).toBe("hades2");
+    expect(tab?.querySelector<HTMLImageElement>(".app__godart")?.getAttribute("src")).toBe(
+      "/art/official/hades2/BoonSymbolHera.webp",
+    );
   });
 
   /**
