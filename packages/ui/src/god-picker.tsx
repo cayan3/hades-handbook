@@ -20,6 +20,8 @@ export interface GodPickerProps {
   /** The gods this bar is not already showing, in the order to offer them. */
   readonly gods: readonly GodId[];
   readonly onPick: (god: GodId) => void;
+  /** Puts every god on the bar at once, where a caller offers that. */
+  readonly onPickAll?: (() => void) | undefined;
   /** What the control that opens it is called. Drawn as a bare `+`. */
   readonly label?: string;
 }
@@ -35,7 +37,7 @@ function edgesOf(list: HTMLElement): "none" | "above" | "below" | "both" {
   return above ? "above" : below ? "below" : "none";
 }
 
-export function GodPicker({ gods, onPick, label = "Add a god" }: GodPickerProps) {
+export function GodPicker({ gods, onPick, onPickAll, label = "Add a god" }: GodPickerProps) {
   const game = useGame();
   const { open, opener, wrapper, toggle, close } = useHoverDisclosure();
   const [edges, setEdges] = useState<"none" | "above" | "below" | "both">("none");
@@ -49,10 +51,9 @@ export function GodPicker({ gods, onPick, label = "Add a god" }: GodPickerProps)
         ref={opener}
         className="godpicker__open"
         aria-expanded={open}
-        // A pointer that opened it by hovering can close it again here, and a
-        // keyboard that dismissed it with Escape asks for it again here — the
-        // dismissal only blocks the focus route back in, which is the one that
-        // fires on its own.
+        // A click on a control the pointer is already on keeps the list open —
+        // hovering opened it, so toggling would close what was just reached
+        // for. Without a pointer it toggles, being the only way in and out.
         onClick={toggle}
       >
         <span aria-hidden="true">+</span>
@@ -88,6 +89,23 @@ export function GodPicker({ gods, onPick, label = "Add a god" }: GodPickerProps)
               </button>
             </li>
           ))}
+          {onPickAll === undefined || gods.length < 2 ? null : (
+            /* Under the list rather than over it: it is the thing to reach for
+               having read the list and not wanted any one of them. Absent where
+               one god is left, which is not a shortcut. */
+            <li>
+              <button
+                type="button"
+                className="godpicker__god godpicker__all"
+                onClick={() => {
+                  onPickAll();
+                  close();
+                }}
+              >
+                Show all
+              </button>
+            </li>
+          )}
         </ul>
       )}
     </div>

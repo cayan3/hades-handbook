@@ -25,15 +25,34 @@ export interface HoverDisclosure {
     readonly onBlur: (event: FocusEvent<HTMLElement>) => void;
     readonly onKeyDown: (event: KeyboardEvent<HTMLElement>) => void;
   };
-  /** For a trigger whose click toggles the panel rather than doing something. */
+  /**
+   * For a trigger whose click opens the panel rather than doing something.
+   *
+   * A click on a control the pointer is already resting on **opens and stays
+   * open**: hovering it opened the panel, so toggling would close what the
+   * player just reached for. Without a pointer — a touch screen, a keyboard —
+   * it toggles, which is the only way in and the only way out.
+   */
   readonly toggle: () => void;
   /** For a control inside the panel, which puts it away after acting. */
   readonly close: () => void;
 }
 
-export function useHoverDisclosure(): HoverDisclosure {
+export interface HoverDisclosureOptions {
+  /**
+   * Whether hovering the control opens it. Off where opening is a decision
+   * rather than a look — the Loadout card's rarity menu sits inside a card that
+   * is itself under the pointer, so a hover-opened one springs up on the way
+   * past. Leaving still closes it either way.
+   */
+  readonly onHover?: boolean;
+}
+
+export function useHoverDisclosure({ onHover = true }: HoverDisclosureOptions = {}): HoverDisclosure {
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement | null>(null);
+  /** Whether a pointer is resting on any of this, which decides what a click means. */
+  const hovered = useRef(false);
   /**
    * Set by Escape, and it is the whole of why that key works: closing hands the
    * focus back to the control, which is a focus event on the wrapper, which
@@ -44,20 +63,22 @@ export function useHoverDisclosure(): HoverDisclosure {
 
   function leave(): void {
     dismissed.current = false;
+    hovered.current = false;
     setOpen(false);
   }
 
   return {
     open,
     opener,
-    toggle: () => setOpen(!open),
+    toggle: () => setOpen(onHover && hovered.current ? true : !open),
     close: () => setOpen(false),
     wrapper: {
       // Focus opens it as hover does, or the panel is a thing only a mouse can
       // reach.
       onMouseEnter: () => {
         dismissed.current = false;
-        setOpen(true);
+        hovered.current = true;
+        if (onHover) setOpen(true);
       },
       onMouseLeave: leave,
       onFocus: () => {

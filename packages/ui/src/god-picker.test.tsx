@@ -224,4 +224,65 @@ describe("the god picker", () => {
     act(() => list.dispatchEvent(new Event("scroll", { bubbles: true })));
     expect(list.dataset["more"]).toBe("above");
   });
+
+  /**
+   * Hovering opens it, so a click on the control the pointer is already resting
+   * on has to keep it open — toggling would close the thing just reached for.
+   * Reported after the first version did exactly that.
+   */
+  it("stays open when the control it opened from is clicked", () => {
+    render(<GodPicker gods={GODS} onPick={() => undefined} />);
+    const wrap = container.querySelector(".godpicker")!;
+
+    act(() => wrap.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    expect(offered()).toEqual(GODS);
+
+    act(() => opener().click());
+    expect(offered()).toEqual(GODS);
+  });
+
+  /** Without a pointer the same control is the only way in and the only way out. */
+  it("still toggles for a click that no hover preceded", () => {
+    render(<GodPicker gods={GODS} onPick={() => undefined} />);
+
+    act(() => opener().click());
+    expect(offered()).toEqual(GODS);
+
+    act(() => opener().click());
+    expect(offered()).toEqual([]);
+  });
+
+  /** Under the list: it is what to reach for having read it and wanted none. */
+  it("puts Show all after the gods", () => {
+    render(<GodPicker gods={GODS} onPick={() => undefined} onPickAll={() => undefined} />);
+    act(() => opener().focus());
+
+    const rows = [...container.querySelectorAll(".godpicker__list > li")];
+    expect(rows[rows.length - 1]?.textContent).toBe("Show all");
+    // A row like the others rather than chrome above them.
+    expect(rows[rows.length - 1]?.querySelector(".godpicker__god")).not.toBeNull();
+  });
+
+  /** The shortcut past the list, and it is not one where a list is one long. */
+  it("offers Show all, and not for a single god", () => {
+    const onPickAll = vi.fn();
+    render(<GodPicker gods={GODS} onPick={() => undefined} onPickAll={onPickAll} />);
+    act(() => opener().focus());
+
+    const all = container.querySelector<HTMLElement>(".godpicker__all");
+    expect(all?.textContent).toBe("Show all");
+    act(() => all?.click());
+    expect(onPickAll).toHaveBeenCalledTimes(1);
+    expect(offered()).toEqual([]);
+
+    render(<GodPicker gods={["Hera"]} onPick={() => undefined} onPickAll={onPickAll} />);
+    act(() => opener().focus());
+    expect(container.querySelector(".godpicker__all")).toBeNull();
+  });
+
+  it("offers no Show all where the caller has none to give", () => {
+    render(<GodPicker gods={GODS} onPick={() => undefined} />);
+    act(() => opener().focus());
+    expect(container.querySelector(".godpicker__all")).toBeNull();
+  });
 });

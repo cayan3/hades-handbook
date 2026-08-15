@@ -15,6 +15,8 @@ import { useHoverDisclosure } from "./hover-disclosure.js";
 export interface HoverMenuProps {
   readonly label: string;
   readonly className?: string;
+  /** Whether hovering the label opens it. Off inside a card, which is hovered. */
+  readonly onHover?: boolean;
   /**
    * The choices. Each should close the menu when it acts, which is what `onPick`
    * is handed to them for.
@@ -22,8 +24,13 @@ export interface HoverMenuProps {
   readonly children: (close: () => void) => ReactNode;
 }
 
-export function HoverMenu({ label, className = "hovermenu", children }: HoverMenuProps) {
-  const { open, opener, wrapper, toggle, close } = useHoverDisclosure();
+export function HoverMenu({
+  label,
+  className = "hovermenu",
+  onHover = true,
+  children,
+}: HoverMenuProps) {
+  const { open, opener, wrapper, toggle, close } = useHoverDisclosure({ onHover });
 
   return (
     <span className={className} {...wrapper}>

@@ -143,11 +143,19 @@ h1,
   align-items: center;
 }
 
+/*
+ * A hairline under the tabs, so they read as chrome over the page rather than as
+ * its first row. On the bar rather than on the nav around it, so it starts where
+ * the tabs start — the empty column beside them is the Loadout's, and a rule
+ * running under that would be a rule about a different thing.
+ */
 .app__godbar {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
   align-items: stretch;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
 }
 
 /* The system picker is the phone's half of the pair. Where a pointer can hover,
@@ -274,6 +282,40 @@ h1,
   overflow: hidden;
 }
 
+/* The tab and its remove control, which is drawn over the tab's own corner and
+   only under the pointer: a bar of crosses is a bar about removing things. */
+.app__godslot {
+  position: relative;
+  display: inline-flex;
+}
+
+.app__goddrop {
+  position: absolute;
+  top: -0.35rem;
+  right: -0.35rem;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 50%;
+  background: var(--ground);
+  color: rgb(255 255 255 / 55%);
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  visibility: hidden;
+}
+
+/* Keyboard focus shows it too, or it is a control only a mouse can reach. */
+.app__godslot:hover .app__goddrop,
+.app__goddrop:focus-visible {
+  visibility: visible;
+}
+
 .app__godart {
   width: 2rem;
   height: 2rem;
@@ -340,13 +382,10 @@ h1,
   opacity: 0.7;
 }
 
-/* A hairline under the bar, so the tabs read as chrome over the page rather
-   than as the first row of it. */
 .app__gods {
-  padding-bottom: 0.75rem;
   margin: 0.75rem 0 0;
-  border-bottom: 1px solid rgb(255 255 255 / 10%);
 }
+
 
 /*
  * One shape at every width: what the run holds on the left, what it could hold

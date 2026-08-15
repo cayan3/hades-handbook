@@ -398,7 +398,7 @@ function CardActions({
   return (
     <div className="loadout__cardactions">
       {rarities.length === 0 ? null : (
-        <HoverMenu label="Edit rarity" className="cardmenu">
+        <HoverMenu label="Edit rarity" className="cardmenu" onHover={false}>
           {(close) =>
             rarities.map((rarity) => (
               <button
@@ -486,6 +486,10 @@ function BoonCard({
             ))}
           </ul>
         )}
+        {/* Inside the row's text column rather than under the whole card, so it
+            starts where the name and the description start rather than under
+            the icon. */}
+        <CardActions view={view} alone={alone} actions={actions} />
       </BoonRow>
 
       {!overridden ? null : (
@@ -506,7 +510,6 @@ function BoonCard({
         </p>
       )}
 
-      <CardActions view={view} alone={alone} actions={actions} />
     </article>
   );
 }

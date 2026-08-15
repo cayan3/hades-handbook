@@ -1034,6 +1034,16 @@ img[data-set="hades2"] {
   border-color: var(--god);
 }
 
+/* A row like the others, so it reads as one more thing to pick rather than as
+   chrome. It has no god, so its outline is the ink rather than a hue. */
+.godpicker__all {
+  --god: #f2ece4;
+
+  /* The symbol's width plus the row's gap, so the words line up with the names
+     above rather than with the pictures. */
+  padding-left: 2.65rem;
+}
+
 .godpicker__art {
   flex: none;
   width: 1.75rem;
@@ -1664,12 +1674,16 @@ img[data-set="hades2"] {
     width: fit-content;
   }
 
+  /* A long row rather than a short one, which is what the Codex draws and what
+     a description needs: 17rem wrapped the game's own sentences to four or five
+     lines. Bounded by the viewport as well, since this hangs off the panel's
+     right edge and the panel moves with the grid. */
   .loadout__cards {
     position: absolute;
     top: 0;
     left: calc(100% + 0.9rem);
     z-index: 5;
-    width: 17rem;
+    width: min(28rem, 45vw);
   }
 
   /* Opaque, because it is over the page now rather than on it. */

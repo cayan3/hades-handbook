@@ -85,6 +85,22 @@ function nodeSourceFor(game: GameId): NodeSource {
   return createNodeSource(game, RULES[game](), createLookups(game), traitsFor(game));
 }
 
+/**
+ * The player's own edits to one game's god bar: gods added for planning, and
+ * tabs taken back out by hand. Two sets rather than one list because the bar is
+ * derived — a pooled god's tab is not stored anywhere, so removing one has to be
+ * recorded as a removal rather than as an absence.
+ *
+ * **Per game**, because the bars are different bars. Eleven gods appear in both,
+ * and a tab added while reading one game is not a tab asked for in the other.
+ */
+interface Curated {
+  readonly added: ReadonlySet<string>;
+  readonly removed: ReadonlySet<string>;
+}
+
+const NO_TABS: Curated = { added: new Set(), removed: new Set() };
+
 export interface AppProps {
   readonly store: RunStore;
   readonly presence: TabPresence | null;
@@ -95,6 +111,15 @@ export interface AppProps {
 export function App({ store, presence, persistent }: AppProps) {
   const [game, setGame] = useState<GameId>("hades2");
   const state = useRunSession(game, store);
+  /**
+   * The curated bars, held here rather than in `Run` because `Run` is keyed on
+   * the game and a switch remounts it — which used to take the whole bar with
+   * it. A tab stays until it is removed by hand, and each game keeps its own.
+   */
+  const [curated, setCurated] = useState<Record<GameId, Curated>>({
+    hades1: NO_TABS,
+    hades2: NO_TABS,
+  });
 
   if (state.kind === "opening") return <p className="app__loading">Opening your run…</p>;
   if (state.kind === "failed") {
@@ -120,6 +145,8 @@ export function App({ store, presence, persistent }: AppProps) {
       session={state.session}
       presence={presence}
       persistent={persistent && state.persistent}
+      curated={curated[game]}
+      onCurated={(next) => setCurated({ ...curated, [game]: next })}
     />
   );
 }
@@ -130,12 +157,16 @@ function Run({
   session,
   presence,
   persistent,
+  curated,
+  onCurated,
 }: {
   readonly game: GameId;
   readonly onGame: (game: GameId) => void;
   readonly session: RunSession;
   readonly presence: TabPresence | null;
   readonly persistent: boolean;
+  readonly curated: Curated;
+  readonly onCurated: (curated: Curated) => void;
 }) {
   const facts = useFacts(session);
   const intent = useIntent(session);
@@ -161,22 +192,42 @@ function Run({
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
-  // A god the run has met, until somebody picks otherwise.
-  const showing = god ?? tabs.find((name) => facts.godPool.has(name)) ?? tabs[0] ?? "";
 
   /**
-   * Gods the player added for planning. Only ever grown, which is half of what
-   * makes a tab sticky; the other half is that a pooled god's tab is derived
-   * below rather than stored, so leaving the pool cannot take a tab away
-   * either. Navigation must not reshuffle under somebody because a boon was
-   * removed.
+   * Adding a god puts the tab up and goes there, and takes them off the removed
+   * set — asking for a god you dismissed is asking for the tab back.
    */
-  const [added, setAdded] = useState<ReadonlySet<string>>(new Set());
-  /** Adds the tab and goes there, which is what picking a god off the list means. */
-  const pickGod = useCallback((name: string) => {
-    setAdded((before) => new Set(before).add(name));
-    setGod(name);
-  }, []);
+  const pickGods = useCallback(
+    (names: readonly string[]) => {
+      const added = new Set(curated.added);
+      const removed = new Set(curated.removed);
+      for (const name of names) {
+        added.add(name);
+        removed.delete(name);
+      }
+      onCurated({ added, removed });
+      if (names.length === 1 && names[0] !== undefined) setGod(names[0]);
+    },
+    [curated, onCurated],
+  );
+
+  /**
+   * Taking a tab down is the player's and is the only thing that can: the rule
+   * has always read "sticky until the user removes it" and nothing had ever been
+   * able to. Recorded rather than derived, because the pool half of the bar is
+   * derived — a god still in the pool would put their own tab straight back.
+   */
+  const dropGod = useCallback(
+    (name: string) => {
+      const added = new Set(curated.added);
+      added.delete(name);
+      onCurated({ added, removed: new Set(curated.removed).add(name) });
+      // The tab being read is held up by `showing`, so dropping it has to let
+      // the selection fall back or it removes nothing.
+      setGod((now) => (now === name ? null : now));
+    },
+    [curated, onCurated],
+  );
 
   /**
    * The first god is always here, so the bar is never empty on a run that has
@@ -184,11 +235,21 @@ function Run({
    * moment they look at a second god, which is what happens if the only reason
    * it was there was that it was selected.
    */
-  const shownTabs = tabs.filter(
-    (name) =>
-      facts.godPool.has(name) || added.has(name) || name === showing || name === tabs[0],
+  const offered = tabs.filter(
+    (name) => facts.godPool.has(name) || curated.added.has(name) || name === tabs[0],
   );
+  const kept = offered.filter((name) => !curated.removed.has(name));
+  // Never empty: a bar with no tabs has nothing to select and no way back.
+  const shownTabs = kept.length > 0 ? kept : offered.slice(0, 1);
   const unshown = tabs.filter((name) => !shownTabs.includes(name));
+
+  /**
+   * The god being read, and it is picked *from the bar* rather than beside it.
+   * Deriving the two independently made the selection hold its own tab up: a
+   * removal could not take down the tab you were looking at, because being
+   * looked at was one of the reasons a tab was there.
+   */
+  const showing = (god !== null && shownTabs.includes(god) ? god : shownTabs[0]) ?? "";
   // One cache for the whole page. What makes keying it on facts identity sound
   // is a property of the layer below, and is written down there.
   const cache = useMemo(() => createNodeCache(source), [source]);
@@ -348,8 +409,8 @@ function Run({
         <nav className="app__gods" aria-label="God">
           <div className="app__godbar">
               {shownTabs.map((name) => (
+                <span key={name} className="app__godslot">
                 <button
-                  key={name}
                   type="button"
                   className="app__godtab"
                   aria-current={name === showing ? "page" : undefined}
@@ -375,6 +436,19 @@ function Run({
                   <GodArt game={game} god={name} className="app__godart" />
                   <span className="visually-hidden">{name}</span>
                 </button>
+                {/* Its own control rather than a gesture on the tab, since the
+                    tab's click already means "read this god". Drawn only under
+                    the pointer, because a bar of crosses is a bar about
+                    removing things. */}
+                <button
+                  type="button"
+                  className="app__goddrop"
+                  aria-label={`Remove the ${name} tab`}
+                  onClick={() => dropGod(name)}
+                >
+                  <span aria-hidden="true">×</span>
+                </button>
+              </span>
               ))}
               {unshown.length === 0 ? null : (
                 /**
@@ -388,12 +462,16 @@ function Run({
                  * the platform's select where there is not, one in the tab order.
                  */
                 <>
-                  <GodPicker gods={unshown} onPick={pickGod} />
+                  <GodPicker
+                    gods={unshown}
+                    onPick={(name) => pickGods([name])}
+                    onPickAll={() => pickGods(unshown)}
+                  />
                   <label className="app__addgod">
                     <span className="visually-hidden">Add a god to plan with</span>
                     <select
                       value=""
-                      onChange={(event) => pickGod(event.target.value)}
+                      onChange={(event) => pickGods([event.target.value])}
                     >
                       <option value="" disabled>
                         + god

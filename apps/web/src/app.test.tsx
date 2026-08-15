@@ -979,6 +979,80 @@ describe("what the boon list shows", () => {
   });
 
   /**
+   * The sticky rule has always read *"until the user removes it"* and nothing
+   * could. The pool half of the bar is derived, so a removal has to be recorded
+   * rather than inferred from an absence — otherwise a god still in the pool
+   * puts their own tab straight back.
+   */
+  it("takes a tab down when asked and offers the god again", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    // A second tab, or there is nothing to fall back to and the bar refuses to
+    // empty — which is the rule below.
+    showGod("Ares");
+    expect(texts(".app__godtab")).toContain("Aphrodite");
+
+    const drop = [...container.querySelectorAll<HTMLElement>(".app__goddrop")].find(
+      (button) => button.getAttribute("aria-label") === "Remove the Aphrodite tab",
+    );
+    expect(drop).toBeDefined();
+    act(() => drop?.click());
+
+    // Gone from the bar even though the run still holds one of her boons — the
+    // removal is the player's and outranks the pool, which is the whole reason
+    // it has to be recorded rather than inferred from an absence.
+    expect(texts(".app__godtab")).not.toContain("Aphrodite");
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+
+    const picker = container.querySelector<HTMLElement>(".godpicker");
+    act(() => picker?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    expect(texts(".godpicker__god")).toContain("Aphrodite");
+  });
+
+  /** A bar with no tabs has nothing to select and no way back. */
+  it("never empties the bar", async () => {
+    await mount();
+    for (const drop of [...container.querySelectorAll<HTMLElement>(".app__goddrop")]) {
+      act(() => drop.click());
+    }
+    expect(container.querySelectorAll(".app__godtab").length).toBeGreaterThan(0);
+  });
+
+  /**
+   * The bar is the player's, and each game has its own. `Run` is keyed on the
+   * game, so a switch remounts it and used to take the curated set with it —
+   * and a set shared between the games would have put a tab asked for while
+   * reading one game onto the other's bar, eleven gods appearing in both.
+   */
+  it("keeps each game's curated bar, and keeps them apart", async () => {
+    await mount();
+    showGod("Athena");
+    expect(texts(".app__godtab")).toContain("Athena");
+
+    // Awaited, because a switch reopens the run against the other catalog and
+    // the page shows its loading state until that settles.
+    await act(async () => control("Hades").click());
+    expect(texts(".app__godtab")).not.toContain("Athena");
+    showGod("Ares");
+
+    await act(async () => control("Hades II").click());
+    expect(texts(".app__godtab")).toContain("Athena");
+    // Ares is a god of both games and was asked for in only one of them.
+    expect(texts(".app__godtab")).not.toContain("Ares");
+  });
+
+  it("puts every god up at once when asked", async () => {
+    await mount();
+    const picker = container.querySelector<HTMLElement>(".godpicker");
+    act(() => picker?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    act(() => container.querySelector<HTMLElement>(".godpicker__all")?.click());
+
+    // Every god this game attributes a boon to, and the picker has nothing left.
+    expect(container.querySelectorAll(".app__godtab").length).toBe(14);
+    expect(container.querySelector(".godpicker")).toBeNull();
+  });
+
+  /**
    * Two controls for the one job, because a hover-opened list is unreachable on
    * a touch screen and a system picker over a list of pictures is the wrong
    * control on a laptop. The stylesheet shows whichever the device can work, so

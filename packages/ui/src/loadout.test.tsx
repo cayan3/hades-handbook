@@ -336,4 +336,42 @@ describe("the panel itself", () => {
     // No control inside the row: the card is already about this boon.
     expect(row?.querySelectorAll("button")).toHaveLength(0);
   });
+
+  /**
+   * The card is already under the pointer whenever it is drawn, so a menu that
+   * opened on hover would spring up on the way past its label. Opening one is a
+   * decision here rather than a look.
+   */
+  it("opens the rarity menu on a click and not on a hover", () => {
+    // The menu is only drawn where the record declares rarities to offer.
+    const rare = { ...entry("c"), view: { ...view("c"), rarities: ["Common", "Epic"] as const } };
+    render(panel({ entries: [rare], actions: { mark: () => undefined } }));
+    hover("c");
+
+    const label = container.querySelector<HTMLElement>(".cardmenu__open");
+    expect(label).not.toBeNull();
+
+    act(() => {
+      container
+        .querySelector(".cardmenu")
+        ?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    });
+    expect(container.querySelector(".cardmenu__list")).toBeNull();
+
+    act(() => label?.click());
+    expect(container.querySelector(".cardmenu__list")).not.toBeNull();
+  });
+
+  /**
+   * Inside the row's text column, so it starts where the name and the
+   * description start rather than under the icon.
+   */
+  it("puts the card's controls in line with its words", () => {
+    render(panel({ actions: { purge: () => undefined } }));
+    hover("c");
+
+    const body = container.querySelector(".loadout__card .boonrow__body");
+    expect(body?.querySelector(".loadout__cardactions")).not.toBeNull();
+    expect(container.querySelector(".loadout__card > .loadout__cardactions")).toBeNull();
+  });
 });
