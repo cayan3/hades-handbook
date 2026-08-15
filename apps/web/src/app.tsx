@@ -7,6 +7,7 @@ import {
   ActionSheet,
   type BoonActions,
   type Goal,
+  GodArt,
   GodPage,
   GodPicker,
   GoalsPanel,
@@ -340,11 +341,17 @@ function Run({
           }}
         />
 
+        {/* The bar starts where the boons do rather than where the page does:
+            the column beside it belongs to the Loadout, and what goes above
+            that column is the equipped kit rather than a god. Empty until it
+            has something to hold, so the two section headings still line up. */}
         <nav className="app__gods" aria-label="God">
+          <div className="app__godbar">
               {shownTabs.map((name) => (
                 <button
                   key={name}
                   type="button"
+                  className="app__godtab"
                   aria-current={name === showing ? "page" : undefined}
                   /**
                    * In the pool is a fact about the run and shows on the tab;
@@ -360,7 +367,11 @@ function Run({
                   style={{ "--god": godColour(name) } as CSSProperties}
                   onClick={() => setGod(name)}
                 >
-                  {name}
+                  {/* The symbol above the name and both centred, so a bar of
+                      tabs reads as shapes and a long name has somewhere to go
+                      other than off the right-hand end. */}
+                  <GodArt game={game} god={name} className="app__godart" />
+                  <span className="app__godname">{name}</span>
                 </button>
               ))}
               {unshown.length === 0 ? null : (
@@ -394,6 +405,7 @@ function Run({
                   </label>
                 </>
               )}
+          </div>
         </nav>
 
         <main className="app__body">

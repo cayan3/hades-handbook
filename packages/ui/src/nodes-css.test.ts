@@ -239,6 +239,37 @@ describe("the node stylesheet", () => {
   });
 
   /**
+   * An L: the list sits beside the control with its first entry level with it,
+   * and the rest drop from there, so the pointer moves right once and then
+   * straight down. Capped and scrolling because seventeen rows is taller than a
+   * laptop viewport, and a list running off the bottom is worse than one that
+   * scrolls.
+   */
+  it("opens the picker's list beside the control, not under it", () => {
+    const rule = (selector: string) => {
+      const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return CSS.replace(/\/\*[\s\S]*?\*\//g, "").match(
+        new RegExp(`${literal}\\s*\\{([^}]*)\\}`),
+      )?.[1] ?? "";
+    };
+
+    const list = rule(".godpicker__list");
+    expect(list).toMatch(/left:\s*100%/);
+    expect(list).toMatch(/top:\s*0/);
+    expect(list).toMatch(/flex-direction:\s*column/);
+    // No margin between the two, or the pointer crosses a gap on its way in and
+    // the crossing closes the list.
+    expect(list).toMatch(/margin:\s*0/);
+    expect(list).toMatch(/overflow-y:\s*auto/);
+
+    // A row rather than a tile, which is what tells it apart from the tab it
+    // will become: the symbol at the left and the name beside it.
+    const god = rule(".godpicker__god");
+    expect(god).toMatch(/display:\s*flex/);
+    expect(god).toMatch(/text-align:\s*left/);
+  });
+
+  /**
    * The picker is drawn only where a pointer can hover, and its half of that
    * pairing is here — the other half hides the native select in the page's own
    * stylesheet. Gated on the capability rather than on a width: a touch screen

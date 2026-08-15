@@ -3,17 +3,22 @@ import { describe, expect, it } from "vitest";
 // this is a fact about painting and the runner does not paint.
 import CSS from "./app.css?raw";
 
+/** Every rule's body, comments stripped so prose about a property is not one. */
+function bodyOf(selector: string): string {
+  const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+  return rules.match(new RegExp(`(^|[{}])\\s*${literal}\\s*\\{([^}]*)\\}`, "m"))?.[2] ?? "";
+}
+
+function remOf(selector: string): number {
+  return Number(/font-size:\s*([\d.]+)rem/.exec(bodyOf(selector))?.[1]);
+}
+
 /**
  * The chrome's type scale. Its counterpart in the component library holds the
  * node's, and the two are separate because each file owns the surface it draws.
  */
 describe("the page stylesheet", () => {
-  /**
-   * The header, the tabs, the notices and the hint were all between 0.75 and
-   * 0.85rem, which is 12 to 13.6px at the default root size. Nothing the chrome
-   * writes goes below 0.85rem now — the page has no counterpart to the boon
-   * name, which is the one thing on the other side that stayed put.
-   */
   /**
    * The other half of the picker pairing. Two controls for one job is only
    * honest while exactly one of them is drawn — `display: none` takes the
@@ -28,6 +33,12 @@ describe("the page stylesheet", () => {
     );
   });
 
+  /**
+   * The header, the tabs, the notices and the hint were all between 0.75 and
+   * 0.85rem, which is 12 to 13.6px at the default root size. Nothing the chrome
+   * writes goes below 0.85rem now — the page has no counterpart to the boon
+   * name, which is the one thing on the other side that stayed put.
+   */
   it("writes nothing below the floor", () => {
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
     const sized = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)].flatMap(([, selector, body]) =>
@@ -41,5 +52,35 @@ describe("the page stylesheet", () => {
     for (const rule of sized) {
       expect(rule.rem, `${rule.selector} is ${rule.rem}rem`).toBeGreaterThanOrEqual(0.85);
     }
+  });
+
+  /**
+   * Three steps, and the order is what was asked for rather than three numbers:
+   * the product's name, then the controls acting on the whole run, then a tab
+   * label, which sits under a symbol already doing most of the work.
+   */
+  it("steps the header's type down from the title", () => {
+    const title = remOf(".app__head h1");
+    const controls = remOf(".app__games button,\n.app__finish");
+    const tab = remOf(".app__godtab");
+
+    expect(title).toBeGreaterThan(controls);
+    expect(controls).toBeGreaterThan(tab);
+  });
+
+  /**
+   * The tabs start where the boons do. Same track sizes as the body's grid, so
+   * the two stay aligned by construction rather than by a number kept in step
+   * by hand — read as text because the runner has no layout to measure.
+   */
+  it("gives the god bar the body's own columns", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const wide = rules.match(/@media \(min-width: 48rem\) \{([\s\S]*?)\n\}/);
+    const tracks = [...(wide?.[1] ?? "").matchAll(/grid-template-columns:\s*([^;]+);/g)].map(
+      (m) => m[1]!.trim(),
+    );
+    expect(tracks).toHaveLength(2);
+    expect(tracks[0]).toBe(tracks[1]);
+    expect(wide?.[1]).toMatch(/\.app__godbar\s*\{[^}]*grid-column:\s*2/);
   });
 });

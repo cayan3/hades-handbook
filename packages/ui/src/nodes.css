@@ -871,31 +871,38 @@
   }
 }
 
+/* Sized to stand in the row of tabs beside it rather than to be a small button
+   at the end of one, and dashed because it adds rather than selects. */
 .godpicker__open {
-  padding: 0.35rem 0.7rem;
+  width: 5rem;
+  min-height: 5rem;
+  padding: 0.4rem 0.25rem;
   border: 1px dashed rgb(255 255 255 / 35%);
   border-radius: 0.35rem;
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 1rem;
   cursor: pointer;
 }
 
-/* Flush against the control, with the breathing room inside it: a margin here
-   is a gap the pointer crosses on its way in, and crossing it closes the list. */
+/* An L: beside the control with the first entry level with it, the rest
+   dropping from there. Flush, because a margin is a gap the pointer crosses on
+   its way in and the crossing closes the list. Capped and scrolling because
+   seventeen rows is taller than a laptop viewport. */
 .godpicker__list {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: 0;
+  left: 100%;
   z-index: 20;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  width: max-content;
-  max-width: min(34rem, 90vw);
-  padding: 0.5rem;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 11rem;
+  max-height: min(60vh, 26rem);
+  padding: 0.35rem;
   margin: 0;
+  overflow-y: auto;
   list-style: none;
   border: 1px solid rgb(255 255 255 / 15%);
   border-radius: 0.4rem;
@@ -903,20 +910,21 @@
   box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
 }
 
-/* Named as well as drawn. Four of the fourteen Hades II gods reaching a tab
-   have no symbol in the shipped set, so pictures alone leave gaps. */
+/* A row rather than a tile, which is what tells it apart from the tab it will
+   become: the symbol at the left and the name beside it, both on one line. */
 .godpicker__god {
-  display: grid;
-  gap: 0.2rem;
-  justify-items: center;
-  width: 4.5rem;
-  padding: 0.35rem 0.2rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.3rem 0.4rem;
   border: 1px solid transparent;
-  border-radius: 0.35rem;
+  border-radius: 0.3rem;
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 1rem;
+  text-align: left;
   cursor: pointer;
 }
 
@@ -926,8 +934,9 @@
 }
 
 .godpicker__art {
-  width: 2rem;
-  height: 2rem;
+  flex: none;
+  width: 1.75rem;
+  height: 1.75rem;
   object-fit: contain;
 }
 

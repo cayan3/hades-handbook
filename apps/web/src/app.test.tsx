@@ -901,6 +901,27 @@ describe("what the boon list shows", () => {
   });
 
   /**
+   * A symbol above the name rather than a word in a box, and three of the Hades
+   * II gods borrow the other game's file — measured, Artemis, Athena and
+   * Dionysus reach a tab here and have no symbol of their own in this set.
+   */
+  it("draws each tab as its god's symbol above the name", async () => {
+    await mount();
+    showGod("Artemis");
+
+    const tab = [...container.querySelectorAll<HTMLElement>(".app__godtab")].find(
+      (button) => button.textContent?.trim() === "Artemis",
+    );
+    expect(tab).toBeDefined();
+    expect(tab?.querySelector<HTMLImageElement>(".app__godart")?.getAttribute("src")).toBe(
+      "/art/official/hades1/BoonSymbolArtemis.webp",
+    );
+    // The name is still text, so nothing about which god this is depends on the
+    // picture arriving.
+    expect(tab?.querySelector(".app__godname")?.textContent).toBe("Artemis");
+  });
+
+  /**
    * Two controls for the one job, because a hover-opened list is unreachable on
    * a touch screen and a system picker over a list of pictures is the wrong
    * control on a laptop. The stylesheet shows whichever the device can work, so
