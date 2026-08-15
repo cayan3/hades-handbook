@@ -187,6 +187,18 @@ describe("the node stylesheet", () => {
     expect(rest).not.toMatch(/flex-wrap/);
   });
 
+  it("gives an unmet junction something to hide the lines behind it", () => {
+    // Hollow, the wires converging on a branch point were visible through the
+    // middle of it. The ground colour reads as empty and occludes; `opacity`
+    // would fade the fill with everything else and put them back.
+    const polygon = CSS.match(/\.junction polygon\s*\{([^}]*)\}/)?.[1] ?? "";
+    expect(polygon).toMatch(/fill:\s*var\(--ground/);
+    expect(polygon).not.toMatch(/fill:\s*none/);
+
+    const faded = CSS.match(/\.junction\[data-status="unsatisfiable"\]\s*\{([^}]*)\}/)?.[1] ?? "";
+    expect(faded).not.toMatch(/opacity/);
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every

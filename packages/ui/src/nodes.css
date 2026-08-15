@@ -399,8 +399,12 @@
 /* The page's god, the same hue its nodes and wires carry, so a branch point
    reads as part of the ladder it sits in rather than as page furniture. Status
    stays structural — filled, outline, faded — and none of the three is a hue. */
+/* Filled with the page's ground rather than with nothing, which is what the
+   node's own fill does and for the same reason: hollow, the lines converging on
+   it were visible straight through it. It still reads as an outline — the
+   interior is the colour behind it — and now it occludes. */
 .junction polygon {
-  fill: none;
+  fill: var(--ground, #12100f);
   stroke: var(--wire, currentColor);
   stroke-width: 2;
 }
@@ -409,8 +413,12 @@
   fill: var(--wire, currentColor);
 }
 
+/* Dimmed rather than made transparent. `opacity` fades the fill too, which puts
+   the lines back through the middle of it at three fifths strength; brightness
+   takes the stroke down and leaves a ground-coloured interior alone against a
+   ground-coloured page. */
 .junction[data-status="unsatisfiable"] {
-  opacity: 0.4;
+  filter: brightness(0.45);
 }
 
 /*
