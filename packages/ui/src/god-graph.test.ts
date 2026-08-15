@@ -110,9 +110,8 @@ describe("the bands", () => {
       ["core"],
       ["reachable"],
     ]);
-    // And the junction moves down with it, off the top of the page.
-    expect(bands[0]?.junctions).toEqual([]);
-    expect(bands[1]?.junctions.map((j) => j.dependent)).toEqual(["reachable"]);
+    // And no diamond anywhere: one branch on the page is a line, not a choice.
+    expect(bands.flatMap((band) => band.junctions)).toEqual([]);
   });
 
   it("leads the top layer with the core slots, in the game's order", () => {
@@ -384,22 +383,44 @@ describe("the connectors", () => {
   it("stands a junction where a gate branches, counting every branch it offers", () => {
     const source = world(
       record("a", { god: ZEUS, tier: 1 }),
-      record("d", { god: ZEUS, tier: 2, prereq: any(has("a"), has("elsewhere"), has("far")) }),
+      record("b", { god: ZEUS, tier: 1 }),
+      record("d", { god: ZEUS, tier: 2, prereq: any(has("a"), has("b"), has("elsewhere")) }),
     );
     const graph = godGraph(source, ZEUS, makeFacts({ held: held("a") }));
     const junction = graph.bands[1]?.junctions[0];
 
-    // One line is drawn and the gate offers three. Announcing "any 1 of 1"
+    // Two lines are drawn and the gate offers three. Announcing "any 1 of 2"
     // would be describing the page rather than the requirement.
     expect(junction).toMatchObject({ dependent: "d", min: 1, of: 3, status: "satisfied" });
-    expect(graph.edges.map((edge) => edge.id)).toEqual([`a>${junction?.id}`, `${junction?.id}>d`]);
-    expect(graph.edges.every((edge) => edge.taken)).toBe(true);
+    expect(graph.edges.map((edge) => edge.id)).toEqual([
+      `a>${junction?.id}`,
+      `b>${junction?.id}`,
+      `${junction?.id}>d`,
+    ]);
+  });
+
+  it("draws a gate with one branch on the page as the line it is", () => {
+    // A diamond says "choose one of these" and there is only one to choose, so
+    // it stands for a choice nobody can see. A third of all gates are this
+    // shape: nine Cast boons offered and one of them here. Measured over the
+    // Hades II pages, it takes the junctions drawn from 39 to 31.
+    const source = world(
+      record("a", { god: ZEUS, tier: 1 }),
+      record("d", { god: ZEUS, tier: 2, prereq: any(has("a"), has("elsewhere"), has("far")) }),
+    );
+    const graph = godGraph(source, ZEUS, makeFacts({ held: held("a") }));
+
+    expect(graph.bands.flatMap((band) => band.junctions)).toEqual([]);
+    expect(graph.edges.map((edge) => edge.id)).toEqual(["a>d"]);
+    // Still under what feeds it: the layering reads the edge, not the diamond.
+    expect(graph.bands.map((band) => band.members.map((m) => m.trait))).toEqual([["a"], ["d"]]);
   });
 
   it("marks a path as reached once the run holds the boon it leads to", () => {
     const source = world(
       record("a", { god: ZEUS, tier: 1 }),
-      record("d", { god: ZEUS, tier: 2, prereq: any(has("a"), has("elsewhere")) }),
+      record("b", { god: ZEUS, tier: 1 }),
+      record("d", { god: ZEUS, tier: 2, prereq: any(has("a"), has("b"), has("elsewhere")) }),
     );
     const before = godGraph(source, ZEUS, makeFacts());
     expect(before.edges.every((e) => !e.reached)).toBe(true);
@@ -423,10 +444,18 @@ describe("the connectors", () => {
   });
 
   it("hangs a gate's branch points off the band its node is in", () => {
+    // Two branch points, each with two branches on the page — one branch apiece
+    // and neither would be drawn at all.
     const source = world(
       record("a", { god: ZEUS, tier: 1 }),
       record("b", { god: ZEUS, tier: 1 }),
-      record("d", { god: ZEUS, tier: 2, prereq: all(any(has("a")), any(has("b"))) }),
+      record("c", { god: ZEUS, tier: 1 }),
+      record("e", { god: ZEUS, tier: 1 }),
+      record("d", {
+        god: ZEUS,
+        tier: 2,
+        prereq: all(any(has("a"), has("b")), any(has("c"), has("e"))),
+      }),
     );
     const graph = godGraph(source, ZEUS, makeFacts());
 

@@ -226,6 +226,14 @@ function walk(
         const id = `${dependent}#${nth++}`;
         const branches = req.of.flatMap((child) => into(child, id));
         if (branches.length === 0) return [];
+        // One branch reaching the page is not a choice anybody can see, so it
+        // is drawn as the line it is. A third of all gates are this: nine Cast
+        // boons offered and one of them here. The count is still written out in
+        // the detail surface, which is where the other eight were always read.
+        if (branches.length === 1) {
+          const only = branches[0]!;
+          return [{ ...only, id: `${only.from}>${target}`, to: target }];
+        }
 
         const status = evaluate(req, facts, source.rules, source.lookups).kind;
         junctions.push({ id, dependent, min: req.min, of: req.of.length, status, reached });

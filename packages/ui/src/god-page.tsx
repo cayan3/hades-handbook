@@ -123,14 +123,14 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
   }, []);
 
   /**
-   * Junctions standing for the same requirement, drawn once. Measured over both
-   * catalogs, 117 of 237 stand for the same "any of these" as another — 45
-   * groups — and each was drawing its own diamond beside the last.
+   * Junctions standing for the same requirement, drawn once — and anywhere on
+   * the page rather than within a band. Hera's *"any one of Hera's four core
+   * boons"* gates two boons in one row and a third two rows below, and it is one
+   * requirement wherever it is asked; keyed by band it drew twice.
    *
    * A grouping rather than a change to the graph: `endpointOwner` answers with a
    * junction's dependent, which the layering and the neighbourhood both walk, so
-   * one junction serving two dependents would make that answer ambiguous. The
-   * band is in the key, so two identical asks feeding different rows stay apart.
+   * one junction serving two dependents would make that answer ambiguous.
    */
   const sameAsk = useMemo(() => {
     const branches = new Map<string, string[]>();
@@ -142,7 +142,7 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
     for (const band of graph.bands) {
       for (const junction of band.junctions) {
         const ask = [...(branches.get(junction.id) ?? [])].sort().join(",");
-        const key = `${band.key}|${junction.min}/${junction.of}|${ask}`;
+        const key = `${junction.min}/${junction.of}|${ask}`;
         const seen = first.get(key);
         if (seen === undefined) first.set(key, junction.id);
         canonical.set(junction.id, seen ?? junction.id);
