@@ -46,25 +46,24 @@ describe("iconFor", () => {
 });
 
 describe("godIconFor", () => {
-  it("keeps a god's symbol per-game, which is the case that looks shared", () => {
-    // Every god carries one icon key across both games, so a game-independent
-    // resolver typechecks and reads fine -- and would be one signature change
-    // away from every tab the day a symbol turns out to have been redrawn. The
-    // two sets are framed alike now, the extractor re-framing Hades II's glow
-    // cards on emit, which is what lets each game keep its own art.
+  it("draws every god Hades I has from Hades I's set, in either game", () => {
+    // The user's preference, and it survives the framing being fixed: one set
+    // for as many gods as it covers, which is 9 of the 14 reaching a Hades II
+    // tab. Sound for a god and a defect for a trait, where a shared key is never
+    // the same drawing.
     expect(godIconFor("hades1", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
-    expect(godIconFor("hades2", "Zeus")).toBe("official/hades2/BoonSymbolZeus");
-    for (const god of ["Apollo", "Hephaestus", "Hera", "Hestia"]) {
-      expect(godIconFor("hades2", god)).toBe(`official/hades2/BoonSymbol${god}`);
+    expect(godIconFor("hades2", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
+    for (const god of ["Artemis", "Athena", "Dionysus", "Poseidon"]) {
+      expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
     }
   });
 
-  it("borrows the other game's symbol where this one draws none", () => {
-    // Hades II attributes boons to three gods it has no symbol for, all Hades I
-    // Olympians, so their tabs would carry the placeholder. A god's symbol is
-    // that god in either game, which a trait's key is emphatically not.
-    for (const god of ["Artemis", "Athena", "Dionysus"]) {
-      expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
+  it("keeps the Hades II file for a god Hades I never had", () => {
+    // The four Hades II Olympians with no Hades I counterpart. They match the
+    // rest now rather than needing a correction, the extractor having re-framed
+    // them on emit.
+    for (const god of ["Apollo", "Hephaestus", "Hera", "Hestia"]) {
+      expect(godIconFor("hades2", god)).toBe(`official/hades2/BoonSymbol${god}`);
     }
   });
 
