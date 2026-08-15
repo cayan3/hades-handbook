@@ -1,5 +1,5 @@
 import type { SlotId, TraitId } from "@repo/core";
-import { useState } from "react";
+import { type CSSProperties, useState } from "react";
 import { type BoonActions, BoonActionBar } from "./boon-actions.js";
 import { BoonNode } from "./boon-node.js";
 import { OverrideMarker, RarityMark } from "./chrome.js";
@@ -7,7 +7,6 @@ import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 import { useGame } from "./presentation.js";
 import { treatmentOf } from "./rarity-palette.js";
-import type { CSSProperties } from "react";
 
 /**
  * The run's obtained boons, styled after the game's own boon menu: icons, no
@@ -176,7 +175,14 @@ export function Loadout({
               rather than the two flowing together — the slots every run has
               one of are the spine of a build and keeping them put is what
               makes the panel readable at a glance after it opens. */}
-          <div className="loadout__panel">
+          <div
+            className="loadout__panel"
+            // The rest of the run fills a column of this many before starting
+            // the next, which is the slot count rather than how many are held:
+            // a shape that changed as boons arrived would rearrange under the
+            // pointer.
+            style={{ "--core-rows": String(coreSlots.length) } as CSSProperties}
+          >
             <div className="loadout__grid">
               <Tiles
                 className="loadout__core"

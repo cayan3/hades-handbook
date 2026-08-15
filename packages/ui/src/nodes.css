@@ -1028,8 +1028,15 @@
   flex-direction: column;
 }
 
+/* Down a column and then across, rather than across and then down: the core
+   slots beside it are a column, and a build reads as columns. A grid with a
+   fixed row count does it without anyone measuring a height — `--core-rows` is
+   the game's own slot count, so the shape does not shift as boons arrive. */
 .loadout__rest {
-  flex-wrap: wrap;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--core-rows, 6), auto);
+  gap: 1rem;
 }
 
 .loadout__entry {

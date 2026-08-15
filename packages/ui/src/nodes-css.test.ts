@@ -177,6 +177,16 @@ describe("the node stylesheet", () => {
     expect(floated).toMatch(/\.loadout__cards\s*\{[^}]*position:\s*absolute/);
   });
 
+  it("fills the loadout's rest down a column before starting the next", () => {
+    // Across-then-down was what a wrapping row gave; a build reads as columns,
+    // and the core slots beside it are one. A fixed row count does it without
+    // anyone measuring a height, which is why it is a grid and not a flex wrap.
+    const rest = CSS.match(/\.loadout__rest\s*\{([^}]*)\}/)?.[1] ?? "";
+    expect(rest).toMatch(/grid-auto-flow:\s*column/);
+    expect(rest).toMatch(/grid-template-rows:\s*repeat\(var\(--core-rows/);
+    expect(rest).not.toMatch(/flex-wrap/);
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every

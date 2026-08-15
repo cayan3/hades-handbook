@@ -256,6 +256,20 @@ describe("the panel itself", () => {
     expect(container.querySelectorAll(".node__element")).toHaveLength(0);
   });
 
+  it("sizes its columns by the game's slot count, not by what is held", () => {
+    // The row count is what makes the fill go down before it goes across. Taken
+    // from the slots the game has rather than the ones this run has filled: a
+    // shape that changed as boons arrived would rearrange under the pointer.
+    render(panel({ coreSlots: ["Melee", "Secondary", "Ranged"] }));
+    const styled = container.querySelector<HTMLElement>(".loadout__panel");
+    expect(styled?.style.getPropertyValue("--core-rows")).toBe("3");
+
+    render(panel({ coreSlots: ["Melee"], entries: ENTRIES }));
+    expect(
+      container.querySelector<HTMLElement>(".loadout__panel")?.style.getPropertyValue("--core-rows"),
+    ).toBe("1");
+  });
+
   it("expands under the pointer and collapses again when it leaves", () => {
     render(panel({ expanded: false }));
     expect(tiles()).toHaveLength(2);
