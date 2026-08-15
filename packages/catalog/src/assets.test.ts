@@ -56,10 +56,21 @@ describe("godIconFor", () => {
     expect(godIconFor("hades2", "Zeus")).toBe("official/hades2/BoonSymbolZeus");
   });
 
-  it("lands on the shared placeholder for a god it has never heard of", () => {
+  it("borrows the other game's symbol where this one draws none", () => {
+    // Hades II attributes boons to three gods it has no symbol for, all Hades I
+    // Olympians, so their tabs would carry the placeholder. A god's symbol is
+    // that god in either game, which a trait's key is emphatically not.
+    for (const god of ["Artemis", "Athena", "Dionysus"]) {
+      expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
+    }
+  });
+
+  it("lands on the shared placeholder for a god neither game draws", () => {
     // Same absence as a trait with no icon, and the placeholder is deliberately
     // not per-game: it is ours to draw, not either game's.
     expect(godIconFor("hades2", "NoSuchGod")).toBe("official/_missing");
+    // Hades himself, who has a page in Hades II and a symbol in neither set.
+    expect(godIconFor("hades2", "Hades")).toBe("official/_missing");
   });
 });
 

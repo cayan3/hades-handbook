@@ -60,9 +60,24 @@ export function iconFor(game: GameKey, traitId: TraitId): string {
  * they don't.
  */
 export function godIconFor(game: GameKey, god: GodId): string {
+  const own = godIconKey(game, god);
+  if (own !== null) return `${ART_SET}/${game}/${own}`;
+
+  /**
+   * Hades II attributes boons to three gods it draws no symbol for — Artemis,
+   * Athena and Dionysus — so their tabs would carry the placeholder. Borrowing
+   * is sound for a god where it would not be for a trait: a shared trait key is
+   * never the same drawing, and a god's symbol is that god. Hades has none in
+   * either set, so he still falls through.
+   */
+  const other: GameKey = game === "hades1" ? "hades2" : "hades1";
+  const borrowed = godIconKey(other, god);
+  return borrowed === null ? `${ART_SET}/_missing` : `${ART_SET}/${other}/${borrowed}`;
+}
+
+function godIconKey(game: GameKey, god: GodId): string | null {
   const key = (dataFor(game).gods as Record<string, GodRecord>)[god]?.iconKey;
-  if (key === undefined || key === null || key === "") return `${ART_SET}/_missing`;
-  return `${ART_SET}/${game}/${key}`;
+  return key === undefined || key === null || key === "" ? null : key;
 }
 
 /**
