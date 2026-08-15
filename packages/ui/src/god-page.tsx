@@ -100,6 +100,11 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
       // wire leaving from below the name reads as leaving from nothing.
       const shape = cell.querySelector(".node__box") ?? cell;
       const at = shape.getBoundingClientRect();
+      // A junction is a point, not a box. Its branches meet *on* it — the
+      // diamond sits on the bar they converge along, which is what the
+      // reference graphs draw — so top and bottom are both its centre and the
+      // approach has no final drop to make.
+      const middle = isJunctionId(id) ? (at.top + at.bottom) / 2 : null;
       // The name is what the guard adds. Not the whole cell, which is 120px
       // wide against a 142px pitch and would leave no clear column anywhere.
       const label = cell.querySelector(".node__name")?.getBoundingClientRect();
@@ -107,9 +112,9 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
         x: at.left - box.left + at.width / 2,
         left: Math.min(at.left, label?.left ?? at.left) - box.left,
         right: Math.max(at.right, label?.right ?? at.right) - box.left,
-        top: at.top - box.top,
-        bottom: at.bottom - box.top,
-        guard: (label?.bottom ?? at.bottom) - box.top,
+        top: (middle ?? at.top) - box.top,
+        bottom: (middle ?? at.bottom) - box.top,
+        guard: (middle ?? label?.bottom ?? at.bottom) - box.top,
       });
     }
     // Bailing on an unchanged measurement is what stops this: the effect writes
@@ -471,6 +476,8 @@ export function lanesFor(
     top: number;
     source: number;
     ids: string[];
+    /** Set where the height is already decided — a junction is its own bar. */
+    on?: number;
   }
 
   // Everything feeding one target, so two targets asking for the same thing can
@@ -487,6 +494,12 @@ export function lanesFor(
   const bars = new Map<string, Bar>();
   for (const [target, ids] of feeding) {
     const to = places.get(target)!;
+    // Branches meet on the diamond rather than above it, so a junction's bar is
+    // its own height and it shares with nobody.
+    if (isJunctionId(target)) {
+      bars.set(target, { x: to.x, top: to.top, source: to.top, ids: [...ids], on: to.top });
+      continue;
+    }
     // Two boons wanting the same things share one bar rather than drawing two
     // at different heights — 158 of the 452 targets across both catalogs are in
     // such a group, and the largest gathers eight. The row is in the key
@@ -521,11 +534,16 @@ export function lanesFor(
 
   const lanes = new Map<string, number>();
   for (const row of rows.values()) {
-    const room = Math.min(...row.map((bar) => bar.top - bar.source - 2 * CLEARANCE));
+    for (const bar of row.filter((b) => b.on !== undefined)) {
+      for (const id of bar.ids) lanes.set(id, bar.on!);
+    }
+    const free = row.filter((bar) => bar.on === undefined);
+    if (free.length === 0) continue;
+    const room = Math.min(...free.map((bar) => bar.top - bar.source - 2 * CLEARANCE));
     const capacity = Math.max(1, Math.floor(room / LANE) + 1);
     // By where the target sits, so the bars that share a height are the ones
     // furthest apart across the row.
-    [...row]
+    [...free]
       .sort((a, b) => a.x - b.x)
       .forEach((bar, index) => {
         // Measured up from the target, not down from the source: the bar belongs
