@@ -217,8 +217,13 @@
   color: #ff6b5c;
 }
 
+/* Hover, and keyboard focus — but not the focus a click leaves behind. A mouse
+   user who taps a boon keeps the focus on it, so `:focus-within` held the tip up
+   after the pointer had gone and only a re-render took it away. `:focus-visible`
+   is the same promise to a keyboard without that. The tip is the control's
+   sibling, so this needs no `:has`. */
 .node:hover .node__tip,
-.node:focus-within .node__tip {
+.node__control:focus-visible ~ .node__tip {
   visibility: visible;
 }
 

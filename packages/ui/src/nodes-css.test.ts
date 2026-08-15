@@ -187,6 +187,23 @@ describe("the node stylesheet", () => {
     expect(rest).not.toMatch(/flex-wrap/);
   });
 
+  it("does not keep a tooltip up on the focus a click leaves behind", () => {
+    // A pointer that taps a boon leaves the focus on it, so `:focus-within`
+    // held the tip open after the pointer had gone — invisible until a tip
+    // arrived that survives being clicked. `:focus-visible` keeps the promise
+    // to a keyboard and drops the one nobody asked for.
+    // Comments first: this one names both selectors to say why, and a prose
+    // block mentioning a selector reads as a rule using one.
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const shows = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)].filter(
+      ([, selector, body]) =>
+        selector!.includes(".node__tip") && /visibility:\s*visible/.test(body!),
+    );
+    expect(shows).toHaveLength(1);
+    expect(shows[0]![1]).toContain(":focus-visible");
+    expect(shows[0]![1]).not.toContain(":focus-within");
+  });
+
   it("gives an unmet junction something to hide the lines behind it", () => {
     // Hollow, the wires converging on a branch point were visible through the
     // middle of it. The ground colour reads as empty and occludes; `opacity`
