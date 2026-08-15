@@ -217,6 +217,31 @@ describe("the node stylesheet", () => {
   });
 
   /**
+   * The sheet's row follows the games' own Codex, and the two games frame it
+   * differently: Hades I runs its list inside one panel, so rarity shows on an
+   * edge, and Hades II gives each entry a slab tinted across it.
+   *
+   * Read out of the stylesheet for the reason the Loadout's wedge is: it is a
+   * fact about painting, and the rule that would break it is one line in the
+   * base forgetting there are two games.
+   */
+  it("slabs a Hades II sheet row and edges a Hades I one", () => {
+    const rule = (selector: string) => {
+      const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return CSS.match(new RegExp(`${literal}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+    };
+
+    const hades2 = rule('.sheet[data-game="hades2"] .sheet__row[data-treatment]');
+    expect(hades2, "Hades II's row is not tinted").toMatch(/background:\s*linear-gradient/);
+
+    const hades1 = rule('.sheet[data-game="hades1"] .sheet__row[data-treatment]');
+    expect(hades1, "Hades I's row does not take an edge").toMatch(
+      /border-right:\s*[\d.]+px solid var\(--rarity\)/,
+    );
+    expect(hades1).not.toMatch(/background/);
+  });
+
+  /**
    * The picker is drawn only where a pointer can hover, and its half of that
    * pairing is here — the other half hides the native select in the page's own
    * stylesheet. Gated on the capability rather than on a width: a touch screen

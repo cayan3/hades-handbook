@@ -226,12 +226,13 @@ describe("ActionSheet", () => {
     render(<ActionSheet view={view()} detail={detail()} onClose={noop} />);
     expect(container.querySelector(".rarity")).toBeNull();
 
-    // The word rather than a swatch, and in the heading rather than on a line
-    // of its own: two of the game's own rarity colours are identical, so a dot
-    // could not be told apart at all in those two cases.
+    // The word rather than a swatch, and on the name's own line rather than a
+    // line of its own: two of the game's own rarity colours are identical, so a
+    // dot could not be told apart at all in those two cases. Right-aligned
+    // there, which is where the Codex draws it.
     render(<ActionSheet view={view({ rarity: "Epic" })} detail={detail()} onClose={noop} />);
     expect(container.querySelector(".rarity")?.textContent).toBe("Epic");
-    expect(container.querySelector(".sheet__title")?.textContent).toContain("Epic");
+    expect(container.querySelector(".sheet__head .rarity")).not.toBeNull();
   });
 
   it("leads with the boon's own text, and says held beside the rarity", () => {
@@ -246,14 +247,70 @@ describe("ActionSheet", () => {
       />,
     );
 
-    const first = container.querySelector(".sheet")?.children[1];
+    // Directly under the name, which is where the row puts it: the head, then
+    // the game's own words, then whatever is left to say about the run.
+    const first = container.querySelector(".sheet__body")?.children[1];
     expect(first?.className).toBe("sheet__description");
     expect(first?.textContent).toBe("Your Special is stronger.");
 
-    const title = container.querySelector(".sheet__title");
-    expect(title?.textContent).toContain("Epic");
-    expect(title?.querySelector(".sheet__held")?.textContent).toBe("(held)");
+    const head = container.querySelector(".sheet__head");
+    expect(head?.textContent).toContain("Epic");
+    expect(head?.querySelector(".sheet__held")?.textContent).toBe("(held)");
     expect(container.textContent).not.toContain("Held.");
+  });
+
+  /**
+   * The Codex draws one boon as a row: the icon at the left, the name and the
+   * kind on one line, the description under the name. The icon is the node's
+   * own drawing without the control around it — there is nothing to activate on
+   * a surface that is already about this boon.
+   */
+  it("draws the boon beside its own text, as a row", () => {
+    render(
+      <ActionSheet
+        view={view({ state: "Obtained" })}
+        detail={detail({ description: "Your Special is stronger." })}
+        onClose={noop}
+      />,
+    );
+
+    const row = container.querySelector(".sheet__row");
+    expect(row).not.toBeNull();
+    expect(row?.querySelector(".sheet__icon .node__art")).not.toBeNull();
+    // No second control: the icon is a drawing here, and a button around it
+    // would take the focus the close control is meant to get.
+    expect(row?.querySelectorAll("button")).toHaveLength(0);
+    expect(row?.querySelector(".sheet__body .sheet__description")?.textContent).toBe(
+      "Your Special is stronger.",
+    );
+  });
+
+  /**
+   * The row is tinted by what the boon *is* — its kind where it has one and its
+   * rarity otherwise. Common paints nothing anywhere, which is the game's own
+   * treatment and what makes a tinted row mean something, so the attribute the
+   * stylesheet keys on is absent rather than set to "Common".
+   */
+  it("carries the treatment's colour on the row, and nothing for Common", () => {
+    render(<ActionSheet view={view({ rarity: "Epic" })} detail={detail()} onClose={noop} />);
+    const epic = container.querySelector<HTMLElement>(".sheet__row");
+    expect(epic?.dataset["treatment"]).toBe("Epic");
+    expect(epic?.style.getPropertyValue("--rarity")).toBe("#9D12FF");
+
+    render(<ActionSheet view={view({ rarity: "Common" })} detail={detail()} onClose={noop} />);
+    const common = container.querySelector<HTMLElement>(".sheet__row");
+    expect(common?.dataset["treatment"]).toBeUndefined();
+    // The word still renders. Only the paint is absent.
+    expect(container.querySelector(".rarity")?.textContent).toBe("Common");
+  });
+
+  /** A boon with a kind is offered no rarity, so the kind is what tints it. */
+  it("tints by the kind where the boon has one", () => {
+    render(<ActionSheet view={view({ kind: "duo" })} detail={detail()} onClose={noop} />);
+
+    const row = container.querySelector<HTMLElement>(".sheet__row");
+    expect(row?.dataset["treatment"]).toBe("Duo");
+    expect(container.querySelector(".sheet__head .rarity")?.textContent).toBe("Duo");
   });
 
   it("still says the state where the boon is not held", () => {

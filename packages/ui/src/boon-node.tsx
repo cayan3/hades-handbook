@@ -225,26 +225,7 @@ export function BoonNode({
               }
         }
       >
-        {/* Three elements, each load-bearing. The outer box positions the corner
-            glyphs and is deliberately not clipped, since a clip here cuts them
-            off — which it did. The shape is filled with the outline's colour;
-            the fill sits inside it by the outline's weight, and what shows
-            between the two is the outline. */}
-        <span className="node__box">
-          <span className="node__shape">
-            <span className="node__fill">
-              {/* No artwork at all on the fallback ladder rather than artwork
-                  the stylesheet hides: a hidden image is still fetched, and the
-                  fallback is for when there is nothing to fetch. */}
-              {ladder === "real-art" ? <BoonArt iconKey={view.iconKey} /> : null}
-            </span>
-          </span>
-          {!showElement || view.element === null ? null : (
-            <ElementArt game={game} element={view.element} />
-          )}
-          {pinned ? <MarkerGlyph /> : null}
-          {view.dormant ? <DormantGlyph /> : null}
-        </span>
+        <NodeBox view={view} pinned={pinned} showElement={showElement} />
         {showName ? <span className="node__name">{view.name}</span> : null}
         {/* The soft half of a hard verdict, on the node rather than only behind
             a tap: someone scanning a page of dead ends has to see that one of
@@ -273,6 +254,48 @@ export function BoonNode({
         {description}
       </span>
     </div>
+  );
+}
+
+/**
+ * The drawing on its own, without the control around it — which is what a
+ * surface wants when the boon is what the surface is already about and there is
+ * nothing to activate. Shared rather than copied, so the three-box construction
+ * and the corner assignment have one home.
+ */
+export function NodeBox({
+  view,
+  pinned = false,
+  showElement = true,
+}: {
+  readonly view: NodeView;
+  readonly pinned?: boolean;
+  readonly showElement?: boolean;
+}) {
+  const ladder = useLadder();
+  const game = useGame();
+
+  return (
+    /* Three elements, each load-bearing. The outer box positions the corner
+       glyphs and is deliberately not clipped, since a clip here cuts them
+       off — which it did. The shape is filled with the outline's colour;
+       the fill sits inside it by the outline's weight, and what shows
+       between the two is the outline. */
+    <span className="node__box">
+      <span className="node__shape">
+        <span className="node__fill">
+          {/* No artwork at all on the fallback ladder rather than artwork
+              the stylesheet hides: a hidden image is still fetched, and the
+              fallback is for when there is nothing to fetch. */}
+          {ladder === "real-art" ? <BoonArt iconKey={view.iconKey} /> : null}
+        </span>
+      </span>
+      {!showElement || view.element === null ? null : (
+        <ElementArt game={game} element={view.element} />
+      )}
+      {pinned ? <MarkerGlyph /> : null}
+      {view.dormant ? <DormantGlyph /> : null}
+    </span>
   );
 }
 

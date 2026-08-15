@@ -658,7 +658,8 @@
 }
 
 .sheet {
-  width: min(30rem, 100%);
+  position: relative;
+  width: min(34rem, 100%);
   max-height: 85vh;
   padding: 1rem 1.1rem 1.4rem;
   overflow-y: auto;
@@ -676,6 +677,56 @@
   }
 }
 
+/*
+ * One boon as the games' own Codex draws it: the icon at the left, the name and
+ * the kind on one line, the description under the name, and the indented lines
+ * under that.
+ *
+ * The two games frame it differently and both are here. Hades I runs its list
+ * inside one panel, so the row is a plain bordered box; Hades II gives each
+ * entry a slab tinted by rarity, which is the rule below. The tint is a custom
+ * property set per boon rather than a class per rarity, so a rarity the data
+ * adds later needs no rule — and Common sets nothing, which is the game's own
+ * treatment and what makes a tinted row mean something.
+ */
+.sheet__row {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  padding: 0.75rem 0.85rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 4%);
+}
+
+/* Hades II's slab, and the tint runs left to right the way the game's does:
+   the icon end stays dark so the artwork keeps its own ground. */
+.sheet[data-game="hades2"] .sheet__row[data-treatment] {
+  border-color: color-mix(in srgb, var(--rarity) 55%, transparent);
+  background: linear-gradient(
+    90deg,
+    rgb(255 255 255 / 4%),
+    color-mix(in srgb, var(--rarity) 18%, transparent)
+  );
+}
+
+/* Hades I frames the whole list rather than each entry, so its rarity shows on
+   one edge instead of over the row — the same edge the Loadout's wedge takes. */
+.sheet[data-game="hades1"] .sheet__row[data-treatment] {
+  border-right: 4px solid var(--rarity);
+}
+
+/* Its own box, so the row's flex does not stretch the node to the height of
+   whatever text is beside it. */
+.sheet__icon {
+  flex: none;
+}
+
+.sheet__body {
+  flex: 1;
+  min-width: 0;
+}
+
 /* The word carries the meaning and the colour decorates it, which is what makes
    two identical rarity colours survivable. */
 .rarity {
@@ -683,10 +734,6 @@
   font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.sheet__title .rarity {
-  margin-left: 0.5rem;
 }
 
 /* Beside the rarity, and quieter than it: the sheet opens on a held boon, so
@@ -704,9 +751,30 @@
   justify-content: space-between;
 }
 
+/* Caps, as the Codex writes it. The display face is effectively all-caps
+   already, so this only reaches the fallback and the name stays one shape
+   whichever face loaded. */
 .sheet__title {
   margin: 0;
   font-size: 1.3rem;
+  text-transform: uppercase;
+}
+
+.sheet__description {
+  margin: 0.35rem 0 0;
+  line-height: 1.4;
+}
+
+.sheet__state {
+  margin: 0.35rem 0 0;
+  opacity: 0.75;
+}
+
+/* The corner, and out of the row's way. It is still first in the document,
+   which is what decides where focus lands and where tab starts. */
+.sheet__close {
+  float: right;
+  margin: 0 0 0.5rem 0.6rem;
 }
 
 .sheet h3 {
@@ -717,9 +785,25 @@
   opacity: 0.6;
 }
 
+/* Indented under the description with the game's own marker, which is where the
+   Codex puts a boon's numbers. A pseudo-element rather than a list style,
+   because the character has to sit in the indent and a marker cannot be
+   coloured apart from its item. */
 .sheet ul {
   margin: 0;
   padding-left: 1.1rem;
+  list-style: none;
+}
+
+.sheet ul li {
+  position: relative;
+}
+
+.sheet ul li::before {
+  position: absolute;
+  left: -0.9rem;
+  content: "›";
+  opacity: 0.55;
 }
 
 .sheet__notice {
