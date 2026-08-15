@@ -1,5 +1,5 @@
 import type { GodId } from "@repo/core";
-import type { CSSProperties } from "react";
+import { type CSSProperties, useState } from "react";
 import { GodArt } from "./boon-art.js";
 import { godColour } from "./god-palette.js";
 import { useHoverDisclosure } from "./hover-disclosure.js";
@@ -20,13 +20,25 @@ export interface GodPickerProps {
   /** The gods this bar is not already showing, in the order to offer them. */
   readonly gods: readonly GodId[];
   readonly onPick: (god: GodId) => void;
-  /** The word on the control that opens it. */
+  /** What the control that opens it is called. Drawn as a bare `+`. */
   readonly label?: string;
 }
 
-export function GodPicker({ gods, onPick, label = "+ god" }: GodPickerProps) {
+/**
+ * Which ends of a scrolled list have something past them. A list that fits says
+ * nothing, so the fades only ever appear where there is more to see.
+ */
+function edgesOf(list: HTMLElement): "none" | "above" | "below" | "both" {
+  const above = list.scrollTop > 1;
+  const below = list.scrollTop + list.clientHeight < list.scrollHeight - 1;
+  if (above && below) return "both";
+  return above ? "above" : below ? "below" : "none";
+}
+
+export function GodPicker({ gods, onPick, label = "Add a god" }: GodPickerProps) {
   const game = useGame();
   const { open, opener, wrapper, toggle, close } = useHoverDisclosure();
+  const [edges, setEdges] = useState<"none" | "above" | "below" | "both">("none");
 
   if (gods.length === 0) return null;
 
@@ -43,15 +55,23 @@ export function GodPicker({ gods, onPick, label = "+ god" }: GodPickerProps) {
         // fires on its own.
         onClick={toggle}
       >
-        {label}
+        <span aria-hidden="true">+</span>
+        <span className="visually-hidden">{label}</span>
       </button>
 
       {!open ? null : (
-        /* Beside the control rather than under it, with the first entry level
-           with it and the rest dropping from there. A row is a rectangle with
-           the symbol at the left, which is not how a tab is drawn — the two are
-           different controls and read as such. */
-        <ul className="godpicker__list">
+        /* An L beside the control, with rows that are rectangles rather than
+           the squares a tab is. `data-more` names the ends that have gods past
+           them, read off the element rather than counted: what fits is a fact
+           about the box and this component owns no layout. */
+        <ul
+          className="godpicker__list"
+          data-more={edges}
+          onScroll={(event) => setEdges(edgesOf(event.currentTarget))}
+          ref={(list) => {
+            if (list !== null) setEdges(edgesOf(list));
+          }}
+        >
           {gods.map((god) => (
             <li key={god}>
               <button

@@ -195,4 +195,33 @@ describe("the god picker", () => {
     expect(offered()).toEqual(GODS);
     expect(container.querySelectorAll(".godpicker__art")).toHaveLength(GODS.length);
   });
+
+  /**
+   * A list that scrolls says so at whichever end has gods past it. Read off the
+   * element rather than counted, since what fits is a fact about the box and
+   * this component owns no layout — which is also why jsdom has to be told the
+   * three numbers it does not compute.
+   */
+  it("marks the end that has more gods past it", () => {
+    render(<GodPicker gods={GODS} onPick={() => undefined} />);
+    act(() => opener().focus());
+    const list = container.querySelector<HTMLElement>(".godpicker__list")!;
+
+    // jsdom lays nothing out, so every scroll figure is zero and the list looks
+    // as though it fits. That is the honest default: no marks.
+    expect(list.dataset["more"]).toBe("none");
+
+    Object.defineProperty(list, "clientHeight", { value: 100, configurable: true });
+    Object.defineProperty(list, "scrollHeight", { value: 300, configurable: true });
+    act(() => list.dispatchEvent(new Event("scroll", { bubbles: true })));
+    expect(list.dataset["more"]).toBe("below");
+
+    list.scrollTop = 100;
+    act(() => list.dispatchEvent(new Event("scroll", { bubbles: true })));
+    expect(list.dataset["more"]).toBe("both");
+
+    list.scrollTop = 200;
+    act(() => list.dispatchEvent(new Event("scroll", { bubbles: true })));
+    expect(list.dataset["more"]).toBe("above");
+  });
 });

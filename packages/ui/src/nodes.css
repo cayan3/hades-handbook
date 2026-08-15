@@ -60,7 +60,8 @@
 
 .node__control {
   display: grid;
-  gap: 0.35rem;
+  /* The name sat close enough under the box to read as part of it. */
+  gap: 0.61rem;
   justify-items: center;
   width: 7.5rem;
   padding: 0.4rem;
@@ -892,19 +893,31 @@
   }
 }
 
-/* Sized to stand in the row of tabs beside it rather than to be a small button
-   at the end of one, and dashed because it adds rather than selects. */
+/* A tab-sized square like the ones beside it, dashed because it adds rather
+   than selects, and a bare `+` at about the size of the symbols it stands among.
+   The word it is called is in the accessible name. */
 .godpicker__open {
-  width: 5rem;
-  min-height: 5rem;
-  padding: 0.4rem 0.25rem;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0.4rem;
   border: 1px dashed rgb(255 255 255 / 35%);
   border-radius: 0.35rem;
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 1rem;
+  font-size: 1.75rem;
+  line-height: 1;
   cursor: pointer;
+}
+
+/* Hades II ships a god's symbol as a glow card and Hades I ships the glyph:
+   measured at 200 alpha, the Hades II glyph is 28-31% of its 509x508 canvas
+   against Hades I's 68-82%, so two and a half times brings them level. Keyed on
+   the file's own set, three Hades II gods borrowing an already-tight one. */
+img[data-set="hades2"] {
+  transform: scale(2.5);
 }
 
 /* An L: beside the control with the first entry level with it, the rest
@@ -920,7 +933,7 @@
   flex-direction: column;
   gap: 0.15rem;
   width: 11rem;
-  max-height: min(60vh, 26rem);
+  max-height: min(80vh, 34rem);
   padding: 0.35rem;
   margin: 0;
   overflow-y: auto;
@@ -931,12 +944,61 @@
   box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
 }
 
+/*
+ * A fade at whichever end has gods past it, so a list that is scrolling says so.
+ * Inside the padding rather than over a row: the entries stay legible right up
+ * to the edge and only the gap above and below them dims.
+ */
+.godpicker__list[data-more="above"],
+.godpicker__list[data-more="both"] {
+  border-top-color: rgb(255 255 255 / 45%);
+}
+
+.godpicker__list[data-more="below"],
+.godpicker__list[data-more="both"] {
+  border-bottom-color: rgb(255 255 255 / 45%);
+}
+
+.godpicker__list[data-more="above"]::before,
+.godpicker__list[data-more="both"]::before,
+.godpicker__list[data-more="below"]::after,
+.godpicker__list[data-more="both"]::after {
+  position: sticky;
+  z-index: 1;
+  display: block;
+  flex: none;
+  margin: -0.35rem -0.35rem 0;
+  font-size: 0.85rem;
+  line-height: 1;
+  text-align: center;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.godpicker__list[data-more="above"]::before,
+.godpicker__list[data-more="both"]::before {
+  top: -0.35rem;
+  padding-top: 0.15rem;
+  content: "▲";
+}
+
+.godpicker__list[data-more="below"]::after,
+.godpicker__list[data-more="both"]::after {
+  bottom: -0.35rem;
+  padding-bottom: 0.15rem;
+  margin: 0 -0.35rem -0.35rem;
+  content: "▼";
+}
+
 /* A row rather than a tile, which is what tells it apart from the tab it will
    become: the symbol at the left and the name beside it, both on one line. */
 .godpicker__god {
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  /* The scaled Hades II symbols would otherwise paint over the rows either
+     side of them. */
+  overflow: hidden;
   width: 100%;
   padding: 0.3rem 0.4rem;
   border: 1px solid transparent;

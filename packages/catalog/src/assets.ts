@@ -59,6 +59,16 @@ export function iconFor(game: GameKey, traitId: TraitId): string {
  * duplicated file if they match, against a signature change on every tab if
  * they don't.
  */
+/**
+ * Which game's set a god's symbol actually came from, since one borrows the
+ * other's below. Asked by whatever draws one: the two sets frame a symbol
+ * differently, and the framing follows the file rather than the page.
+ */
+export function godIconSetFor(game: GameKey, god: GodId): GameKey {
+  const other: GameKey = game === "hades1" ? "hades2" : "hades1";
+  return godIconKey(game, god) !== null || godIconKey(other, god) === null ? game : other;
+}
+
 export function godIconFor(game: GameKey, god: GodId): string {
   const own = godIconKey(game, god);
   if (own !== null) return `${ART_SET}/${game}/${own}`;

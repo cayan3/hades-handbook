@@ -365,13 +365,15 @@ function Run({
                    */
                   data-pooled={facts.godPool.has(name)}
                   style={{ "--god": godColour(name) } as CSSProperties}
+                  title={name}
                   onClick={() => setGod(name)}
                 >
-                  {/* The symbol above the name and both centred, so a bar of
-                      tabs reads as shapes and a long name has somewhere to go
-                      other than off the right-hand end. */}
+                  {/* The symbol and nothing drawn beside it, so the bar reads
+                      as shapes. The name is still the control's accessible name
+                      and its `title`, which is what a symbol nobody recognises —
+                      or has, Hades having none in either set — falls back to. */}
                   <GodArt game={game} god={name} className="app__godart" />
-                  <span className="app__godname">{name}</span>
+                  <span className="visually-hidden">{name}</span>
                 </button>
               ))}
               {unshown.length === 0 ? null : (

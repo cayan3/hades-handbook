@@ -1,4 +1,4 @@
-import { type GameKey, elementIconFor, godIconFor } from "@repo/catalog";
+import { type GameKey, elementIconFor, godIconFor, godIconSetFor } from "@repo/catalog";
 import type { Element, GodId } from "@repo/core";
 import { useEffect, useState } from "react";
 
@@ -71,16 +71,13 @@ export interface ElementArtProps {
 }
 
 /**
- * Which element a Hades II boon counts toward, in its top-left corner. Fetched
- * rather than drawn like the two glyphs beside it, because this has to say which
- * of five and they only have to say that something is true. Decorative: the
- * affinity is a sentence in the node's description too.
- */
-/**
- * A god's own symbol. Decorative for the same reason the others are: whatever
- * draws one names the god in text beside it, which it has to — measured, one of
- * the 10 Hades I gods reaching a tab and four of the 14 Hades II ones have no
- * symbol in the shipped set and resolve to the placeholder.
+ * A god's own symbol. Decorative like the others: whatever draws one carries the
+ * god's name in text, which it has to — Hades reaches a tab in both games and
+ * has no symbol in either set.
+ *
+ * `data-set` is which game's file this is rather than which game's page, and the
+ * two differ wherever one set borrows the other's. Framing follows the file:
+ * Hades II ships a glow card whose glyph is under a third of the canvas.
  */
 export function GodArt({
   game,
@@ -99,6 +96,7 @@ export function GodArt({
   return (
     <img
       className={className}
+      data-set={godIconSetFor(game, god)}
       src={src}
       alt=""
       draggable={false}
@@ -107,6 +105,12 @@ export function GodArt({
   );
 }
 
+/**
+ * Which element a Hades II boon counts toward, in its top-left corner. Fetched
+ * rather than drawn like the two glyphs beside it, because this has to say which
+ * of five and they only have to say that something is true. Decorative: the
+ * affinity is a sentence in the node's description too.
+ */
 export function ElementArt({ game, element, className = "node__element" }: ElementArtProps) {
   const url = artUrl(elementIconFor(game, element));
   const [src, setSrc] = useState(url);

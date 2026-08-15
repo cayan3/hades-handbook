@@ -133,7 +133,7 @@ h1,
 .app__head h1 {
   flex: 1;
   margin: 0;
-  font-size: 1.75rem;
+  font-size: 2.6rem;
 }
 
 .app__games {
@@ -171,6 +171,7 @@ h1,
 }
 
 .app__games button,
+.app__goalstoggle,
 .app__finish {
   padding: 0.4rem 0.8rem;
   border: 1px solid rgb(255 255 255 / 25%);
@@ -251,27 +252,26 @@ h1,
 }
 
 /*
- * A square rather than a word in a box: the symbol above the name, both centred,
- * and a fixed width so a long name wraps under its own icon instead of running
- * off the right-hand end of the tab.
+ * The symbol and nothing else. The name was drawn under it for a round and the
+ * tab had to be wide enough for the longest one; icon-only, the square is the
+ * icon plus its padding, and the name lives in the control's accessible name and
+ * its `title` instead.
  */
 .app__godtab {
   display: grid;
-  gap: 0.25rem;
   place-items: center;
-  align-content: center;
-  width: 5rem;
-  min-height: 5rem;
-  padding: 0.4rem 0.25rem;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0.4rem;
   border: 1px solid var(--god);
   border-radius: 0.35rem;
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 1rem;
-  line-height: 1.15;
-  text-align: center;
   cursor: pointer;
+  /* The Hades II symbols are scaled up below and would otherwise paint over
+     their neighbours. */
+  overflow: hidden;
 }
 
 .app__godart {
@@ -340,8 +340,12 @@ h1,
   opacity: 0.7;
 }
 
+/* A hairline under the bar, so the tabs read as chrome over the page rather
+   than as the first row of it. */
 .app__gods {
+  padding-bottom: 0.75rem;
   margin: 0.75rem 0 0;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
 }
 
 /*
@@ -413,15 +417,10 @@ h1,
   cursor: pointer;
 }
 
+/* Shape only; the size and the border come from the rule it shares with the
+   other two controls that act on the whole run. */
 .app__goalstoggle {
-  padding: 0.35rem 0.7rem;
-  border: 1px solid rgb(255 255 255 / 25%);
   border-radius: 0.35rem;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 0.95rem;
-  cursor: pointer;
 }
 
 .rarity__swatch {

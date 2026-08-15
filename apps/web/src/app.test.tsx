@@ -901,11 +901,12 @@ describe("what the boon list shows", () => {
   });
 
   /**
-   * A symbol above the name rather than a word in a box, and three of the Hades
-   * II gods borrow the other game's file — measured, Artemis, Athena and
-   * Dionysus reach a tab here and have no symbol of their own in this set.
+   * The symbol and nothing drawn beside it. Three of the Hades II gods borrow
+   * the other game's file — measured, Artemis, Athena and Dionysus reach a tab
+   * here and have no symbol of their own — and the borrowed ones are already
+   * framed tightly, so the correction is keyed on the set the file came from.
    */
-  it("draws each tab as its god's symbol above the name", async () => {
+  it("draws a tab as its god's symbol, with the name in text a reader gets", async () => {
     await mount();
     showGod("Artemis");
 
@@ -913,12 +914,25 @@ describe("what the boon list shows", () => {
       (button) => button.textContent?.trim() === "Artemis",
     );
     expect(tab).toBeDefined();
-    expect(tab?.querySelector<HTMLImageElement>(".app__godart")?.getAttribute("src")).toBe(
-      "/art/official/hades1/BoonSymbolArtemis.webp",
+    const art = tab?.querySelector<HTMLImageElement>(".app__godart");
+    expect(art?.getAttribute("src")).toBe("/art/official/hades1/BoonSymbolArtemis.webp");
+    expect(art?.dataset["set"]).toBe("hades1");
+
+    // Nothing about which god this is depends on the picture arriving: the name
+    // is the control's accessible name and its tooltip, just not drawn.
+    expect(tab?.querySelector(".visually-hidden")?.textContent).toBe("Artemis");
+    expect(tab?.getAttribute("title")).toBe("Artemis");
+  });
+
+  /** A god this game does draw keeps its own file, and is the one scaled up. */
+  it("keeps a Hades II god on the Hades II set", async () => {
+    await mount();
+    showGod("Hera");
+
+    const tab = [...container.querySelectorAll<HTMLElement>(".app__godtab")].find(
+      (button) => button.textContent?.trim() === "Hera",
     );
-    // The name is still text, so nothing about which god this is depends on the
-    // picture arriving.
-    expect(tab?.querySelector(".app__godname")?.textContent).toBe("Artemis");
+    expect(tab?.querySelector<HTMLImageElement>(".app__godart")?.dataset["set"]).toBe("hades2");
   });
 
   /**

@@ -239,6 +239,30 @@ describe("the node stylesheet", () => {
   });
 
   /**
+   * Hades II ships a god's symbol as a glow card and Hades I ships the glyph:
+   * measured at 200 alpha over the shipped files, the Hades II glyph is 28-31%
+   * of its 509x508 canvas against 68-82% for Hades I's. The correction is keyed
+   * on which set the file came from, never on which game's page it is drawn on
+   * — three Hades II gods borrow Hades I's file and those are already tight.
+   */
+  it("scales up a Hades II god symbol and nothing else", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const scalers = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)]
+      .filter(([, , body]) => /transform:\s*scale\(/.test(body!))
+      .map(([, selector]) => selector!.trim().replace(/\s+/g, " "));
+    expect(scalers).toEqual(['img[data-set="hades2"]']);
+
+    // And the boxes it is drawn in clip it, or a scaled glow paints over the
+    // controls either side.
+    for (const owner of [".godpicker__god"]) {
+      const literal = owner.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      expect(rules.match(new RegExp(`${literal}\\s*\\{([^}]*)\\}`))?.[1]).toMatch(
+        /overflow:\s*hidden/,
+      );
+    }
+  });
+
+  /**
    * An L: the list sits beside the control with its first entry level with it,
    * and the rest drop from there, so the pointer moves right once and then
    * straight down. Capped and scrolling because seventeen rows is taller than a

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   elementIconFor,
   godIconFor,
+  godIconSetFor,
   iconFor,
   keepsakeNameFor,
   nameFor,
@@ -63,6 +64,18 @@ describe("godIconFor", () => {
     for (const god of ["Artemis", "Athena", "Dionysus"]) {
       expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
     }
+  });
+
+  /**
+   * Whatever draws a symbol needs to know which set the file came from, not
+   * which game's page it is on: the two sets frame a symbol differently and the
+   * framing follows the file.
+   */
+  it("says which set a symbol actually came from", () => {
+    expect(godIconSetFor("hades2", "Zeus")).toBe("hades2");
+    expect(godIconSetFor("hades2", "Athena")).toBe("hades1");
+    // Neither draws Hades, so the answer is the game that was asked.
+    expect(godIconSetFor("hades2", "Hades")).toBe("hades2");
   });
 
   it("lands on the shared placeholder for a god neither game draws", () => {
