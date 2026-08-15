@@ -1,20 +1,10 @@
-import {
-  type CSSProperties,
-  type KeyboardEvent,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-} from "react";
+import { type KeyboardEvent, useEffect, useId, useMemo, useRef } from "react";
 import { type BoonActions, BoonActionBar } from "./boon-actions.js";
-import { NodeBox } from "./boon-node.js";
-import { RarityMark } from "./chrome.js";
+import { BoonRow } from "./boon-row.js";
 import { displacementLines, stateSentence } from "./describe.js";
-import { godColour } from "./god-palette.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
-import { useGame, useLadder } from "./presentation.js";
-import { treatmentOf } from "./rarity-palette.js";
+import { useGame } from "./presentation.js";
 
 /**
  * Everything about one boon, on a tap. The disclosure ladder puts an icon and a
@@ -62,11 +52,6 @@ export function ActionSheet({
   const titleId = useId();
   const held = view.state === "Obtained";
   const game = useGame();
-  const ladder = useLadder();
-  // The kind where the boon has one and the rarity otherwise, already settled
-  // between by the view. Common has no colour and still writes its word, so the
-  // tint asks about the colour and the line asks about the word.
-  const treatment = treatmentOf(view);
 
   /**
    * What is left to say about the run once the heading has said whether the
@@ -175,56 +160,22 @@ export function ActionSheet({
           Close
         </button>
 
-        {/*
-         * A row rather than a card, after the games' own Codex: the icon at the
-         * left, the name and what kind of boon it is on one line, the
-         * description under the name, and whatever is indented under that.
-         * Hades I frames its list in one panel and Hades II gives each entry a
-         * slab tinted by rarity, so the tint is a custom property here and the
-         * shape of it is per game in the stylesheet.
-         */}
-        <div
-          className="sheet__row"
-          data-treatment={treatment?.colour == null ? undefined : treatment.word}
-          style={
-            treatment?.colour == null
-              ? undefined
-              : ({ "--rarity": treatment.colour } as CSSProperties)
+        {/* The same row the Loadout's card draws, so the two surfaces that show
+            one boon's text cannot drift apart again. */}
+        <BoonRow
+          view={view}
+          description={detail.description}
+          title={
+            <h2 className="boonrow__title" id={titleId}>
+              {view.name}
+              {/* In a parenthesis after the name — the sheet opens on a held
+                  boon, so that is a confirmation rather than news. */}
+              {held ? <span className="boonrow__held">(held)</span> : null}
+            </h2>
           }
         >
-          <span
-            className="sheet__icon node"
-            data-game={game}
-            data-ladder={ladder}
-            data-state={view.state}
-            style={{ "--god": godColour(view.god) } as CSSProperties}
-          >
-            <NodeBox view={view} pinned={pinned} />
-          </span>
-
-          <div className="sheet__body">
-            <div className="sheet__head">
-              <h2 className="sheet__title" id={titleId}>
-                {view.name}
-                {/* In a parenthesis after the name — the sheet opens on a held
-                    boon, so that is a confirmation rather than news. */}
-                {held ? <span className="sheet__held">(held)</span> : null}
-              </h2>
-              {/* Right-aligned on the name's own line, where the game puts it:
-                  the kind where the boon has one, the rarity otherwise. */}
-              <RarityMark view={view} />
-            </div>
-
-            {detail.description === null ? null : (
-              // The game's own words lead, where "Held." used to. Extracted
-              // text, through the resolver that can withdraw it, as text rather
-              // than markup.
-              <p className="sheet__description">{detail.description}</p>
-            )}
-
-            {status === "" ? null : <p className="sheet__state">{status}</p>}
-          </div>
-        </div>
+          {status === "" ? null : <p className="boonrow__state">{status}</p>}
+        </BoonRow>
 
         {!overridden ? null : (
           <p className="sheet__overridden">

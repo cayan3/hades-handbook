@@ -145,7 +145,7 @@ describe("ActionSheet", () => {
     const onClose = vi.fn();
     render(<ActionSheet view={view()} detail={detail()} onClose={onClose} />);
 
-    act(() => container.querySelector<HTMLElement>(".sheet__title")!.click());
+    act(() => container.querySelector<HTMLElement>(".boonrow__title")!.click());
     expect(onClose).not.toHaveBeenCalled();
 
     act(() => container.querySelector<HTMLElement>(".sheet-scrim")!.click());
@@ -217,7 +217,7 @@ describe("ActionSheet", () => {
   it("renders description text and a player's own words as text", () => {
     const hostile = '<b onmouseover="alert(1)">note</b>';
     render(<ActionSheet view={view()} detail={detail({ description: hostile })} onClose={noop} />);
-    const description = container.querySelector(".sheet__description")!;
+    const description = container.querySelector(".boonrow__desc")!;
     expect(description.textContent).toBe(hostile);
     expect(description.children).toHaveLength(0);
   });
@@ -232,7 +232,7 @@ describe("ActionSheet", () => {
     // there, which is where the Codex draws it.
     render(<ActionSheet view={view({ rarity: "Epic" })} detail={detail()} onClose={noop} />);
     expect(container.querySelector(".rarity")?.textContent).toBe("Epic");
-    expect(container.querySelector(".sheet__head .rarity")).not.toBeNull();
+    expect(container.querySelector(".boonrow__head .rarity")).not.toBeNull();
   });
 
   it("leads with the boon's own text, and says held beside the rarity", () => {
@@ -249,13 +249,13 @@ describe("ActionSheet", () => {
 
     // Directly under the name, which is where the row puts it: the head, then
     // the game's own words, then whatever is left to say about the run.
-    const first = container.querySelector(".sheet__body")?.children[1];
-    expect(first?.className).toBe("sheet__description");
+    const first = container.querySelector(".boonrow__body")?.children[1];
+    expect(first?.className).toBe("boonrow__desc");
     expect(first?.textContent).toBe("Your Special is stronger.");
 
-    const head = container.querySelector(".sheet__head");
+    const head = container.querySelector(".boonrow__head");
     expect(head?.textContent).toContain("Epic");
-    expect(head?.querySelector(".sheet__held")?.textContent).toBe("(held)");
+    expect(head?.querySelector(".boonrow__held")?.textContent).toBe("(held)");
     expect(container.textContent).not.toContain("Held.");
   });
 
@@ -274,13 +274,13 @@ describe("ActionSheet", () => {
       />,
     );
 
-    const row = container.querySelector(".sheet__row");
+    const row = container.querySelector(".boonrow");
     expect(row).not.toBeNull();
-    expect(row?.querySelector(".sheet__icon .node__art")).not.toBeNull();
+    expect(row?.querySelector(".boonrow__icon .node__art")).not.toBeNull();
     // No second control: the icon is a drawing here, and a button around it
     // would take the focus the close control is meant to get.
     expect(row?.querySelectorAll("button")).toHaveLength(0);
-    expect(row?.querySelector(".sheet__body .sheet__description")?.textContent).toBe(
+    expect(row?.querySelector(".boonrow__body .boonrow__desc")?.textContent).toBe(
       "Your Special is stronger.",
     );
   });
@@ -293,12 +293,12 @@ describe("ActionSheet", () => {
    */
   it("carries the treatment's colour on the row, and nothing for Common", () => {
     render(<ActionSheet view={view({ rarity: "Epic" })} detail={detail()} onClose={noop} />);
-    const epic = container.querySelector<HTMLElement>(".sheet__row");
+    const epic = container.querySelector<HTMLElement>(".boonrow");
     expect(epic?.dataset["treatment"]).toBe("Epic");
     expect(epic?.style.getPropertyValue("--rarity")).toBe("#9D12FF");
 
     render(<ActionSheet view={view({ rarity: "Common" })} detail={detail()} onClose={noop} />);
-    const common = container.querySelector<HTMLElement>(".sheet__row");
+    const common = container.querySelector<HTMLElement>(".boonrow");
     expect(common?.dataset["treatment"]).toBeUndefined();
     // The word still renders. Only the paint is absent.
     expect(container.querySelector(".rarity")?.textContent).toBe("Common");
@@ -308,17 +308,17 @@ describe("ActionSheet", () => {
   it("tints by the kind where the boon has one", () => {
     render(<ActionSheet view={view({ kind: "duo" })} detail={detail()} onClose={noop} />);
 
-    const row = container.querySelector<HTMLElement>(".sheet__row");
+    const row = container.querySelector<HTMLElement>(".boonrow");
     expect(row?.dataset["treatment"]).toBe("Duo");
-    expect(container.querySelector(".sheet__head .rarity")?.textContent).toBe("Duo");
+    expect(container.querySelector(".boonrow__head .rarity")?.textContent).toBe("Duo");
   });
 
   it("still says the state where the boon is not held", () => {
     // Nothing opens a sheet on one today, and a surface that stopped saying it
     // would be relying on that staying true.
     render(<ActionSheet view={view({ state: "Pending" })} detail={detail()} onClose={noop} />);
-    expect(container.querySelector(".sheet__state")?.textContent).toBe("On the way.");
-    expect(container.querySelector(".sheet__title")?.textContent).toBe("Storm Lightning");
+    expect(container.querySelector(".boonrow__state")?.textContent).toBe("On the way.");
+    expect(container.querySelector(".boonrow__title")?.textContent).toBe("Storm Lightning");
   });
 
   it("names the boon's kind in place of a rarity", () => {

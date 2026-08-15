@@ -677,11 +677,12 @@
   }
 }
 
-/* One boon as the Codex draws it: icon left, name and kind on one line, the
-   description under the name. The frame is per game below — Hades I runs its
-   list inside one panel and Hades II slabs each entry — and the tint is a custom
-   property, so Common sets nothing and a new rarity needs no rule. */
-.sheet__row {
+/* One boon as the Codex draws it, on both surfaces that show one: icon left,
+   name and kind on one line, description under the name. The frame is per game
+   below — Hades I runs its list inside one panel and Hades II slabs each entry —
+   and the tint is a custom property, so Common sets nothing and a new rarity
+   needs no rule. */
+.boonrow {
   display: flex;
   gap: 0.9rem;
   align-items: flex-start;
@@ -693,7 +694,7 @@
 
 /* Hades II's slab, and the tint runs left to right the way the game's does:
    the icon end stays dark so the artwork keeps its own ground. */
-.sheet[data-game="hades2"] .sheet__row[data-treatment] {
+.boonrow[data-game="hades2"][data-treatment] {
   border-color: color-mix(in srgb, var(--rarity) 55%, transparent);
   background: linear-gradient(
     90deg,
@@ -704,17 +705,17 @@
 
 /* Hades I frames the whole list rather than each entry, so its rarity shows on
    one edge instead of over the row — the same edge the Loadout's wedge takes. */
-.sheet[data-game="hades1"] .sheet__row[data-treatment] {
-  border-right: 4px solid var(--rarity);
+.boonrow[data-game="hades1"][data-treatment] {
+  border-right: 6px solid var(--rarity);
 }
 
 /* Its own box, so the row's flex does not stretch the node to the height of
    whatever text is beside it. */
-.sheet__icon {
+.boonrow__icon {
   flex: none;
 }
 
-.sheet__body {
+.boonrow__body {
   flex: 1;
   min-width: 0;
 }
@@ -730,13 +731,13 @@
 
 /* Beside the rarity, and quieter than it: the sheet opens on a held boon, so
    this is a confirmation rather than news. */
-.sheet__held {
+.boonrow__held {
   margin-left: 0.4rem;
   font-size: 0.85rem;
   opacity: 0.65;
 }
 
-.sheet__head {
+.boonrow__head {
   display: flex;
   gap: 1rem;
   align-items: baseline;
@@ -746,20 +747,40 @@
 /* Caps, as the Codex writes it. The display face is effectively all-caps
    already, so this only reaches the fallback and the name stays one shape
    whichever face loaded. */
-.sheet__title {
+.boonrow__title {
   margin: 0;
   font-size: 1.3rem;
   text-transform: uppercase;
 }
 
-.sheet__description {
+.boonrow__desc {
   margin: 0.35rem 0 0;
   line-height: 1.4;
 }
 
-.sheet__state {
+.boonrow__state {
   margin: 0.35rem 0 0;
   opacity: 0.75;
+}
+
+/* The Codex indents a boon's numbers under its description; what is indented
+   there here is what the surface already had to say. */
+.boonrow__lines {
+  padding-left: 1.1rem;
+  margin: 0.4rem 0 0;
+  list-style: none;
+  opacity: 0.85;
+}
+
+.boonrow__lines li {
+  position: relative;
+}
+
+.boonrow__lines li::before {
+  position: absolute;
+  left: -0.9rem;
+  content: "›";
+  opacity: 0.55;
 }
 
 /* Above the row and out of its way, rather than floated beside it: the row is a
@@ -1035,9 +1056,14 @@
   margin: 0 0 0.3rem;
 }
 
+/* The goal control lines up with the buttons in the fieldsets beside it rather
+   than with their legends. A fieldset's last baseline is its row of buttons,
+   which beats matching the legend's height by hand; the `flex-start` under it is
+   what a browser without last-baseline keeps. */
 .sheet__actions {
   flex-wrap: wrap;
   align-items: flex-start;
+  align-items: last baseline;
 }
 
 .sheet__rarities,
@@ -1427,39 +1453,18 @@
   background: rgb(255 255 255 / 4%);
 }
 
-.loadout__cardhead {
-  display: flex;
-  gap: 0.5rem;
-  align-items: baseline;
-}
-
-.loadout__cardname {
-  flex: 1;
-  margin: 0;
-  font-size: 1.1rem;
-}
-
+/* In the corner and out of the row's way, which is where the sheet puts its
+   own. First in the document either way, so tab starts there. */
 .loadout__cardclose {
+  display: block;
   padding: 0 0.25rem;
+  margin: 0 0 0.3rem auto;
   border: 0;
   background: transparent;
   color: inherit;
   font: inherit;
   line-height: 1;
   cursor: pointer;
-}
-
-.loadout__carddesc {
-  margin: 0.5rem 0 0;
-  font-size: 0.92rem;
-  line-height: 1.4;
-}
-
-.loadout__cardlines {
-  margin: 0.5rem 0 0;
-  padding-left: 1rem;
-  font-size: 0.88rem;
-  opacity: 0.85;
 }
 
 .loadout__overridden {

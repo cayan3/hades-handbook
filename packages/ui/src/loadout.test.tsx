@@ -89,7 +89,7 @@ const tile = (trait: TraitId) =>
   tiles().find((el) => el.querySelector("button")?.getAttribute("aria-label")?.startsWith(trait))!;
 const cards = () =>
   [...container.querySelectorAll(".loadout__card")].map(
-    (el) => el.querySelector(".loadout__cardname")?.textContent,
+    (el) => el.querySelector(".loadout__card .boonrow__title")?.textContent,
   );
 const lit = () => tiles().filter((el) => el.dataset["lit"] === "true").length;
 
@@ -317,5 +317,23 @@ describe("the panel itself", () => {
 
     expect(control().getAttribute("aria-expanded")).toBe("false");
     expect(control().textContent).toBe("Show all boons");
+  });
+
+  /**
+   * The card and the Action Sheet are one component now. They say the same
+   * things about one boon and were drawn twice, so restyling the sheet left the
+   * card behind — which is what was reported.
+   */
+  it("draws its card as the same row the sheet does", () => {
+    render(panel());
+    hover("c");
+
+    const row = container.querySelector(".loadout__card .boonrow");
+    expect(row).not.toBeNull();
+    expect(row?.querySelector(".boonrow__icon .node__art")).not.toBeNull();
+    expect(row?.querySelector(".boonrow__title")?.textContent).toBe("c");
+    expect(row?.querySelector(".boonrow__desc")?.textContent).toBe("about c");
+    // No control inside the row: the card is already about this boon.
+    expect(row?.querySelectorAll("button")).toHaveLength(0);
   });
 });

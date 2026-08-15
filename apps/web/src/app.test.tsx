@@ -516,7 +516,7 @@ describe("the Loadout", () => {
     tap(APHRODITE_MELEE);
 
     const card = container.querySelector(".loadout__card");
-    expect(card?.querySelector(".loadout__cardname")?.textContent).toBe(
+    expect(card?.querySelector(".loadout__card .boonrow__title")?.textContent).toBe(
       H2[APHRODITE_MELEE]?.name,
     );
     // Beside, not over: the grid it was picked from is still on the page.

@@ -222,16 +222,16 @@ describe("the node stylesheet", () => {
    * Loadout's wedge is: the rule that breaks it is one line in the base
    * forgetting there are two games.
    */
-  it("slabs a Hades II sheet row and edges a Hades I one", () => {
+  it("slabs a Hades II boon row and edges a Hades I one", () => {
     const rule = (selector: string) => {
       const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       return CSS.match(new RegExp(`${literal}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
     };
 
-    const hades2 = rule('.sheet[data-game="hades2"] .sheet__row[data-treatment]');
+    const hades2 = rule('.boonrow[data-game="hades2"][data-treatment]');
     expect(hades2, "Hades II's row is not tinted").toMatch(/background:\s*linear-gradient/);
 
-    const hades1 = rule('.sheet[data-game="hades1"] .sheet__row[data-treatment]');
+    const hades1 = rule('.boonrow[data-game="hades1"][data-treatment]');
     expect(hades1, "Hades I's row does not take an edge").toMatch(
       /border-right:\s*[\d.]+px solid var\(--rarity\)/,
     );

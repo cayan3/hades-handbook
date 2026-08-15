@@ -3,7 +3,8 @@ import { type CSSProperties, useState } from "react";
 import { type BoonActions, BoonActionBar } from "./boon-actions.js";
 import { ElementArt } from "./boon-art.js";
 import { BoonNode } from "./boon-node.js";
-import { OverrideMarker, RarityMark } from "./chrome.js";
+import { BoonRow } from "./boon-row.js";
+import { OverrideMarker } from "./chrome.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 import { useGame } from "./presentation.js";
@@ -392,13 +393,27 @@ function BoonCard({
 
   return (
     <article className="loadout__card" data-state={view.state} data-front={front ? "true" : undefined}>
-      <div className="loadout__cardhead">
-        <h3 className="loadout__cardname">{view.name}</h3>
-        <RarityMark view={view} />
-        <button type="button" className="loadout__cardclose" aria-label="Close" onClick={onClose}>
-          ×
-        </button>
-      </div>
+      {/* First in the document, and drawn in the corner, which is where the
+          Action Sheet puts its own way out. */}
+      <button type="button" className="loadout__cardclose" aria-label="Close" onClick={onClose}>
+        ×
+      </button>
+
+      {/* The same row the Action Sheet draws. The two say the same things about
+          one boon and were drawn twice, so restyling one left the other behind. */}
+      <BoonRow
+        view={view}
+        description={detail.description}
+        title={<h3 className="boonrow__title">{view.name}</h3>}
+      >
+        {detail.activation.length === 0 ? null : (
+          <ul className="boonrow__lines">
+            {detail.activation.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+        )}
+      </BoonRow>
 
       {!overridden ? null : (
         <p className="loadout__overridden">
@@ -416,20 +431,6 @@ function BoonCard({
             </button>
           )}
         </p>
-      )}
-
-      {detail.description === null ? null : (
-        // Extracted game text, through the resolver that can withdraw it, as
-        // text rather than markup.
-        <p className="loadout__carddesc">{detail.description}</p>
-      )}
-
-      {detail.activation.length === 0 ? null : (
-        <ul className="loadout__cardlines">
-          {detail.activation.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
       )}
 
       <BoonActionBar view={view} held actions={actions} pinned={false} />
