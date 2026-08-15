@@ -1,9 +1,10 @@
 import type { Element, SlotId, TraitId } from "@repo/core";
 import { type CSSProperties, useState } from "react";
-import { type BoonActions, BoonActionBar } from "./boon-actions.js";
+import type { BoonActions } from "./boon-actions.js";
 import { ElementArt } from "./boon-art.js";
 import { BoonNode } from "./boon-node.js";
 import { BoonRow } from "./boon-row.js";
+import { HoverMenu } from "./hover-menu.js";
 import { OverrideMarker } from "./chrome.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
@@ -236,6 +237,12 @@ export function Loadout({
                       key={trait}
                       entry={entry}
                       detail={detailOf(trait)}
+                      // Whether the two removals differ for this boon: they only
+                      // do when it is the last one the run holds from its god.
+                      alone={
+                        entry.view.god !== null &&
+                        entries.filter((other) => other.view.god === entry.view.god).length === 1
+                      }
                       // Hovering a held-open tile brings its card forward and
                       // leaves it where it is in the stack, so a glance at one
                       // card does not rearrange the others.
@@ -369,6 +376,66 @@ function Tile({
 }
 
 /**
+ * Less than the **Action Sheet** offers, on purpose. No goal control, a boon
+ * here being one the run holds. One removal rather than two: they differ only in
+ * whether the god leaves the pool, which only differs on the last boon a god has
+ * left, so the pool question appears exactly where it is a question. And the
+ * rarity is behind a word, four of them beside a Remove reading as four removals.
+ */
+function CardActions({
+  view,
+  alone,
+  actions,
+}: {
+  readonly view: NodeView;
+  readonly alone: boolean;
+  readonly actions: BoonActions;
+}) {
+  const { mark, remove, purge } = actions;
+  const rarities = mark === undefined ? [] : view.rarities;
+  if (rarities.length === 0 && remove === undefined && purge === undefined) return null;
+
+  return (
+    <div className="loadout__cardactions">
+      {rarities.length === 0 ? null : (
+        <HoverMenu label="Edit rarity" className="cardmenu">
+          {(close) =>
+            rarities.map((rarity) => (
+              <button
+                key={rarity}
+                type="button"
+                aria-pressed={view.rarity === rarity}
+                onClick={() => {
+                  mark?.(view.trait, rarity);
+                  close();
+                }}
+              >
+                {rarity}
+              </button>
+            ))
+          }
+        </HoverMenu>
+      )}
+
+      {purge === undefined ? null : (
+        <button type="button" className="loadout__cardremove" onClick={() => purge(view.trait)}>
+          Remove
+        </button>
+      )}
+
+      {/* Only where it changes anything. With another of this god's boons held
+          the two removals agree, and offering a choice that makes no difference
+          is a choice to get wrong. */}
+      {!alone || remove === undefined ? null : (
+        <button type="button" className="loadout__cardremove" onClick={() => remove(view.trait)}>
+          Remove boon and god from pool
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
  * One held boon's card, beside the grid rather than over it.
  *
  * The game's own boon menu reads this way — icons on the left, the text of
@@ -380,12 +447,15 @@ function BoonCard({
   entry,
   detail,
   front,
+  alone,
   onClose,
   actions = {},
 }: {
   readonly entry: LoadoutEntry;
   readonly detail: NodeDetail;
   readonly front: boolean;
+  /** The last boon the run holds from this god, which is when the two removals differ. */
+  readonly alone: boolean;
   readonly onClose: () => void;
   readonly actions?: BoonActions | undefined;
 }) {
@@ -404,6 +474,9 @@ function BoonCard({
       <BoonRow
         view={view}
         description={detail.description}
+        // The panel counts each element once over the whole run, so a card
+        // inside it does not mark one; and a Goal never touches this panel.
+        showElement={false}
         title={<h3 className="boonrow__title">{view.name}</h3>}
       >
         {detail.activation.length === 0 ? null : (
@@ -433,7 +506,7 @@ function BoonCard({
         </p>
       )}
 
-      <BoonActionBar view={view} held actions={actions} pinned={false} />
+      <CardActions view={view} alone={alone} actions={actions} />
     </article>
   );
 }

@@ -101,6 +101,15 @@ function click(label: string): void {
 }
 
 /**
+ * The Loadout card keeps its rarities behind a word: correcting one is rarer
+ * than reading the card, and four rarities beside a Remove read as four removals.
+ */
+function editRarity(rarity: string): void {
+  click("Edit rarity");
+  click(rarity);
+}
+
+/**
  * Selects a god's tab, adding it through the picker if the run has not met them.
  *
  * The bar carries the gods this run met plus whatever the player added, because
@@ -176,6 +185,30 @@ function tap(trait: string): void {
 }
 
 /**
+ * The same gesture on the god page's own node rather than on whichever control
+ * matches first. It matters for a held boon: the Loadout's tile comes first in
+ * the document under the same accessible name, so `tap` finds the tile and opens
+ * a card. The sheet is reachable only through the page.
+ */
+function tapOnPage(trait: string): void {
+  const record = H2[trait];
+  const god = record?.god ?? record?.duoGods?.[0];
+  if (god === undefined) throw new Error(`${trait} belongs to no god and has no tab`);
+  showGod(god);
+  showRim();
+
+  const name = record?.name ?? trait;
+  const found = [...container.querySelectorAll<HTMLElement>(".godpage button")].find((button) =>
+    button.getAttribute("aria-label")?.startsWith(`${name} —`),
+  );
+  if (found === undefined) throw new Error(`no node for ${trait} on the page`);
+  act(() => {
+    found.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    found.click();
+  });
+}
+
+/**
  * Sets or clears a goal. A right-click on a pointer and a long press on a touch
  * screen both raise `contextmenu`, which is why it is one handler rather than a
  * double-tap that would have to delay the mark to recognise itself.
@@ -200,7 +233,7 @@ describe("marking a boon", () => {
     // had to guess gets corrected. Rarity is a colour behind the tile, with the
     // name still in the tile's description rather than in a column of text.
     tap(APHRODITE_MELEE);
-    click("Rare");
+    editRarity("Rare");
     expect(container.querySelector('.loadout__tile[data-treatment="Rare"]')).not.toBeNull();
   });
 
@@ -213,7 +246,7 @@ describe("marking a boon", () => {
     await mount();
     tap(APHRODITE_MELEE);
     tap(APHRODITE_MELEE);
-    click("Heroic");
+    editRarity("Heroic");
 
     expect(container.querySelector('.loadout__tile[data-treatment="Heroic"]')).not.toBeNull();
     expect(H2[APHRODITE_MELEE]?.rarity[0]).not.toBe("Heroic");
@@ -239,17 +272,24 @@ describe("marking opens nothing", () => {
 describe("the three ways a boon leaves a run", () => {
   /**
    * The distinction is load-bearing in the run and invisible in a mock: a
-   * mis-tap never happened, so the god goes back out of the pool; a boon lost
-   * in game was really taken, so the god stays. One "remove" control would pick
-   * one silently and under-report the pool for the rest of the run.
+   * mis-tap never happened, so the god goes back out of the pool; a boon lost in
+   * game was really taken, so the god stays. The Loadout's card asks it only
+   * where it changes anything — the last boon a god has left — and the sheet
+   * keeps both, being about one boon rather than about a run.
    */
-  it("offers the mis-tap and the loss as separate controls", async () => {
+  it("offers the pool half of a removal exactly where it changes anything", async () => {
     await mount();
     tap(APHRODITE_MELEE);
     tap(APHRODITE_MELEE);
 
-    expect(control("I mis-tapped")).toBeDefined();
-    expect(control("I lost it in game")).toBeDefined();
+    expect(control("Remove")).toBeDefined();
+    expect(control("Remove boon and god from pool")).toBeDefined();
+
+    // A second boon from the same god, and the choice stops being one.
+    tap("AphroditeSpecialBoon");
+    tap("AphroditeSpecialBoon");
+    expect(control("Remove")).toBeDefined();
+    expect(() => control("Remove boon and god from pool")).toThrow();
   });
 
   /**
@@ -468,7 +508,7 @@ describe("the Loadout", () => {
     expect(container.querySelector(".loadout__tile[data-treatment]")).toBeNull();
 
     tap(APHRODITE_MELEE);
-    click("Epic");
+    editRarity("Epic");
     expect(container.querySelector('.loadout__tile[data-treatment="Epic"]')).not.toBeNull();
   });
 
@@ -523,7 +563,10 @@ describe("the Loadout", () => {
     expect(container.querySelectorAll(".loadout__tile")).not.toHaveLength(0);
     expect(container.querySelector(".sheet-scrim")).toBeNull();
 
-    click("×");
+    // By class rather than by its glyph: a God Tab's remove control is an × too,
+    // and it comes first in the document. Their accessible names differ, which
+    // is the half that matters to a reader.
+    act(() => container.querySelector<HTMLElement>(".loadout__cardclose")?.click());
     expect(container.querySelector(".loadout__card")).toBeNull();
   });
 
@@ -534,7 +577,7 @@ describe("the Loadout", () => {
     tap(APHRODITE_MELEE);
     expect(container.querySelector(".loadout__card")).not.toBeNull();
 
-    click("I mis-tapped");
+    click("Remove boon and god from pool");
     expect(container.querySelector(".loadout__card")).toBeNull();
   });
 
@@ -895,7 +938,7 @@ describe("what the boon list shows", () => {
     // Correcting the mis-tap takes Aphrodite back out of the pool; the tab
     // stays, because it is the player's and not the pool's.
     tap(APHRODITE_MELEE);
-    click("I mis-tapped");
+    click("Remove boon and god from pool");
     expect(shown()).toContain("Aphrodite");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
   });
@@ -971,11 +1014,14 @@ describe("what the boon list shows", () => {
     tap(APHRODITE_MELEE);
     tap("AphroditeSpecialBoon");
 
-    tap(APHRODITE_MELEE);
+    // Through the sheet rather than the card: this is about the two removals
+    // being one gesture repeated, and the card offers the pool half only on the
+    // last boon a god has left.
+    tapOnPage(APHRODITE_MELEE);
     click("I mis-tapped");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).not.toBeNull();
 
-    tap("AphroditeSpecialBoon");
+    tapOnPage("AphroditeSpecialBoon");
     click("I mis-tapped");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
   });

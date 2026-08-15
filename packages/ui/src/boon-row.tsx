@@ -31,11 +31,24 @@ export interface BoonRowProps {
    * corner. Off in the Loadout, where a Goal never appears at all.
    */
   readonly pinned?: boolean;
+  /**
+   * Draws the element symbol on the icon's corner. Off in the **Loadout**,
+   * whose panel answers the element question once over the whole run rather
+   * than per boon — the card is part of that panel.
+   */
+  readonly showElement?: boolean;
   /** Anything else belonging inside the row, under the description. */
   readonly children?: ReactNode;
 }
 
-export function BoonRow({ view, description, title, pinned = false, children }: BoonRowProps) {
+export function BoonRow({
+  view,
+  description,
+  title,
+  pinned = false,
+  showElement = true,
+  children,
+}: BoonRowProps) {
   const game = useGame();
   const ladder = useLadder();
   // The kind where the boon has one and the rarity otherwise, already settled
@@ -62,7 +75,7 @@ export function BoonRow({ view, description, title, pinned = false, children }: 
         data-state={view.state}
         style={{ "--god": godColour(view.god) } as CSSProperties}
       >
-        <NodeBox view={view} pinned={pinned} />
+        <NodeBox view={view} pinned={pinned} showElement={showElement} />
       </span>
 
       <div className="boonrow__body">

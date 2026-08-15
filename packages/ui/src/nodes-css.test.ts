@@ -135,13 +135,34 @@ describe("the node stylesheet", () => {
    * A Hades II node is smaller because a rounded square shows 87.9% of its box
    * where a diamond shows 49.7% — 1.77x the ink, measured over the 241 and 166
    * shipped icons. Scoped to the god page, since an unscoped rule would resize
-   * the Loadout too, and that is what these two guard.
+   * the Loadout too. The Loadout then declares its own size twice: on the tile,
+   * which the ring's radius comes off, and on the node inside it, a property set
+   * on `.node` beating one inherited from the tile.
    */
   it("sizes a Hades II node down, and only where the report was", () => {
     const sizers = [...CSS.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^}]*)\}/g)]
       .filter(([, , body]) => /--node-size\s*:/.test(body!))
       .map(([, selector]) => selector!.trim().replace(/\s+/g, " "));
-    expect(sizers).toEqual([".node", '.godpage .node[data-game="hades2"]', ".loadout__tile"]);
+    expect(sizers).toEqual([
+      ".node",
+      '.godpage .node[data-game="hades2"]',
+      ".loadout__tile",
+      ".loadout__tile .node, .loadout__card .boonrow__icon",
+    ]);
+  });
+
+  /**
+   * The tile and the icon inside it have to compute their corner from the same
+   * number or the ring pinches. They did not: the icon drew at 4.5rem and the
+   * ring's radius came off 3.25rem, 1.04px tighter than what it rings.
+   */
+  it("computes the tile's ring and its icon from one size", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const tile = rules.match(/\.loadout__tile\s*\{([^}]*)\}/)?.[1] ?? "";
+    const inside = rules.match(/\.loadout__tile \.node,[^{]*\{([^}]*)\}/)?.[1] ?? "";
+    const sizeOf = (body: string) => /--node-size:\s*([\d.]+rem)/.exec(body)?.[1];
+    expect(sizeOf(tile)).toBeDefined();
+    expect(sizeOf(inside)).toBe(sizeOf(tile));
   });
 
   it("scales every corner mark with the node rather than pinning it", () => {

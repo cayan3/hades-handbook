@@ -716,9 +716,27 @@
   flex: none;
 }
 
+/* `min-width: 0` is what stops the description running off the right-hand edge:
+   a flex item's default minimum is its content, so a long word held the body
+   wider than the card and the text simply left. */
 .boonrow__body {
   flex: 1;
   min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Inside a card the row is not a framed entry, because the card is the frame —
+   the Codex's Hades I panel holds framed rows and this holds exactly one. What
+   the rarity tint does survives; the box around it does not. */
+.loadout__card .boonrow {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
+.loadout__card .boonrow[data-treatment] {
+  border: 0;
 }
 
 /* The word carries the meaning and the colour decorates it, which is what makes
@@ -1363,6 +1381,17 @@ img[data-set="hades2"] {
   --tile-pad: 0.15rem;
 }
 
+/* Declared on the node as well as on the tile, because a property set on `.node`
+   itself beats one inherited from the tile — so the tile's own declaration had
+   never reached the icon. Measured: the icon drew at 4.5rem while the rarity
+   ring's radius was computed from 3.25rem, leaving the outer box a 1.04px
+   tighter corner than the icon it rings. The card beside the grid takes the same
+   size, being the same panel. */
+.loadout__tile .node,
+.loadout__card .boonrow__icon {
+  --node-size: 3.25rem;
+}
+
 /*
  * The rarity, in the place the game puts it — not the same place in the two
  * games, because the icons are not the same shape. Hades I gets a wedge along
@@ -1513,6 +1542,73 @@ img[data-set="hades2"] {
   border: 1px solid rgb(255 255 255 / 18%);
   border-radius: 0.35rem;
   background: rgb(255 255 255 / 4%);
+}
+
+/*
+ * Smaller than the sheet's bar and shorter: no goal control, one removal, and
+ * the rarity behind a word. A row of four rarities beside a Remove reads as four
+ * removals.
+ */
+.loadout__cardactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: 0.6rem;
+}
+
+.loadout__cardremove,
+.cardmenu__open {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.3rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* The same L the god picker opens: beside the control with the first choice
+   level with it, and flush, since a margin is a gap the pointer crosses on its
+   way in. */
+.cardmenu {
+  position: relative;
+  display: inline-block;
+}
+
+.cardmenu__list {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: max-content;
+  padding: 0.3rem;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.35rem;
+  background: var(--surface, #1b1815);
+  box-shadow: 0 0.4rem 1rem rgb(0 0 0 / 45%);
+}
+
+.cardmenu__list button {
+  padding: 0.2rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.cardmenu__list button:hover,
+.cardmenu__list button:focus-visible,
+.cardmenu__list button[aria-pressed="true"] {
+  border-color: rgb(255 255 255 / 35%);
 }
 
 /* In the corner and out of the row's way, which is where the sheet puts its
