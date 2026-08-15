@@ -641,6 +641,42 @@ describe("ending a run", () => {
   });
 });
 
+describe("throwing a run away", () => {
+  /**
+   * The control beside End run, and the difference is that this one files
+   * nothing. The run it clears is in no record afterwards and the undo offer
+   * goes with it, which is why the first click only arms it.
+   */
+  it("asks once, then starts a fresh run and files nothing", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    tap(APHRODITE_MELEE);
+
+    click("Clear run");
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+
+    await act(async () => {
+      control("Throw it away?").click();
+    });
+
+    expect(container.querySelector(".loadout__empty")).not.toBeNull();
+    expect(await store.load("hades2", "last")).toBeNull();
+  });
+
+  it("disarms when the pointer leaves it", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+
+    click("Clear run");
+    act(() => {
+      control("Throw it away?").dispatchEvent(new MouseEvent("mouseout", { bubbles: true }));
+    });
+
+    expect(control("Clear run")).toBeDefined();
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+  });
+});
+
 describe("a write that throws", () => {
   /**
    * Ending a run is the one edit that throws where a tap can reach it: it is

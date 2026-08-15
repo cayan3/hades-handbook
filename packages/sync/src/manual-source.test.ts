@@ -839,6 +839,85 @@ describe("persistence", () => {
   });
 });
 
+describe("throwing a run away", () => {
+  /**
+   * The other run boundary, and the difference is the whole of it: an abandoned
+   * run is filed nowhere, so the run a player actually finished is still the one
+   * waiting for them.
+   */
+  it("starts a fresh run and leaves the previous one where it was", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.finishRun();
+    source.mark("HeraSpecial");
+
+    await source.clearRun();
+
+    expect(source.getFacts().held.size).toBe(0);
+    expect((await store.load("hades2", "last"))?.facts.held).toHaveLength(1);
+    expect((await store.load("hades2", "active"))?.facts.held).toHaveLength(0);
+  });
+
+  /**
+   * There is no record to take the boon back out of, so an undo offer here
+   * would restore one edit of a run that exists nowhere. The same argument
+   * `finishRun` makes, with less left over.
+   */
+  it("takes the undo offer with it", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    expect(source.lastEdit).not.toBeNull();
+
+    await source.clearRun();
+
+    expect(source.lastEdit).toBeNull();
+  });
+
+  it("tells both sides the fresh run is empty", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.pin("HeraAttack");
+    const facts: number[] = [];
+    const intent: number[] = [];
+    source.subscribe((next) => facts.push(next.held.size));
+    source.subscribeIntent((next) => intent.push(next.pins.size));
+
+    await source.clearRun();
+
+    expect(facts).toEqual([0]);
+    expect(intent).toEqual([0]);
+  });
+
+  /**
+   * The run is intact after a refused write, which is the same bargain
+   * `finishRun` strikes — except that here a retry is the only way forward,
+   * there being no half-written pair to converge.
+   */
+  it("keeps the run when the fresh record cannot be written", async () => {
+    const inner = createMemoryStore();
+    let refuse = false;
+    const store: RunStore = {
+      load: inner.load.bind(inner),
+      clear: inner.clear.bind(inner),
+      save: (game, target, run) =>
+        refuse ? Promise.reject(new Error("quota exceeded")) : inner.save(game, target, run),
+    };
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.flush();
+
+    refuse = true;
+    await expect(source.clearRun()).rejects.toThrow(/quota/);
+    expect(source.getFacts().held.has("HeraAttack")).toBe(true);
+    expect(source.storageError?.message).toMatch(/quota/);
+
+    refuse = false;
+    await source.clearRun();
+    expect(source.getFacts().held.size).toBe(0);
+  });
+});
+
 describe("a store that fails a write", () => {
   /**
    * A write can fail for reasons that pass — a quota prompt, a private window,

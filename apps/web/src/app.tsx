@@ -155,6 +155,12 @@ function Run({
    */
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [loadoutOpen, setLoadoutOpen] = useState(false);
+  /**
+   * Whether the clear control has been asked once. Clearing files the run
+   * nowhere and takes the undo offer with it, so it is the one gesture here
+   * that cannot be taken back — and it sits next to the one that can.
+   */
+  const [armed, setArmed] = useState(false);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -321,6 +327,30 @@ function Run({
             }}
           >
             End run
+          </button>
+          {/* Beside End run and not the same control: this one files nothing,
+              so the run it throws away is in no record afterwards. The undo
+              offer goes with it, which is why it asks first. */}
+          <button
+            type="button"
+            className="app__clear"
+            data-armed={armed ? "true" : undefined}
+            onClick={() => {
+              if (!armed) {
+                setArmed(true);
+                return;
+              }
+              setArmed(false);
+              void session.clearRun().catch((cause: unknown) => {
+                setFault(cause instanceof Error ? cause : new Error(String(cause)));
+              });
+            }}
+            // A control armed and then walked away from is disarmed, or the
+            // next visit to the header starts one click from an empty run.
+            onMouseLeave={() => setArmed(false)}
+            onBlur={() => setArmed(false)}
+          >
+            {armed ? "Throw it away?" : "Clear run"}
           </button>
         </header>
 

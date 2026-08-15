@@ -152,7 +152,8 @@ h1,
 
 .app__games button,
 .app__gods button,
-.app__finish {
+.app__finish,
+.app__clear {
   padding: 0.35rem 0.7rem;
   border: 1px solid rgb(255 255 255 / 25%);
   border-radius: 0.35rem;
@@ -161,6 +162,14 @@ h1,
   font: inherit;
   font-size: 0.95rem;
   cursor: pointer;
+}
+
+/* Quiet until it has been asked once, then loud: this is the one control on the
+   page whose edit no undo reaches, and the second click is the whole of the
+   protection. */
+.app__clear[data-armed] {
+  border-color: #ff6b5c;
+  color: #ff6b5c;
 }
 
 /*

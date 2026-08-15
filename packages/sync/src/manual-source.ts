@@ -257,6 +257,17 @@ export interface ManualSource extends RunStateSource {
   finishRun(): Promise<void>;
 
   /**
+   * Throws the run away and starts a fresh one, filing nothing. The run that
+   * was here is gone from both records, which is the difference from
+   * `finishRun` and the reason a caller has to mean it.
+   *
+   * A run somebody abandoned is not a run they finished, and filing it as the
+   * previous one would put an abandoned run in front of them next time they
+   * looked for the one they meant to keep.
+   */
+  clearRun(): Promise<void>;
+
+  /**
    * The last storage failure, or null. A view showing this is the difference
    * between a run that is not being saved and a run that looks fine.
    */
@@ -1199,6 +1210,54 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       // fresh run against the one just filed and find plenty moved anyway — but
       // this is not an edit and has no snapshot behind it. Both sides are told:
       // the fresh run's pins are as empty as its held boons.
+      for (const listener of listeners) listener(state.facts);
+      for (const listener of intentListeners) listener(state.intent);
+    },
+
+    /**
+     * The same fresh run as `finishRun` leaves behind, and one write instead of
+     * two: `last` is not touched, so a run somebody abandoned does not become
+     * the run they look at next time they want the one they finished.
+     *
+     * Memory is cleared only after the write lands, for the reason `finishRun`
+     * gives above — this is the other edit that throws away what it holds, and
+     * clearing first would leave the run in one record that the next tap
+     * overwrites. The difference is that here there is nowhere to retry *to*:
+     * a failed write leaves the run where it was, which is the whole run
+     * intact, and the caller can ask again.
+     */
+    async clearRun(): Promise<void> {
+      const fresh = toPersisted({
+        state: emptyRun(catalog.game, catalog.dataVersion),
+        quarantine: [],
+      });
+
+      const failed: { cause: Error | null } = { cause: null };
+      writes = writes.then(async () => {
+        try {
+          await store.save(catalog.game, "active", fresh);
+          storageError = null;
+        } catch (cause) {
+          failed.cause = cause instanceof Error ? cause : new Error(String(cause));
+          storageError = failed.cause;
+        }
+        refreshCondition();
+      });
+      await writes;
+      if (failed.cause !== null) throw failed.cause;
+
+      state = emptyRun(catalog.game, catalog.dataVersion);
+      quarantine = [];
+      notice = null;
+      pending = null;
+      rewardedWithoutBoon = new Set();
+      overrides = [];
+      // Nothing survives, and an undo least of all: the run this edit took back
+      // is in no record at all, so restoring one boon of it would be inventing
+      // a run out of the one thing the user happened to do last.
+      undoable = null;
+      previousEdit = null;
+      refreshCondition();
       for (const listener of listeners) listener(state.facts);
       for (const listener of intentListeners) listener(state.intent);
     },

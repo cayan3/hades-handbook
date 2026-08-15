@@ -43,6 +43,16 @@ export interface RunSession {
    */
   finishRun(): Promise<void>;
 
+  /**
+   * Throws the run away and starts a fresh one, filing nothing — the same
+   * boundary as `finishRun` with nothing kept on the other side of it.
+   *
+   * On the session for the reason `finishRun` is: the overlay is the one piece
+   * of state the source cannot reach, so a caller emptying the source directly
+   * leaves an abandoned run's hand-edits over a run that has not started.
+   */
+  clearRun(): Promise<void>;
+
   /** Stops the layer listening. The stored run is untouched. */
   close(): void;
 }
@@ -99,6 +109,29 @@ export async function openRunSession(options: OpenManualSourceOptions): Promise<
         // retry. The run itself is intact already; the overlay is only intact
         // if it is put back, and it was accepted by these same guards a moment
         // ago.
+        for (const o of handHeld) layer.setOverride(o);
+        throw cause;
+      }
+    },
+
+    /**
+     * The overlay goes before the run does, for `finishRun`'s reason: the last
+     * thing the source does is hand the fresh facts to every listener, so
+     * clearing afterwards announces a run that has not started under the
+     * abandoned run's hand-edits.
+     *
+     * Nothing is lost by clearing here that was not already being thrown away —
+     * this verb files no record for an overlay to be missing from.
+     */
+    async clearRun(): Promise<void> {
+      const handHeld = layer.overrides;
+      layer.clearOverrides();
+      try {
+        await source.clearRun();
+      } catch (cause) {
+        // The run survived the failed write, so the hand-edits over it have to
+        // as well, or a caller retrying is clearing something different from
+        // what they asked about.
         for (const o of handHeld) layer.setOverride(o);
         throw cause;
       }

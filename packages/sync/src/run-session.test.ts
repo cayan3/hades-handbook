@@ -136,3 +136,74 @@ describe("ending a run through the session", () => {
     expect(session.layer.getFacts().godPool.has("Zeus")).toBe(true);
   });
 });
+
+describe("clearing a run through the session", () => {
+  /**
+   * The same boundary as ending one, and the overlay has to cross it the same
+   * way — a caller emptying the source directly would leave the abandoned run's
+   * hand-edits over a run that has not started.
+   */
+  it("leaves nothing of the abandoned run's overlay over the fresh one", async () => {
+    const session = await open();
+    session.source.mark("HeraAttack");
+    session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
+
+    await session.clearRun();
+
+    expect(session.layer.overrides).toEqual([]);
+    expect(session.layer.getFacts().godPool.has("Zeus")).toBe(false);
+    expect(session.layer.getFacts().held.size).toBe(0);
+  });
+
+  it("never hands a listener the fresh run under the old overlay", async () => {
+    const session = await open();
+    session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
+
+    const seen: boolean[] = [];
+    session.layer.subscribe((facts) => {
+      seen.push(facts.godPool.has("Zeus"));
+    });
+    await session.clearRun();
+
+    expect(seen).not.toContain(true);
+  });
+
+  /**
+   * The whole difference from ending one. `last` is what a player goes to for
+   * the run they meant to keep, and a run they threw away has no business
+   * sitting in front of it.
+   */
+  it("files nothing, so a run stored earlier is still the previous one", async () => {
+    const store = createMemoryStore();
+    const session = await open(store);
+    session.source.mark("HeraAttack");
+    await session.finishRun();
+
+    session.source.mark("ZeusAttack");
+    await session.clearRun();
+    await session.source.flush();
+
+    const last = fromPersisted(await store.load("hades2", "last"));
+    expect([...last.state.facts.held.keys()]).toEqual(["HeraAttack"]);
+    const active = fromPersisted(await store.load("hades2", "active"));
+    expect(active.state.facts.held.size).toBe(0);
+  });
+
+  it("puts the overlay back when the fresh run could not be stored", async () => {
+    const store: RunStore = {
+      load: () => Promise.resolve(null),
+      save: () => Promise.reject(new Error("quota")),
+      clear: () => Promise.resolve(),
+    };
+    const session = await open(store);
+    session.source.mark("HeraAttack");
+    session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
+
+    await expect(session.clearRun()).rejects.toThrow(/quota/);
+
+    // The run survived the failed write, so what the user was holding by hand
+    // over it has to survive too, or the retry is about something else.
+    expect(session.layer.overrides).toEqual([{ path: "godPool", god: "Zeus", present: true }]);
+    expect(session.layer.getFacts().held.has("HeraAttack")).toBe(true);
+  });
+});
