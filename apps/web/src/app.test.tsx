@@ -642,38 +642,68 @@ describe("ending a run", () => {
 });
 
 describe("throwing a run away", () => {
+  /** The end control, and the variant it hides until somebody looks for it. */
+  function endControl(): HTMLElement {
+    const found = container.querySelector<HTMLElement>(".app__end");
+    if (found === null) throw new Error("no end-run control");
+    return found;
+  }
+
+  function skip(): HTMLElement | null {
+    return container.querySelector<HTMLElement>(".app__skip");
+  }
+
   /**
-   * The control beside End run, and the difference is that this one files
-   * nothing. The run it clears is in no record afterwards and the undo offer
-   * goes with it, which is why the first click only arms it.
+   * One control rather than two. Ending a run files it as the previous one;
+   * throwing it away files nothing, which is a variant of the same gesture
+   * rather than a second control of equal weight — so it lives behind the first
+   * and is not on the page until the pointer or the keyboard asks.
    */
-  it("asks once, then starts a fresh run and files nothing", async () => {
+  it("hides the skip until the end control is asked for it", async () => {
+    await mount();
+    expect(skip()).toBeNull();
+
+    act(() => endControl().dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    expect(skip()).not.toBeNull();
+    expect(control("End run").getAttribute("aria-expanded")).toBeNull();
+
+    act(() => endControl().dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    expect(skip()).toBeNull();
+  });
+
+  /**
+   * The difference from End run, and the whole of it: this one leaves `last`
+   * alone, so the run a player actually finished is still what is waiting for
+   * them. The undo offer goes with the run, there being no record to restore an
+   * edit of.
+   */
+  it("starts a fresh run and files nothing", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
 
-    click("Clear run");
-    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
-
+    act(() => endControl().dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
     await act(async () => {
-      control("Throw it away?").click();
+      skip()?.click();
     });
 
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
     expect(await store.load("hades2", "last")).toBeNull();
+    expect(container.querySelector(".toast")).toBeNull();
   });
 
-  it("disarms when the pointer leaves it", async () => {
+  /** Reachable without a pointer, which is the whole cost of hiding it. */
+  it("opens on focus and closes on Escape", async () => {
     await mount();
-    tap(APHRODITE_MELEE);
+    act(() => control("End run").focus());
+    expect(skip()).not.toBeNull();
 
-    click("Clear run");
     act(() => {
-      control("Throw it away?").dispatchEvent(new MouseEvent("mouseout", { bubbles: true }));
+      skip()?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     });
 
-    expect(control("Clear run")).toBeDefined();
-    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+    expect(skip()).toBeNull();
+    expect(document.activeElement).toBe(control("End run"));
   });
 });
 

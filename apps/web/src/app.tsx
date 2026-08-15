@@ -31,6 +31,7 @@ import {
   godGraph,
   graphTraits,
   migrationMessage,
+  useHoverDisclosure,
 } from "@repo/ui";
 import { type CSSProperties, useCallback, useMemo, useState } from "react";
 import {
@@ -156,12 +157,6 @@ function Run({
    */
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [loadoutOpen, setLoadoutOpen] = useState(false);
-  /**
-   * Whether the clear control has been asked once. Clearing files the run
-   * nowhere and takes the undo offer with it, so it is the one gesture here
-   * that cannot be taken back — and it sits next to the one that can.
-   */
-  const [armed, setArmed] = useState(false);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -317,44 +312,11 @@ function Run({
           >
             Goals{goals.length === 0 ? "" : ` (${goals.length})`}
           </button>
-          <button
-            type="button"
-            className="app__finish"
-            onClick={() => {
-              // The session's, never the source's: the source's would empty the
-              // run and leave the overlay laying a finished run's hand-edits
-              // over the fresh one.
-              void session.finishRun().catch((cause: unknown) => {
-                setFault(cause instanceof Error ? cause : new Error(String(cause)));
-              });
-            }}
-          >
-            End run
-          </button>
-          {/* Beside End run and not the same control: this one files nothing,
-              so the run it throws away is in no record afterwards. The undo
-              offer goes with it, which is why it asks first. */}
-          <button
-            type="button"
-            className="app__clear"
-            data-armed={armed ? "true" : undefined}
-            onClick={() => {
-              if (!armed) {
-                setArmed(true);
-                return;
-              }
-              setArmed(false);
-              void session.clearRun().catch((cause: unknown) => {
-                setFault(cause instanceof Error ? cause : new Error(String(cause)));
-              });
-            }}
-            // A control armed and then walked away from is disarmed, or the
-            // next visit to the header starts one click from an empty run.
-            onMouseLeave={() => setArmed(false)}
-            onBlur={() => setArmed(false)}
-          >
-            {armed ? "Throw it away?" : "Clear run"}
-          </button>
+          <EndRun
+            onFinish={() => session.finishRun()}
+            onClear={() => session.clearRun()}
+            onFault={setFault}
+          />
         </header>
 
         <Notices
@@ -514,6 +476,56 @@ function Run({
         )}
       </div>
     </NodePresentation>
+  );
+}
+
+/**
+ * Ending a run, and the one other way out of it.
+ *
+ * One control rather than two: the ordinary end is the button, and throwing the
+ * run away without filing it is revealed under the pointer. The destructive half
+ * is then a variant of the gesture rather than a second control of equal weight
+ * standing beside it.
+ */
+function EndRun({
+  onFinish,
+  onClear,
+  onFault,
+}: {
+  readonly onFinish: () => Promise<void>;
+  readonly onClear: () => Promise<void>;
+  readonly onFault: (cause: Error) => void;
+}) {
+  const { open, opener, wrapper, close } = useHoverDisclosure();
+
+  // Both verbs belong to the session, never to the source: the source's would
+  // empty the run and leave the overlay laying a finished run's hand-edits over
+  // the fresh one.
+  const run = (act: () => Promise<void>) => {
+    close();
+    void act().catch((cause: unknown) => {
+      onFault(cause instanceof Error ? cause : new Error(String(cause)));
+    });
+  };
+
+  return (
+    <div className="app__end" {...wrapper}>
+      <button type="button" ref={opener} className="app__finish" onClick={() => run(onFinish)}>
+        End run
+      </button>
+      {!open ? null : (
+        <ul className="app__endmenu">
+          <li>
+            {/* Files nothing, so the run is in no record afterwards and the undo
+                offer goes with it. Red because it is the variant, and it is the
+                one gesture on the page that nothing takes back. */}
+            <button type="button" className="app__skip" onClick={() => run(onClear)}>
+              Skip summary
+            </button>
+          </li>
+        </ul>
+      )}
+    </div>
   );
 }
 

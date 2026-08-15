@@ -1,7 +1,8 @@
 import type { GodId } from "@repo/core";
-import { type CSSProperties, type KeyboardEvent, useRef, useState } from "react";
+import type { CSSProperties } from "react";
 import { GodArt } from "./boon-art.js";
 import { godColour } from "./god-palette.js";
+import { useHoverDisclosure } from "./hover-disclosure.js";
 import { useGame } from "./presentation.js";
 
 /**
@@ -13,7 +14,7 @@ import { useGame } from "./presentation.js";
  *
  * Every entry is named as well as drawn. Icon-only was the request and the data
  * refuses it: 1 of the 10 Hades I gods reaching a tab and 4 of the 14 Hades II
- * ones have no symbol in the shipped set.
+ * ones have no symbol of their own, three of which now borrow the other game's.
  */
 export interface GodPickerProps {
   /** The gods this bar is not already showing, in the order to offer them. */
@@ -25,53 +26,12 @@ export interface GodPickerProps {
 
 export function GodPicker({ gods, onPick, label = "+ god" }: GodPickerProps) {
   const game = useGame();
-  const [open, setOpen] = useState(false);
-  const opener = useRef<HTMLButtonElement>(null);
-  /**
-   * Set by Escape, and it is the whole of why that key works: closing hands the
-   * focus back to the control, which is a focus event here, which opens it — so
-   * the list came straight back. Invisible to a test that presses Escape with
-   * the focus already on the control, which is how the first one was written.
-   */
-  const dismissed = useRef(false);
+  const { open, opener, wrapper, toggle, close } = useHoverDisclosure();
 
   if (gods.length === 0) return null;
 
-  /** Leaving the picker altogether both closes it and forgets the dismissal. */
-  function close(): void {
-    dismissed.current = false;
-    setOpen(false);
-  }
-
-  function onKeyDown(event: KeyboardEvent<HTMLDivElement>): void {
-    if (event.key !== "Escape" || !open) return;
-    // Focus goes back to the control that opened it, or a keyboard user closing
-    // the list is left standing on nothing.
-    event.stopPropagation();
-    dismissed.current = true;
-    setOpen(false);
-    opener.current?.focus();
-  }
-
   return (
-    // Focus opens it as hover does, or the control is a thing only a mouse can
-    // reach. Both handlers are on the wrapper: the list is a descendant, so the
-    // pointer travelling into it never leaves this element.
-    <div
-      className="godpicker"
-      onMouseEnter={() => {
-        dismissed.current = false;
-        setOpen(true);
-      }}
-      onMouseLeave={close}
-      onFocus={() => {
-        if (!dismissed.current) setOpen(true);
-      }}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) close();
-      }}
-      onKeyDown={onKeyDown}
-    >
+    <div className="godpicker" {...wrapper}>
       <button
         type="button"
         ref={opener}
@@ -81,12 +41,16 @@ export function GodPicker({ gods, onPick, label = "+ god" }: GodPickerProps) {
         // keyboard that dismissed it with Escape asks for it again here — the
         // dismissal only blocks the focus route back in, which is the one that
         // fires on its own.
-        onClick={() => setOpen(!open)}
+        onClick={toggle}
       >
         {label}
       </button>
 
       {!open ? null : (
+        /* Beside the control rather than under it, with the first entry level
+           with it and the rest dropping from there. A row is a rectangle with
+           the symbol at the left, which is not how a tab is drawn — the two are
+           different controls and read as such. */
         <ul className="godpicker__list">
           {gods.map((god) => (
             <li key={god}>
@@ -96,7 +60,7 @@ export function GodPicker({ gods, onPick, label = "+ god" }: GodPickerProps) {
                 style={{ "--god": godColour(god) } as CSSProperties}
                 onClick={() => {
                   onPick(god);
-                  setOpen(false);
+                  close();
                 }}
               >
                 <GodArt game={game} god={god} className="godpicker__art" />

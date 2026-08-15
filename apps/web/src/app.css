@@ -160,25 +160,62 @@ h1,
 }
 
 .app__games button,
-.app__gods button,
-.app__finish,
-.app__clear {
-  padding: 0.35rem 0.7rem;
+.app__finish {
+  padding: 0.4rem 0.8rem;
   border: 1px solid rgb(255 255 255 / 25%);
   border-radius: 0.35rem;
   background: transparent;
   color: inherit;
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 1.15rem;
   cursor: pointer;
 }
 
-/* Quiet until it has been asked once, then loud: this is the one control on the
-   page whose edit no undo reaches, and the second click is the whole of the
-   protection. */
-.app__clear[data-armed] {
-  border-color: #ff6b5c;
+/*
+ * Ending a run, with the one variant of it revealed under the pointer rather
+ * than standing beside it as a second control of equal weight. Only one of the
+ * two files the run, so they are not peers.
+ */
+.app__end {
+  position: relative;
+}
+
+/* Flush against the control, with the breathing room inside it: a margin here
+   is a gap the pointer crosses on its way in, and crossing it closes the menu. */
+.app__endmenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  width: max-content;
+  padding: 0.35rem;
+  margin: 0;
+  list-style: none;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.4rem;
+  background: var(--surface);
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
+}
+
+/* Red because it is the variant rather than the default, and because it is the
+   one gesture on the page that no undo reaches: it files the run nowhere. */
+.app__skip {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.7rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background: transparent;
   color: #ff6b5c;
+  font: inherit;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app__skip:hover,
+.app__skip:focus-visible {
+  background: rgb(255 107 92 / 12%);
 }
 
 /*
