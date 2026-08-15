@@ -29,8 +29,10 @@
 
 export { BoonNode } from "./boon-node.js";
 export type { BoonNodeProps } from "./boon-node.js";
-export { BoonArt, artUrl } from "./boon-art.js";
+export { BoonArt, GodArt, artUrl } from "./boon-art.js";
 export type { BoonArtProps } from "./boon-art.js";
+export { GodPicker } from "./god-picker.js";
+export type { GodPickerProps } from "./god-picker.js";
 export { Junction } from "./junction.js";
 export type { JunctionProps } from "./junction.js";
 export { GodPage } from "./god-page.js";

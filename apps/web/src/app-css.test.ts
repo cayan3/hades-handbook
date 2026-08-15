@@ -14,6 +14,20 @@ describe("the page stylesheet", () => {
    * writes goes below 0.85rem now — the page has no counterpart to the boon
    * name, which is the one thing on the other side that stayed put.
    */
+  /**
+   * The other half of the picker pairing. Two controls for one job is only
+   * honest while exactly one of them is drawn — `display: none` takes the
+   * hidden one out of the tab order and out of the accessibility tree, which a
+   * visual trick would not.
+   */
+  it("hides the platform picker wherever the hovered list is drawn", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const hoverable = rules.match(/@media \(hover: hover\) \{([\s\S]*?)\n\}/);
+    expect(hoverable?.[1], "no hover query to hide it in").toMatch(
+      /\.app__addgod\s*\{[^}]*display:\s*none/,
+    );
+  });
+
   it("writes nothing below the floor", () => {
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
     const sized = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)].flatMap(([, selector, body]) =>

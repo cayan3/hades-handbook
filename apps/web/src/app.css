@@ -139,6 +139,15 @@ h1,
   align-items: center;
 }
 
+/* The system picker is the phone's half of the pair. Where a pointer can hover,
+   the component library's own picker takes over and this one goes — one of the
+   two is in the tab order at a time, never both. */
+@media (hover: hover) {
+  .app__addgod {
+    display: none;
+  }
+}
+
 .app__addgod select {
   padding: 0.35rem 0.5rem;
   border: 1px dashed rgb(255 255 255 / 35%);

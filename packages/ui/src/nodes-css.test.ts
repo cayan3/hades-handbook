@@ -217,6 +217,22 @@ describe("the node stylesheet", () => {
   });
 
   /**
+   * The picker is drawn only where a pointer can hover, and its half of that
+   * pairing is here — the other half hides the native select in the page's own
+   * stylesheet. Gated on the capability rather than on a width: a touch screen
+   * has no way to open a list by hovering whatever size it is.
+   */
+  it("draws the god picker only where there is a pointer to hover with", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(rules).toMatch(/\.godpicker\s*\{[^}]*display:\s*none/);
+
+    const hoverable = rules.match(/@media \(hover: hover\) \{([\s\S]*?)\n\}/);
+    expect(hoverable?.[1], "no hover query to turn it back on").toMatch(
+      /\.godpicker\s*\{[^}]*display:\s*inline-block/,
+    );
+  });
+
+  /**
    * Everything a surface writes is at least 0.85rem, and the boon's name is the
    * one exemption — it sits in the 7.5rem column under the box, where the widest
    * name reaching a page is 21 characters and already wraps.

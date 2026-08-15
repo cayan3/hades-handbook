@@ -871,6 +871,31 @@ describe("what the boon list shows", () => {
   });
 
   /**
+   * Two controls for the one job, because a hover-opened list is unreachable on
+   * a touch screen and a system picker over a list of pictures is the wrong
+   * control on a laptop. The stylesheet shows whichever the device can work, so
+   * both are here and exactly one of them is ever in the tab order.
+   */
+  it("offers the unshown gods through a hovered list and through the platform's picker", async () => {
+    await mount();
+    expect(container.querySelector(".app__addgod select")).not.toBeNull();
+
+    const picker = container.querySelector<HTMLElement>(".godpicker");
+    expect(picker).not.toBeNull();
+    act(() => picker?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+
+    const ares = [...container.querySelectorAll<HTMLElement>(".godpicker__god")].find(
+      (button) => button.textContent === "Ares",
+    );
+    expect(ares).toBeDefined();
+    act(() => ares?.click());
+
+    // Added to the bar and selected, which is what picking one means.
+    expect(texts(".app__gods button")).toContain("Ares");
+    expect(container.querySelector(".app__gods button[aria-current]")?.textContent).toBe("Ares");
+  });
+
+  /**
    * The case that looks like the one above failing and is not: a god the run
    * still holds a boon of stays in the pool, because they were genuinely met.
    * Worth pinning beside it, since the two are told apart only by how many

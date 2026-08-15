@@ -1,5 +1,5 @@
-import { type GameKey, elementIconFor } from "@repo/catalog";
-import type { Element } from "@repo/core";
+import { type GameKey, elementIconFor, godIconFor } from "@repo/catalog";
+import type { Element, GodId } from "@repo/core";
 import { useEffect, useState } from "react";
 
 /**
@@ -76,6 +76,37 @@ export interface ElementArtProps {
  * of five and they only have to say that something is true. Decorative: the
  * affinity is a sentence in the node's description too.
  */
+/**
+ * A god's own symbol. Decorative for the same reason the others are: whatever
+ * draws one names the god in text beside it, which it has to — measured, one of
+ * the 10 Hades I gods reaching a tab and four of the 14 Hades II ones have no
+ * symbol in the shipped set and resolve to the placeholder.
+ */
+export function GodArt({
+  game,
+  god,
+  className = "god-art",
+}: {
+  readonly game: GameKey;
+  readonly god: GodId;
+  readonly className?: string;
+}) {
+  const url = artUrl(godIconFor(game, god));
+  const [src, setSrc] = useState(url);
+
+  useEffect(() => setSrc(url), [url]);
+
+  return (
+    <img
+      className={className}
+      src={src}
+      alt=""
+      draggable={false}
+      onError={() => setSrc(MISSING_ART)}
+    />
+  );
+}
+
 export function ElementArt({ game, element, className = "node__element" }: ElementArtProps) {
   const url = artUrl(elementIconFor(game, element));
   const [src, setSrc] = useState(url);

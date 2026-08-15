@@ -8,6 +8,7 @@ import {
   type BoonActions,
   type Goal,
   GodPage,
+  GodPicker,
   GoalsPanel,
   Loadout,
   type LoadoutEntry,
@@ -175,8 +176,10 @@ function Run({
    * removed.
    */
   const [added, setAdded] = useState<ReadonlySet<string>>(new Set());
-  const addGodTab = useCallback((name: string) => {
+  /** Adds the tab and goes there, which is what picking a god off the list means. */
+  const pickGod = useCallback((name: string) => {
     setAdded((before) => new Set(before).add(name));
+    setGod(name);
   }, []);
 
   /**
@@ -405,30 +408,30 @@ function Run({
                  * gods this run has actually met plus whatever the player added
                  * for planning, and the rest arrive through here.
                  *
-                 * A native select rather than a popover: it needs no focus
-                 * management, no escape handling and no second dialog, and on a
-                 * phone it is the control the platform already gives for exactly
-                 * this.
+                 * Two controls for the one job, and the stylesheet shows
+                 * whichever the device can work: a list opened by hovering where
+                 * there is a pointer to hover with, the platform's own select
+                 * where there is not. Exactly one is in the tab order at a time.
                  */
-                <label className="app__addgod">
-                  <span className="visually-hidden">Add a god to plan with</span>
-                  <select
-                    value=""
-                    onChange={(event) => {
-                      addGodTab(event.target.value);
-                      setGod(event.target.value);
-                    }}
-                  >
-                    <option value="" disabled>
-                      + god
-                    </option>
-                    {unshown.map((name) => (
-                      <option key={name} value={name}>
-                        {name}
+                <>
+                  <GodPicker gods={unshown} onPick={pickGod} />
+                  <label className="app__addgod">
+                    <span className="visually-hidden">Add a god to plan with</span>
+                    <select
+                      value=""
+                      onChange={(event) => pickGod(event.target.value)}
+                    >
+                      <option value="" disabled>
+                        + god
                       </option>
-                    ))}
-                  </select>
-                </label>
+                      {unshown.map((name) => (
+                        <option key={name} value={name}>
+                          {name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </>
               )}
         </nav>
 

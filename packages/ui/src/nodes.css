@@ -778,6 +778,91 @@
   white-space: nowrap;
 }
 
+/*
+ * The god picker, and it is drawn only where a pointer can hover. The native
+ * select it stands beside needs no focus management and is what a phone's
+ * platform gives for this, so the two are gated on `hover` rather than on a
+ * width: a touch screen has no way to open a hover menu, and a laptop has no
+ * use for a system picker over a list of pictures.
+ *
+ * `display: none` rather than a visual trick, so exactly one of the two is in
+ * the tab order and in the accessibility tree at a time.
+ */
+.godpicker {
+  position: relative;
+  display: none;
+}
+
+@media (hover: hover) {
+  .godpicker {
+    display: inline-block;
+  }
+}
+
+.godpicker__open {
+  padding: 0.35rem 0.7rem;
+  border: 1px dashed rgb(255 255 255 / 35%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* Flush against the control, with the breathing room inside it: a margin here
+   is a gap the pointer crosses on its way in, and crossing it closes the list. */
+.godpicker__list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  width: max-content;
+  max-width: min(34rem, 90vw);
+  padding: 0.5rem;
+  margin: 0;
+  list-style: none;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.4rem;
+  background: var(--surface, #1b1815);
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
+}
+
+/* Named as well as drawn. Four of the fourteen Hades II gods reaching a tab
+   have no symbol in the shipped set, so pictures alone leave gaps. */
+.godpicker__god {
+  display: grid;
+  gap: 0.2rem;
+  justify-items: center;
+  width: 4.5rem;
+  padding: 0.35rem 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.godpicker__god:hover,
+.godpicker__god:focus-visible {
+  border-color: var(--god);
+}
+
+.godpicker__art {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+}
+
+.godpicker__name {
+  line-height: 1.2;
+}
+
 .notice {
   padding: 0.7rem 0.9rem;
   border-radius: 0.5rem;
