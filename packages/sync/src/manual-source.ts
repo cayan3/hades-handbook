@@ -257,13 +257,10 @@ export interface ManualSource extends RunStateSource {
   finishRun(): Promise<void>;
 
   /**
-   * Throws the run away and starts a fresh one, filing nothing. The run that
-   * was here is gone from both records, which is the difference from
-   * `finishRun` and the reason a caller has to mean it.
-   *
-   * A run somebody abandoned is not a run they finished, and filing it as the
-   * previous one would put an abandoned run in front of them next time they
-   * looked for the one they meant to keep.
+   * Throws the run away and starts a fresh one, **filing nothing** — which is
+   * the difference from `finishRun` and the reason a caller has to mean it. A
+   * run somebody abandoned is not one they finished, so it does not go in front
+   * of the run they meant to keep.
    */
   clearRun(): Promise<void>;
 
@@ -1215,16 +1212,11 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     },
 
     /**
-     * The same fresh run as `finishRun` leaves behind, and one write instead of
-     * two: `last` is not touched, so a run somebody abandoned does not become
-     * the run they look at next time they want the one they finished.
-     *
-     * Memory is cleared only after the write lands, for the reason `finishRun`
-     * gives above — this is the other edit that throws away what it holds, and
-     * clearing first would leave the run in one record that the next tap
-     * overwrites. The difference is that here there is nowhere to retry *to*:
-     * a failed write leaves the run where it was, which is the whole run
-     * intact, and the caller can ask again.
+     * The same fresh run `finishRun` leaves behind, and one write instead of
+     * two: `last` is untouched, so an abandoned run does not sit in front of the
+     * run somebody meant to keep. Memory is cleared only after the write lands,
+     * for the reason above — clearing first leaves the run in one record that
+     * the next tap overwrites.
      */
     async clearRun(): Promise<void> {
       const fresh = toPersisted({

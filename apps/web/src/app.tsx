@@ -408,10 +408,9 @@ function Run({
                  * gods this run has actually met plus whatever the player added
                  * for planning, and the rest arrive through here.
                  *
-                 * Two controls for the one job, and the stylesheet shows
-                 * whichever the device can work: a list opened by hovering where
-                 * there is a pointer to hover with, the platform's own select
-                 * where there is not. Exactly one is in the tab order at a time.
+                 * Two controls for one job and the stylesheet shows whichever
+                 * the device can work: a hovered list where there is a pointer,
+                 * the platform's select where there is not, one in the tab order.
                  */
                 <>
                   <GodPicker gods={unshown} onPick={pickGod} />

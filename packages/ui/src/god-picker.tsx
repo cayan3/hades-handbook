@@ -7,16 +7,13 @@ import { useGame } from "./presentation.js";
 /**
  * The gods not on the bar, reached without a dialog.
  *
- * A disclosure rather than a menu widget: the panel holds ordinary buttons in
- * document order, so tab reaches them the way it reaches everything else here
- * and nothing sets a tab index. A `menu` role would promise arrow-key traversal
- * and a roving index, which is a second traversal model on a page whose whole
- * keyboard story is "DOM order, and nobody overrides it".
+ * A disclosure rather than a menu widget: a `menu` role promises arrow-key
+ * traversal and a roving index, which is a second traversal model on a page
+ * whose keyboard story is DOM order and nothing overriding it.
  *
- * Every entry draws the god's symbol **and** names them. Icon-only was the
- * request and does not survive the data: one of the 10 Hades I gods reaching a
- * tab has no symbol in the shipped set, and four of the 14 Hades II ones, so a
- * strip of pictures is a strip with unreadable gaps in it.
+ * Every entry is named as well as drawn. Icon-only was the request and the data
+ * refuses it: 1 of the 10 Hades I gods reaching a tab and 4 of the 14 Hades II
+ * ones have no symbol in the shipped set.
  */
 export interface GodPickerProps {
   /** The gods this bar is not already showing, in the order to offer them. */
@@ -31,23 +28,15 @@ export function GodPicker({ gods, onPick, label = "+ god" }: GodPickerProps) {
   const [open, setOpen] = useState(false);
   const opener = useRef<HTMLButtonElement>(null);
   /**
-   * Set by Escape, and it is the whole of why that key works. Closing hands the
-   * focus back to the control, which is a focus event on this element, which
-   * opens it — so the list came straight back and the key looked broken. Found
-   * by writing the test with the focus somewhere else first; with the focus
-   * already on the control the assertion was true before the key was sent.
+   * Set by Escape, and it is the whole of why that key works: closing hands the
+   * focus back to the control, which is a focus event here, which opens it — so
+   * the list came straight back. Invisible to a test that presses Escape with
+   * the focus already on the control, which is how the first one was written.
    */
   const dismissed = useRef(false);
 
   if (gods.length === 0) return null;
 
-  /**
-   * Hover opens it and focus opens it too, or the whole control is a thing only
-   * a mouse can reach. Both handlers are on the wrapper rather than on the
-   * button: the panel is a descendant, so the pointer travelling from the
-   * control into the list never leaves this element and the list never goes out
-   * from under it.
-   */
   /** Leaving the picker altogether both closes it and forgets the dismissal. */
   function close(): void {
     dismissed.current = false;
@@ -65,6 +54,9 @@ export function GodPicker({ gods, onPick, label = "+ god" }: GodPickerProps) {
   }
 
   return (
+    // Focus opens it as hover does, or the control is a thing only a mouse can
+    // reach. Both handlers are on the wrapper: the list is a descendant, so the
+    // pointer travelling into it never leaves this element.
     <div
       className="godpicker"
       onMouseEnter={() => {

@@ -45,11 +45,9 @@ export interface RunSession {
 
   /**
    * Throws the run away and starts a fresh one, filing nothing — the same
-   * boundary as `finishRun` with nothing kept on the other side of it.
-   *
-   * On the session for the reason `finishRun` is: the overlay is the one piece
-   * of state the source cannot reach, so a caller emptying the source directly
-   * leaves an abandoned run's hand-edits over a run that has not started.
+   * boundary as `finishRun` with nothing kept on the far side. Here for
+   * `finishRun`'s reason: emptying the source directly leaves the overlay it
+   * cannot reach laying an abandoned run's hand-edits over a fresh one.
    */
   clearRun(): Promise<void>;
 
@@ -118,9 +116,7 @@ export async function openRunSession(options: OpenManualSourceOptions): Promise<
      * The overlay goes before the run does, for `finishRun`'s reason: the last
      * thing the source does is hand the fresh facts to every listener, so
      * clearing afterwards announces a run that has not started under the
-     * abandoned run's hand-edits.
-     *
-     * Nothing is lost by clearing here that was not already being thrown away —
+     * abandoned run's hand-edits. Nothing is lost that was not already going —
      * this verb files no record for an overlay to be missing from.
      */
     async clearRun(): Promise<void> {

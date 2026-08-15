@@ -217,13 +217,10 @@ describe("the node stylesheet", () => {
   });
 
   /**
-   * The sheet's row follows the games' own Codex, and the two games frame it
-   * differently: Hades I runs its list inside one panel, so rarity shows on an
-   * edge, and Hades II gives each entry a slab tinted across it.
-   *
-   * Read out of the stylesheet for the reason the Loadout's wedge is: it is a
-   * fact about painting, and the rule that would break it is one line in the
-   * base forgetting there are two games.
+   * Hades I runs its Codex list inside one panel, so rarity shows on an edge;
+   * Hades II slabs each entry. Read out of the stylesheet for the reason the
+   * Loadout's wedge is: the rule that breaks it is one line in the base
+   * forgetting there are two games.
    */
   it("slabs a Hades II sheet row and edges a Hades I one", () => {
     const rule = (selector: string) => {
@@ -259,12 +256,9 @@ describe("the node stylesheet", () => {
 
   /**
    * Everything a surface writes is at least 0.85rem, and the boon's name is the
-   * one exemption — it sits in the 7.5rem column under the box, where the widest
-   * name reaching a page is 21 characters and already wraps.
-   *
-   * A floor rather than a fixed scale: the sizes above it carry a hierarchy
-   * worth keeping, and the thing that was reported is that the small end of it
-   * was too small.
+   * one exemption — the widest name reaching a page is 21 characters and it
+   * already wraps in its 7.5rem column. A floor rather than a fixed scale: what
+   * was reported is that the small end was too small.
    */
   it("keeps every size off the floor except the boon's name", () => {
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");

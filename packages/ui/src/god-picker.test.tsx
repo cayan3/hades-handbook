@@ -1,12 +1,10 @@
 /**
  * @vitest-environment jsdom
  *
- * The picker's focus behaviour, which is the whole of why it is a component
- * rather than a stylesheet change. The native select it stands beside needed
- * none of this; a list opened by hovering has to be reachable without one.
- *
- * Hover is dispatched rather than simulated. jsdom has a pointer only in the
- * sense that it delivers the events, and that is exactly the half under test.
+ * The picker's focus behaviour, which is why it is a component rather than a
+ * stylesheet change — the native select beside it needed none of this. Hover is
+ * dispatched rather than simulated: jsdom has a pointer only in the sense that
+ * it delivers the events, and that is the half under test.
  */
 
 import { act, type ReactElement } from "react";

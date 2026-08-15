@@ -677,18 +677,10 @@
   }
 }
 
-/*
- * One boon as the games' own Codex draws it: the icon at the left, the name and
- * the kind on one line, the description under the name, and the indented lines
- * under that.
- *
- * The two games frame it differently and both are here. Hades I runs its list
- * inside one panel, so the row is a plain bordered box; Hades II gives each
- * entry a slab tinted by rarity, which is the rule below. The tint is a custom
- * property set per boon rather than a class per rarity, so a rarity the data
- * adds later needs no rule — and Common sets nothing, which is the game's own
- * treatment and what makes a tinted row mean something.
- */
+/* One boon as the Codex draws it: icon left, name and kind on one line, the
+   description under the name. The frame is per game below — Hades I runs its
+   list inside one panel and Hades II slabs each entry — and the tint is a custom
+   property, so Common sets nothing and a new rarity needs no rule. */
 .sheet__row {
   display: flex;
   gap: 0.9rem;
@@ -862,16 +854,10 @@
   white-space: nowrap;
 }
 
-/*
- * The god picker, and it is drawn only where a pointer can hover. The native
- * select it stands beside needs no focus management and is what a phone's
- * platform gives for this, so the two are gated on `hover` rather than on a
- * width: a touch screen has no way to open a hover menu, and a laptop has no
- * use for a system picker over a list of pictures.
- *
- * `display: none` rather than a visual trick, so exactly one of the two is in
- * the tab order and in the accessibility tree at a time.
- */
+/* Gated on `hover` rather than on a width: a touch screen has no way to open a
+   list by hovering whatever size it is, and the native select beside this one
+   covers that case. `display: none` rather than a visual trick, so exactly one
+   of the two is in the tab order and in the accessibility tree. */
 .godpicker {
   position: relative;
   display: none;
