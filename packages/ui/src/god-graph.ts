@@ -236,7 +236,11 @@ function walk(
         // is drawn as the line it is. A third of all gates are this: nine Cast
         // boons offered and one of them here. The count is still written out in
         // the detail surface, which is where the other eight were always read.
-        if (branches.length === 1) {
+        // `min` of 1 only. No shipped gate asks for two — measured, 0 of 110 in
+        // Hades I and 0 of 140 in Hades II — but one line cannot stand for a
+        // gate that wants two of them, so the rule is true by construction
+        // rather than by what the data happens to hold.
+        if (branches.length === 1 && req.min === 1) {
           const only = branches[0]!;
           const also = otherwise(source, req, only.from);
           return [
@@ -282,7 +286,7 @@ function walk(
  * than the page can show.
  */
 function otherwise(source: NodeSource, req: Requirement, shown: TraitId): string | null {
-  if (req.kind !== "anyOf") return null;
+  if (req.kind !== "anyOf" || req.min !== 1) return null;
   const others = req.of
     .filter((child) => child.kind === "hasTrait" && child.trait !== shown)
     .map((child) => (child as { trait: TraitId }).trait);

@@ -213,15 +213,12 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
    * the resting page is quiet, and hovering a boon brings its gates up with its
    * lines.
    */
-  const litJunctions = useMemo(() => {
-    const lit = new Set<string>();
-    for (const edge of wires) {
-      for (const end of [endpoint(edge.from), endpoint(edge.to)]) {
-        if (isJunctionId(end)) lit.add(end);
-      }
+  const litJunctions = new Set<string>();
+  for (const edge of wires) {
+    for (const end of [endpoint(edge.from), endpoint(edge.to)]) {
+      if (isJunctionId(end)) litJunctions.add(end);
     }
-    return lit;
-  }, [wires, endpoint]);
+  }
   // Over every edge the graph has, not just the drawn ones: a bar's height
   // would otherwise move as the selection changed which of its siblings show.
   const grouped = useMemo(
@@ -771,6 +768,14 @@ export function chamfer(
     const [nx, ny] = corners[i + 1]!;
     const back = Math.hypot(vx - px, vy - py);
     const on = Math.hypot(nx - vx, ny - vy);
+    // A run of no length is a corner that is not one — a junction's bar sits at
+    // its own centre, so the route's last two corners are the same point. Cut
+    // one back and the arithmetic divides by zero and writes NaN into the path,
+    // which drops every segment after it.
+    if (back < 0.5 || on < 0.5) {
+      out.push(corners[i]!);
+      continue;
+    }
     // Only where one of the two runs at this corner is the stubby one, and by
     // half of it, so its two chamfers meet and it goes away entirely.
     const shortest = Math.min(

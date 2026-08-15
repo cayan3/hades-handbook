@@ -274,9 +274,11 @@ describe("the panel itself", () => {
     // The tiles carry no element mark, so this row is the only place a Hades II
     // run's elements are said at all — which is what made removing the mark
     // from a tile safe.
+    // Handed over in the order a run met them; drawn in the game's own order,
+    // so the row does not rearrange as elements arrive.
     render(panel({ elements: new Map([["Fire" as const, 3], ["Water" as const, 1]]) }));
     const row = [...container.querySelectorAll(".loadout__elements li")];
-    expect(row.map((li) => li.textContent)).toEqual(["3Fire", "1Water"]);
+    expect(row.map((li) => li.textContent)).toEqual(["1Water", "3Fire"]);
     expect(container.querySelectorAll(".node__element")).toHaveLength(0);
   });
 

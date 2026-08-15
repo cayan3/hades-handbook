@@ -416,6 +416,22 @@ describe("the connectors", () => {
     expect(graph.bands.map((band) => band.members.map((m) => m.trait))).toEqual([["a"], ["d"]]);
   });
 
+  it("keeps the diamond for a gate that wants two, however few are here", () => {
+    // One line cannot stand for "any two of these". No shipped gate asks it —
+    // 0 of 110 in Hades I and 0 of 140 in Hades II — so this is the rule being
+    // true by construction rather than by what the data happens to hold.
+    const source = world(
+      record("mine", { god: ZEUS }),
+      record("d", {
+        god: ZEUS,
+        prereq: { kind: "anyOf", min: 2, of: [has("mine"), has("elsewhere"), has("far")] },
+      }),
+    );
+    const graph = godGraph(source, ZEUS, makeFacts());
+    expect(graph.bands.flatMap((band) => band.junctions)).toHaveLength(1);
+    expect(graph.edges.every((edge) => edge.also === undefined)).toBe(true);
+  });
+
   it("says what else would have done, where the drawn line is not the only way", () => {
     // The line loses eight of nine options by being a line, and this is the
     // sentence that gives them back. Where they all sit in one equip position

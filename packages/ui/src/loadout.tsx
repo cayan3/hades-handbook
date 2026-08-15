@@ -35,6 +35,12 @@ export interface LoadoutEntry {
   readonly overridden?: boolean;
 }
 
+/**
+ * The order the game lists them in, so the row does not rearrange as a run
+ * picks elements up — a `Map` hands them back in the order they arrived.
+ */
+const ELEMENTS: readonly Element[] = ["Air", "Water", "Earth", "Fire", "Aether"];
+
 export interface LoadoutProps {
   readonly entries: readonly LoadoutEntry[];
   /**
@@ -261,10 +267,10 @@ export function Loadout({
            the elements the run has actually met: a row of five zeroes is a row
            about nothing. */
         <ul className="loadout__elements">
-          {[...elements].map(([element, count]) => (
+          {ELEMENTS.filter((element) => elements.has(element)).map((element) => (
             <li key={element}>
               <ElementArt game={game} element={element} className="loadout__element" />
-              <span>{count}</span>
+              <span>{elements.get(element)}</span>
               <span className="visually-hidden">{element}</span>
             </li>
           ))}

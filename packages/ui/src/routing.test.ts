@@ -241,6 +241,18 @@ describe("wire", () => {
     expect(wire(from, to, 250, [from, to])).toBe("M 100 60 L 100 300");
   });
 
+  it("writes no NaN where a corner has no run behind it", () => {
+    // A junction's bar sits at its own centre, so the route's last two corners
+    // are the same point. Cutting one back divides by zero, and one NaN drops
+    // every segment after it in the path.
+    const junction: Place = { x: 120, left: 111, right: 129, top: 300, bottom: 300, guard: 300 };
+    const d = wire(place(100, 0), junction, 300);
+    expect(d).not.toContain("NaN");
+    // The 20px sidestep still earns its dogleg; what it must not do is cut back
+    // into the run of no length behind it.
+    expect(d).toBe("M 100 60 L 100 290 L 110 300 L 120 300");
+  });
+
   it("draws only right angles and 45s, and nothing between", () => {
     // The whole angle vocabulary of the page. Every segment runs vertically,
     // horizontally, or at exactly 45 degrees; anything else is a lean, which
