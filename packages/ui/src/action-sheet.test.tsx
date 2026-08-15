@@ -305,6 +305,19 @@ describe("ActionSheet", () => {
   });
 
   /** A boon with a kind is offered no rarity, so the kind is what tints it. */
+  /**
+   * The marker the node's own corner carries. Lost for a commit when the row
+   * became a shared component and the sheet stopped passing it through — the
+   * sentence beside it survived, so nothing failed and nothing looked wrong.
+   */
+  it("marks a pinned boon on the row's icon", () => {
+    render(<ActionSheet view={view()} detail={detail()} pinned onClose={noop} />);
+    expect(container.querySelector(".boonrow__icon .node__marker")).not.toBeNull();
+
+    render(<ActionSheet view={view()} detail={detail()} onClose={noop} />);
+    expect(container.querySelector(".boonrow__icon .node__marker")).toBeNull();
+  });
+
   it("tints by the kind where the boon has one", () => {
     render(<ActionSheet view={view({ kind: "duo" })} detail={detail()} onClose={noop} />);
 

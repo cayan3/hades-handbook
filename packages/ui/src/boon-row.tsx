@@ -26,11 +26,16 @@ export interface BoonRowProps {
   readonly description: string | null;
   /** The heading element, since one surface labels a dialog with it. */
   readonly title: ReactNode;
+  /**
+   * Whether the boon is pinned to a **Goal**, which draws the marker on its
+   * corner. Off in the Loadout, where a Goal never appears at all.
+   */
+  readonly pinned?: boolean;
   /** Anything else belonging inside the row, under the description. */
   readonly children?: ReactNode;
 }
 
-export function BoonRow({ view, description, title, children }: BoonRowProps) {
+export function BoonRow({ view, description, title, pinned = false, children }: BoonRowProps) {
   const game = useGame();
   const ladder = useLadder();
   // The kind where the boon has one and the rarity otherwise, already settled
@@ -57,7 +62,7 @@ export function BoonRow({ view, description, title, children }: BoonRowProps) {
         data-state={view.state}
         style={{ "--god": godColour(view.god) } as CSSProperties}
       >
-        <NodeBox view={view} />
+        <NodeBox view={view} pinned={pinned} />
       </span>
 
       <div className="boonrow__body">
