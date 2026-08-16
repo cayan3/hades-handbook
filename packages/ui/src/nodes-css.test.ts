@@ -391,6 +391,12 @@ describe("the node stylesheet", () => {
 
     // And nothing reserves it on the panel, which is where it collapsed.
     expect(rules).not.toMatch(/\.loadout__panel[^{]*\{[^}]*margin-top/);
+
+    // The panel holds one child, so its own gap cannot land between the row and
+    // the grid: measured, a row sitting beside the stack rather than inside it
+    // collected that gap on top of the reserve and shifted the boons 14.4px.
+    const stack = rules.match(/\.loadout__stack\s*\{([^}]*)\}/)?.[1] ?? "";
+    expect(stack).toContain("flex: 1 1 auto");
   });
 
 

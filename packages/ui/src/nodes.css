@@ -1297,9 +1297,14 @@
   font-size: 1.1rem;
 }
 
+/* One child of the panel, not two: the panel puts its own gap between whatever
+   it holds, and a row sitting beside this rather than inside it collected that
+   gap on top of the reserved space — measured, 14.4px of shift on opening. */
 .loadout__stack {
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
+  min-width: 0;
 }
 
 .loadout__elements li {

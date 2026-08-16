@@ -241,30 +241,34 @@ export function Loadout({
               } as CSSProperties
             }
           >
-            {elements === undefined || game !== "hades2" || !showRest ? null : (
-              /* Inside the panel and above the grid, which is where the game's
-                 own tray puts it — count first, then the symbol. Drawn only
-                 while the panel is open; the space it takes is reserved by the
-                 panel's own margin either way, so the boons never move and the
-                 backdrop simply grows up to meet the row. */
-              <ul className="loadout__elements">
-                {ELEMENTS.map((element) => (
-                  <li
-                    key={element}
-                    data-met={elements.has(element) ? "true" : undefined}
-                  >
-                    <span>{elements.get(element) ?? 0}</span>
-                    <ElementArt
-                      game={game}
-                      element={element}
-                      className="loadout__element"
-                    />
-                    <span className="visually-hidden">{element}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
             <div className="loadout__stack">
+              {elements === undefined ||
+              game !== "hades2" ||
+              !showRest ? null : (
+                /* Inside the stack and above the grid, which is where the game's
+                   own tray puts it — count first, then the symbol. Drawn only
+                   while the panel is open; the heading reserves the space either
+                   way, so the boons never move and the backdrop grows up to meet
+                   the row. In the stack rather than beside it because the panel
+                   puts its own gap between its children and the reserve cannot
+                   know about that. */
+                <ul className="loadout__elements">
+                  {ELEMENTS.map((element) => (
+                    <li
+                      key={element}
+                      data-met={elements.has(element) ? "true" : undefined}
+                    >
+                      <span>{elements.get(element) ?? 0}</span>
+                      <ElementArt
+                        game={game}
+                        element={element}
+                        className="loadout__element"
+                      />
+                      <span className="visually-hidden">{element}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
               <div className="loadout__grid">
                 <Tiles
                   className="loadout__core"
