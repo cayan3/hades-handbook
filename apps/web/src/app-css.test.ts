@@ -99,4 +99,14 @@ describe("the page stylesheet", () => {
     expect(tracks[0]).toBe(tracks[1]);
     expect(wide?.[1]).toMatch(/\.app__godbar\s*\{[^}]*grid-column:\s*2/);
   });
+
+  it("leaves room above the body for the row that hangs there", () => {
+    // The Loadout's element row is positioned against its own section and
+    // anchored above it, so the space it needs is this margin rather than
+    // anything inside the panel. Measured at about 26px; below that it
+    // overlapped the god bar's bottom rule.
+    const body = CSS.match(/\.app__body\s*\{([^}]*)\}/)?.[1] ?? "";
+    const margin = /margin-top:\s*([\d.]+)rem/.exec(body)?.[1];
+    expect(Number(margin)).toBeGreaterThanOrEqual(1.7);
+  });
 });
