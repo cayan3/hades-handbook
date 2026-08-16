@@ -27,13 +27,16 @@ export { createLookups } from "./lookups.js";
 export { forcingKeepsakes, keepsakesFor } from "./keepsakes.js";
 export { poolGods } from "./gods.js";
 export {
+  chromeFor,
   elementIconFor,
   godIconFor,
   iconFor,
   keepsakeNameFor,
   nameFor,
+  slotIconFor,
   textFor,
 } from "./assets.js";
+export type { ChromePart } from "./assets.js";
 export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
 export { refusedTraits, traitsFor } from "./traits.js";

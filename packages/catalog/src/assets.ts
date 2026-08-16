@@ -1,4 +1,4 @@
-import type { Element, GodId, KeepsakeId, TraitId } from "@repo/core";
+import type { Element, GodId, KeepsakeId, SlotId, TraitId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
 import { keepsakesFor } from "./keepsakes.js";
 import type { GodRecord, TraitRecord } from "./schema.js";
@@ -92,6 +92,63 @@ export function elementIconFor(game: GameKey, element: Element): string {
   if (game !== "hades2") return `${ART_SET}/_missing`;
   return `${ART_SET}/${game}/Element_${element}`;
 }
+
+/**
+ * A part of the games' own interface, rather than a picture of a thing in them.
+ * One entry today; the boon card's frame is the next.
+ */
+export type ChromePart = "panel";
+
+/**
+ * Panel art, and the first arm here allowed to answer with nothing. Everything
+ * above falls back to the placeholder, an unresolved icon leaving a hole where a
+ * picture belongs; the panel is built to work with no art, so a placeholder
+ * frame around a working one would be worse than the plain frame it draws.
+ *
+ * The part names the file rather than the sprite: Hades II's panel is one sprite
+ * and Hades I's is three the game composites, so provenance would be true for
+ * one game and a fiction for the other.
+ */
+export function chromeFor(game: GameKey, part: ChromePart): string | null {
+  const key = CHROME[game][part];
+  return key === undefined ? null : `${ART_SET}/${game}/${key}`;
+}
+
+const CHROME: Readonly<Record<GameKey, Partial<Record<ChromePart, string>>>> = {
+  hades1: { panel: "Chrome_Panel" },
+  hades2: { panel: "Chrome_Panel" },
+};
+
+/**
+ * The glyph the game draws in a core slot nobody has filled. Null where the game
+ * draws none — 5 of 6 core slots in Hades II, the Hex having none, against 5 of
+ * 5 in Hades I — since a placeholder in a slot the run really has reads as a
+ * broken file rather than as an open position.
+ *
+ * The mapping is out of the games' HUD tables, not guessed from the names: Hades
+ * II files its Magick slot under `SlotIcon_Wrath`, the first game's Call.
+ */
+export function slotIconFor(game: GameKey, slot: SlotId): string | null {
+  const key = SLOT_ICONS[game][slot];
+  return key === undefined ? null : `${ART_SET}/${game}/${key}`;
+}
+
+const SLOT_ICONS: Readonly<Record<GameKey, Readonly<Record<string, string>>>> = {
+  hades1: {
+    Melee: "SlotIcon_Attack",
+    Secondary: "SlotIcon_Secondary",
+    Ranged: "SlotIcon_Ranged",
+    Rush: "SlotIcon_Dash",
+    Shout: "SlotIcon_Wrath",
+  },
+  hades2: {
+    Melee: "SlotIcon_Attack",
+    Secondary: "SlotIcon_Secondary",
+    Ranged: "SlotIcon_Ranged",
+    Rush: "SlotIcon_Dash",
+    Mana: "SlotIcon_Wrath",
+  },
+};
 
 /**
  * Codex text for a description key.

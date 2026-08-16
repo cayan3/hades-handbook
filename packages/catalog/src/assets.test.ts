@@ -1,12 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
+  type ChromePart,
+  chromeFor,
   elementIconFor,
   godIconFor,
   iconFor,
   keepsakeNameFor,
   nameFor,
+  slotIconFor,
   textFor,
 } from "./assets.js";
+import type { GameKey } from "./data.js";
 import { keepsakesFor } from "./keepsakes.js";
 import { traitsFor } from "./traits.js";
 
@@ -89,6 +93,49 @@ describe("elementIconFor", () => {
     // The placeholder rather than a Hades II path, which would serve one game's
     // art on the other's page.
     expect(elementIconFor("hades1", "Fire")).toBe("official/_missing");
+  });
+});
+
+describe("chromeFor", () => {
+  it("keys the file on the part, not on the sprite it came from", () => {
+    // Hades II's panel is one sprite and Hades I's is three the game composites
+    // itself, so a name carrying provenance would be true for one game only.
+    expect(chromeFor("hades1", "panel")).toBe("official/hades1/Chrome_Panel");
+    expect(chromeFor("hades2", "panel")).toBe("official/hades2/Chrome_Panel");
+  });
+
+  it("answers with nothing rather than the placeholder", () => {
+    // The one behaviour that separates this arm from the three above it. The
+    // panel is built to work with no art at all, so an absence has to be
+    // distinguishable from a hole -- a placeholder frame around a working panel
+    // is worse than the plain one it already draws.
+    expect(chromeFor("hades1" as GameKey, "nosuchpart" as ChromePart)).toBeNull();
+  });
+});
+
+describe("slotIconFor", () => {
+  it("takes the game's own mapping, which does not follow the names", () => {
+    // Read out of the games' HUD tables rather than inferred: Hades II files its
+    // Magick slot under the first game's Call.
+    expect(slotIconFor("hades1", "Shout")).toBe("official/hades1/SlotIcon_Wrath");
+    expect(slotIconFor("hades2", "Mana")).toBe("official/hades2/SlotIcon_Wrath");
+    expect(slotIconFor("hades1", "Rush")).toBe("official/hades1/SlotIcon_Dash");
+  });
+
+  it("covers every core slot the games draw one for, and says so where they do not", () => {
+    // 5 of 5 in Hades I and 5 of 6 in Hades II -- the Hex has no glyph in the
+    // game's own tray, and a placeholder in a slot the run really has would read
+    // as a broken file rather than as an empty position.
+    for (const slot of ["Melee", "Secondary", "Ranged", "Rush", "Shout"]) {
+      expect(slotIconFor("hades1", slot)).toMatch(/^official\/hades1\/SlotIcon_/);
+    }
+    for (const slot of ["Melee", "Secondary", "Ranged", "Rush", "Mana"]) {
+      expect(slotIconFor("hades2", slot)).toMatch(/^official\/hades2\/SlotIcon_/);
+    }
+    expect(slotIconFor("hades2", "Spell")).toBeNull();
+    // Not a core slot in either game: the Companion and the equipped kit.
+    expect(slotIconFor("hades2", "Assist")).toBeNull();
+    expect(slotIconFor("hades1", "Keepsake")).toBeNull();
   });
 });
 
