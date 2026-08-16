@@ -1,7 +1,8 @@
-import { type KeyboardEvent, useEffect, useId, useMemo, useRef } from "react";
+import { useId, useMemo } from "react";
 import { type BoonActions, BoonActionBar } from "./boon-actions.js";
 import { BoonRow } from "./boon-row.js";
 import { displacementLines, stateSentence } from "./describe.js";
+import { useDialog } from "./dialog.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 import { useGame } from "./presentation.js";
@@ -34,12 +35,6 @@ export interface ActionSheetProps {
   readonly actions?: BoonActions;
 }
 
-/**
- * Deliberately narrow: everything the sheet renders, and nothing that relies on
- * guessing whether an element happens to be reachable.
- */
-const FOCUSABLE = "button:not([disabled]), a[href], [tabindex]:not([tabindex='-1'])";
-
 export function ActionSheet({
   view,
   detail,
@@ -48,7 +43,9 @@ export function ActionSheet({
   onClose,
   actions = {},
 }: ActionSheetProps) {
-  const sheet = useRef<HTMLDivElement>(null);
+  // The trap, the focus hand-back and Escape are the same rules every modal
+  // here owes a keyboard, and they live in one place now.
+  const { ref: sheet, onKeyDown } = useDialog(onClose);
   const titleId = useId();
   const held = view.state === "Obtained";
   const game = useGame();
@@ -85,53 +82,6 @@ export function ActionSheet({
     }
     return wrapped as BoonActions;
   }, [actions, onClose]);
-
-  useEffect(() => {
-    // Captured before focus moves and restored on the way out. Without it,
-    // closing the sheet lands a keyboard user at the top of the document, having
-    // lost the node they were reading about.
-    const opener = document.activeElement;
-    sheet.current?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
-    return () => {
-      if (opener instanceof HTMLElement) opener.focus();
-    };
-  }, []);
-
-  /**
-   * On the document rather than on the sheet, which is the difference between a
-   * way out that always exists and one that nearly does. A handler on the sheet
-   * only hears keys pressed while focus is inside it — nearly always, since the
-   * trap below sees to that, and the exceptions are the moments it matters. A tap
-   * on the shade, or a window that lost focus and came back to the body: focus is
-   * outside, the keydown never arrives, and the one key everybody tries does
-   * nothing. Found by pressing it.
-   */
-  useEffect(() => {
-    const escape = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", escape);
-    return () => document.removeEventListener("keydown", escape);
-  }, [onClose]);
-
-  function onKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.key !== "Tab") return;
-
-    const stops = [...(sheet.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? [])];
-    const first = stops[0];
-    const last = stops[stops.length - 1];
-    if (first === undefined || last === undefined) return;
-
-    // Only the two ends need handling; between them the browser's own tab order
-    // is already right.
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  }
 
   return (
     // Tapping the shade closes it, which on a phone is the gesture people reach
