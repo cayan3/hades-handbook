@@ -1,8 +1,10 @@
 import type { KeyboardEvent } from "react";
+import type { CSSProperties } from "react";
 import { GodArt } from "./boon-art.js";
 import { type BoonGestures, BoonNode } from "./boon-node.js";
 import { MarkerGlyph } from "./glyphs.js";
 import { useHoverDisclosure } from "./hover-disclosure.js";
+import { godColour } from "./god-palette.js";
 import { GOAL_KEY, focusMember, isGoalKey, memberAt, stepFor, stepIndex } from "./keys.js";
 import type { NodeDetail, NodeView, RequirementRow } from "./node-view.js";
 import { useGame } from "./presentation.js";
@@ -30,12 +32,25 @@ export interface GoalsPanelProps extends BoonGestures {
   readonly goals: readonly Goal[];
   /**
    * The boon advancing the most goals at once, where one does — the view for its
-   * name, and how many of the pins it is a step toward.
+   * name and colour, and the names of the goals it is a step toward.
    */
-  readonly bestNextPick?: (NodeView & { readonly serves?: number }) | null;
+  readonly bestNextPick?: (NodeView & { readonly serves?: readonly string[] }) | null;
+  /**
+   * Which cards are held open, which is the player's and outlives this panel:
+   * closing the panel unmounts it, and a card that forgot it was open would be
+   * a click undone by looking away.
+   */
+  readonly heldOpen?: ReadonlySet<string>;
+  readonly onHeldOpen?: (trait: string) => void;
 }
 
-export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps) {
+export function GoalsPanel({
+  goals,
+  bestNextPick,
+  heldOpen,
+  onHeldOpen,
+  ...gestures
+}: GoalsPanelProps) {
   if (goals.length === 0) {
     return (
       <section className="goals goals--empty">
@@ -74,16 +89,30 @@ export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps
            itself, wherever the player meets it. It names how many goals it
            serves, because that is the whole of why it is being suggested. */
         <p className="goals__best">
-          Best next pick: <strong>{bestNextPick.name}</strong>
-          {bestNextPick.serves === undefined ? null : (
-            <span className="goals__serves"> — a step toward {bestNextPick.serves} of these</span>
+          Best next pick:{" "}
+          {/* In its own god's colour, which is the channel hue means everywhere
+              else here — this line names one boon, so there is no second god for
+              it to be confused with. */}
+          <strong className="goals__pick" style={pickColour(bestNextPick.god)}>
+            {bestNextPick.name}
+          </strong>
+          {bestNextPick.serves === undefined || bestNextPick.serves.length === 0 ? null : (
+            <span className="goals__serves">
+              {" "}
+              (fulfills requirements for {bestNextPick.serves.join(", ")})
+            </span>
           )}
         </p>
       )}
       <ul className="goals__list">
         {goals.map((goal) => (
           <li key={goal.view.trait}>
-            <GoalCard goal={goal} {...gestures} />
+            <GoalCard
+              goal={goal}
+              held={heldOpen?.has(goal.view.trait) ?? false}
+              {...(onHeldOpen === undefined ? {} : { onHeld: onHeldOpen })}
+              {...gestures}
+            />
           </li>
         ))}
       </ul>
@@ -91,7 +120,17 @@ export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps
   );
 }
 
-export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGestures) {
+export function GoalCard({
+  goal,
+  held = false,
+  onHeld,
+  ...gestures
+}: {
+  readonly goal: Goal;
+  /** Clicked open, and staying that way until it is clicked again. */
+  readonly held?: boolean;
+  readonly onHeld?: (trait: string) => void;
+} & BoonGestures) {
   const { view, detail } = goal;
   const met = detail.rows.filter((row) => row.met).length;
   const done = detail.rows.length > 0 && met === detail.rows.length;
@@ -102,8 +141,13 @@ export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGe
    * of them at once. Focus counts as hover, which is the rule this panel's
    * neighbours already follow — and it is the hook rather than a fifth copy of
    * those rules.
+   *
+   * A hover is a preview and a click holds it, which is the **held open** rule
+   * the Loadout's cards already use — the same words, because it is the same
+   * thing happening to a different card.
    */
-  const { open, wrapper } = useHoverDisclosure();
+  const { open: hovered, wrapper } = useHoverDisclosure();
+  const open = held || hovered;
 
   return (
     <article
@@ -111,7 +155,19 @@ export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGe
       data-state={view.state}
       data-trait={view.trait}
       data-open={open ? "true" : undefined}
+      data-held-open={held ? "true" : undefined}
       {...wrapper}
+      /* Anywhere on the card except its own controls: the icon opens the boon's
+         details and the card's job is the disclosure, so a click that landed on
+         a button belongs to that button. */
+      onClick={
+        onHeld === undefined
+          ? undefined
+          : (event) => {
+              if ((event.target as Element).closest("button") !== null) return;
+              onHeld(view.trait);
+            }
+      }
       /* The goal key works anywhere in the card, not only on its node: the card
          is what a keyboard steps between, and the node inside it is one stop of
          several. Clearing a goal from the surface that lists them is the
@@ -128,14 +184,17 @@ export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGe
     >
       <div className="goal__head">
         {/* No name under it: the card's own title is the name, and drawing it
-            twice is the second copy going out of step with the first. */}
-        <BoonNode view={view} pinned showName={false} {...gestures} />
+            twice is the second copy going out of step with the first. No pin
+            either — the card's own corner carries it, and every boon on this
+            panel is pinned by being here. The prop stays true, so the state is
+            still in the node's description and its `aria-current`. */}
+        <BoonNode view={view} pinned showName={false} showMarker={false} {...gestures} />
         <div className="goal__what">
           <h3 className="goal__name">
             {view.name}
             {view.state === "Obtained" ? <span className="goal__held">(Held)</span> : null}
           </h3>
-          <p className="goal__summary">{summaryOf(detail, done)}</p>
+          <p className="goal__summary">{summaryOf(detail, met)}</p>
         </div>
         <div className="goal__status">
           {/* The pin, in the card's own corner, carrying whether the goal is
@@ -178,33 +237,20 @@ export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGe
 }
 
 /**
- * The collapsed card's one line: what this goal is still waiting for, named
- * rather than counted — the count is the `n/m` beside it, and two ways of
- * saying "three left" is one of them wasted.
+ * The collapsed card's one line: how far along, and nothing about which boons.
  *
- * Short forms rather than the rows' own sentences: a row reading "any 1 of:
- * Wave Pounding, Sunken Treasure, Ocean's Bounty" is right in the list and is a
- * paragraph on one line here.
+ * Naming what is left was the first version and it was too much for a line the
+ * panel repeats per goal — a card is opened to read the boons, so the closed one
+ * says only whether it is worth opening. The `n/m` beside it carries the
+ * arithmetic.
+ *
+ * **Four states rather than three.** "Some requirements met" is false of a goal
+ * with none met, and that is the commonest state a goal is pinned in.
  */
-function summaryOf(detail: NodeDetail, done: boolean): string {
+function summaryOf(detail: NodeDetail, met: number): string {
   if (detail.rows.length === 0) return "No requirements.";
-  if (done) return "All requirements met.";
-  const left = detail.rows.filter((row) => !row.met).map(shortOf);
-  return `Still needed: ${left.join(", ")}`;
-}
-
-/** One unmet requirement in as few words as it can be said. */
-function shortOf(row: RequirementRow): string {
-  const only = row.options.length === 1 ? row.options[0] : undefined;
-  if (only !== undefined) return only.name;
-  // A god's own boons collapse to the god, which is the whole of what a choice
-  // between five of them asks for.
-  if (row.god !== null) {
-    return row.need === 1 ? `a ${row.god} boon` : `${row.need} ${row.god} boons`;
-  }
-  // An element count, a keepsake, a god in the pool: the sentence is already
-  // short because it names one thing.
-  return row.text;
+  if (met === 0) return "No requirements met yet.";
+  return met === detail.rows.length ? "All requirements met." : "Some requirements met.";
 }
 
 /**
@@ -259,4 +305,9 @@ function headingFor(row: RequirementRow): string {
   if (row.options.length === 1) return "The following:";
   if (row.need === 1) return "One of the following:";
   return `Any ${row.need} of the following:`;
+}
+
+/** The best pick's own god, this line naming exactly one boon. */
+function pickColour(god: string | null): CSSProperties {
+  return { color: godColour(god) } as CSSProperties;
 }

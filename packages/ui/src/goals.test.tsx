@@ -236,15 +236,15 @@ describe("the best next pick", () => {
     render(
       <GoalsPanel
         goals={[goal()]}
-        bestNextPick={{ ...view({ name: "Wave Pounding" }), serves: 2 }}
+        bestNextPick={{ ...view({ name: "Wave Pounding" }), serves: ["Island Getaway", "Carnal Pleasure"] }}
       />,
     );
 
     const strip = container.querySelector(".goals__best")?.textContent ?? "";
     expect(strip).toContain("Wave Pounding");
-    // The count is why it is being suggested, so it is on the strip rather than
-    // being something the player has to reconstruct by reading the cards.
-    expect(strip).toContain("2 of these");
+    // The goals it serves by name: a count is a number the player then has to
+    // resolve against the list underneath it.
+    expect(strip).toContain("fulfills requirements for Island Getaway, Carnal Pleasure");
   });
 
   it("draws nothing where no boon serves more than one", () => {
@@ -277,6 +277,22 @@ describe("a Goal Card collapsed and open", () => {
     expect(container.querySelector(".goal__held")).not.toBeNull();
   });
 
+  /**
+   * The card carries the pin, so the icon inside it does not — every boon on
+   * this panel is pinned by being there, and two marks for one fact collide.
+   * `pinned` stays true, so the state is still in the description.
+   */
+  it("draws no pin on the icon, the card's own corner carrying it", () => {
+    render(<GoalsPanel goals={[goal()]} />);
+
+    expect(container.querySelector(".node__box .node__marker")).toBeNull();
+    expect(container.querySelector(".goal__marker .node__marker")).not.toBeNull();
+    const described = document.getElementById(
+      container.querySelector(".node__control")?.getAttribute("aria-describedby") ?? "",
+    );
+    expect(described?.textContent).toContain("Pinned to a goal.");
+  });
+
   it("keeps the requirements shut until the card is hovered", () => {
     render(<GoalsPanel goals={[goal()]} />);
 
@@ -294,34 +310,24 @@ describe("a Goal Card collapsed and open", () => {
     expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(false);
   });
 
-  it("names what is left rather than counting it, the count being beside it", () => {
-    render(<GoalsPanel goals={[goal()]} />);
+  /**
+   * How far along and nothing about which boons: a card is opened to read those,
+   * so the closed one says only whether it is worth opening. The `n/m` beside it
+   * carries the arithmetic.
+   */
+  it("says how far along rather than what is left", () => {
+    const summary = () => container.querySelector(".goal__summary")?.textContent;
+    const rows = (...met: boolean[]) => detail({ rows: met.map((m, i) => row({ met: m, text: `r${i}` })) });
 
-    // A god's own boons collapse to the god: a choice between five of them asks
-    // for one Poseidon boon, and that is shorter than any list of the five.
-    expect(container.querySelector(".goal__summary")?.textContent).toBe(
-      "Still needed: a Poseidon boon",
-    );
-    expect(container.querySelector(".goal__progress")?.textContent).toBe("0/1 requirements met");
-  });
+    render(<GoalsPanel goals={[goal({ detail: rows(false, false) })]} />);
+    expect(summary()).toBe("No requirements met yet.");
+    expect(container.querySelector(".goal__progress")?.textContent).toBe("0/2 requirements met");
 
-  it("says the whole gate is done rather than listing nothing", () => {
-    render(<GoalsPanel goals={[goal({ detail: detail({ rows: [row({ met: true })] }) })]} />);
+    render(<GoalsPanel goals={[goal({ detail: rows(true, false) })]} />);
+    expect(summary()).toBe("Some requirements met.");
 
-    expect(container.querySelector(".goal__summary")?.textContent).toBe("All requirements met.");
-  });
-
-  it("names a single boon and an element gate as themselves", () => {
-    const single = row({
-      met: false,
-      options: [{ trait: "PoseidonWeaponBoon" as TraitId, name: "Wave Pounding", held: false }],
-    });
-    const element = row({ met: false, text: "2 more Fire", god: null, need: 0, options: [] });
-    render(<GoalsPanel goals={[goal({ detail: detail({ rows: [single, element] }) })]} />);
-
-    expect(container.querySelector(".goal__summary")?.textContent).toBe(
-      "Still needed: Wave Pounding, 2 more Fire",
-    );
+    render(<GoalsPanel goals={[goal({ detail: rows(true, true) })]} />);
+    expect(summary()).toBe("All requirements met.");
   });
 
   /**
@@ -336,5 +342,56 @@ describe("a Goal Card collapsed and open", () => {
 
     render(<GoalsPanel goals={[goal({ detail: detail({ rows: [row({ met: true })] }) })]} />);
     expect(container.querySelector(".goal__marker")?.getAttribute("data-met")).toBe("true");
+  });
+});
+
+/**
+ * A hover previews and a click holds it, which is the **held open** rule the
+ * Loadout's cards already use — the same words, because it is the same thing
+ * happening to a different card.
+ */
+describe("a Goal Card held open", () => {
+  it("says it is held open and stays that way with the pointer gone", () => {
+    render(<GoalsPanel goals={[goal()]} heldOpen={new Set(["AllCloseBoon"])} />);
+
+    const card = container.querySelector(".goal");
+    expect(card?.getAttribute("data-held-open")).toBe("true");
+    expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(false);
+
+    // No hover has happened at all, which is the half a preview cannot give.
+    act(() => card?.dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(false);
+  });
+
+  it("asks the caller to toggle when the card is clicked", () => {
+    const onHeldOpen = vi.fn();
+    render(<GoalsPanel goals={[goal()]} onHeldOpen={onHeldOpen} />);
+
+    act(() => {
+      container.querySelector(".goal__summary")?.dispatchEvent(
+        new MouseEvent("click", { bubbles: true }),
+      );
+    });
+    expect(onHeldOpen).toHaveBeenCalledWith("AllCloseBoon");
+  });
+
+  /**
+   * The icon opens the boon's details and the card's own click is the
+   * disclosure, so a click that landed on a control belongs to that control.
+   */
+  it("leaves a click on the icon to the icon", () => {
+    const onHeldOpen = vi.fn();
+    const onOpen = vi.fn();
+    render(
+      <GoalsPanel
+        goals={[goal({ view: view({ state: "Obtained" }) })]}
+        onHeldOpen={onHeldOpen}
+        onOpen={onOpen}
+      />,
+    );
+
+    act(() => container.querySelector<HTMLElement>(".node__control")?.click());
+    expect(onOpen).toHaveBeenCalledWith("AllCloseBoon");
+    expect(onHeldOpen).not.toHaveBeenCalled();
   });
 });

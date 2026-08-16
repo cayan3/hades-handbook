@@ -195,6 +195,12 @@ function Run({
   const [loadoutOpen, setLoadoutOpen] = useState(false);
   /** The command set written out. Opened with `?`, and by nothing else. */
   const [helpOpen, setHelpOpen] = useState(false);
+  /**
+   * The Goal Cards clicked open. Held here rather than in the panel because the
+   * panel is unmounted while it is closed, and a card that forgot it was open
+   * every time the panel was put away would be a click undone by looking away.
+   */
+  const [heldGoals, setHeldGoals] = useState<ReadonlySet<TraitId>>(new Set());
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -601,8 +607,23 @@ function Run({
             </button>
             <GoalsPanel
               goals={goals}
+              /* The goals it serves by name rather than by count: "a step
+                 toward 2 of these" is a number a player then has to go and
+                 resolve against the list underneath it. */
               bestNextPick={
-                best === null ? null : { ...view(best.trait), serves: best.goals.length }
+                best === null
+                  ? null
+                  : { ...view(best.trait), serves: best.goals.map(source.naming.trait) }
+              }
+              heldOpen={heldGoals}
+              onHeldOpen={(trait) =>
+                setHeldGoals((now) => {
+                  const next = new Set(now);
+                  // A toggle: the control that opened a card is the one that
+                  // closes it, which is the rule the Loadout's cards follow.
+                  if (!next.delete(trait as TraitId)) next.add(trait as TraitId);
+                  return next;
+                })
               }
               onOpen={setOpened}
               onGoal={toggleGoal}

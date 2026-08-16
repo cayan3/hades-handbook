@@ -132,6 +132,31 @@ const CHROME: Readonly<Record<GameKey, Partial<Record<ChromePart, string>>>> = {
 };
 
 /**
+ * The Forget-Me-Not marker, and the second arm allowed to answer with nothing.
+ *
+ * **The game's own asset is the default and the drawn glyph is the fallback**,
+ * which is the reverse of what this marker shipped as: it was drawn precisely so
+ * it would survive the shipped art being withdrawn, and the withdrawal path is
+ * this function rather than a component's choice. Answering `null` is that path
+ * — one edit here and every marker is the glyph again.
+ *
+ * **Null today, because the art is not extracted.** The marker's own consumer —
+ * a card that says whether a goal is finished — is newer than the extraction
+ * pass that skipped it, and a key naming a file that is not there resolves to
+ * the missing-art placeholder rather than to nothing. So this stays honest until
+ * `ForgetMeNot`/`TrackedRecipes` land, and the component draws its glyph.
+ *
+ * Hades I has no such resource and never will: Forget-Me-Not is a Hades II
+ * thing, so the game is a parameter with one answer today and a real one later.
+ */
+export function markerIconFor(game: GameKey): string | null {
+  const key = MARKER_ICONS[game];
+  return key === undefined ? null : `${ART_SET}/${game}/${key}`;
+}
+
+const MARKER_ICONS: Readonly<Partial<Record<GameKey, string>>> = {};
+
+/**
  * The glyph the game draws in a core slot nobody has filled. Null where the game
  * draws none — 5 of 6 core slots in Hades II, the Hex having none, against 5 of
  * 5 in Hades I — since a placeholder in a slot the run really has reads as a

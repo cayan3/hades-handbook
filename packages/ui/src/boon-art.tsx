@@ -4,6 +4,7 @@ import {
   chromeFor,
   elementIconFor,
   godIconFor,
+  markerIconFor,
   slotIconFor,
 } from "@repo/catalog";
 import type { Element, GodId, SlotId } from "@repo/core";
@@ -135,6 +136,43 @@ export function SlotArt({
       src={src}
       alt=""
       draggable={false}
+      onError={() => setSrc(null)}
+    />
+  );
+}
+
+/**
+ * The Forget-Me-Not marker as the game draws it, or nothing where the resolver
+ * has no file — the caller draws its own glyph then.
+ *
+ * **Nothing rather than the placeholder**, which is the rule the panel chrome
+ * and the empty slots already follow: a broken-file mark in the corner of a card
+ * says the opposite of what a pin means, and the drawn glyph it falls back to is
+ * a complete answer rather than a hole. Decorative either way — whatever draws
+ * one says in words whether the goal is finished.
+ */
+export function MarkerArt({
+  game,
+  className = "node__marker",
+}: {
+  readonly game: GameKey;
+  readonly className?: string;
+}) {
+  const key = markerIconFor(game);
+  const url = key === null ? null : artUrl(key);
+  const [src, setSrc] = useState(url);
+
+  useEffect(() => setSrc(url), [url]);
+
+  if (src === null) return null;
+  return (
+    <img
+      className={className}
+      src={src}
+      alt=""
+      draggable={false}
+      // Back to nothing rather than to the placeholder, so a file that fails to
+      // decode lands on the drawn glyph the same way an absent one does.
       onError={() => setSrc(null)}
     />
   );

@@ -77,6 +77,14 @@ export interface BoonNodeProps extends BoonGestures {
    */
   readonly showElement?: boolean;
   /**
+   * Draws the pin in the top-right corner. Off on a **Goal Card**, whose own
+   * corner carries one — every boon on that panel is pinned by being there, so
+   * a mark per icon says nothing and collides with the card's. `pinned` stays
+   * true regardless, so the state is still in the description and in
+   * `aria-current`.
+   */
+  readonly showMarker?: boolean;
+  /**
    * The hue this node carries, where it is not the boon's own god's.
    *
    * God colour discriminates in proportion to how many gods share the screen,
@@ -148,6 +156,7 @@ export function BoonNode({
   onGoal,
   showName = true,
   showElement = true,
+  showMarker = true,
   accent,
   outline,
   kindNamed = false,
@@ -253,7 +262,7 @@ export function BoonNode({
           }
         }}
       >
-        <NodeBox view={view} pinned={pinned} showElement={showElement} />
+        <NodeBox view={view} pinned={pinned && showMarker} showElement={showElement} />
         {showName ? <span className="node__name">{view.name}</span> : null}
         {/* The soft half of a hard verdict, on the node rather than only behind
             a tap: someone scanning a page of dead ends has to see that one of

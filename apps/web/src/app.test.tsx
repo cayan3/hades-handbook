@@ -490,7 +490,41 @@ describe("the Goals panel", () => {
 
     const strip = container.querySelector(".goals__best")?.textContent ?? "";
     expect(strip).toContain(H2.AphroditeSpecialBoon?.name);
-    expect(strip).toContain("2 of these");
+    // The goals it serves by name, and in the boon's own god's colour.
+    expect(strip).toContain(
+      `fulfills requirements for ${H2.AllCloseBoon?.name}, ${H2.BloodManaBurstBoon?.name}`,
+    );
+    expect(container.querySelector<HTMLElement>(".goals__pick")?.style.color).not.toBe("");
+  });
+
+  /**
+   * The panel is unmounted while it is closed, so a card that forgot it was
+   * open every time the panel was put away would be a click undone by looking
+   * away — which is why the held set lives above the panel.
+   */
+  it("keeps a card held open across closing and reopening the panel", async () => {
+    await mount();
+    goal("AllCloseBoon");
+    click("Goals (1)");
+
+    act(() => {
+      container.querySelector(".goal__summary")?.dispatchEvent(
+        new MouseEvent("click", { bubbles: true }),
+      );
+    });
+    expect(container.querySelector(".goal")?.getAttribute("data-held-open")).toBe("true");
+
+    click("Close");
+    click("Goals (1)");
+    expect(container.querySelector(".goal")?.getAttribute("data-held-open")).toBe("true");
+
+    // And it is a toggle: the click that opened it is the one that closes it.
+    act(() => {
+      container.querySelector(".goal__summary")?.dispatchEvent(
+        new MouseEvent("click", { bubbles: true }),
+      );
+    });
+    expect(container.querySelector(".goal")?.getAttribute("data-held-open")).toBeNull();
   });
 
   it("says nothing there while one goal is pinned", async () => {

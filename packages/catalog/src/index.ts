@@ -34,6 +34,7 @@ export {
   keepsakeNameFor,
   nameFor,
   slotIconFor,
+  markerIconFor,
   textFor,
 } from "./assets.js";
 export type { ChromePart } from "./assets.js";

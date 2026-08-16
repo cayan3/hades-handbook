@@ -8,7 +8,9 @@
 import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { MarkerArt } from "./boon-art.js";
 import { BoonNode } from "./boon-node.js";
+import { MarkerGlyph } from "./glyphs.js";
 import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
 import { NodePresentation } from "./presentation.js";
@@ -383,5 +385,35 @@ describe("the textual state of a node", () => {
     // The marking gesture is untouched: it is what a player does dozens of times
     // a run and it still costs one press.
     expect(onMark).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The pin prefers the game's own asset and falls back to the drawing, the
+ * resolver owning which. Today it answers nothing, so the drawing is what shows
+ * — and that is the state to pin, because it is the one a withdrawal returns to.
+ */
+describe("the marker's two forms", () => {
+  it("draws the glyph while the resolver has no art", () => {
+    render(<BoonNode view={view()} pinned />);
+
+    expect(container.querySelector("svg.node__marker")).not.toBeNull();
+    expect(container.querySelector("img.node__marker")).toBeNull();
+  });
+
+  it("renders nothing at all rather than a placeholder", () => {
+    // The rule the panel chrome and the empty slots already follow: a
+    // broken-file mark in a pin's corner says the opposite of what a pin means.
+    render(<MarkerArt game="hades2" />);
+    expect(container.innerHTML).toBe("");
+  });
+
+  /** Hollow is a second fact, and the game draws no unfinished pin. */
+  it("keeps the drawing for the hollow form whatever the resolver says", () => {
+    render(<MarkerGlyph filled={false} />);
+
+    const path = container.querySelector("svg.node__marker path");
+    expect(path?.getAttribute("fill")).toBe("none");
+    expect(Number(path?.getAttribute("stroke-width"))).toBeGreaterThan(0);
   });
 });

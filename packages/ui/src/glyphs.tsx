@@ -1,9 +1,13 @@
+import { markerIconFor } from "@repo/catalog";
+import { MarkerArt } from "./boon-art.js";
+import { useGame } from "./presentation.js";
+
 /**
- * The two corner glyphs, drawn rather than fetched. Shipped art sits behind a
- * resolver so it can be withdrawn, and a glyph that has to survive that
- * withdrawal is better off never being part of it — so the pin has a game asset
- * it could use and does not. Drawn also means they take the node's colour and
- * scale with it.
+ * The two corner glyphs. The dormant ring is drawn and always will be — the
+ * games have no such mark — and the pin now prefers the game's own asset with
+ * this drawing behind it, the resolver owning the withdrawal path rather than a
+ * component's choice. Drawn also means it takes the node's colour and scales
+ * with it, which is what the fallback keeps.
  *
  * Neither has alternative text: what they mean is in the node's accessible name
  * already.
@@ -15,6 +19,15 @@
  * game puts it in.
  */
 export function MarkerGlyph({ filled = true }: { readonly filled?: boolean } = {}) {
+  const game = useGame();
+  /**
+   * The game's asset only where the marker has one thing to say. Hollow is a
+   * *second* fact — a Goal Card's pin says whether the goal is finished — and
+   * the game draws no unfinished pin, so that form stays this drawing rather
+   * than losing the fill channel to an image that cannot express it.
+   */
+  if (filled && markerIconFor(game) !== null) return <MarkerArt game={game} />;
+
   return (
     <svg className="node__marker" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       {/* Outline against fill is the same channel a requirement row uses, one

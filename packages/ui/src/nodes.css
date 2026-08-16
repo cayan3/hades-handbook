@@ -1214,7 +1214,12 @@
  * boxes of different heights stops reading as a boundary.
  */
 .goal {
+  /* Read by the heading and by the indent under it, so the list meets the words
+     rather than the symbol beside them. */
+  --ask-icon: 1.45rem;
+  --ask-gap: 0.45rem;
   padding: 0.7rem 0.8rem;
+  cursor: pointer;
   border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 0.55rem;
   background: rgb(255 255 255 / 3%);
@@ -1222,6 +1227,13 @@
 
 .goal[data-open="true"] {
   border-color: rgb(255 255 255 / 26%);
+}
+
+/* Clicked open rather than merely under the pointer, and it stays that way —
+   so it reads as a state rather than as a hover. */
+.goal[data-held-open="true"] {
+  border-color: rgb(255 255 255 / 42%);
+  background: rgb(255 255 255 / 6%);
 }
 
 /*
@@ -1334,34 +1346,35 @@
 }
 
 /*
- * Have against need is carried by fill before colour: the dot is solid when a
- * requirement is met and hollow when it is not, so the distinction survives
- * both a colourblind reader and a printout. Each row also says which it is in
- * words, for the reader who has neither.
+ * `hidden` is a `display: none` in the user-agent sheet, and any `display` rule
+ * on the element beats it — so the rule above kept every card open and the
+ * attribute did nothing at all. Nothing failed: the runner computes no
+ * visibility, so a test asserting the attribute is there passes either way.
+ */
+.goal__rows[hidden] {
+  display: none;
+}
+
+/*
+ * Have against need on a group is the heading's own colour — green when the
+ * group is met, purple while it is not. There was a dot beside it saying the
+ * same thing twice; the words are what a reader reads, so the dot is what went.
  *
- * The colour is on the dot and never on the text. Green or purple type is a
- * second thing for the eye to decode where the marker beside it has already
- * said it, and it makes a met requirement harder to read than an unmet one.
+ * The structural half is not lost with it: every boon under the heading still
+ * carries fill against outline for held against not held, and the card's own
+ * pin carries it for the goal as a whole. Each row also says which it is in
+ * words, for a reader who gets no colour at all.
  */
 .goal__ask {
   display: flex;
-  gap: 0.4rem;
+  gap: var(--ask-gap);
   align-items: center;
   margin: 0;
+  color: #cbb0e8;
 }
 
-.goal__ask::before {
-  content: "";
-  flex: none;
-  width: 0.6rem;
-  height: 0.6rem;
-  border: 2px solid #cbb0e8;
-  border-radius: 50%;
-}
-
-.goal__row[data-met="true"] .goal__ask::before {
-  border-color: #9fd8a8;
-  background: #9fd8a8;
+.goal__row[data-met="true"] .goal__ask {
+  color: #9fd8a8;
 }
 
 /* The god's own symbol leads the group, as both games' requirement panels draw
@@ -1369,8 +1382,8 @@
    than being the only one. */
 .goal__godart {
   flex: none;
-  width: 1.15rem;
-  height: 1.15rem;
+  width: var(--ask-icon);
+  height: var(--ask-icon);
   object-fit: contain;
 }
 
@@ -1380,8 +1393,15 @@
  * carries which god's these are and a hue here would be identity and state in
  * one channel.
  */
+/*
+ * The choices line up under the *words* of the heading, not under the god's
+ * symbol to the left of them: the symbol says whose group this is and the list
+ * is the group's contents, so it is indented past it. One pair of properties
+ * rather than a literal, because a pixel of disagreement here is the indent
+ * drifting off the text it is meant to meet.
+ */
 .goal__options {
-  margin: 0.1rem 0 0.35rem 1.1rem;
+  margin: 0.1rem 0 0.35rem calc(var(--ask-icon) + var(--ask-gap));
   padding: 0;
   list-style: none;
 }

@@ -416,14 +416,15 @@ describe("the node stylesheet", () => {
 });
 
 /**
- * Have against need on a goal's requirement, which is a different channel from
- * the ladder above and takes the opposite rule: it *is* allowed a hue.
+ * Have against need on a goal's requirement.
  *
- * **The hue is on the marker and never on the text.** Coloured type is a second
- * thing for the eye to decode where the dot beside it has already said it, and
- * it makes a met requirement harder to read than an unmet one. So the two rules
- * here pull apart: the dot must carry two colours, and the words must carry
- * none.
+ * **The words carry it and there is no marker beside them.** A dot saying the
+ * same thing as the text it sits next to is a second thing to decode for
+ * nothing, so the heading takes the colour and the dot is gone.
+ *
+ * The structural half survives one level down and one level up, which is what
+ * this checks as well: every boon under a heading is filled or hollow for held
+ * against not held, and the card's own pin is filled or hollow for the goal.
  */
 describe("a requirement row's have-against-need", () => {
   function rule(selector: string): string {
@@ -432,25 +433,17 @@ describe("a requirement row's have-against-need", () => {
     return CSS.slice(CSS.indexOf("{", at) + 1, CSS.indexOf("}", at));
   }
 
-  it("carries the fill before the colour, and both ways round", () => {
-    // Fill first: the marker is an outline by default and filled when met, so
-    // the distinction survives a colourblind reader and a printout.
-    const unmet = rule(".goal__ask::before");
-    const met = rule('.goal__row[data-met="true"] .goal__ask::before');
-    expect(unmet).toMatch(/border\s*:/);
-    expect(met).toMatch(/background\s*:/);
-
-    // Then the colour, and there are two of them. One value is not a channel.
-    const hue = /#[0-9a-f]{3,8}/i;
+  it("colours the heading two ways and draws no marker beside it", () => {
+    const hue = /color:\s*(#[0-9a-f]{3,8})/i;
+    const unmet = rule(".goal__ask");
+    const met = rule('.goal__row[data-met="true"] .goal__ask');
     expect(unmet).toMatch(hue);
     expect(met).toMatch(hue);
-    expect(unmet.match(hue)?.[0]).not.toBe(met.match(hue)?.[0]);
-  });
+    expect(unmet.match(hue)?.[1]).not.toBe(met.match(hue)?.[1]);
 
-  it("leaves the words uncoloured, met or not", () => {
-    // The rule that used to paint the text is gone rather than tuned: a met
-    // requirement reads the same as an unmet one, and only the dot differs.
-    expect(CSS).not.toMatch(/\.goal__row\[data-met="(true|false)"\]\s+\.goal__ask\s*\{[^}]*(^|[\s;])color\s*:/m);
+    // The dot is gone rather than hidden: a rule drawing one would put it back
+    // the next time somebody changed a colour.
+    expect(CSS).not.toMatch(/\.goal__ask::before/);
   });
 
   /**
@@ -458,23 +451,43 @@ describe("a requirement row's have-against-need", () => {
    * the names would be identity and state in one channel — which is the same
    * mistake the ladder exists not to make.
    */
-  it("leaves the option text neutral", () => {
+  it("leaves the option text neutral and structural", () => {
     expect(rule(".goal__option")).not.toMatch(/(^|[\s;])color\s*:/);
     expect(rule('.goal__option[data-held="false"]')).not.toMatch(/(^|[\s;])color\s*:/);
     // Held against not held is brightness and a filled marker, no hue at all.
     expect(rule('.goal__option[data-held="false"]')).toMatch(/opacity\s*:/);
+    expect(rule(".goal__option::before")).toMatch(/border\s*:/);
     expect(rule('.goal__option[data-held="true"]::before')).toMatch(/background\s*:/);
   });
 
-  /**
-   * The card's own pin is the same pair one level up — whether the *whole* goal
-   * is done — so it takes the same treatment: hollow before colour.
-   */
   it("gives the card's pin the same two colours", () => {
     const pending = rule(".goal__marker");
     const done = rule('.goal__marker[data-met="true"]');
     expect(pending).toMatch(/color\s*:\s*#/);
     expect(done).toMatch(/color\s*:\s*#/);
     expect(pending).not.toBe(done);
+  });
+
+  /**
+   * The choices meet the heading's words, not the symbol beside them, and both
+   * read one pair of properties — a literal in either place is the indent
+   * drifting off the text the next time the symbol is resized, which is the
+   * defect this whole rule came out of.
+   */
+  it("indents the choices past the symbol by the symbol's own width", () => {
+    expect(rule(".goal__options")).toMatch(/calc\(var\(--ask-icon\) \+ var\(--ask-gap\)\)/);
+    expect(rule(".goal__godart")).toMatch(/var\(--ask-icon\)/);
+    expect(rule(".goal__ask")).toMatch(/gap:\s*var\(--ask-gap\)/);
+  });
+
+  /**
+   * `hidden` is `display: none` in the user-agent sheet and *any* `display` on
+   * the element beats it, so the flex column above kept every card open while
+   * the attribute was there and doing nothing. Nothing failed — the runner
+   * computes no visibility, so asserting the attribute passes either way, which
+   * is why this is asserted against the stylesheet instead.
+   */
+  it("lets the hidden attribute actually hide the rows", () => {
+    expect(rule(".goal__rows[hidden]")).toMatch(/display:\s*none/);
   });
 });
