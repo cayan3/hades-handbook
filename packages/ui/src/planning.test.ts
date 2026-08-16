@@ -128,6 +128,27 @@ describe("the best next pick", () => {
     expect(bestNextPick(tied, [...pins].reverse(), makeFacts(), takeable())?.trait).toBe("alpha");
   });
 
+  /**
+   * A gate can name the same boon in two branches, and 6 shipped ones do — 4 in
+   * Hades I and 2 in Hades II. Counted twice, one goal outvotes two and the
+   * strip says it fulfils a goal it names once.
+   */
+  it("counts a goal once however often its gate names the boon", () => {
+    const twice = world(
+      record("shared" as TraitId),
+      record("other" as TraitId),
+      record("elsewhere" as TraitId),
+      // `shared` named twice in one gate, which is the shipped shape.
+      record("goalA" as TraitId, all(any(has("shared"), has("elsewhere")), has("shared"))),
+      record("goalB" as TraitId, has("other")),
+    );
+
+    // `shared` serves exactly one goal and `other` exactly one, so nothing here
+    // serves two and the strip says nothing. Counted twice, `shared` reads as
+    // two and the panel claims a boon fulfils a goal it names once.
+    expect(bestNextPick(twice, ["goalA", "goalB"] as TraitId[], makeFacts(), takeable())).toBeNull();
+  });
+
   it("ignores a gate that names no boon at all", () => {
     const elemental = world(
       record("goalA" as TraitId, { kind: "hasElement", element: "Fire", count: 2 }),

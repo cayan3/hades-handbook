@@ -44,7 +44,9 @@ export function bestNextPick(
   for (const goal of goals) {
     const prereq = source.records[goal]?.prereq;
     if (prereq == null) continue;
-    for (const trait of traitsNamed(prereq)) {
+    // Deduplicated per goal: a gate can name the same boon in two branches, and
+    // 6 shipped ones do — counted twice, one goal outvotes two.
+    for (const trait of new Set(traitsNamed(prereq))) {
       if (facts.held.has(trait) || stateOf(trait) !== "Available") continue;
       covers.set(trait, [...(covers.get(trait) ?? []), goal]);
     }
