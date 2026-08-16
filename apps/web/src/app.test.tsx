@@ -556,6 +556,26 @@ describe("the Goals panel", () => {
     expect(container.querySelector(".app__goals")).not.toBeNull();
   });
 
+  /**
+   * Home's own way in is a second opener and needs the same exemption. Unlike
+   * the header's, this half can fail here: with the panel already open the
+   * click reaches the handler for real, and without the exclusion it closes
+   * what was just asked for.
+   */
+  it("opens from Home's control and is not closed by it", async () => {
+    await mount();
+    // A pin first: with nothing pinned the glance is a sentence and offers no
+    // way in, there being nothing behind it.
+    goal(APHRODITE_MELEE);
+    act(() => container.querySelector<HTMLElement>(".app__hometab")?.click());
+
+    click("Open Goals");
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+
+    click("Open Goals");
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+  });
+
   it("closes on a click outside it, and not on one inside", async () => {
     await mount();
     click("Goals");

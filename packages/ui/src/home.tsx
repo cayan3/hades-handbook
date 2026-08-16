@@ -1,6 +1,7 @@
 import type { GodId } from "@repo/core";
 import { useState } from "react";
 import { GodArt } from "./boon-art.js";
+import { type Goal, goalProgress } from "./goals.js";
 import { MARKING_HINT, UNAFFILIATED } from "./messages.js";
 import { useGame } from "./presentation.js";
 
@@ -16,14 +17,52 @@ export interface HomeProps {
   /** The gods this run has met, and the way back to what was being read. */
   readonly pooled: readonly GodId[];
   readonly onGod: (god: GodId) => void;
+  /** What is pinned, summarised the way the panel's own cards summarise it. */
+  readonly goals: readonly Goal[];
+  readonly onGoals: () => void;
   /** Opens the shortcut list, which the `?` key otherwise reaches alone. */
   readonly onShortcuts: () => void;
 }
 
-export function Home({ held, pooled, onGod, onShortcuts }: HomeProps) {
+export function Home({ held, pooled, goals, onGod, onGoals, onShortcuts }: HomeProps) {
   return (
     <div className="home">
       <ThisRun held={held} pooled={pooled} onGod={onGod} />
+
+      {/* Beside the region above it on a wide screen and under it on a narrow
+          one, which is the split the app already makes. */}
+      <section className="home__goals">
+        <h3>Goals at a glance</h3>
+        {goals.length === 0 ? (
+          <p>Nothing pinned yet. Set a boon as a goal and its progress shows up here.</p>
+        ) : (
+          <>
+            <ul className="home__goallist">
+              {goals.map((goal) => {
+                const { met, of, summary } = goalProgress(goal);
+                return (
+                  <li key={goal.view.trait} className="home__goal">
+                    <span className="home__goalname">{goal.view.name}</span>
+                    {/* The panel's own sentence and the panel's own count. A
+                        second way of saying how far along is a second answer
+                        waiting to disagree with the first. */}
+                    <span className="home__goalsummary">{summary}</span>
+                    {of === 0 ? null : (
+                      <span className="home__goalcount">
+                        {met}/{of}
+                        <span className="visually-hidden"> requirements met</span>
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+            <button type="button" className="home__opengoals" onClick={onGoals}>
+              Open Goals
+            </button>
+          </>
+        )}
+      </section>
 
       {/* Last of the three regions: it has to be present and findable rather
           than in front of what a player came for. */}

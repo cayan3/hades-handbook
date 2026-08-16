@@ -9,7 +9,9 @@
 import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { GodId } from "@repo/core";
+import type { GodId, TraitId } from "@repo/core";
+import type { Goal } from "./goals.js";
+import type { NodeView, RequirementRow } from "./node-view.js";
 import { Home, type HomeProps } from "./home.js";
 import { UNAFFILIATED } from "./messages.js";
 import { NodePresentation } from "./presentation.js";
@@ -45,8 +47,55 @@ function render(node: ReactElement): void {
 
 function home(over: Partial<HomeProps> = {}) {
   return (
-    <Home held={0} pooled={[]} onGod={() => {}} onShortcuts={() => {}} {...over} />
+    <Home
+      held={0}
+      pooled={[]}
+      goals={[]}
+      onGod={() => {}}
+      onGoals={() => {}}
+      onShortcuts={() => {}}
+      {...over}
+    />
   );
+}
+
+/**
+ * A pinned goal, as the panel hands one over. Only the name and the rows are
+ * filled in: what this region draws is the count and the sentence, both of
+ * which come off `rows` alone.
+ */
+function goal(name: string, met: number, of: number): Goal {
+  const rows: RequirementRow[] = Array.from({ length: of }, (_, at) => ({
+    text: `part ${at}`,
+    met: at < met,
+    god: null,
+    options: [],
+    need: 0,
+  }));
+
+  return {
+    view: view(name),
+    detail: { description: null, needed: [], rows, activation: [], displaces: null },
+  };
+}
+
+function view(name: string): NodeView {
+  return {
+    trait: name as TraitId,
+    name,
+    state: "Pending",
+    god: "Poseidon",
+    tier: null,
+    iconKey: "official/hades2/Poseidon_01",
+    kind: null,
+    rarity: null,
+    rarities: [],
+    element: null,
+    notice: null,
+    dormant: false,
+    replaces: null,
+    label: `${name} — Pending — Poseidon`,
+  };
 }
 
 function texts(selector: string): string[] {
@@ -122,5 +171,37 @@ describe("this run", () => {
     act(() => control?.click());
     expect(container.querySelector(".home__howto")?.getAttribute("aria-expanded")).toBe("true");
     expect(container.querySelector(".home__steps")?.textContent).toContain("mark it as taken");
+  });
+});
+
+describe("goals at a glance", () => {
+  it("says so where nothing is pinned", () => {
+    render(home());
+    expect(container.querySelector(".home__goals")?.textContent).toContain("Nothing pinned yet");
+    expect(container.querySelector(".home__opengoals")).toBeNull();
+  });
+
+  /**
+   * The panel's own sentence and the panel's own count, through the panel's own
+   * derivation — a second way of saying how far along would be a second answer.
+   */
+  it("summarises each goal the way a Goal Card does", () => {
+    render(home({ goals: [goal("Island Getaway", 1, 2), goal("Sunken Treasure", 0, 1)] }));
+
+    expect(texts(".home__goalname")).toEqual(["Island Getaway", "Sunken Treasure"]);
+    expect(texts(".home__goalsummary")).toEqual([
+      "Some requirements met.",
+      "No requirements met yet.",
+    ]);
+    expect(texts(".home__goalcount")).toEqual(["1/2 requirements met", "0/1 requirements met"]);
+  });
+
+  it("opens the panel, this being a glance rather than the surface", () => {
+    const opened = vi.fn();
+    render(home({ goals: [goal("Island Getaway", 2, 2)], onGoals: opened }));
+
+    expect(texts(".home__goalsummary")).toEqual(["All requirements met."]);
+    act(() => container.querySelector<HTMLElement>(".home__opengoals")?.click());
+    expect(opened).toHaveBeenCalledTimes(1);
   });
 });

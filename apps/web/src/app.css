@@ -101,6 +101,7 @@ h1,
 
 /* Only where alignment matters. */
 .goal__progress,
+.home__goalcount,
 .loadout__slot {
   font-family: var(--face-mono);
 }

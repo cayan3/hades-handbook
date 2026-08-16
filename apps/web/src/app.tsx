@@ -408,12 +408,13 @@ function Run({
    * The panel is not a dialog and takes no shade of its own, since the page under
    * it stays live.
    *
-   * **The control that opens it is excluded, and deleting that exclusion is how
-   * this got shipped broken once.** A discrete click flushes the effect that
+   * **Every control that opens it is excluded, and deleting that exclusion is
+   * how this got shipped broken once.** A discrete click flushes the effect that
    * registers this listener while the same click is still travelling to the
    * document, so without the exclusion the opening click reaches here and closes
    * the panel again — it never opened at all. The runner flushes effects at the
-   * end of `act` instead, so a mutation there shows nothing.
+   * end of `act` instead, so a mutation there shows nothing. Home's own control
+   * is a second opener and needs the same exemption for the same reason.
    *
    * A dialog over the panel is the second exclusion: the sheet listens on the
    * document too, and Escape belongs to whatever is on top.
@@ -426,7 +427,8 @@ function Run({
       // The scrim covers both dialogs, and a click on it or inside it belongs to
       // them — including the close control, whose subtree React has already
       // detached by the time this runs, `closest` still walking it.
-      if (target.closest(".app__goals, .app__goalstoggle, .sheet-scrim") !== null) return;
+      const opener = ".app__goalstoggle, .home__opengoals";
+      if (target.closest(`.app__goals, ${opener}, .sheet-scrim`) !== null) return;
       setGoalsOpen(false);
     };
     const escape = (event: globalThis.KeyboardEvent) => {
@@ -673,7 +675,9 @@ function Run({
               <Home
                 held={facts.held.size}
                 pooled={[...facts.godPool]}
+                goals={goals}
                 onGod={(name) => setSelected({ kind: "god", god: name })}
+                onGoals={() => setGoalsOpen(true)}
                 onShortcuts={() => setHelpOpen(true)}
               />
             </section>

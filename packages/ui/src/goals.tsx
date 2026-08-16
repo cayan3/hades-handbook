@@ -132,8 +132,8 @@ export function GoalCard({
   readonly onHeld?: (trait: string) => void;
 } & BoonGestures) {
   const { view, detail } = goal;
-  const met = detail.rows.filter((row) => row.met).length;
-  const done = detail.rows.length > 0 && met === detail.rows.length;
+  const { met, of } = goalProgress(goal);
+  const done = of > 0 && met === of;
   const { onGoal } = gestures;
   /**
    * The requirements are behind a hover, so a resting panel is one line per
@@ -194,7 +194,7 @@ export function GoalCard({
             {view.name}
             {view.state === "Obtained" ? <span className="goal__held">(Held)</span> : null}
           </h3>
-          <p className="goal__summary">{summaryOf(detail, met)}</p>
+          <p className="goal__summary">{goalProgress(goal).summary}</p>
         </div>
         <div className="goal__status">
           {/* The pin, in the card's own corner, carrying whether the goal is
@@ -204,9 +204,9 @@ export function GoalCard({
           <span className="goal__marker" data-met={done} aria-hidden="true">
             <MarkerGlyph filled={done} />
           </span>
-          {detail.rows.length === 0 ? null : (
+          {of === 0 ? null : (
             <p className="goal__progress">
-              {met}/{detail.rows.length}
+              {met}/{of}
               <span className="visually-hidden"> requirements met</span>
             </p>
           )}
@@ -243,6 +243,22 @@ export function GoalCard({
       </ul>
     </article>
   );
+}
+
+/**
+ * How far along a goal is, in the two forms a summary of one needs. Exported
+ * because Home draws a shorter version of this card, and two derivations of
+ * "how far along" is one of them disagreeing with the panel.
+ */
+export interface GoalProgress {
+  readonly met: number;
+  readonly of: number;
+  readonly summary: string;
+}
+
+export function goalProgress(goal: Goal): GoalProgress {
+  const met = goal.detail.rows.filter((row) => row.met).length;
+  return { met, of: goal.detail.rows.length, summary: summaryOf(goal.detail, met) };
 }
 
 /**
