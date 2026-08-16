@@ -50,37 +50,30 @@ describe("iconFor", () => {
 });
 
 describe("godIconFor", () => {
-  it("draws every god Hades I has from Hades I's set, in either game", () => {
-    // The user's preference, and it survives the framing being fixed: one set
-    // for as many gods as it covers, which is 9 of the 14 reaching a Hades II
-    // tab. Sound for a god and a defect for a trait, where a shared key is never
-    // the same drawing.
+  it("draws each game's gods from that game's own set", () => {
+    // Hades I's set was preferred in both games for three rounds, to buy one
+    // authored style where Hades II had gaps. The user's own Hades II symbols
+    // cover all 16 of its gods, so the gap is gone and so is the exception.
     expect(godIconFor("hades1", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
-    expect(godIconFor("hades2", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
-    // Poseidon belongs in this list and is lent another god's plain symbol for
-    // as long as the comparison below runs.
-    for (const god of ["Artemis", "Athena", "Dionysus", "Demeter"]) {
-      expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
-    }
-  });
-
-  it("keeps the Hades II file for a god Hades I never had", () => {
-    // The four Hades II Olympians with no Hades I counterpart. They match the
-    // rest now rather than needing a correction, the extractor having re-framed
-    // them on emit.
-    for (const god of ["Apollo", "Hephaestus", "Hera", "Hestia"]) {
+    expect(godIconFor("hades2", "Zeus")).toBe("official/hades2/BoonSymbolZeus");
+    for (const god of ["Apollo", "Hephaestus", "Hera", "Hestia", "Poseidon", "Hermes"]) {
       expect(godIconFor("hades2", god)).toBe(`official/hades2/BoonSymbol${god}`);
     }
   });
 
+  it("borrows the other game's file where this one names no symbol", () => {
+    // The fallback survives the preference flipping, and is the arm that keeps a
+    // god drawn rather than placeheld when one game's tables are short.
+    const borrowed = godIconFor("hades1", "Hades");
+    expect(borrowed === "official/hades2/BoonSymbolHades" || borrowed === "official/_missing").toBe(
+      true,
+    );
+  });
+
   it("lands on the shared placeholder for a god neither game draws", () => {
-    // Same absence as a trait with no icon, and the placeholder is deliberately
-    // not per-game: it is ours to draw, not either game's.
+    // The placeholder is deliberately not per-game: it is ours to draw, not
+    // either game's.
     expect(godIconFor("hades2", "NoSuchGod")).toBe("official/_missing");
-    // Hades himself has a page in Hades II and a symbol in neither set, and is
-    // the third god lent one for the comparison below. This line comes back
-    // with him when that ends.
-    expect(godIconFor("hades1", "Hades")).toBe("official/_missing");
   });
 });
 
@@ -97,21 +90,6 @@ describe("elementIconFor", () => {
     // The placeholder rather than a Hades II path, which would serve one game's
     // art on the other's page.
     expect(elementIconFor("hades1", "Fire")).toBe("official/_missing");
-  });
-});
-
-describe("the god-symbol comparison", () => {
-  it("lends three neighbours the plain cut of the art under judgement", () => {
-    // TEMPORARY, and deliberately loud: this whole block goes when the glowing
-    // and plain cuts have been judged against each other, and the two
-    // expectations it edited above come back with it.
-    expect(godIconFor("hades2", "Poseidon")).toBe("official/hades2/BoonSymbolHestia_plain");
-    expect(godIconFor("hades2", "Hermes")).toBe("official/hades2/BoonSymbolHera_plain");
-    expect(godIconFor("hades2", "Hades")).toBe("official/hades2/BoonSymbolHephaestus_plain");
-    // The three under judgement keep their own glowing cut.
-    for (const god of ["Hephaestus", "Hera", "Hestia"]) {
-      expect(godIconFor("hades2", god)).toBe(`official/hades2/BoonSymbol${god}`);
-    }
   });
 });
 

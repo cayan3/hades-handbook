@@ -60,39 +60,22 @@ export function iconFor(game: GameKey, traitId: TraitId): string {
  * they don't.
  */
 /**
- * **Hades I's set wherever Hades I has the god**, in either game, and this
- * game's own otherwise — 9 of the 14 gods reaching a Hades II tab come from
- * Hades I. Sound for a god where it would be a defect for a trait: a shared
- * trait key is never the same drawing, and a god's symbol is that god.
+ * **This game's own set first**, the other game's where this one names no symbol,
+ * and the shared placeholder where neither does.
  *
- * The two sets are framed alike now, the extractor re-framing Hades II's glow
- * cards on emit, so this is a preference rather than a correction — Apollo,
- * Hephaestus, Hera and Hestia have no Hades I counterpart and match anyway.
- * Hades has no symbol in either set and falls through to the placeholder.
+ * It preferred Hades I's set for both games for three rounds, on the argument
+ * that one authored style beats two. That ended when the user supplied Hades II
+ * symbols for all 16 of its gods, Hades and Selene included — there is no longer
+ * a gap to paper over, and a god's own game drawing its own god is the rule that
+ * needs no exceptions.
  */
-/**
- * TEMPORARY, and the whole of it is one commit to revert.
- *
- * Three gods whose symbol now comes from the user's own art, which ships in a
- * glowing and a plain cut. To judge the two side by side the plain cut is lent
- * to three neighbours on the bar, so a glance covers both without switching
- * anything. Delete this table and its use below once the choice is made.
- */
-const SYMBOL_COMPARISON: Readonly<Record<string, string>> = {
-  Poseidon: "BoonSymbolHestia_plain",
-  Hermes: "BoonSymbolHera_plain",
-  Hades: "BoonSymbolHephaestus_plain",
-};
-
 export function godIconFor(game: GameKey, god: GodId): string {
-  const borrowed = game === "hades2" ? SYMBOL_COMPARISON[god] : undefined;
-  if (borrowed !== undefined) return `${ART_SET}/hades2/${borrowed}`;
-
-  const preferred = godIconKey("hades1", god);
-  if (preferred !== null) return `${ART_SET}/hades1/${preferred}`;
-
   const own = godIconKey(game, god);
-  return own === null ? `${ART_SET}/_missing` : `${ART_SET}/${game}/${own}`;
+  if (own !== null) return `${ART_SET}/${game}/${own}`;
+
+  const other = game === "hades1" ? "hades2" : "hades1";
+  const borrowed = godIconKey(other, god);
+  return borrowed === null ? `${ART_SET}/_missing` : `${ART_SET}/${other}/${borrowed}`;
 }
 
 function godIconKey(game: GameKey, god: GodId): string | null {
