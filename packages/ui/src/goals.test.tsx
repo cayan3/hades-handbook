@@ -146,12 +146,19 @@ describe("a Goal Card's requirement rows", () => {
     expect(container.querySelector(".goal__ask")?.textContent).not.toContain("One of");
   });
 
-  it("says so where a goal's gate asks for nothing", () => {
+  it("says so where a goal's gate asks for nothing, and still opens", () => {
     render(<GoalsPanel goals={[goal({ detail: detail({ rows: [] }) })]} />);
 
     expect(container.querySelector(".goal__summary")?.textContent).toBe("No requirements.");
     // Nothing to count, so no count — an empty gate is not "0/0".
     expect(container.querySelector(".goal__progress")).toBeNull();
+
+    // And it opens onto the games' own phrase. A card that refused to open
+    // reads as one whose requirements failed to load.
+    expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(true);
+    openCard();
+    expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(false);
+    expect(container.querySelector(".goal__row--none")?.textContent).toBe("(None in particular)");
   });
 });
 

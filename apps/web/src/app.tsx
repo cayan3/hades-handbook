@@ -370,18 +370,22 @@ function Run({
    * The panel is not a dialog and takes no shade of its own, since the page under
    * it stays live.
    *
-   * The control that opens it needs no exclusion, which was checked by removing
-   * one: React's handler is on the root container and this listens on the
-   * document, so the toggle runs first and both settle on closed. A dialog over
-   * the panel does need one — the sheet listens on the document too, and Escape
-   * belongs to whatever is on top.
+   * **The control that opens it is excluded, and deleting that exclusion is how
+   * this got shipped broken once.** A discrete click flushes the effect that
+   * registers this listener while the same click is still travelling to the
+   * document, so without the exclusion the opening click reaches here and closes
+   * the panel again — it never opened at all. The runner flushes effects at the
+   * end of `act` instead, so a mutation there shows nothing.
+   *
+   * A dialog over the panel is the second exclusion: the sheet listens on the
+   * document too, and Escape belongs to whatever is on top.
    */
   useEffect(() => {
     if (!goalsOpen) return;
     const away = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-      if (target.closest(".app__goals") !== null) return;
+      if (target.closest(".app__goals, .app__goalstoggle") !== null) return;
       setGoalsOpen(false);
     };
     const escape = (event: globalThis.KeyboardEvent) => {

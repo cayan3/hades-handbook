@@ -1358,6 +1358,13 @@
   display: none;
 }
 
+/* The games' own words for a gate that asks nothing, and it is drawn rather
+   than left blank so an empty list cannot read as one that failed to load. */
+.goal__row--none {
+  opacity: 0.6;
+  font-style: italic;
+}
+
 /*
  * Have against need on a group is the heading's own colour — green when the
  * group is met, purple while it is not. There was a dot beside it saying the

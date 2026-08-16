@@ -538,6 +538,24 @@ describe("the Goals panel", () => {
    * It lies over the right-hand end of the page, so clicking off it is the
    * gesture people reach for — the same one the Action Sheet's shade takes.
    */
+  /**
+   * The regression the outside-click listener shipped with: a discrete click
+   * flushes the effect that registers it while the same click is still on its
+   * way to the document, so without the toggle's exclusion the opening click
+   * closed the panel again and it never opened at all.
+   *
+   * **This cannot fail in this runner**, which flushes effects at the end of
+   * `act` — after the click has finished travelling. It is here as the statement
+   * of the requirement, and the guard that actually holds is the exclusion in
+   * the handler; a mutation of that is invisible here, which is how it came to
+   * be deleted.
+   */
+  it("opens from its own control and stays open", async () => {
+    await mount();
+    click("Goals");
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+  });
+
   it("closes on a click outside it, and not on one inside", async () => {
     await mount();
     click("Goals");

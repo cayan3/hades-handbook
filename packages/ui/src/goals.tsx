@@ -223,15 +223,20 @@ export function GoalCard({
         </p>
       )}
 
-      {detail.rows.length === 0 ? null : (
-        <ul className="goal__rows" hidden={!open}>
-          {detail.rows.map((row) => (
+      {/* A goal with no gate opens too, onto the games' own empty state. A card
+          that refused to open would read as one that failed to load its
+          requirements rather than as one that has none. */}
+      <ul className="goal__rows" hidden={!open}>
+        {detail.rows.length === 0 ? (
+          <li className="goal__row goal__row--none">(None in particular)</li>
+        ) : (
+          detail.rows.map((row) => (
             <li key={row.text} className="goal__row" data-met={row.met}>
               <RequirementRowView row={row} />
             </li>
-          ))}
-        </ul>
-      )}
+          ))
+        )}
+      </ul>
     </article>
   );
 }
