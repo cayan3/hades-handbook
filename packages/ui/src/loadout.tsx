@@ -1,7 +1,7 @@
 import type { Element, SlotId, TraitId } from "@repo/core";
 import { type CSSProperties, useState } from "react";
 import type { BoonActions } from "./boon-actions.js";
-import { ElementArt, SlotArt, chromeStyle } from "./boon-art.js";
+import { ElementArt, SlotArt, chromeStyle, hasSlotArt } from "./boon-art.js";
 import { BoonNode } from "./boon-node.js";
 import { BoonRow } from "./boon-row.js";
 import { HoverMenu } from "./hover-menu.js";
@@ -46,10 +46,13 @@ export interface LoadoutEntry {
 type Cell = LoadoutEntry | { readonly slot: SlotId; readonly view: null };
 
 /**
- * The order the game lists them in, so the row does not rearrange as a run
- * picks elements up — a `Map` hands them back in the order they arrived.
+ * The order the game's own tray draws them in, so the row does not rearrange as
+ * a run picks elements up — a `Map` hands them back in the order they arrived.
+ *
+ * Taken from a capture of that tray rather than from a declared list: the game
+ * builds the row by iterating a hash table, so its data has no order to read.
  */
-const ELEMENTS: readonly Element[] = ["Air", "Water", "Earth", "Fire", "Aether"];
+const ELEMENTS: readonly Element[] = ["Earth", "Water", "Air", "Fire", "Aether"];
 
 export interface LoadoutProps {
   readonly entries: readonly LoadoutEntry[];
@@ -130,9 +133,12 @@ export function Loadout({
    * order they filled it in. The rest have no positions to be in, so the only
    * order that means anything is when they arrived.
    */
-  const core: readonly Cell[] = coreSlots.map(
-    (slot) => entries.find((entry) => entry.slot === slot) ?? { slot, view: null },
-  );
+  const core: readonly Cell[] = coreSlots
+    .map((slot) => entries.find((entry) => entry.slot === slot) ?? { slot, view: null })
+    // An empty slot the game draws no glyph for is left out rather than drawn as
+    // a bare box — the Hades II Hex, and only it. The rest column still counts
+    // its rows off the game's slot count, so nothing below shifts.
+    .filter((cell) => cell.view !== null || hasSlotArt(game, cell.slot));
   const rest = entries.filter((entry) => !core.includes(entry));
 
   /** A card whose boon has left the run describes a boon nobody holds. */
@@ -197,6 +203,23 @@ export function Loadout({
       }}
     >
       <h2>Loadout</h2>
+
+      {elements === undefined || game !== "hades2" || !showRest ? null : (
+        /* A total over everything below it, so it reads above the grid — which
+           is where the game's own tray puts it, count first and then the symbol.
+           All five while the panel is open and none at all while it is not: a
+           collapsed panel is the core slots and nothing else, and an Infusion is
+           planned against the ceiling as much as against the count. */
+        <ul className="loadout__elements">
+          {ELEMENTS.map((element) => (
+            <li key={element} data-met={elements.has(element) ? "true" : undefined}>
+              <span>{elements.get(element) ?? 0}</span>
+              <ElementArt game={game} element={element} className="loadout__element" />
+              <span className="visually-hidden">{element}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {entries.length === 0 ? (
         <p className="loadout__empty">No boons yet.</p>
@@ -288,23 +311,6 @@ export function Loadout({
             </button>
           )}
         </>
-      )}
-
-      {elements === undefined || game !== "hades2" || !showRest ? null : (
-        /* Above the grid, because it is a total over everything below it. All
-           five while the panel is open and none at all while it is not: a
-           collapsed panel is the core slots and nothing else, and an Infusion is
-           planned against the ceiling as much as against the count, so the
-           zeroes are the half that says how far there is to go. */
-        <ul className="loadout__elements">
-          {ELEMENTS.map((element) => (
-            <li key={element} data-met={elements.has(element) ? "true" : undefined}>
-              <ElementArt game={game} element={element} className="loadout__element" />
-              <span>{elements.get(element) ?? 0}</span>
-              <span className="visually-hidden">{element}</span>
-            </li>
-          ))}
-        </ul>
       )}
 
       {equipped.length === 0 ? null : (

@@ -151,8 +151,8 @@ describe("the node stylesheet", () => {
     expect(sizers).toEqual([
       ".node",
       '.godpage .node[data-game="hades2"]',
-      ".loadout__tile",
-      ".loadout__tile .node, .loadout__card .boonrow__icon",
+      ".loadout__tile, .loadout__tile .node, .loadout__card .boonrow__icon",
+      '.loadout__tile[data-game="hades2"], .loadout__tile[data-game="hades2"] .node, .loadout__card .boonrow__icon[data-game="hades2"]',
     ]);
   });
 
@@ -161,13 +161,18 @@ describe("the node stylesheet", () => {
    * number or the ring pinches. They did not: the icon drew at 4.5rem and the
    * ring's radius came off 3.25rem, 1.04px tighter than what it rings.
    */
-  it("computes the tile's ring and its icon from one size", () => {
+  it("computes the tile's ring and its icon from one size, per game", () => {
+    // One declaration per game covering the tile, the node inside it and the
+    // card's icon, so the three cannot drift apart the way they did. The sizes
+    // are each game's God View size: a rounded square carries 1.77x the ink of
+    // a diamond at the same box, which is why they differ at all.
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
-    const tile = rules.match(/\.loadout__tile\s*\{([^}]*)\}/)?.[1] ?? "";
-    const inside = rules.match(/\.loadout__tile \.node,[^{]*\{([^}]*)\}/)?.[1] ?? "";
-    const sizeOf = (body: string) => /--node-size:\s*([\d.]+rem)/.exec(body)?.[1];
-    expect(sizeOf(tile)).toBeDefined();
-    expect(sizeOf(inside)).toBe(sizeOf(tile));
+    const sizeOf = (selector: string) => {
+      const body = rules.match(new RegExp(`${selector}[^{]*\\{([^}]*)\\}`))?.[1] ?? "";
+      return /--node-size:\s*([\d.]+rem)/.exec(body)?.[1];
+    };
+    expect(sizeOf("\\.loadout__tile,")).toBe("4.5rem");
+    expect(sizeOf('\\.loadout__tile\\[data-game="hades2"\\],')).toBe("3.9rem");
   });
 
   it("scales every corner mark with the node rather than pinning it", () => {

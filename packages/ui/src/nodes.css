@@ -163,10 +163,16 @@
    scales with it: a percentage resolves against each box's own size, and the
    outline is a larger box than the fill, so its corners came out *tighter* than
    the icon's and the two did not meet. */
+/* 0.26 rather than the 0.18 this shipped with, and the number is measured: at
+   0.18 a median 11.5% of the node box was the page's own ground showing through
+   the corners, because the artwork's corner is rounder than the clip was. The
+   icons were tightened to their drawn box in the same round, and the two
+   together take it to 3.7%; 0.26 is where the curve flattens, costing 0.16% of
+   the opaque art. */
 .node[data-game="hades2"],
 .loadout__tile[data-game="hades2"] {
   --node-clip: none;
-  --node-radius: calc(var(--node-size) * 0.18);
+  --node-radius: calc(var(--node-size) * 0.26);
 }
 
 /* The one size that did not grow with the rest of the type. Names sit in the
@@ -1376,7 +1382,6 @@
      ordered against each other and must not be ordered against the page. */
   isolation: isolate;
   display: inline-flex;
-  --node-size: 3.25rem;
 }
 
 /* Named because the rarity treatment below subtracts it: that shape is
@@ -1411,10 +1416,22 @@
    never reached the icon. Measured: the icon drew at 4.5rem while the rarity
    ring's radius was computed from 3.25rem, leaving the outer box a 1.04px
    tighter corner than the icon it rings. The card beside the grid takes the same
-   size, being the same panel. */
+   size, being the same panel.
+
+   Per game, and it is each game's God View size rather than one number: the two
+   games draw at different sizes there for a measured reason (a rounded square
+   carries 1.77x the ink of a diamond at the same box), and a Loadout tile that
+   ignored that would reintroduce exactly the imbalance the god page corrects. */
+.loadout__tile,
 .loadout__tile .node,
 .loadout__card .boonrow__icon {
-  --node-size: 3.25rem;
+  --node-size: 4.5rem;
+}
+
+.loadout__tile[data-game="hades2"],
+.loadout__tile[data-game="hades2"] .node,
+.loadout__card .boonrow__icon[data-game="hades2"] {
+  --node-size: 3.9rem;
 }
 
 /*
@@ -1580,7 +1597,11 @@
   --chrome-slice: 10;
   --chrome-frame: 10px;
   --chrome-radius: 0.15rem;
-  padding: var(--chrome-frame);
+  /* Clear of the frame rather than level with it. `border-image-width` paints
+     inward over the padding, so a padding equal to the frame leaves the first
+     column of tiles starting exactly where the frame stops — which is what the
+     leftmost column crowding the border was. */
+  padding: calc(var(--chrome-frame) + 0.7rem);
   border: 0 solid transparent;
   border-image-source: var(--chrome-panel);
   border-image-slice: var(--chrome-slice);

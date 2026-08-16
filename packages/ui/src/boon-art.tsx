@@ -113,6 +113,11 @@ export function GodArt({
  * not fall back to the placeholder, a broken-file mark saying the opposite of
  * "still open". Decorative — the caller names the position in text.
  */
+/** Whether the game draws a glyph for this slot at all — false for the Hades II Hex. */
+export function hasSlotArt(game: GameKey, slot: SlotId): boolean {
+  return slotIconFor(game, slot) !== null;
+}
+
 export function SlotArt({
   game,
   slot,
