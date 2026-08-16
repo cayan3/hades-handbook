@@ -2080,3 +2080,50 @@ kbd {
   font-size: 0.9rem;
   text-align: center;
 }
+
+/*
+ * Home. One column of regions on a narrow screen and two above the width the
+ * app already splits at, which is the same query the body uses rather than a
+ * second breakpoint of its own.
+ */
+.home {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.home h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.home p {
+  margin: 0 0 0.6rem;
+  max-width: 46rem;
+}
+
+/* A control that reads as a link: it opens a list rather than acting on the
+   run, so it should not look like the buttons that do. */
+.home__shortcuts {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+/* Last and quiet, but never behind anything: it has to be present and findable
+   rather than in front of what a player came for. */
+.home__disclaimer {
+  margin: 1rem 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  font-size: 0.9rem;
+  opacity: 0.7;
+}

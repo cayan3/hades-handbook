@@ -11,6 +11,8 @@ import {
   GodPage,
   GodPicker,
   GoalsPanel,
+  Home,
+  HomeGlyph,
   Loadout,
   type LoadoutEntry,
   NodePresentation,
@@ -105,6 +107,20 @@ interface Curated {
 
 const NO_TABS: Curated = { added: new Set(), removed: new Set() };
 
+/**
+ * What the bar has selected, and it is a sum rather than a god id with a
+ * reserved value in it: `godIconFor`, the picker's list of gods not on the bar
+ * and every pool question are all keyed by a god's name, and a pseudo-god would
+ * reach all three.
+ */
+type Selection = { readonly kind: "home" } | { readonly kind: "god"; readonly god: string };
+
+const HOME: Selection = { kind: "home" };
+
+function sameTab(a: Selection, b: Selection): boolean {
+  return a.kind === "god" ? b.kind === "god" && b.god === a.god : b.kind === "home";
+}
+
 export interface AppProps {
   readonly store: RunStore;
   readonly presence: TabPresence | null;
@@ -182,7 +198,8 @@ function Run({
   const [dismissedEdit, setDismissedEdit] = useState<unknown>(null);
   /** What the last mark pushed out of the run, for the toast to say beside it. */
   const [cost, setCost] = useState<readonly string[]>([]);
-  const [god, setGod] = useState<string | null>(null);
+  /** Home until something is picked, which is the whole of what it is for. */
+  const [selected, setSelected] = useState<Selection>(HOME);
   /**
    * Closed by default. It used to open by default, on the argument that Goals
    * is the phone's home and half the accessible path — but the panel is fixed
@@ -218,7 +235,8 @@ function Run({
         removed.delete(name);
       }
       onCurated({ added, removed });
-      if (names.length === 1 && names[0] !== undefined) setGod(names[0]);
+      const only = names.length === 1 ? names[0] : undefined;
+      if (only !== undefined) setSelected({ kind: "god", god: only });
     },
     [curated, onCurated],
   );
@@ -235,8 +253,9 @@ function Run({
       added.delete(name);
       onCurated({ added, removed: new Set(curated.removed).add(name) });
       // The tab being read is held up by `showing`, so dropping it has to let
-      // the selection fall back or it removes nothing.
-      setGod((now) => (now === name ? null : now));
+      // the selection fall back or it removes nothing. Home rather than another
+      // god: it is the one tab that is certainly still there.
+      setSelected((now) => (now.kind === "god" && now.god === name ? HOME : now));
     },
     [curated, onCurated],
   );
@@ -256,25 +275,42 @@ function Run({
   const unshown = tabs.filter((name) => !shownTabs.includes(name));
 
   /**
-   * The god being read, and it is picked *from the bar* rather than beside it.
+   * The bar itself, Home first. Pinning it here rather than conditioning it on
+   * the run is what makes "the bar is never empty" structural, and it is what
+   * the brackets step onto.
+   */
+  const bar: readonly Selection[] = [
+    HOME,
+    ...shownTabs.map((god) => ({ kind: "god", god }) as const),
+  ];
+
+  /**
+   * What is being read, and it is picked *from the bar* rather than beside it.
    * Deriving the two independently made the selection hold its own tab up: a
    * removal could not take down the tab you were looking at, because being
    * looked at was one of the reasons a tab was there.
    */
-  const showing = (god !== null && shownTabs.includes(god) ? god : shownTabs[0]) ?? "";
+  const showing = bar.find((tab) => sameTab(tab, selected)) ?? HOME;
+  const showingGod = showing.kind === "god" ? showing.god : null;
   // One cache for the whole page. What makes keying it on facts identity sound
   // is a property of the layer below, and is written down there.
   const cache = useMemo(() => createNodeCache(source), [source]);
   const view = useCallback((trait: TraitId) => cache.viewOf(trait, facts), [cache, facts]);
   // The page's shape and the page's state, derived together because the
-  // connectors carry path status and that is a fact about the run.
-  const graph = useMemo(
-    () => godGraph(source, showing, facts, CORE_SLOTS[game]),
-    [source, showing, facts, game],
+  // connectors carry path status and that is a fact about the run. Null is
+  // exactly Home, which draws no graph — keyed on the god's name rather than on
+  // the selection, an object being a fresh one every render.
+  const page = useMemo(
+    () =>
+      showingGod === null
+        ? null
+        : { god: showingGod, graph: godGraph(source, showingGod, facts, CORE_SLOTS[game]) },
+    [source, showingGod, facts, game],
   );
   const boonViews = useMemo(
-    () => new Map(graphTraits(graph).map((trait) => [trait, view(trait)])),
-    [graph, view],
+    () =>
+      new Map((page === null ? [] : graphTraits(page.graph)).map((trait) => [trait, view(trait)])),
+    [page, view],
   );
 
   const write = useCallback(
@@ -338,9 +374,10 @@ function Run({
    * they are listened for on the document: a handler on the page body would miss
    * every press made while focus was inside a panel or a dialog.
    *
-   * `[` and `]` step the god bar. Bracket keys rather than letters because the
-   * quick-add's search box is coming and every unmodified letter spent here is
-   * one it cannot type — the guard against typing is in the predicate either
+   * `[` and `]` step the whole bar, Home included: it is a tab, so stepping off
+   * the first god has somewhere to go. Bracket keys rather than letters because
+   * the quick-add's search box is coming and every unmodified letter spent here
+   * is one it cannot type — the guard against typing is in the predicate either
    * way, which is what makes a document-level binding safe at all.
    */
   useEffect(() => {
@@ -352,15 +389,15 @@ function Run({
       }
       const way = godStep(event);
       if (way === null) return;
-      const at = shownTabs.indexOf(showing);
-      const next = shownTabs[Math.min(shownTabs.length - 1, Math.max(0, at + way))];
-      if (next === undefined || next === showing) return;
+      const at = bar.findIndex((tab) => sameTab(tab, showing));
+      const next = bar[Math.min(bar.length - 1, Math.max(0, at + way))];
+      if (next === undefined || sameTab(next, showing)) return;
       event.preventDefault();
-      setGod(next);
+      setSelected(next);
     };
     document.addEventListener("keydown", press);
     return () => document.removeEventListener("keydown", press);
-  }, [shownTabs, showing]);
+  }, [bar, showing]);
 
   /**
    * The Goals panel closes on a click outside it and on Escape.
@@ -506,12 +543,26 @@ function Run({
             has something to hold, so the two section headings still line up. */}
         <nav className="app__gods" aria-label="God">
           <div className="app__godbar">
+              {/* Pinned first, and outside the list the gods are drawn from —
+                  which is what makes "never removable" structural rather than a
+                  condition somebody has to remember. It carries no × because
+                  removal is about the tabs a player put up. */}
+              <button
+                type="button"
+                className="app__godtab app__hometab"
+                aria-current={showing.kind === "home" ? "page" : undefined}
+                title="Home"
+                onClick={() => setSelected(HOME)}
+              >
+                <HomeGlyph className="app__godart" />
+                <span className="visually-hidden">Home</span>
+              </button>
               {shownTabs.map((name) => (
                 <span key={name} className="app__godslot">
                 <button
                   type="button"
                   className="app__godtab"
-                  aria-current={name === showing ? "page" : undefined}
+                  aria-current={name === showingGod ? "page" : undefined}
                   /**
                    * In the pool is a fact about the run and shows on the tab;
                    * it never decides whether the tab is there. The glow is the
@@ -530,7 +581,7 @@ function Run({
                   // in the hidden text below because the tab's own text is what
                   // the picker and the bar are read by.
                   aria-label={facts.godPool.has(name) ? `${name} — in your pool` : undefined}
-                  onClick={() => setGod(name)}
+                  onClick={() => setSelected({ kind: "god", god: name })}
                 >
                   {/* The symbol and nothing drawn beside it, so the bar reads
                       as shapes. The name is still the control's accessible name
@@ -613,25 +664,34 @@ function Run({
             actions={actions}
           />
 
-          <section className="app__ladder">
-            <h2>Boons</h2>
-            <GodPage
-              graph={graph}
-              views={boonViews}
-              nameOf={source.naming.trait}
-              pinned={intent.pins}
-              onMark={markOrOpen}
-              onOpen={setOpened}
-              onGoal={toggleGoal}
-            />
-            {/* Under the thing it is about, not above it: it is a first-visit
-                explanation and it stops being read long before it stops being
-                on the page. */}
-            <p className="app__hint">
-              Tap a boon to mark it as taken. Long-press, or right-click, to set
-              it as a goal. Tapping one you already hold opens its details.
-            </p>
-          </section>
+          {/* The two things this column can be. A null page is exactly Home,
+              which is a tab rather than a god and so has no graph. */}
+          {page === null ? (
+            <section className="app__ladder">
+              <h2>Home</h2>
+              <Home onShortcuts={() => setHelpOpen(true)} />
+            </section>
+          ) : (
+            <section className="app__ladder">
+              <h2>Boons</h2>
+              <GodPage
+                graph={page.graph}
+                views={boonViews}
+                nameOf={source.naming.trait}
+                pinned={intent.pins}
+                onMark={markOrOpen}
+                onOpen={setOpened}
+                onGoal={toggleGoal}
+              />
+              {/* Under the thing it is about, not above it: it is a first-visit
+                  explanation and it stops being read long before it stops being
+                  on the page. */}
+              <p className="app__hint">
+                Tap a boon to mark it as taken. Long-press, or right-click, to set
+                it as a goal. Tapping one you already hold opens its details.
+              </p>
+            </section>
+          )}
         </main>
 
         {!goalsOpen ? null : (

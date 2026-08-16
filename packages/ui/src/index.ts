@@ -51,6 +51,8 @@ export type { RarityTreatment } from "./rarity-palette.js";
 export type { NoticeBarProps, UndoToastProps } from "./chrome.js";
 export { GoalCard, GoalsPanel } from "./goals.js";
 export type { Goal, GoalsPanelProps } from "./goals.js";
+export { Home, HomeGlyph } from "./home.js";
+export type { HomeProps } from "./home.js";
 export { Loadout } from "./loadout.js";
 export type { LoadoutEntry, LoadoutProps } from "./loadout.js";
 export { NodePresentation, useGame, useLadder } from "./presentation.js";
@@ -138,6 +140,7 @@ export {
   REMOVE_LABEL,
   STORAGE_ERROR_BODY,
   STORAGE_ERROR_TITLE,
+  UNAFFILIATED,
   UNREADABLE_RUN_BODY,
   UNREADABLE_RUN_TITLE,
   editSentence,

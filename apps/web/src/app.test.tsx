@@ -684,6 +684,8 @@ describe("the Loadout", () => {
    */
   it("draws the real art and offers no way to turn it off", async () => {
     await mount();
+    // A god's page, because the app opens on Home now and Home draws no node.
+    node(APHRODITE_MELEE);
 
     expect(container.querySelector<HTMLElement>(".node")?.dataset["ladder"]).toBe("real-art");
     const controls = [...container.querySelectorAll("label")].map((el) => el.textContent);
@@ -1210,8 +1212,10 @@ describe("what the boon list shows", () => {
     act(() => picker?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
     act(() => container.querySelector<HTMLElement>(".godpicker__all")?.click());
 
-    // Every god this game attributes a boon to, and the picker has nothing left.
-    expect(container.querySelectorAll(".app__godtab").length).toBe(14);
+    // Every god this game attributes a boon to, and the picker has nothing
+    // left. Counted inside the slots the gods are drawn in, which is also an
+    // assertion that Home is not one of them — it carries no removal.
+    expect(container.querySelectorAll(".app__godslot .app__godtab").length).toBe(14);
     expect(container.querySelector(".godpicker")).toBeNull();
   });
 
@@ -1301,12 +1305,23 @@ describe("the page-wide keys", () => {
   });
 
   /**
-   * It is opened by a key and by nothing on screen, which is what makes it free:
-   * a player who never touches a keyboard never meets it at all.
+   * Home is the one way in that is not the key. Everywhere else it is opened by
+   * `?` and by nothing on screen, which is what keeps it free: a player reading
+   * a god's page never meets a control they have no use for.
    */
-  it("puts no control on the page to open it with", async () => {
+  it("offers it on Home and nowhere else", async () => {
     await mount();
-    expect(texts("button").some((label) => /shortcut/i.test(label))).toBe(false);
+    const trigger = () => texts("button").filter((label) => /shortcut/i.test(label));
+    expect(trigger()).toEqual(["Keyboard shortcuts"]);
+
+    showGod("Athena");
+    expect(trigger()).toEqual([]);
+  });
+
+  it("opens the list from that control as well as from the key", async () => {
+    await mount();
+    click("Keyboard shortcuts");
+    expect(container.querySelector(".shortcuts")).not.toBeNull();
   });
 
   /**
@@ -1386,5 +1401,73 @@ describe("the page-wide keys", () => {
     // The Goals control carries the count, so the pin is visible without opening
     // the panel — and a pin is the one thing no keyboard could make before.
     expect(control("Goals (1)")).toBeDefined();
+  });
+});
+
+/**
+ * Home, which is a tab on the bar and deliberately not a god: the bar's
+ * selection is a sum, so nothing here can put a pseudo-god id in front of the
+ * icon resolver, the picker's list or a pool question.
+ */
+describe("the Home tab", () => {
+  const bar = () => texts(".app__godtab").map((text) => text.trim());
+  const current = () =>
+    container.querySelector('.app__godtab[aria-current="page"]')?.textContent?.trim() ?? null;
+
+  it("opens on Home and pins it in front of the gods", async () => {
+    await mount();
+
+    expect(bar()[0]).toBe("Home");
+    expect(current()).toBe("Home");
+    expect(container.querySelector(".home__disclaimer")).not.toBeNull();
+    // No graph on Home, so nothing on it can be mistaken for a god's page.
+    expect(container.querySelector(".godpage")).toBeNull();
+  });
+
+  /** Removal is about the tabs a player put up, so this one carries none. */
+  it("offers no way to take it down", async () => {
+    await mount();
+    const home = container.querySelector(".app__hometab");
+
+    expect(home?.closest(".app__godslot")).toBeNull();
+    for (const drop of [...container.querySelectorAll<HTMLElement>(".app__goddrop")]) {
+      act(() => drop.click());
+    }
+    expect(bar()).toContain("Home");
+  });
+
+  it("is where a god's page goes when its own tab comes down", async () => {
+    await mount();
+    showGod("Athena");
+    expect(current()).toBe("Athena");
+
+    const drop = [...container.querySelectorAll<HTMLElement>(".app__goddrop")].find(
+      (button) => button.getAttribute("aria-label") === "Remove the Athena tab",
+    );
+    act(() => drop?.click());
+    expect(current()).toBe("Home");
+  });
+
+  /** It is a tab, so the brackets reach it rather than stopping at the first god. */
+  it("is one step back from the first god", async () => {
+    await mount();
+    showGod("Athena");
+    press("[");
+    press("[");
+    press("[");
+    expect(current()).toBe("Home");
+
+    press("]");
+    expect(current()).toBe(bar()[1]);
+  });
+
+  it("goes to a god when one is picked, and comes back when Home is", async () => {
+    await mount();
+    showGod("Athena");
+    expect(container.querySelector(".godpage")).not.toBeNull();
+
+    act(() => container.querySelector<HTMLElement>(".app__hometab")?.click());
+    expect(container.querySelector(".godpage")).toBeNull();
+    expect(container.querySelector(".home")).not.toBeNull();
   });
 });

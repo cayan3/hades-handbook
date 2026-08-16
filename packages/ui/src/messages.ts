@@ -157,6 +157,18 @@ export const OTHER_TAB_BODY =
 export const OVERRIDDEN_LABEL = "Held by hand";
 export const OVERRIDDEN_HINT = "You set this yourself. It won't be updated for you.";
 
+/**
+ * The one thing this product has to say about itself before it is published,
+ * and it is a constant so that changing it is one edit — the same shape the art
+ * resolver has, for the same reason. Every surface that faces a stranger draws
+ * this one.
+ */
+export const UNAFFILIATED =
+  "Hades and Hades II are Supergiant Games'. The artwork and names here are " +
+  "theirs, shown so that players can plan a run; this is a free, unofficial " +
+  "project with no connection to them and nothing in it is for sale. It comes " +
+  "down on request.";
+
 /** The three removals, whose difference is a fact about the run rather than wording. */
 export const REMOVE_LABEL = "I mis-tapped";
 export const REMOVE_HINT = "It never happened. The god leaves the pool if nothing else holds them.";

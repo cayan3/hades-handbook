@@ -282,6 +282,13 @@ h1,
   overflow: hidden;
 }
 
+/* Home is not a god and has no colour of its own, so its outline is the neutral
+   one. Selection is still the shared fill, which is the channel it is on for
+   every other tab. */
+.app__hometab {
+  border-color: rgb(255 255 255 / 35%);
+}
+
 /* The tab and its remove control, which is drawn over the tab's own corner and
    only under the pointer: a bar of crosses is a bar about removing things. */
 .app__godslot {
