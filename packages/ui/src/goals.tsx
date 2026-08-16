@@ -1,7 +1,8 @@
 import type { KeyboardEvent } from "react";
 import { GodArt } from "./boon-art.js";
 import { type BoonGestures, BoonNode } from "./boon-node.js";
-import { stateSentence } from "./describe.js";
+import { MarkerGlyph } from "./glyphs.js";
+import { useHoverDisclosure } from "./hover-disclosure.js";
 import { GOAL_KEY, focusMember, isGoalKey, memberAt, stepFor, stepIndex } from "./keys.js";
 import type { NodeDetail, NodeView, RequirementRow } from "./node-view.js";
 import { useGame } from "./presentation.js";
@@ -79,8 +80,6 @@ export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps
           )}
         </p>
       )}
-      {/* Arrow keys step between cards, so the list says so once rather than
-          every card repeating it. */}
       <ul className="goals__list">
         {goals.map((goal) => (
           <li key={goal.view.trait}>
@@ -95,44 +94,69 @@ export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps
 export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGestures) {
   const { view, detail } = goal;
   const met = detail.rows.filter((row) => row.met).length;
+  const done = detail.rows.length > 0 && met === detail.rows.length;
   const { onGoal } = gestures;
+  /**
+   * The requirements are behind a hover, so a resting panel is one line per
+   * goal and a glance answers "how far along" without answering "how" for all
+   * of them at once. Focus counts as hover, which is the rule this panel's
+   * neighbours already follow — and it is the hook rather than a fifth copy of
+   * those rules.
+   */
+  const { open, wrapper } = useHoverDisclosure();
 
   return (
     <article
       className="goal"
       data-state={view.state}
       data-trait={view.trait}
+      data-open={open ? "true" : undefined}
+      {...wrapper}
       /* The goal key works anywhere in the card, not only on its node: the card
          is what a keyboard steps between, and the node inside it is one stop of
-         several. Clearing a goal from the surface that lists them is the shortest
-         path there is. */
-      onKeyDown={
-        onGoal === undefined
-          ? undefined
-          : (event) => {
-              // The node inside the card takes the same key and gets there
-              // first; without this the press would clear the goal and set it
-              // again on the way up.
-              if (event.defaultPrevented || !isGoalKey(event)) return;
-              event.preventDefault();
-              onGoal(view.trait);
-            }
-      }
+         several. Clearing a goal from the surface that lists them is the
+         shortest path there is. */
+      onKeyDown={(event) => {
+        wrapper.onKeyDown(event);
+        // The node inside the card takes the same key and gets there first;
+        // without this the press would clear the goal and set it again on the
+        // way up.
+        if (onGoal === undefined || event.defaultPrevented || !isGoalKey(event)) return;
+        event.preventDefault();
+        onGoal(view.trait);
+      }}
     >
       <div className="goal__head">
-        <BoonNode view={view} pinned {...gestures} />
+        {/* No name under it: the card's own title is the name, and drawing it
+            twice is the second copy going out of step with the first. */}
+        <BoonNode view={view} pinned showName={false} {...gestures} />
         <div className="goal__what">
-          <h3 className="goal__name">{view.name}</h3>
-          <p className="goal__state">{stateSentence(view.state)}</p>
+          <h3 className="goal__name">
+            {view.name}
+            {view.state === "Obtained" ? <span className="goal__held">(Held)</span> : null}
+          </h3>
+          <p className="goal__summary">{summaryOf(detail, done)}</p>
         </div>
-        {detail.rows.length === 0 ? null : (
-          <p className="goal__progress">
-            {met}/{detail.rows.length}
-            <span className="visually-hidden"> requirements met</span>
-          </p>
-        )}
+        <div className="goal__status">
+          {/* The pin, in the card's own corner, carrying whether the goal is
+              finished — filled and green when it is, outline and purple while
+              it is not. Hidden from a reader: the summary beside it says the
+              same thing in words, and hearing it twice is worse than once. */}
+          <span className="goal__marker" data-met={done} aria-hidden="true">
+            <MarkerGlyph filled={done} />
+          </span>
+          {detail.rows.length === 0 ? null : (
+            <p className="goal__progress">
+              {met}/{detail.rows.length}
+              <span className="visually-hidden"> requirements met</span>
+            </p>
+          )}
+        </div>
       </div>
 
+      {/* Drawn whether or not the card is open. A hard verdict on something the
+          player asked to be reminded of is not a thing to put behind a hover,
+          and the lead is required copy. */}
       {view.notice === null ? null : (
         <p className="goal__notice">
           {view.notice.lead === null ? null : <strong>{view.notice.lead}</strong>}
@@ -140,12 +164,8 @@ export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGe
         </p>
       )}
 
-      {detail.rows.length === 0 ? (
-        /* The game's own empty state, and it is worth having: a goal with no
-           gate is not a goal whose requirements failed to load. */
-        <p className="goal__none">No requirements.</p>
-      ) : (
-        <ul className="goal__rows">
+      {detail.rows.length === 0 ? null : (
+        <ul className="goal__rows" hidden={!open}>
           {detail.rows.map((row) => (
             <li key={row.text} className="goal__row" data-met={row.met}>
               <RequirementRowView row={row} />
@@ -158,11 +178,41 @@ export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGe
 }
 
 /**
+ * The collapsed card's one line: what this goal is still waiting for, named
+ * rather than counted — the count is the `n/m` beside it, and two ways of
+ * saying "three left" is one of them wasted.
+ *
+ * Short forms rather than the rows' own sentences: a row reading "any 1 of:
+ * Wave Pounding, Sunken Treasure, Ocean's Bounty" is right in the list and is a
+ * paragraph on one line here.
+ */
+function summaryOf(detail: NodeDetail, done: boolean): string {
+  if (detail.rows.length === 0) return "No requirements.";
+  if (done) return "All requirements met.";
+  const left = detail.rows.filter((row) => !row.met).map(shortOf);
+  return `Still needed: ${left.join(", ")}`;
+}
+
+/** One unmet requirement in as few words as it can be said. */
+function shortOf(row: RequirementRow): string {
+  const only = row.options.length === 1 ? row.options[0] : undefined;
+  if (only !== undefined) return only.name;
+  // A god's own boons collapse to the god, which is the whole of what a choice
+  // between five of them asks for.
+  if (row.god !== null) {
+    return row.need === 1 ? `a ${row.god} boon` : `${row.need} ${row.god} boons`;
+  }
+  // An element count, a keepsake, a god in the pool: the sentence is already
+  // short because it names one thing.
+  return row.text;
+}
+
+/**
  * One part of the gate, drawn the way both games draw their own requirement
  * panel: the god's symbol, a heading saying how many of the list are wanted, and
  * the boons under it lit where the run holds one.
  *
- * A part naming no boons — an element count, a keepsake, a god in the pool —
+ * A part naming no boon — an element count, a keepsake, a god in the pool —
  * keeps the sentence it always had. Both games do the same: Hades I's mirror
  * requirement is one line reading "Stygian Soul Active".
  */

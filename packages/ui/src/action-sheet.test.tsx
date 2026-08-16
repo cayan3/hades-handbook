@@ -318,6 +318,25 @@ describe("ActionSheet", () => {
     expect(container.querySelector(".boonrow__icon .node__marker")).toBeNull();
   });
 
+  /**
+   * The marker above is the whole visible channel now: the sentence beside it
+   * was doing the same job twice, and the corner mark is where the game puts
+   * it. But that marker is `aria-hidden`, so the sentence stays for the one
+   * reader who cannot see a corner — said once, and not drawn.
+   */
+  it("says a boon is pinned only to a reader", () => {
+    render(<ActionSheet view={view()} detail={detail()} pinned onClose={noop} />);
+
+    // The element that *is* the sentence rather than any ancestor containing
+    // it: `textContent` walks descendants, so every ancestor would match and
+    // the assertion would be about the document rather than about this.
+    const saying = [...container.querySelectorAll(".sheet *")].filter(
+      (el) => el.textContent?.trim() === "Pinned to a goal.",
+    );
+    expect(saying).toHaveLength(1);
+    expect(saying[0]?.classList.contains("visually-hidden")).toBe(true);
+  });
+
   it("tints by the kind where the boon has one", () => {
     render(<ActionSheet view={view({ kind: "duo" })} detail={detail()} onClose={noop} />);
 

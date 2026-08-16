@@ -417,10 +417,13 @@ describe("the node stylesheet", () => {
 
 /**
  * Have against need on a goal's requirement, which is a different channel from
- * the ladder above and takes the opposite rule: it *is* allowed a hue, and the
- * design says fill before colour and green/purple second. The unmet half had
- * been drawn as opacity alone, so the second channel had one value and this
- * checks it has two.
+ * the ladder above and takes the opposite rule: it *is* allowed a hue.
+ *
+ * **The hue is on the marker and never on the text.** Coloured type is a second
+ * thing for the eye to decode where the dot beside it has already said it, and
+ * it makes a met requirement harder to read than an unmet one. So the two rules
+ * here pull apart: the dot must carry two colours, and the words must carry
+ * none.
  */
 describe("a requirement row's have-against-need", () => {
   function rule(selector: string): string {
@@ -432,15 +435,22 @@ describe("a requirement row's have-against-need", () => {
   it("carries the fill before the colour, and both ways round", () => {
     // Fill first: the marker is an outline by default and filled when met, so
     // the distinction survives a colourblind reader and a printout.
-    expect(rule(".goal__ask::before")).toMatch(/border\s*:/);
-    expect(rule('.goal__row[data-met="true"] .goal__ask::before')).toMatch(/background\s*:/);
+    const unmet = rule(".goal__ask::before");
+    const met = rule('.goal__row[data-met="true"] .goal__ask::before');
+    expect(unmet).toMatch(/border\s*:/);
+    expect(met).toMatch(/background\s*:/);
 
     // Then the colour, and there are two of them. One value is not a channel.
-    const met = rule('.goal__row[data-met="true"] .goal__ask');
-    const unmet = rule('.goal__row[data-met="false"] .goal__ask');
-    expect(met).toMatch(/color\s*:\s*#/);
-    expect(unmet).toMatch(/color\s*:\s*#/);
-    expect(met).not.toBe(unmet);
+    const hue = /#[0-9a-f]{3,8}/i;
+    expect(unmet).toMatch(hue);
+    expect(met).toMatch(hue);
+    expect(unmet.match(hue)?.[0]).not.toBe(met.match(hue)?.[0]);
+  });
+
+  it("leaves the words uncoloured, met or not", () => {
+    // The rule that used to paint the text is gone rather than tuned: a met
+    // requirement reads the same as an unmet one, and only the dot differs.
+    expect(CSS).not.toMatch(/\.goal__row\[data-met="(true|false)"\]\s+\.goal__ask\s*\{[^}]*(^|[\s;])color\s*:/m);
   });
 
   /**
@@ -454,5 +464,17 @@ describe("a requirement row's have-against-need", () => {
     // Held against not held is brightness and a filled marker, no hue at all.
     expect(rule('.goal__option[data-held="false"]')).toMatch(/opacity\s*:/);
     expect(rule('.goal__option[data-held="true"]::before')).toMatch(/background\s*:/);
+  });
+
+  /**
+   * The card's own pin is the same pair one level up — whether the *whole* goal
+   * is done — so it takes the same treatment: hollow before colour.
+   */
+  it("gives the card's pin the same two colours", () => {
+    const pending = rule(".goal__marker");
+    const done = rule('.goal__marker[data-met="true"]');
+    expect(pending).toMatch(/color\s*:\s*#/);
+    expect(done).toMatch(/color\s*:\s*#/);
+    expect(pending).not.toBe(done);
   });
 });

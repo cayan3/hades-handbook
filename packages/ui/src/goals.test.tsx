@@ -90,9 +90,16 @@ function detail(over: Partial<NodeDetail> = {}): NodeDetail {
 
 const goal = (over: Partial<Goal> = {}): Goal => ({ view: view(), detail: detail(), ...over });
 
+/** The requirements are behind a hover, as the panel's neighbours are. */
+function openCard(): void {
+  const card = container.querySelector(".goal");
+  act(() => card?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+}
+
 describe("a Goal Card's requirement rows", () => {
   it("draws the god, the count and the boons under it", () => {
     render(<GoalsPanel goals={[goal()]} />);
+    openCard();
 
     expect(container.querySelector(".goal__ask")?.textContent).toContain("One of the following");
     const options = [...container.querySelectorAll(".goal__option")];
@@ -107,6 +114,7 @@ describe("a Goal Card's requirement rows", () => {
    */
   it("says have and need in words, not only in the fill", () => {
     render(<GoalsPanel goals={[goal()]} />);
+    openCard();
 
     const words = [...container.querySelectorAll(".goal__option .visually-hidden")].map(
       (span) => span.textContent,
@@ -120,6 +128,7 @@ describe("a Goal Card's requirement rows", () => {
   it("keeps the sentence alone for a part that names no boon", () => {
     const element = row({ text: "2 more Fire", god: null, need: 0, options: [] });
     render(<GoalsPanel goals={[goal({ detail: detail({ rows: [element] }) })]} />);
+    openCard();
 
     expect(container.querySelectorAll(".goal__option")).toHaveLength(0);
     expect(container.querySelector(".goal__row")?.textContent).toBe("Need: 2 more Fire");
@@ -131,6 +140,7 @@ describe("a Goal Card's requirement rows", () => {
       options: [{ trait: "PoseidonWeaponBoon" as TraitId, name: "Wave Pounding", held: false }],
     });
     render(<GoalsPanel goals={[goal({ detail: detail({ rows: [one] }) })]} />);
+    openCard();
 
     expect(container.querySelector(".goal__ask")?.textContent).toContain("The following");
     expect(container.querySelector(".goal__ask")?.textContent).not.toContain("One of");
@@ -139,7 +149,8 @@ describe("a Goal Card's requirement rows", () => {
   it("says so where a goal's gate asks for nothing", () => {
     render(<GoalsPanel goals={[goal({ detail: detail({ rows: [] }) })]} />);
 
-    expect(container.querySelector(".goal__none")?.textContent).toBe("No requirements.");
+    expect(container.querySelector(".goal__summary")?.textContent).toBe("No requirements.");
+    // Nothing to count, so no count — an empty gate is not "0/0".
     expect(container.querySelector(".goal__progress")).toBeNull();
   });
 });
@@ -239,5 +250,91 @@ describe("the best next pick", () => {
   it("draws nothing where no boon serves more than one", () => {
     render(<GoalsPanel goals={[goal()]} bestNextPick={null} />);
     expect(container.querySelector(".goals__best")).toBeNull();
+  });
+});
+
+/**
+ * The card collapsed is the icon, the name and one line saying what is left;
+ * the requirements arrive on a hover. A resting panel is one line per goal.
+ */
+describe("a Goal Card collapsed and open", () => {
+  it("draws no name under the icon, the title carrying it instead", () => {
+    render(<GoalsPanel goals={[goal()]} />);
+
+    // The name is still the node's accessible name, so nothing a reader gets
+    // depends on it being drawn twice.
+    expect(container.querySelector(".node__name")).toBeNull();
+    expect(container.querySelector(".goal__name")?.textContent).toContain("Island Getaway");
+    expect(container.querySelector(".node__control")?.getAttribute("aria-label")).toContain(
+      "Island Getaway",
+    );
+  });
+
+  it("puts held on the title's own line, not on a line of its own", () => {
+    render(<GoalsPanel goals={[goal({ view: view({ state: "Obtained" }) })]} />);
+
+    expect(container.querySelector(".goal__name")?.textContent).toBe("Island Getaway(Held)");
+    expect(container.querySelector(".goal__held")).not.toBeNull();
+  });
+
+  it("keeps the requirements shut until the card is hovered", () => {
+    render(<GoalsPanel goals={[goal()]} />);
+
+    expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(true);
+    openCard();
+    expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(false);
+  });
+
+  /** Focus counts as hover, or the requirements are a thing only a mouse reaches. */
+  it("opens on focus as well as on the pointer", () => {
+    render(<GoalsPanel goals={[goal()]} />);
+    const control = container.querySelector<HTMLElement>(".node__control");
+
+    act(() => control?.dispatchEvent(new FocusEvent("focusin", { bubbles: true })));
+    expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(false);
+  });
+
+  it("names what is left rather than counting it, the count being beside it", () => {
+    render(<GoalsPanel goals={[goal()]} />);
+
+    // A god's own boons collapse to the god: a choice between five of them asks
+    // for one Poseidon boon, and that is shorter than any list of the five.
+    expect(container.querySelector(".goal__summary")?.textContent).toBe(
+      "Still needed: a Poseidon boon",
+    );
+    expect(container.querySelector(".goal__progress")?.textContent).toBe("0/1 requirements met");
+  });
+
+  it("says the whole gate is done rather than listing nothing", () => {
+    render(<GoalsPanel goals={[goal({ detail: detail({ rows: [row({ met: true })] }) })]} />);
+
+    expect(container.querySelector(".goal__summary")?.textContent).toBe("All requirements met.");
+  });
+
+  it("names a single boon and an element gate as themselves", () => {
+    const single = row({
+      met: false,
+      options: [{ trait: "PoseidonWeaponBoon" as TraitId, name: "Wave Pounding", held: false }],
+    });
+    const element = row({ met: false, text: "2 more Fire", god: null, need: 0, options: [] });
+    render(<GoalsPanel goals={[goal({ detail: detail({ rows: [single, element] }) })]} />);
+
+    expect(container.querySelector(".goal__summary")?.textContent).toBe(
+      "Still needed: Wave Pounding, 2 more Fire",
+    );
+  });
+
+  /**
+   * The pin in the card's corner is the same have-against-need pair one level
+   * up — whether the *whole* goal is done. Hidden from a reader, because the
+   * summary beside it already says it in words.
+   */
+  it("marks the card done on its own pin, and says so in words too", () => {
+    render(<GoalsPanel goals={[goal()]} />);
+    expect(container.querySelector(".goal__marker")?.getAttribute("data-met")).toBe("false");
+    expect(container.querySelector(".goal__marker")?.getAttribute("aria-hidden")).toBe("true");
+
+    render(<GoalsPanel goals={[goal({ detail: detail({ rows: [row({ met: true })] }) })]} />);
+    expect(container.querySelector(".goal__marker")?.getAttribute("data-met")).toBe("true");
   });
 });

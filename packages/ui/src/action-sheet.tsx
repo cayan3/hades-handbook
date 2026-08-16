@@ -52,15 +52,13 @@ export function ActionSheet({
 
   /**
    * What is left to say about the run once the heading has said whether the
-   * boon is held: the state, for a boon the run does not have, and the goal.
+   * boon is held: the state, for a boon the run does not have.
    *
    * Nothing opens a sheet on an unheld boon today — a click on one marks it —
    * but this component takes any view, and dropping the sentence would be
    * relying on that staying true.
    */
-  const status = [held ? null : stateSentence(view.state), pinned ? PINNED_SENTENCE : null]
-    .filter((part): part is string => part !== null)
-    .join(" ");
+  const status = held ? "" : stateSentence(view.state);
 
   /**
    * Every edit closes the sheet behind it.
@@ -125,6 +123,11 @@ export function ActionSheet({
             </h2>
           }
         >
+          {/* The marker in the icon's corner says this, so the sentence is not
+              drawn — but that marker is `aria-hidden`, so dropping it outright
+              would take the fact away from the one reader who cannot see the
+              corner. Said once, to whoever needs it. */}
+          {!pinned ? null : <p className="visually-hidden">{PINNED_SENTENCE}</p>}
           {status === "" ? null : <p className="boonrow__state">{status}</p>}
         </BoonRow>
 

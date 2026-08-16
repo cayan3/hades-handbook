@@ -1187,16 +1187,41 @@
   opacity: 0.7;
 }
 
-.goals__list,
 .loadout__list {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+/* Gapped rather than ruled: the cards carry their own outlines now, and a rule
+   between two boxes of different heights stops reading as a boundary. */
+.goals__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/*
+ * A Goal Card, collapsed: the boon's icon, its name and one line saying what is
+ * still wanted, with the pin and the count on the right. Its requirements are
+ * behind a hover, so a resting panel is one line per goal.
+ *
+ * An outline rather than a rule between cards, which the God View's own sheet
+ * already uses: cards change height as they open, and a separator between two
+ * boxes of different heights stops reading as a boundary.
+ */
 .goal {
-  padding: 0.8rem 0;
-  border-top: 1px solid rgb(255 255 255 / 10%);
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 3%);
+}
+
+.goal[data-open="true"] {
+  border-color: rgb(255 255 255 / 26%);
 }
 
 /*
@@ -1210,25 +1235,78 @@
   transform: none;
 }
 
+/* The icon centred against the two lines beside it, and nothing else in the
+   middle column: the title and the summary are what a collapsed card is. */
 .goal__head {
   display: flex;
-  gap: 0.8rem;
+  gap: 0.7rem;
   align-items: center;
 }
 
 .goal__name {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: baseline;
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
-.goal__state {
-  margin: 0;
-  opacity: 0.7;
-  font-size: 0.95rem;
+/* On the same line as the name, as the sheet's own row draws it. */
+.goal__held {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}
+
+.goal__summary {
+  margin: 0.15rem 0 0;
+  opacity: 0.75;
+  font-size: 0.9rem;
 }
 
 .goal__what {
   flex: 1;
+  /* A flex item will not shrink below its content, so a long summary pushed
+     the count off the card instead of being clamped. */
+  min-width: 0;
+}
+
+/* One line, clipped rather than wrapped: it is a glance, and the whole of it is
+   in the rows the card opens to show. */
+.goal__summary {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.goal__status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  align-items: center;
+  align-self: flex-start;
+}
+
+/*
+ * The pin in the card's own corner, saying whether the goal is finished. Fill
+ * before colour, as everywhere else here: hollow while it is not, filled when
+ * it is, and green against purple second.
+ */
+.goal__marker {
+  display: block;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #cbb0e8;
+}
+
+.goal__marker[data-met="true"] {
+  color: #9fd8a8;
+}
+
+.goal__marker .node__marker {
+  position: static;
+  width: 100%;
+  height: 100%;
 }
 
 .goal__progress {
@@ -1237,13 +1315,22 @@
   opacity: 0.8;
 }
 
-.goal__rows {
+.goal__notice {
   margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+/*
+ * The requirements, under the card and left-aligned with the icon above them,
+ * which is where both games' own requirement panel starts its list.
+ */
+.goal__rows {
+  margin: 0.6rem 0 0;
   padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.35rem;
 }
 
 /*
@@ -1252,9 +1339,9 @@
  * both a colourblind reader and a printout. Each row also says which it is in
  * words, for the reader who has neither.
  *
- * The dot leads the row's *ask* rather than the row, because a row is a heading
- * and a list of boons now. Over the list it would have marked the group from
- * outside it.
+ * The colour is on the dot and never on the text. Green or purple type is a
+ * second thing for the eye to decode where the marker beside it has already
+ * said it, and it makes a met requirement harder to read than an unmet one.
  */
 .goal__ask {
   display: flex;
@@ -1268,22 +1355,13 @@
   flex: none;
   width: 0.6rem;
   height: 0.6rem;
-  border: 2px solid currentColor;
+  border: 2px solid #cbb0e8;
   border-radius: 50%;
 }
 
-.goal__row[data-met="true"] .goal__ask {
-  color: #9fd8a8;
-}
-
 .goal__row[data-met="true"] .goal__ask::before {
-  background: currentColor;
-}
-
-/* The second channel, and it is second: purple against green is a weak pair on
-   its own, which is why the fill above carries the same distinction first. */
-.goal__row[data-met="false"] .goal__ask {
-  color: #cbb0e8;
+  border-color: #9fd8a8;
+  background: #9fd8a8;
 }
 
 /* The god's own symbol leads the group, as both games' requirement panels draw
@@ -1331,13 +1409,6 @@
 
 .goal__option[data-held="false"] {
   opacity: 0.55;
-}
-
-/* A gate that asks for nothing, said rather than left blank: an empty list and
-   a list that failed to derive look identical. */
-.goal__none {
-  margin: 0.5rem 0 0;
-  opacity: 0.7;
 }
 
 /*
