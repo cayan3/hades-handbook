@@ -78,9 +78,21 @@ export function godIconFor(game: GameKey, god: GodId): string {
   return borrowed === null ? `${ART_SET}/_missing` : `${ART_SET}/${other}/${borrowed}`;
 }
 
+/**
+ * Gods this product ships a symbol for that the games' own tables name none for.
+ * Hades is on a tab in both games and in neither table; Selene grants the Hexes
+ * without being a boon god. Their art is the user's rather than extracted, which
+ * is why nothing in the catalog knows about it.
+ */
+const EXTRA_SYMBOLS: Readonly<Record<GameKey, readonly string[]>> = {
+  hades1: ["Hades"],
+  hades2: ["Hades", "Selene"],
+};
+
 function godIconKey(game: GameKey, god: GodId): string | null {
   const key = (dataFor(game).gods as Record<string, GodRecord>)[god]?.iconKey;
-  return key === undefined || key === null || key === "" ? null : key;
+  if (key !== undefined && key !== null && key !== "") return key;
+  return EXTRA_SYMBOLS[game].includes(god) ? `BoonSymbol${god}` : null;
 }
 
 /**

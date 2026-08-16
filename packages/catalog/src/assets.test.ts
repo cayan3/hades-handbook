@@ -61,13 +61,20 @@ describe("godIconFor", () => {
     }
   });
 
+  it("draws the gods whose symbol neither game's tables name", () => {
+    // Hades is on a tab in both games and in neither table; Selene grants the
+    // Hexes without being a boon god. Their art is the user's rather than
+    // extracted, so nothing in the catalog knows it exists and the resolver has
+    // to. Each game gets its own cut here — no glow in Hades I.
+    expect(godIconFor("hades1", "Hades")).toBe("official/hades1/BoonSymbolHades");
+    expect(godIconFor("hades2", "Hades")).toBe("official/hades2/BoonSymbolHades");
+    expect(godIconFor("hades2", "Selene")).toBe("official/hades2/BoonSymbolSelene");
+  });
+
   it("borrows the other game's file where this one names no symbol", () => {
-    // The fallback survives the preference flipping, and is the arm that keeps a
-    // god drawn rather than placeheld when one game's tables are short.
-    const borrowed = godIconFor("hades1", "Hades");
-    expect(borrowed === "official/hades2/BoonSymbolHades" || borrowed === "official/_missing").toBe(
-      true,
-    );
+    // The arm that keeps a god drawn rather than placeheld when one game's
+    // tables are short. Selene is Hades II's and Hades I never had her.
+    expect(godIconFor("hades1", "Selene")).toBe("official/hades2/BoonSymbolSelene");
   });
 
   it("lands on the shared placeholder for a god neither game draws", () => {
