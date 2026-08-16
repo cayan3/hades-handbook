@@ -1289,6 +1289,7 @@
   display: flex;
   gap: 1rem;
   align-items: center;
+  justify-content: center;
   height: var(--elements-height);
   margin: 0 0 var(--elements-gap);
   padding: 0;
@@ -1370,10 +1371,18 @@
     drop-shadow(0 0 1rem var(--held-open));
 }
 
-/* The core slots are a column and stay one, whatever else arrives beside them. */
+/* The core slots are a column and stay one, whatever else arrives beside them.
+   A grid rather than a flex column, and deliberately the same grid the rest uses
+   below: two lists standing side by side line up rung for rung only if they
+   share a row template. As a flex column this one sized each rung to its own
+   content while the grid beside it sized whole rows, so the right-hand column
+   sat a little low. */
 .loadout__core {
   flex: none;
-  flex-direction: column;
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--core-rows, 6), auto);
+  gap: 1rem;
 }
 
 /* Down a column and then across, rather than across and then down: the core

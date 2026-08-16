@@ -383,4 +383,18 @@ describe("the node stylesheet", () => {
       "margin-top: calc(var(--elements-height) + var(--elements-gap))",
     );
   });
+
+  it("gives the loadout's two columns one row template", () => {
+    // They stand side by side and are read across, so a rung in one has to be
+    // level with the rung beside it. A flex column sizes each rung to its own
+    // content and the grid beside it sizes whole rows, which is what put the
+    // right-hand column a little low.
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const rows = (selector: string) => {
+      const body = rules.match(new RegExp(`\\${selector}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+      return /grid-template-rows:\s*([^;]+);/.exec(body)?.[1]?.trim();
+    };
+    expect(rows(".loadout__core")).toBeDefined();
+    expect(rows(".loadout__core")).toBe(rows(".loadout__rest"));
+  });
 });
