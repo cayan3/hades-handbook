@@ -70,7 +70,24 @@ export function iconFor(game: GameKey, traitId: TraitId): string {
  * Hephaestus, Hera and Hestia have no Hades I counterpart and match anyway.
  * Hades has no symbol in either set and falls through to the placeholder.
  */
+/**
+ * TEMPORARY, and the whole of it is one commit to revert.
+ *
+ * Three gods whose symbol now comes from the user's own art, which ships in a
+ * glowing and a plain cut. To judge the two side by side the plain cut is lent
+ * to three neighbours on the bar, so a glance covers both without switching
+ * anything. Delete this table and its use below once the choice is made.
+ */
+const SYMBOL_COMPARISON: Readonly<Record<string, string>> = {
+  Poseidon: "BoonSymbolHestia_plain",
+  Hermes: "BoonSymbolHera_plain",
+  Hades: "BoonSymbolHephaestus_plain",
+};
+
 export function godIconFor(game: GameKey, god: GodId): string {
+  const borrowed = game === "hades2" ? SYMBOL_COMPARISON[god] : undefined;
+  if (borrowed !== undefined) return `${ART_SET}/hades2/${borrowed}`;
+
   const preferred = godIconKey("hades1", god);
   if (preferred !== null) return `${ART_SET}/hades1/${preferred}`;
 

@@ -57,7 +57,9 @@ describe("godIconFor", () => {
     // the same drawing.
     expect(godIconFor("hades1", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
     expect(godIconFor("hades2", "Zeus")).toBe("official/hades1/BoonSymbolZeus");
-    for (const god of ["Artemis", "Athena", "Dionysus", "Poseidon"]) {
+    // Poseidon belongs in this list and is lent another god's plain symbol for
+    // as long as the comparison below runs.
+    for (const god of ["Artemis", "Athena", "Dionysus", "Demeter"]) {
       expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
     }
   });
@@ -75,8 +77,10 @@ describe("godIconFor", () => {
     // Same absence as a trait with no icon, and the placeholder is deliberately
     // not per-game: it is ours to draw, not either game's.
     expect(godIconFor("hades2", "NoSuchGod")).toBe("official/_missing");
-    // Hades himself, who has a page in Hades II and a symbol in neither set.
-    expect(godIconFor("hades2", "Hades")).toBe("official/_missing");
+    // Hades himself has a page in Hades II and a symbol in neither set, and is
+    // the third god lent one for the comparison below. This line comes back
+    // with him when that ends.
+    expect(godIconFor("hades1", "Hades")).toBe("official/_missing");
   });
 });
 
@@ -93,6 +97,21 @@ describe("elementIconFor", () => {
     // The placeholder rather than a Hades II path, which would serve one game's
     // art on the other's page.
     expect(elementIconFor("hades1", "Fire")).toBe("official/_missing");
+  });
+});
+
+describe("the god-symbol comparison", () => {
+  it("lends three neighbours the plain cut of the art under judgement", () => {
+    // TEMPORARY, and deliberately loud: this whole block goes when the glowing
+    // and plain cuts have been judged against each other, and the two
+    // expectations it edited above come back with it.
+    expect(godIconFor("hades2", "Poseidon")).toBe("official/hades2/BoonSymbolHestia_plain");
+    expect(godIconFor("hades2", "Hermes")).toBe("official/hades2/BoonSymbolHera_plain");
+    expect(godIconFor("hades2", "Hades")).toBe("official/hades2/BoonSymbolHephaestus_plain");
+    // The three under judgement keep their own glowing cut.
+    for (const god of ["Hephaestus", "Hera", "Hestia"]) {
+      expect(godIconFor("hades2", god)).toBe(`official/hades2/BoonSymbol${god}`);
+    }
   });
 });
 
