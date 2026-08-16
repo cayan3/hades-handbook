@@ -117,6 +117,67 @@ h1,
   opacity: 0.7;
 }
 
+/*
+ * The site's own page, which the product's name leads to. Its own layout rather
+ * than the app's: nothing here is about a run, so none of the app's columns
+ * apply.
+ */
+.site {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 4rem 1rem calc(4rem + env(safe-area-inset-bottom));
+}
+
+.site h1 {
+  margin: 0 0 0.5rem;
+  font-family: var(--face-display);
+  font-size: 2.6rem;
+  letter-spacing: 0.02em;
+}
+
+.site__lead {
+  margin: 0 0 2rem;
+  font-size: 1.2rem;
+  opacity: 0.85;
+}
+
+.site__enter {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgb(255 255 255 / 30%);
+  border-radius: 0.35rem;
+  color: inherit;
+  font-size: 1.15rem;
+  text-decoration: none;
+}
+
+.site__enter:hover,
+.site__enter:focus-visible {
+  border-color: rgb(255 255 255 / 60%);
+}
+
+.site__disclaimer {
+  margin: 3rem 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* The product's name, which leads to the page above. Underlined only under the
+   pointer: a title with a rule under it reads as a heading style rather than as
+   somewhere to go. */
+.app__name {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app__name:hover,
+.app__name:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .app__head {
   display: flex;
   flex-wrap: wrap;

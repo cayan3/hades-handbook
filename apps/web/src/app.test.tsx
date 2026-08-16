@@ -1507,3 +1507,47 @@ describe("the Home tab", () => {
     expect(container.querySelector(".home")).not.toBeNull();
   });
 });
+
+/**
+ * The site's own page. A hash rather than a path, because the product is meant
+ * to be published on a static host with nothing configured, and a path route
+ * 404s there on a cold load.
+ */
+describe("the site page", () => {
+  afterEach(() => {
+    window.location.hash = "";
+  });
+
+  it("is what the product's own name leads to", async () => {
+    await mount();
+    const name = container.querySelector<HTMLAnchorElement>(".app__name");
+    expect(name?.textContent).toBe("Hades Handbook");
+    expect(name?.getAttribute("href")).toBe("#/about");
+  });
+
+  it("draws the site page on that hash and the app on any other", async () => {
+    window.location.hash = "#/about";
+    await mount();
+
+    expect(container.querySelector(".site")).not.toBeNull();
+    expect(container.querySelector(".app")).toBeNull();
+    // The one thing this page has to carry while its content is still to be
+    // written.
+    expect(container.querySelector(".site__disclaimer")?.textContent).toContain(
+      "Supergiant Games",
+    );
+
+    await act(async () => {
+      window.location.hash = "#/";
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+    expect(container.querySelector(".app")).not.toBeNull();
+    expect(container.querySelector(".site")).toBeNull();
+  });
+
+  it("offers a way back into the app", async () => {
+    window.location.hash = "#/about";
+    await mount();
+    expect(container.querySelector(".site__enter")?.getAttribute("href")).toBe("#/");
+  });
+});

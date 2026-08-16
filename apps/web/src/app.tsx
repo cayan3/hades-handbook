@@ -42,6 +42,7 @@ import {
   useHoverDisclosure,
 } from "@repo/ui";
 import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
+import { ABOUT_HASH, useRoute } from "./route.js";
 import {
   attempt,
   useCondition,
@@ -50,6 +51,7 @@ import {
   useOtherTabOpen,
   useRunSession,
 } from "./session.js";
+import { SiteHome } from "./site-home.js";
 
 /**
  * The two layout profiles, over one run.
@@ -130,6 +132,7 @@ export interface AppProps {
 }
 
 export function App({ store, presence, persistent }: AppProps) {
+  const route = useRoute();
   const [game, setGame] = useState<GameId>("hades2");
   const state = useRunSession(game, store);
   /**
@@ -141,6 +144,11 @@ export function App({ store, presence, persistent }: AppProps) {
     hades1: NO_TABS,
     hades2: NO_TABS,
   });
+
+  /* The site's own page, which the product's name leads to. Below the hooks and
+     above everything else: the run stays open behind it, so coming back is not
+     a reload. */
+  if (route === "about") return <SiteHome />;
 
   if (state.kind === "opening") return <p className="app__loading">Opening your run…</p>;
   if (state.kind === "failed") {
@@ -489,7 +497,13 @@ function Run({
     <NodePresentation ladder="real-art" game={game}>
       <div className="app">
         <header className="app__head">
-          <h1>Hades Handbook</h1>
+          {/* The name is the way to the site's own page, which is what a
+              product's name leads to everywhere else on the web. */}
+          <h1>
+            <a className="app__name" href={ABOUT_HASH}>
+              Hades Handbook
+            </a>
+          </h1>
           <nav className="app__games" aria-label="Game">
             {(["hades1", "hades2"] as const).map((id) => (
               <button

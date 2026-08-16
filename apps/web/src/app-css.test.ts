@@ -74,8 +74,12 @@ describe("the page stylesheet", () => {
    */
   it("gives the run-wide controls one rule between them", () => {
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
-    const shared = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)].find(([, , body]) =>
-      /font-size:\s*1\.15rem/.test(body!),
+    // Found by the selector rather than by the size it happens to carry: the
+    // site page's own link is 1.15rem too, and searching on the number found
+    // that instead.
+    const shared = [...rules.matchAll(/([^{}]+)\{([^}]*)\}/g)].find(
+      ([, selector, body]) =>
+        /font-size:/.test(body!) && selector!.split(",").some((s) => s.trim() === ".app__finish"),
     );
     const names = (shared?.[1] ?? "").split(",").map((s) => s.trim());
     expect(names.sort()).toEqual([".app__finish", ".app__games button", ".app__goalstoggle"]);
