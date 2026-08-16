@@ -113,6 +113,30 @@ def reframe(im, np):
     return out.astype(np.uint8)
 
 
+def tighten(im, np):
+    """Crop a boon icon to its own drawn box, kept square.
+
+    Hades II's icons sit inside a transparent margin -- measured, the drawn box
+    is 0.955-0.977 of the file against Hades I's 0.980-1.000 -- and a node draws
+    them with `object-fit: cover`, so that margin becomes a ring of the page's
+    own ground between the artwork and the outline around it. Squared rather than
+    cropped tight, or an icon whose art is wider than it is tall would be
+    stretched by the same rule that is meant to fill the box.
+    """
+    ys, xs = np.where(im[:, :, 3] > 200)
+    if len(xs) == 0:
+        return im
+    side = max(ys.max() - ys.min(), xs.max() - xs.min()) + 1
+    cy, cx = (ys.min() + ys.max()) // 2, (xs.min() + xs.max()) // 2
+    y0, x0 = cy - side // 2, cx - side // 2
+
+    out = np.zeros((side, side, 4), im.dtype)
+    sy0, sx0 = max(y0, 0), max(x0, 0)
+    sy1, sx1 = min(y0 + side, im.shape[0]), min(x0 + side, im.shape[1])
+    out[sy0 - y0 : sy1 - y0, sx0 - x0 : sx1 - x0] = im[sy0:sy1, sx0:sx1]
+    return out
+
+
 def wanted(game, scope):
     """Icon keys to extract, and what asks for each.
 
@@ -136,6 +160,11 @@ def wanted(game, scope):
     if scope in ("all", "elements") and game == "hades2":
         for element in ELEMENTS:
             keys.setdefault("Element_" + element, []).append("element:" + element)
+    if scope in ("all", "keepsakes"):
+        keepsakes = json.load(open(os.path.join(CATALOG, game, "keepsakes.json")))
+        for keepsake_id, record in keepsakes.items():
+            if record.get("iconKey"):
+                keys.setdefault(record["iconKey"], []).append("keepsake:" + keepsake_id)
     if scope in ("all", "slots"):
         for name in SLOT_ICONS:
             keys.setdefault("SlotIcon_" + name, []).append("slot:" + name)
@@ -202,7 +231,7 @@ def main():
     ap.add_argument("--game", choices=sorted(GAMES), required=True)
     ap.add_argument(
         "--scope",
-        choices=("all", "boons", "gods", "elements", "slots", "chrome"),
+        choices=("all", "boons", "gods", "keepsakes", "elements", "slots", "chrome"),
         default="all",
     )
     ap.add_argument("--dry-run", action="store_true")
@@ -245,12 +274,18 @@ def main():
         open(os.path.join(out_dir, key + ".webp"), "wb").write(buf.getvalue())
         return buf.tell()
 
+    # A boon's own picture, as against a symbol asked for by name. Only these are
+    # tightened: an element mark and a slot glyph carry padding the game drew.
+    boons = {k for k, w in keys.items() if any(":" not in x for x in w)}
+
     for key, sprite in sorted(targets.items()):
         crop = cropped(sprite, pages, decoded, np, texture2ddecoder)
         if crop is None:
             continue
         if args.game == "hades2" and key.startswith("BoonSymbol"):
             crop = reframe(crop, np)
+        elif args.game == "hades2" and key in boons:
+            crop = tighten(crop, np)
         written += 1
         total_bytes += emit(key, crop)
 

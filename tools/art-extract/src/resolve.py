@@ -16,6 +16,7 @@ SIZE_SUFFIXES = ("", "_Large", "_Small")
 
 # A god's symbol is not in the animation table at all; the key is built from the
 # god's name and the sprite lives in a fixed directory.
+BOON_KEY = re.compile(r"^Boon_(\w+)$")
 GOD_KEY = re.compile(r"^BoonSymbol(\w+)$")
 GOD_SPRITE = "GUI\\Screens\\BoonSelectSymbols\\%s"
 
@@ -86,4 +87,17 @@ class Resolver:
             if found:
                 return found
         # Duo art is named for the pairing and needs no indirection.
-        return self.by_leaf.get(key)
+        found = self.by_leaf.get(key)
+        if found:
+            return found
+        # Last resort: the animation table is missing an entry the sprite sheet
+        # has anyway. `Boon_Athena_01` is the only key in either game where this
+        # fires -- the sprite is `BoonIcons\Athena_01_Large`, and nothing maps
+        # the key to it.
+        bare = BOON_KEY.match(key)
+        if bare:
+            for suffix in SIZE_SUFFIXES:
+                found = self.by_leaf.get(bare.group(1) + suffix)
+                if found:
+                    return found
+        return None
