@@ -333,7 +333,47 @@ describe("requirement rows", () => {
 
     expect(view.state).toBe("Pending");
     expect(needed).toEqual(["1 more Fire"]);
-    expect(rows).toEqual([{ text: "1 more Fire", met: false }]);
+    // No option list: an element count names no boon to offer, so the row is
+    // the sentence alone, which is how both games draw the same gate.
+    expect(rows).toEqual([
+      { text: "1 more Fire", met: false, god: null, options: [], need: 0 },
+    ]);
+  });
+
+  /**
+   * The shape both games' own requirement panels draw: a god's symbol, then the
+   * boons of theirs that would do it. Lightning Rod asks for a Mirror talent and
+   * one boon from each of two gods, so one record carries every case.
+   */
+  it("carries the god and the boons behind a one-god choice", () => {
+    const source = h1();
+    const facts = h1Facts("selected", ARTEMIS_BOON);
+    const view = deriveNodeView(source, LIGHTNING_ROD, facts);
+    const { rows } = deriveNodeDetail(source, view, facts);
+
+    const artemis = rows.find((row) => row.god === "Artemis");
+    expect(artemis?.need).toBe(1);
+    expect(artemis?.options).toHaveLength(6);
+    expect(artemis?.options.filter((option) => option.held).map((o) => o.trait)).toEqual([
+      ARTEMIS_BOON,
+    ]);
+
+    // Held is the run's own answer, not the part's: the row is met and five of
+    // its six options still read as boons the player does not have.
+    expect(artemis?.met).toBe(true);
+    expect(artemis?.options.filter((option) => !option.held)).toHaveLength(5);
+  });
+
+  it("leaves a part that names no boon as its sentence alone", () => {
+    const source = h1();
+    const facts = h1Facts("selected", ARTEMIS_BOON);
+    const view = deriveNodeView(source, LIGHTNING_ROD, facts);
+    const { rows } = deriveNodeDetail(source, view, facts);
+
+    const talent = rows.find((row) => row.options.length === 0);
+    expect(talent?.text).toContain("Mirror talent");
+    expect(talent?.god).toBeNull();
+    expect(talent?.need).toBe(0);
   });
 
   it("calls it met once the count is there", () => {
@@ -343,7 +383,7 @@ describe("requirement rows", () => {
     const view = deriveNodeView(source, gate, facts);
 
     expect(deriveNodeDetail(source, view, facts).rows).toEqual([
-      { text: "2 more Fire", met: true },
+      { text: "2 more Fire", met: true, god: null, options: [], need: 0 },
     ]);
   });
 });

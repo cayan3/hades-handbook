@@ -1238,27 +1238,93 @@
  * requirement is met and hollow when it is not, so the distinction survives
  * both a colourblind reader and a printout. Each row also says which it is in
  * words, for the reader who has neither.
+ *
+ * The dot leads the row's *ask* rather than the row, because a row is a heading
+ * and a list of boons now. Over the list it would have marked the group from
+ * outside it.
  */
-.goal__row::before {
+.goal__ask {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin: 0;
+}
+
+.goal__ask::before {
   content: "";
-  display: inline-block;
+  flex: none;
   width: 0.6rem;
   height: 0.6rem;
-  margin-right: 0.5rem;
   border: 2px solid currentColor;
   border-radius: 50%;
 }
 
-.goal__row[data-met="true"] {
+.goal__row[data-met="true"] .goal__ask {
   color: #9fd8a8;
 }
 
-.goal__row[data-met="true"]::before {
+.goal__row[data-met="true"] .goal__ask::before {
   background: currentColor;
 }
 
-.goal__row[data-met="false"] {
-  opacity: 0.75;
+/* The second channel, and it is second: purple against green is a weak pair on
+   its own, which is why the fill above carries the same distinction first. */
+.goal__row[data-met="false"] .goal__ask {
+  color: #cbb0e8;
+}
+
+/* The god's own symbol leads the group, as both games' requirement panels draw
+   it. The name of every boon under it is text, so this adds a channel rather
+   than being the only one. */
+.goal__godart {
+  flex: none;
+  width: 1.15rem;
+  height: 1.15rem;
+  object-fit: contain;
+}
+
+/*
+ * The boons a group will accept. Held against not held is brightness and a
+ * filled marker; the text stays neutral, because the symbol above already
+ * carries which god's these are and a hue here would be identity and state in
+ * one channel.
+ */
+.goal__options {
+  margin: 0.1rem 0 0.35rem 1.1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.goal__option {
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+  font-size: 0.95rem;
+}
+
+.goal__option::before {
+  content: "";
+  flex: none;
+  width: 0.35rem;
+  height: 0.35rem;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  transform: translateY(-0.15em);
+}
+
+.goal__option[data-held="true"]::before {
+  background: currentColor;
+}
+
+.goal__option[data-held="false"] {
+  opacity: 0.55;
+}
+
+/* A gate that asks for nothing, said rather than left blank: an empty list and
+   a list that failed to derive look identical. */
+.goal__none {
+  margin: 0.5rem 0 0;
+  opacity: 0.7;
 }
 
 /*

@@ -58,11 +58,20 @@ export type { Ladder } from "./presentation.js";
 export { MarkerGlyph, DormantGlyph } from "./glyphs.js";
 
 export { createNodeSource, deriveNodeView, deriveNodeDetail, kindOf } from "./node-view.js";
-export type { NodeDetail, NodeKind, NodeSource, NodeView, RequirementRow } from "./node-view.js";
+export type {
+  NodeDetail,
+  NodeKind,
+  NodeSource,
+  NodeView,
+  RequirementOption,
+  RequirementRow,
+} from "./node-view.js";
 export { createNodeCache } from "./node-cache.js";
 export type { NodeCache } from "./node-cache.js";
 
 export { godGraph, graphTraits, isJunctionId, neighbourhood, pageTraits } from "./god-graph.js";
+export { GOAL_KEY, HELP_KEY, isGoalKey, isHelpKey, isTyping } from "./keys.js";
+export type { KeyEvent } from "./keys.js";
 export type {
   BandKind,
   GodGraph,

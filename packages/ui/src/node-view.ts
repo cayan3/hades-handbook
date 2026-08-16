@@ -23,6 +23,7 @@ import { boonState, evaluate } from "@repo/core";
 import {
   accessibleName,
   activationLines,
+  branchPhrase,
   type Displacement,
   type ImpossibleNotice,
   impossibleNotice,
@@ -126,6 +127,29 @@ export interface NodeDetail {
 export interface RequirementRow {
   readonly text: string;
   readonly met: boolean;
+  /**
+   * The god whose symbol leads the row, where every boon it names is theirs —
+   * which both games' own requirement panels use as the row's heading. Null
+   * where the boons disagree about a god or the part names none, and then the
+   * row is the sentence alone.
+   */
+  readonly god: GodId | null;
+  /** The boons this part will accept. Empty for a gate that names none. */
+  readonly options: readonly RequirementOption[];
+  /** How many of `options` satisfy the part. Zero where there are none. */
+  readonly need: number;
+}
+
+/** One boon a **Requirement Row** will accept, and whether the run has it. */
+export interface RequirementOption {
+  readonly trait: TraitId;
+  readonly name: string;
+  /**
+   * Literally in the run, not "satisfies the part": a boon held below the level
+   * a gate asks for is one the player has, and dimming it would tell them they
+   * do not. The row's own `met` carries whether the part is actually satisfied.
+   */
+  readonly held: boolean;
 }
 
 /**
@@ -430,11 +454,53 @@ function requirementRows(
     // A row that is not met says what is left rather than what the gate asked
     // for, which is the sentence a Forget-Me-Not entry is for.
     const said = status.kind === "pending" ? status.residual : part;
+    // The options come off the gate rather than off the residual: a met row
+    // still lists what could have satisfied it, which is what makes the boon
+    // that did stand out from the ones that would have.
+    const options = optionsOf(source, part, facts);
     return {
       text: neededLines(said, naming)[0] ?? "",
       met: !blocked && status.kind === "satisfied",
+      god: sharedGod(source, options),
+      options,
+      need: options.length === 0 ? 0 : (part.kind === "anyOf" ? part.min : options.length),
     };
   });
+}
+
+/**
+ * The boons one part of a gate will accept, in the order it names them.
+ *
+ * One level of `anyOf` and no deeper. A branch that is itself a group has no
+ * single boon to draw, and the sentence already spells it out — expanding it
+ * would list boons the player cannot pick between at this level.
+ */
+function optionsOf(
+  source: NodeSource,
+  part: Requirement,
+  facts: RunFacts,
+): readonly RequirementOption[] {
+  const branches = part.kind === "anyOf" ? part.of : [part];
+  const options: RequirementOption[] = [];
+  for (const branch of branches) {
+    if (branch.kind !== "hasTrait") return [];
+    options.push({
+      trait: branch.trait,
+      name: branchPhrase(branch, source.naming),
+      held: facts.held.has(branch.trait),
+    });
+  }
+  return options;
+}
+
+/** The one god behind every option, or null where they are not all one god's. */
+function sharedGod(
+  source: NodeSource,
+  options: readonly RequirementOption[],
+): GodId | null {
+  const gods = new Set(options.map((option) => source.records[option.trait]?.god ?? null));
+  const only = gods.size === 1 ? [...gods][0] : null;
+  return only ?? null;
 }
 
 /**

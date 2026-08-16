@@ -153,8 +153,13 @@ export function neededLines(req: Requirement, naming: Naming): readonly string[]
 /**
  * One requirement as a noun phrase. A group inside a group becomes a
  * parenthesised phrase rather than expanding, for the reason above.
+ *
+ * Exported for the requirement rows, which draw a gate's branches as separate
+ * entries and would otherwise re-derive the level clause. No shipped record asks
+ * for a level today — 0 of 449 and 0 of 612 — so a second copy would be a rule
+ * nothing could catch going wrong.
  */
-function branchPhrase(req: Requirement, naming: Naming): string {
+export function branchPhrase(req: Requirement, naming: Naming): string {
   switch (req.kind) {
     case "hasTrait":
       return req.minLevel !== undefined && req.minLevel > 1
