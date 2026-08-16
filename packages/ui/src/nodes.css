@@ -1377,10 +1377,33 @@
   isolation: isolate;
   display: inline-flex;
   --node-size: 3.25rem;
-  /* Named because the rarity treatment below subtracts it: that shape is
-     positioned against the tile, and the tile is this much bigger than the icon
-     on every side. Two copies of the number would drift invisibly. */
+}
+
+/* Named because the rarity treatment below subtracts it: that shape is
+   positioned against the tile, and the tile is this much bigger than the icon
+   on every side. Two copies of the number would drift invisibly.
+   On the panel rather than on the tile, which is the same argument once more:
+   an empty slot is not a tile and has to line up with one. */
+.loadout {
   --tile-pad: 0.15rem;
+}
+
+/*
+ * An unfilled core slot, at a tile's footprint or the column they share steps
+ * sideways at every gap. The box stays even where the game draws no glyph —
+ * Hades II has none for the Hex — the column being read by position.
+ */
+.loadout__emptyslot {
+  display: inline-flex;
+  width: var(--node-size, 3.25rem);
+  height: var(--node-size, 3.25rem);
+  padding: var(--tile-pad);
+}
+
+.loadout__slotart {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* Declared on the node as well as on the tile, because a property set on `.node`
@@ -1537,6 +1560,41 @@
   flex-wrap: wrap;
   gap: 0.9rem;
   align-items: flex-start;
+}
+
+/*
+ * The game's own tray, as a skin. Unset `--chrome-panel` and both properties
+ * below compute to `none`, which is the fallback and is settled at build time
+ * rather than by watching whether an image loaded.
+ *
+ * One file used twice, because this panel is a 60px column collapsed and a 350px
+ * grid open: the frame nine-slices so no corner is ever stretched, and the fill
+ * covers so it crops rather than squashes.
+ *
+ * Measured, not chosen: the frame band runs 9px into Hades I's 317x643 and 20px
+ * into Hades II's 966x1445, and the rounded corner 3px and 27px. Each slice
+ * clears both. The widths are those bands at the size each file draws — about
+ * 1:1 and 0.36.
+ */
+.loadout__panel {
+  --chrome-slice: 10;
+  --chrome-frame: 10px;
+  --chrome-radius: 0.15rem;
+  padding: var(--chrome-frame);
+  border: 0 solid transparent;
+  border-image-source: var(--chrome-panel);
+  border-image-slice: var(--chrome-slice);
+  border-image-width: var(--chrome-frame);
+  border-radius: var(--chrome-radius);
+  background-image: var(--chrome-panel);
+  background-position: center;
+  background-size: cover;
+}
+
+.loadout__panel[data-game="hades2"] {
+  --chrome-slice: 32;
+  --chrome-frame: 12px;
+  --chrome-radius: 0.6rem;
 }
 
 .loadout__card {

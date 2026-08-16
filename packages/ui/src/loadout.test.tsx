@@ -15,6 +15,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Loadout, type LoadoutEntry } from "./loadout.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
+import { NodePresentation } from "./presentation.js";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -275,20 +276,80 @@ describe("the panel itself", () => {
     // run's elements are said at all — which is what made removing the mark
     // from a tile safe.
     // Handed over in the order a run met them; drawn in the game's own order,
-    // so the row does not rearrange as elements arrive.
+    // so the row does not rearrange as elements arrive. All five, because an
+    // Infusion is planned against the ceiling as much as against the count.
     render(panel({ elements: new Map([["Fire" as const, 3], ["Water" as const, 1]]) }));
     const row = [...container.querySelectorAll(".loadout__elements li")];
-    expect(row.map((li) => li.textContent)).toEqual(["1Water", "3Fire"]);
+    expect(row.map((li) => li.textContent)).toEqual(["0Air", "1Water", "0Earth", "3Fire", "0Aether"]);
     expect(container.querySelectorAll(".node__element")).toHaveLength(0);
   });
 
-  it("draws no element row where the run has met none", () => {
-    // Every Hades I run, and a Hades II one before its first boon. A row of
-    // zeroes is a row about nothing.
-    render(panel({ elements: new Map() }));
+  it("draws the row only while the panel is open", () => {
+    // The same disclosure the rest of the grid follows, so the panel opens as
+    // one thing. Collapsed it is the core slots and nothing else.
+    render(panel({ expanded: false, elements: new Map([["Fire" as const, 3]]) }));
     expect(container.querySelector(".loadout__elements")).toBeNull();
+
+    act(() => {
+      container
+        .querySelector(".loadout")!
+        .dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+    });
+    expect(container.querySelectorAll(".loadout__elements li")).toHaveLength(5);
+  });
+
+  it("draws no element row at all in Hades I", () => {
+    // Guarded on the game rather than on the map being empty: 0 of 449 Hades I
+    // records declare an affinity, so that run hands over an empty map for good
+    // and would otherwise carry five permanent zeroes.
+    render(
+      <NodePresentation ladder="real-art" game="hades1">
+        {panel({ elements: new Map() })}
+      </NodePresentation>,
+    );
+    expect(container.querySelector(".loadout__elements")).toBeNull();
+  });
+
+  it("draws a core slot the run has not filled, in its place in the column", () => {
+    // The column is read by position, so a slot nobody has filled has to hold
+    // its rung rather than close the gap. Three slots, two held: the empty one
+    // is Ranged and it is third, not appended.
+    render(panel({ coreSlots: ["Melee", "Secondary", "Ranged"] }));
+    const column = [...container.querySelectorAll(".loadout__core > li")];
+    expect(column).toHaveLength(3);
+    expect(column[2]!.querySelector(".loadout__emptyslot")).not.toBeNull();
+    expect(column[2]!.textContent).toBe("Cast — empty");
+  });
+
+  it("names an empty slot the way the game does, not the way the data files it", () => {
+    // `Ranged` is what the record says and `Cast` is what the player reads, so
+    // the row that goes to a screen reader has to be the second.
+    render(panel({ coreSlots: ["Rush", "Spell"] }));
+    const words = [...container.querySelectorAll(".loadout__emptyslot")].map((el) => el.textContent);
+    expect(words).toEqual(["Dash — empty", "Hex — empty"]);
+  });
+
+  it("keeps the box for a slot the game draws no glyph for", () => {
+    // Hades II's own tray has an icon for five of its six core slots and none
+    // for the Hex. The box stays, or the column steps sideways at that rung.
+    render(panel({ coreSlots: ["Spell"] }));
+    const empty = container.querySelector(".loadout__emptyslot")!;
+    expect(empty).not.toBeNull();
+    expect(empty.querySelector("img")).toBeNull();
+    render(panel({ coreSlots: ["Ranged"] }));
+    expect(container.querySelector(".loadout__emptyslot img")).not.toBeNull();
+  });
+
+  it("hands the panel's frame over as a property, never as a path in the markup", () => {
+    // The skin: the resolver owns the path, the stylesheet owns the slicing, and
+    // what crosses between them is one custom property. Unset, the border image
+    // computes to none and the panel is exactly what it was.
     render(panel());
-    expect(container.querySelector(".loadout__elements")).toBeNull();
+    const styled = container.querySelector<HTMLElement>(".loadout__panel")!;
+    expect(styled.style.getPropertyValue("--chrome-panel")).toBe(
+      'url("/art/official/hades2/Chrome_Panel.webp")',
+    );
+    expect(styled.dataset["game"]).toBe("hades2");
   });
 
   it("expands under the pointer and collapses again when it leaves", () => {

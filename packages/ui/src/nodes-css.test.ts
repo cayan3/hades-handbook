@@ -63,7 +63,12 @@ describe("the node stylesheet", () => {
 
   it("hatches nothing", () => {
     expect(CSS).not.toMatch(/repeating-linear-gradient|repeating-conic-gradient/);
-    expect(CSS).not.toMatch(/background-image\s*:/);
+    // A blanket ban on `background-image` held this until the Loadout gained
+    // the game's own tray, which is one. Narrowed to what it was always for:
+    // every background image has to be a chrome part the resolver handed over,
+    // so a gradient or a texture still fails wherever it is written.
+    const images = [...CSS.matchAll(/background-image\s*:([^;]*);/g)].map((m) => m[1]!.trim());
+    expect(images.filter((value) => !value.startsWith("var(--chrome-"))).toEqual([]);
   });
 
   /**

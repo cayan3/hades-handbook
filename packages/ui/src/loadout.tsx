@@ -1,12 +1,13 @@
 import type { Element, SlotId, TraitId } from "@repo/core";
 import { type CSSProperties, useState } from "react";
 import type { BoonActions } from "./boon-actions.js";
-import { ElementArt } from "./boon-art.js";
+import { ElementArt, SlotArt, chromeStyle } from "./boon-art.js";
 import { BoonNode } from "./boon-node.js";
 import { BoonRow } from "./boon-row.js";
 import { HoverMenu } from "./hover-menu.js";
 import { OverrideMarker } from "./chrome.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
+import { catalogNaming } from "./naming.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 import { useGame } from "./presentation.js";
 import { treatmentOf } from "./rarity-palette.js";
@@ -38,6 +39,13 @@ export interface LoadoutEntry {
 }
 
 /**
+ * A core slot with a boon in it, or the position itself where the run has not
+ * filled one. An empty core slot is drawn rather than skipped: the column is
+ * read by position, so a missing rung would shift every slot below it.
+ */
+type Cell = LoadoutEntry | { readonly slot: SlotId; readonly view: null };
+
+/**
  * The order the game lists them in, so the row does not rearrange as a run
  * picks elements up — a `Map` hands them back in the order they arrived.
  */
@@ -58,6 +66,10 @@ export interface LoadoutProps {
    * in Hades I. Asked once over the whole panel rather than marked on every
    * tile: which element a boon counts toward is on the node in the God View, and
    * how many of them a run has is a fact about the run.
+   *
+   * Hades II only, guarded on the game rather than on the map being empty: 0 of
+   * 449 Hades I records declare an affinity, so that run would carry five
+   * permanent zeroes.
    */
   readonly elements?: ReadonlyMap<Element, number>;
   /**
@@ -118,9 +130,9 @@ export function Loadout({
    * order they filled it in. The rest have no positions to be in, so the only
    * order that means anything is when they arrived.
    */
-  const core = coreSlots
-    .map((slot) => entries.find((entry) => entry.slot === slot))
-    .filter((entry): entry is LoadoutEntry => entry !== undefined);
+  const core: readonly Cell[] = coreSlots.map(
+    (slot) => entries.find((entry) => entry.slot === slot) ?? { slot, view: null },
+  );
   const rest = entries.filter((entry) => !core.includes(entry));
 
   /** A card whose boon has left the run describes a boon nobody holds. */
@@ -196,11 +208,19 @@ export function Loadout({
               makes the panel readable at a glance after it opens. */}
           <div
             className="loadout__panel"
+            data-game={game}
             // The rest of the run fills a column of this many before starting
             // the next, which is the slot count rather than how many are held:
             // a shape that changed as boons arrived would rearrange under the
             // pointer.
-            style={{ "--core-rows": String(coreSlots.length) } as CSSProperties}
+            // The frame rides here as a property the stylesheet nine-slices,
+            // and unset it computes to none — the skin, not the structure.
+            style={
+              {
+                "--core-rows": String(coreSlots.length),
+                ...chromeStyle(game, "panel"),
+              } as CSSProperties
+            }
           >
             <div className="loadout__grid">
               <Tiles
@@ -270,15 +290,17 @@ export function Loadout({
         </>
       )}
 
-      {elements === undefined || elements.size === 0 ? null : (
-        /* Above the grid, because it is a total over everything below it. Only
-           the elements the run has actually met: a row of five zeroes is a row
-           about nothing. */
+      {elements === undefined || game !== "hades2" || !showRest ? null : (
+        /* Above the grid, because it is a total over everything below it. All
+           five while the panel is open and none at all while it is not: a
+           collapsed panel is the core slots and nothing else, and an Infusion is
+           planned against the ceiling as much as against the count, so the
+           zeroes are the half that says how far there is to go. */
         <ul className="loadout__elements">
-          {ELEMENTS.filter((element) => elements.has(element)).map((element) => (
-            <li key={element}>
+          {ELEMENTS.map((element) => (
+            <li key={element} data-met={elements.has(element) ? "true" : undefined}>
               <ElementArt game={game} element={element} className="loadout__element" />
-              <span>{elements.get(element)}</span>
+              <span>{elements.get(element) ?? 0}</span>
               <span className="visually-hidden">{element}</span>
             </li>
           ))}
@@ -310,17 +332,42 @@ function Tiles({
   className,
   entries,
   ...gestures
-}: { readonly className: string; readonly entries: readonly LoadoutEntry[] } & TileGestures) {
+}: { readonly className: string; readonly entries: readonly Cell[] } & TileGestures) {
   if (entries.length === 0) return null;
   return (
     <ul className={`loadout__list ${className}`}>
-      {entries.map((entry) => (
-        <li key={entry.view.trait} className="loadout__entry">
-          <Tile entry={entry} {...gestures} />
-          {entry.overridden === true ? <OverrideMarker /> : null}
-        </li>
-      ))}
+      {entries.map((cell) =>
+        cell.view === null ? (
+          <li key={cell.slot} className="loadout__entry">
+            <EmptySlot slot={cell.slot} />
+          </li>
+        ) : (
+          <li key={cell.view.trait} className="loadout__entry">
+            <Tile entry={cell} {...gestures} />
+            {cell.overridden === true ? <OverrideMarker /> : null}
+          </li>
+        ),
+      )}
     </ul>
+  );
+}
+
+/**
+ * A core slot the run has not filled: the position's own glyph, in the box the
+ * boon will occupy. Not a control — a boon arrives by being marked on its god's
+ * page, so this is named in text and left out of the tab order.
+ */
+function EmptySlot({ slot }: { readonly slot: SlotId }) {
+  const game = useGame();
+  // The word the game's own equip bar uses, which is not the one the data files
+  // the slot under: `Melee` is Attack in both games.
+  const word = catalogNaming(game).slot(slot) ?? slot;
+
+  return (
+    <span className="loadout__emptyslot" data-game={game}>
+      <SlotArt game={game} slot={slot} />
+      <span className="visually-hidden">{word} — empty</span>
+    </span>
   );
 }
 

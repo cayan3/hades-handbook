@@ -1,5 +1,12 @@
-import { type GameKey, elementIconFor, godIconFor } from "@repo/catalog";
-import type { Element, GodId } from "@repo/core";
+import {
+  type ChromePart,
+  type GameKey,
+  chromeFor,
+  elementIconFor,
+  godIconFor,
+  slotIconFor,
+} from "@repo/catalog";
+import type { Element, GodId, SlotId } from "@repo/core";
 import { useEffect, useState } from "react";
 
 /**
@@ -98,6 +105,54 @@ export function GodArt({
       onError={() => setSrc(MISSING_ART)}
     />
   );
+}
+
+/**
+ * The glyph the game draws in a slot nobody has filled. Nothing where the game
+ * draws nothing, which is the Hades II Hex: unlike everything else here it does
+ * not fall back to the placeholder, a broken-file mark saying the opposite of
+ * "still open". Decorative — the caller names the position in text.
+ */
+export function SlotArt({
+  game,
+  slot,
+  className = "loadout__slotart",
+}: {
+  readonly game: GameKey;
+  readonly slot: SlotId;
+  readonly className?: string;
+}) {
+  const key = slotIconFor(game, slot);
+  const url = key === null ? null : artUrl(key);
+  const [src, setSrc] = useState(url);
+
+  useEffect(() => setSrc(url), [url]);
+
+  if (src === null) return null;
+  return (
+    <img
+      className={className}
+      src={src}
+      alt=""
+      draggable={false}
+      onError={() => setSrc(null)}
+    />
+  );
+}
+
+/**
+ * The stylesheet's way in, for the one kind of art no component renders: a
+ * nine-slice is a `border-image`, which only a stylesheet expresses. What
+ * crosses is a custom property, as `--rarity` already does, so the resolver
+ * keeps the path.
+ *
+ * An absent part sets nothing, so `border-image-source` computes to `none` and
+ * the panel keeps its own frame — the fallback, settled here rather than by
+ * watching whether a file loaded.
+ */
+export function chromeStyle(game: GameKey, part: ChromePart): Record<string, string> {
+  const key = chromeFor(game, part);
+  return key === null ? {} : { "--chrome-panel": `url("${artUrl(key)}")` };
 }
 
 /**
