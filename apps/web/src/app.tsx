@@ -478,6 +478,11 @@ function Run({
                   data-pooled={facts.godPool.has(name)}
                   style={{ "--god": godColour(name) } as CSSProperties}
                   title={name}
+                  // The glow is the one channel a reader gets nothing of, so
+                  // being in the pool goes in the name. On the label rather than
+                  // in the hidden text below because the tab's own text is what
+                  // the picker and the bar are read by.
+                  aria-label={facts.godPool.has(name) ? `${name} — in your pool` : undefined}
                   onClick={() => setGod(name)}
                 >
                   {/* The symbol and nothing drawn beside it, so the bar reads

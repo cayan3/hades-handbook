@@ -1,7 +1,7 @@
 import { useId, useMemo } from "react";
 import { type BoonActions, BoonActionBar } from "./boon-actions.js";
 import { BoonRow } from "./boon-row.js";
-import { displacementLines, stateSentence } from "./describe.js";
+import { PINNED_SENTENCE, displacementLines, stateSentence } from "./describe.js";
 import { useDialog } from "./dialog.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
@@ -58,7 +58,7 @@ export function ActionSheet({
    * but this component takes any view, and dropping the sentence would be
    * relying on that staying true.
    */
-  const status = [held ? null : stateSentence(view.state), pinned ? "Pinned to a goal." : null]
+  const status = [held ? null : stateSentence(view.state), pinned ? PINNED_SENTENCE : null]
     .filter((part): part is string => part !== null)
     .join(" ");
 

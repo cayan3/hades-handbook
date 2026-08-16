@@ -102,8 +102,8 @@ describe("a Goal Card's requirement rows", () => {
 
   /**
    * The fill and the dimming are the whole of what a sighted reader gets here,
-   * so every one of them has a word beside it. This is the promise D51 makes and
-   * the one nobody ever looks at.
+   * so every one of them has a word beside it. This is the promise the linear
+   * surfaces carry, and the one nobody ever looks at.
    */
   it("says have and need in words, not only in the fill", () => {
     render(<GoalsPanel goals={[goal()]} />);

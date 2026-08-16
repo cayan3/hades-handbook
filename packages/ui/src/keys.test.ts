@@ -7,6 +7,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  DETAILS_KEY,
   GOAL_KEY,
   HELP_KEY,
   NEXT_GOD_KEY,
@@ -138,12 +139,12 @@ describe("what counts as typing", () => {
 describe("the written-out set", () => {
   /**
    * The list is the only place the bindings are stated, so a key that works and
-   * is not in it is a key nobody can find. The two that are constants are read
-   * from them; this checks the reading happened.
+   * is not in it is a key nobody can find. Every key that is a constant is read
+   * from it; this checks the reading happened.
    */
   it("names every key the predicates answer to", () => {
     const keys = SHORTCUTS.flatMap((shortcut) => shortcut.keys);
-    for (const key of [GOAL_KEY, HELP_KEY, PREVIOUS_GOD_KEY, NEXT_GOD_KEY]) {
+    for (const key of [DETAILS_KEY, GOAL_KEY, HELP_KEY, PREVIOUS_GOD_KEY, NEXT_GOD_KEY]) {
       expect(keys).toContain(key);
     }
     expect(SHORTCUTS.every((shortcut) => shortcut.what.endsWith("."))).toBe(true);

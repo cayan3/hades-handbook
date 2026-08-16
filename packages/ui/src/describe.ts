@@ -258,6 +258,16 @@ function list(names: readonly string[]): string {
 }
 
 /**
+ * That a boon is pinned, in words. It is drawn as a corner glyph and carried by
+ * `aria-current`, neither of which says which of the things a control can be
+ * "current" for this is — so the sentence goes in the description beside them.
+ *
+ * One string for the node and the sheet, which say it in different places about
+ * the same boon.
+ */
+export const PINNED_SENTENCE = "Pinned to a goal.";
+
+/**
  * Short, because they sit under a name that is already on screen, and because
  * each has to be true of any boon in that state rather than of this one.
  */

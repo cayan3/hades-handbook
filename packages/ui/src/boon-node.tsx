@@ -1,10 +1,10 @@
 import type { CSSProperties } from "react";
 import { useId } from "react";
 import { BoonArt, ElementArt } from "./boon-art.js";
-import { stateSentence } from "./describe.js";
+import { PINNED_SENTENCE, stateSentence } from "./describe.js";
 import { DormantGlyph, MarkerGlyph } from "./glyphs.js";
 import { godColour } from "./god-palette.js";
-import { isGoalKey } from "./keys.js";
+import { isDetailsKey, isGoalKey } from "./keys.js";
 import type { NodeView } from "./node-view.js";
 import { useGame, useLadder } from "./presentation.js";
 import { treatmentOf } from "./rarity-palette.js";
@@ -174,6 +174,10 @@ export function BoonNode({
 
   const description = [
     stateSentence(view.state),
+    // The marker in the corner is `aria-hidden` and `aria-current` says only
+    // that this control is the current *something*, so without the sentence a
+    // pin is the one thing on a node that is drawn and never said.
+    pinned ? PINNED_SENTENCE : null,
     view.dormant ? DORMANT_SENTENCE : null,
     treatment === null ? null : `${treatment.word}.`,
     // The corner symbol says this in a picture, so a reader who never meets one
@@ -234,15 +238,20 @@ export function BoonNode({
          * drawn in three of them, and the alternative is the same binding
          * written three times.
          */
-        onKeyDown={
-          onGoal === undefined
-            ? undefined
-            : (event) => {
-                if (!isGoalKey(event)) return;
-                event.preventDefault();
-                onGoal(view.trait);
-              }
-        }
+        onKeyDown={(event) => {
+          if (onGoal !== undefined && isGoalKey(event)) {
+            event.preventDefault();
+            onGoal(view.trait);
+            return;
+          }
+          // Enter opens the details of a boon the run holds and marks one it
+          // does not, so this is the only way to read what an un-held boon
+          // still needs without taking it first.
+          if (onOpen !== undefined && isDetailsKey(event)) {
+            event.preventDefault();
+            onOpen(view.trait);
+          }
+        }}
       >
         <NodeBox view={view} pinned={pinned} showElement={showElement} />
         {showName ? <span className="node__name">{view.name}</span> : null}

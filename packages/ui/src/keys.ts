@@ -16,6 +16,18 @@
 export const GOAL_KEY = "g";
 export const HELP_KEY = "?";
 /**
+ * Opens a boon's details whatever its state, which Enter does only for one the
+ * run holds — a click on a boon it does not marks it instead, deliberately, so
+ * that marking costs one gesture.
+ *
+ * Found by the textual-state pass rather than designed: a boon's prerequisites
+ * are drawn on the god page as lines and written out in the sheet, and once
+ * marking took the click there was no way to reach the sheet on an un-held boon
+ * at all. Reading what a boon needs before deciding to take it is the ordinary
+ * case, and it had no gesture.
+ */
+export const DETAILS_KEY = "d";
+/**
  * Brackets rather than letters for the two that act on the page rather than on
  * whatever has focus. A search box is coming with the quick-add, and every
  * unmodified letter spent here is one it cannot type — these two are already
@@ -58,6 +70,11 @@ export function stepFor(event: KeyEvent): Step | null {
 /** Set or clear a goal on whatever has focus. */
 export function isGoalKey(event: KeyEvent): boolean {
   return !hasModifier(event) && event.key.toLowerCase() === GOAL_KEY && !isTyping(event.target);
+}
+
+/** Open the details of whatever has focus, held or not. */
+export function isDetailsKey(event: KeyEvent): boolean {
+  return !hasModifier(event) && event.key.toLowerCase() === DETAILS_KEY && !isTyping(event.target);
 }
 
 /** Open the shortcut list. Shift is how `?` is typed, so it cannot disqualify it. */
@@ -183,6 +200,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
   { keys: ["←", "→"], what: "Move to the boon beside this one." },
   { keys: ["Home", "End"], what: "The first or last of the band." },
   { keys: ["Enter"], what: "Mark a boon as taken, or open the details of one you hold." },
+  { keys: [DETAILS_KEY], what: "Open the details of the boon you are on, held or not." },
   { keys: [GOAL_KEY], what: "Set or clear a goal on the boon you are on." },
   { keys: [PREVIOUS_GOD_KEY, NEXT_GOD_KEY], what: "The previous or next god." },
   { keys: [HELP_KEY], what: "This list." },

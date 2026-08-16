@@ -326,3 +326,62 @@ describe("Junction", () => {
     expect(junction.matches("button, [tabindex]")).toBe(false);
   });
 });
+
+/**
+ * The textual-state pass, on the surface it starts from: every state a node
+ * draws has to be readable as words. The marker, the ring and the frame are all
+ * `aria-hidden` or pure CSS, so the description is the only place a reader meets
+ * any of them.
+ */
+describe("the textual state of a node", () => {
+  const described = () => {
+    const control = container.querySelector("button")!;
+    return document.getElementById(control.getAttribute("aria-describedby")!)?.textContent ?? "";
+  };
+
+  /**
+   * The pin was the one thing drawn and never said. `aria-current="true"` says
+   * this control is the current *something* without saying of what, and the
+   * glyph beside it is hidden.
+   */
+  it("says a boon is pinned, not only marks it", () => {
+    render(<BoonNode view={view()} pinned />);
+    expect(described()).toContain("Pinned to a goal.");
+
+    render(<BoonNode view={view()} />);
+    expect(described()).not.toContain("Pinned");
+  });
+
+  it("says the rest of what it draws", () => {
+    render(
+      <BoonNode
+        view={view({ state: "Obtained", dormant: true, element: "Fire", rarities: ["Common"] })}
+        pinned
+      />,
+    );
+    const words = described();
+    for (const said of ["Held.", "Pinned to a goal.", "Owned, and not active yet.", "Fire affinity."]) {
+      expect(words).toContain(said);
+    }
+  });
+
+  /**
+   * Enter marks a boon the run does not hold, so before this there was no way to
+   * reach an un-held boon's requirements at all without taking it first — which
+   * is what the sheet exists to let a player decide.
+   */
+  it("opens the details of an un-held boon on its own key", () => {
+    const onOpen = vi.fn();
+    const onMark = vi.fn();
+    render(<BoonNode view={view({ state: "Available" })} onOpen={onOpen} onMark={onMark} />);
+
+    const control = container.querySelector("button")!;
+    act(() => {
+      control.dispatchEvent(new KeyboardEvent("keydown", { key: "d", bubbles: true }));
+    });
+    expect(onOpen).toHaveBeenCalledWith("ZeusWeaponTrait");
+    // The marking gesture is untouched: it is what a player does dozens of times
+    // a run and it still costs one press.
+    expect(onMark).not.toHaveBeenCalled();
+  });
+});

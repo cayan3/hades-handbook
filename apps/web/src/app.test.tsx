@@ -1209,6 +1209,47 @@ describe("the page-wide keys", () => {
     expect(current()).toBe(before);
   });
 
+  /**
+   * Whether a god is in the run's pool is a fact about the run drawn as a glow,
+   * and a glow is the one channel a reader gets nothing of.
+   */
+  it("says which gods are in the pool, not only glows them", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    // A tab that is only there for planning, so the assertion below has both
+    // halves to tell apart rather than one.
+    showGod("Athena");
+
+    const tab = [...container.querySelectorAll<HTMLElement>(".app__godtab")].find(
+      (button) => button.dataset["pooled"] === "true",
+    );
+    expect(tab?.getAttribute("aria-label")).toBe("Aphrodite — in your pool");
+    // And a tab that is only there for planning says nothing extra, or the
+    // distinction the glow draws would be lost the other way round.
+    const planning = [...container.querySelectorAll<HTMLElement>(".app__godtab")].find(
+      (button) => button.dataset["pooled"] === "false",
+    );
+    expect(planning?.getAttribute("aria-label")).toBeNull();
+  });
+
+  /**
+   * Enter marks an un-held boon rather than opening its sheet, so reading what
+   * one still needs before taking it had no gesture at all.
+   */
+  it("opens an un-held boon's requirements without marking it", async () => {
+    await mount();
+    const boon = node("AllCloseBoon");
+    act(() => boon.focus());
+    act(() => {
+      boon.dispatchEvent(new KeyboardEvent("keydown", { key: "d", bubbles: true }));
+    });
+
+    expect(container.querySelector(".sheet")).not.toBeNull();
+    expect(texts(".sheet__needed h3")).toEqual(["Still needed"]);
+    // Reading is not taking: the run is untouched.
+    expect(heldInLoadout("AllCloseBoon")).toBe(false);
+  });
+
   it("sets a goal from the keyboard, which is the gesture a pointer had alone", async () => {
     await mount();
     const boon = node(APHRODITE_MELEE);

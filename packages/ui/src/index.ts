@@ -78,6 +78,7 @@ export {
   stepThrough,
 } from "./god-graph.js";
 export {
+  DETAILS_KEY,
   GOAL_KEY,
   HELP_KEY,
   NEXT_GOD_KEY,
@@ -85,6 +86,7 @@ export {
   SHORTCUTS,
   focusMember,
   godStep,
+  isDetailsKey,
   isGoalKey,
   isHelpKey,
   isTyping,
@@ -112,6 +114,7 @@ export { catalogNaming } from "./naming.js";
 export type { Naming } from "./naming.js";
 export { godColour, colouredGods } from "./god-palette.js";
 export {
+  PINNED_SENTENCE,
   POOL_FULL_BODY,
   POOL_FULL_COPY,
   POOL_FULL_LEAD,
