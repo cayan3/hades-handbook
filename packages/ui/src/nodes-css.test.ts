@@ -414,3 +414,45 @@ describe("the node stylesheet", () => {
     expect(rows(".loadout__core")).toBe(rows(".loadout__rest"));
   });
 });
+
+/**
+ * Have against need on a goal's requirement, which is a different channel from
+ * the ladder above and takes the opposite rule: it *is* allowed a hue, and the
+ * design says fill before colour and green/purple second. The unmet half had
+ * been drawn as opacity alone, so the second channel had one value and this
+ * checks it has two.
+ */
+describe("a requirement row's have-against-need", () => {
+  function rule(selector: string): string {
+    const at = CSS.indexOf(selector);
+    if (at === -1) throw new Error(`no rule for ${selector}`);
+    return CSS.slice(CSS.indexOf("{", at) + 1, CSS.indexOf("}", at));
+  }
+
+  it("carries the fill before the colour, and both ways round", () => {
+    // Fill first: the marker is an outline by default and filled when met, so
+    // the distinction survives a colourblind reader and a printout.
+    expect(rule(".goal__ask::before")).toMatch(/border\s*:/);
+    expect(rule('.goal__row[data-met="true"] .goal__ask::before')).toMatch(/background\s*:/);
+
+    // Then the colour, and there are two of them. One value is not a channel.
+    const met = rule('.goal__row[data-met="true"] .goal__ask');
+    const unmet = rule('.goal__row[data-met="false"] .goal__ask');
+    expect(met).toMatch(/color\s*:\s*#/);
+    expect(unmet).toMatch(/color\s*:\s*#/);
+    expect(met).not.toBe(unmet);
+  });
+
+  /**
+   * The symbol above the list carries which god's boons these are, so a hue on
+   * the names would be identity and state in one channel — which is the same
+   * mistake the ladder exists not to make.
+   */
+  it("leaves the option text neutral", () => {
+    expect(rule(".goal__option")).not.toMatch(/(^|[\s;])color\s*:/);
+    expect(rule('.goal__option[data-held="false"]')).not.toMatch(/(^|[\s;])color\s*:/);
+    // Held against not held is brightness and a filled marker, no hue at all.
+    expect(rule('.goal__option[data-held="false"]')).toMatch(/opacity\s*:/);
+    expect(rule('.goal__option[data-held="true"]::before')).toMatch(/background\s*:/);
+  });
+});
