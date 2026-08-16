@@ -365,11 +365,7 @@ h1,
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  /* Room for the Loadout's element row, which hangs above its own section rather
-     than sitting in it — measured, that row is about 26px and this was 16px, so
-     it overlapped the god bar's bottom rule. A constant, so nothing moves as the
-     row comes and goes. */
-  margin-top: 1.75rem;
+  margin-top: 1rem;
 }
 
 .app__body h2 {

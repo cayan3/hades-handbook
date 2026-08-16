@@ -282,22 +282,23 @@ describe("the panel itself", () => {
     const row = [...container.querySelectorAll(".loadout__elements li")];
     expect(row.map((li) => li.textContent)).toEqual(["0Earth", "1Water", "0Air", "3Fire", "0Aether"]);
     expect(container.querySelectorAll(".node__element")).toHaveLength(0);
-    // Above the panel's own heading and out of the flow, which is the only
-    // arrangement where appearing costs no vertical space: in flow it pushed
-    // either the panel down the page or every boon inside it down.
+    // Inside the panel and above the grid. The space it takes is reserved by
+    // the panel's own margin while it is not drawn, so the boons never move and
+    // the backdrop grows up to meet the row instead.
     const list = container.querySelector(".loadout__elements")!;
-    const heading = container.querySelector("h2")!;
-    expect(list.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(container.querySelector(".loadout__panel")!.contains(list)).toBe(false);
+    const grid = container.querySelector(".loadout__grid")!;
+    expect(container.querySelector(".loadout__panel")!.contains(list)).toBe(true);
+    expect(list.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("draws the row only while the panel is open", () => {
     // The same disclosure the rest of the grid follows, so the panel opens as
     // one thing. Collapsed it is the core slots and nothing else.
     render(panel({ expanded: false, elements: new Map([["Fire" as const, 3]]) }));
-    // The box is laid out either way and the stylesheet hides it, or every boon
-    // under it moves down as the panel opens. `data-open` is the whole signal.
-    expect(container.querySelector(".loadout__elements")!.getAttribute("data-open")).toBeNull();
+    expect(container.querySelector(".loadout__elements")).toBeNull();
+    // The panel says so, and the stylesheet holds the row's place with a margin
+    // while it does — so nothing below the row moves when it arrives.
+    expect(container.querySelector(".loadout__panel")!.getAttribute("data-open")).toBeNull();
 
     act(() => {
       container

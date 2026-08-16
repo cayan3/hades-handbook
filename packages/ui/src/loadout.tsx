@@ -212,34 +212,6 @@ export function Loadout({
         }
       }}
     >
-      {elements === undefined || game !== "hades2" ? null : (
-        /* A total over everything below it, so it reads above the grid — which
-           is where the game's own tray puts it, count first and then the symbol.
-           All five while the panel is open and none at all while it is not: a
-           collapsed panel is the core slots and nothing else, and an Infusion is
-           planned against the ceiling as much as against the count.
-           Its box is laid out either way and hidden rather than dropped, or every
-           boon under it moves down the moment the panel opens. */
-        <ul
-          className="loadout__elements"
-          data-open={showRest ? "true" : undefined}
-        >
-          {ELEMENTS.map((element) => (
-            <li
-              key={element}
-              data-met={elements.has(element) ? "true" : undefined}
-            >
-              <span>{elements.get(element) ?? 0}</span>
-              <ElementArt
-                game={game}
-                element={element}
-                className="loadout__element"
-              />
-              <span className="visually-hidden">{element}</span>
-            </li>
-          ))}
-        </ul>
-      )}
       <h2>Loadout</h2>
 
       {entries.length === 0 ? (
@@ -253,6 +225,7 @@ export function Loadout({
           <div
             className="loadout__panel"
             data-game={game}
+            data-open={showRest ? "true" : undefined}
             // The rest of the run fills a column of this many before starting
             // the next, which is the slot count rather than how many are held:
             // a shape that changed as boons arrived would rearrange under the
@@ -266,25 +239,50 @@ export function Loadout({
               } as CSSProperties
             }
           >
-            <div className="loadout__grid">
-              <Tiles
-                className="loadout__core"
-                entries={core}
-                open={open}
-                lit={shown}
-                onToggle={toggle}
-                onPreview={setHovered}
-              />
-              {showRest ? (
+            {elements === undefined || game !== "hades2" || !showRest ? null : (
+              /* Inside the panel and above the grid, which is where the game's
+                 own tray puts it — count first, then the symbol. Drawn only
+                 while the panel is open; the space it takes is reserved by the
+                 panel's own margin either way, so the boons never move and the
+                 backdrop simply grows up to meet the row. */
+              <ul className="loadout__elements">
+                {ELEMENTS.map((element) => (
+                  <li
+                    key={element}
+                    data-met={elements.has(element) ? "true" : undefined}
+                  >
+                    <span>{elements.get(element) ?? 0}</span>
+                    <ElementArt
+                      game={game}
+                      element={element}
+                      className="loadout__element"
+                    />
+                    <span className="visually-hidden">{element}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="loadout__stack">
+              <div className="loadout__grid">
                 <Tiles
-                  className="loadout__rest"
-                  entries={rest}
+                  className="loadout__core"
+                  entries={core}
                   open={open}
                   lit={shown}
                   onToggle={toggle}
                   onPreview={setHovered}
                 />
-              ) : null}
+                {showRest ? (
+                  <Tiles
+                    className="loadout__rest"
+                    entries={rest}
+                    open={open}
+                    lit={shown}
+                    onToggle={toggle}
+                    onPreview={setHovered}
+                  />
+                ) : null}
+              </div>
             </div>
             {/* Only while the panel has the pointer or the focus, the same rule
                 the rest of the grid follows. The stack itself is untouched, so

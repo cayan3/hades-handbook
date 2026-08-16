@@ -365,4 +365,22 @@ describe("the node stylesheet", () => {
       ".loadout__tile",
     ]);
   });
+
+  it("reserves exactly what the element row occupies, from one pair of values", () => {
+    // The row is drawn only while the panel is open and its place is held by the
+    // panel's margin while it is not. The two have to be the same length or the
+    // boons shift by the difference — so both read the same two properties, and
+    // this is what says neither grew a literal.
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const row = rules.match(/\.loadout__elements\s*\{([^}]*)\}/)?.[1] ?? "";
+    expect(row).toContain("height: var(--elements-height)");
+    expect(row).toContain("margin: 0 0 var(--elements-gap)");
+
+    const closed =
+      rules.match(/\.loadout__panel\[data-game="hades2"\]:not\(\[data-open\]\)\s*\{([^}]*)\}/)?.[1] ??
+      "";
+    expect(closed.replace(/\s+/g, " ")).toContain(
+      "margin-top: calc(var(--elements-height) + var(--elements-gap))",
+    );
+  });
 });

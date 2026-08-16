@@ -1277,29 +1277,28 @@
    row of it. The count is the number a player is tracking; the symbol says
    which, and the element's name is there for a reader who meets neither. */
 /*
- * Above the panel's own heading and out of the flow entirely, which is the only
- * arrangement where appearing costs nothing: in flow it pushed either the whole
- * panel down the page or every boon inside it down by its own height, and both
- * were reported. Collapsed, the boons start directly under the heading.
+ * The row sits inside the panel, above the grid, and is drawn only while the
+ * panel is open — but the space it needs is reserved by the panel's own margin
+ * either way (below). So the panel's top edge and its backdrop rise to meet the
+ * row as it appears, and nothing under it moves.
  *
- * `visibility` rather than `display` for the hidden state, so the contents leave
- * the accessibility tree with the drawing — which is what "none while it is
- * closed" has to mean for a reader.
+ * Its height is declared rather than left to the content, because the margin
+ * that reserves the space has to equal it exactly.
  */
 .loadout__elements {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
   display: flex;
   gap: 1rem;
-  margin: 0 0 0.2rem;
+  align-items: center;
+  height: var(--elements-height);
+  margin: 0 0 var(--elements-gap);
   padding: 0;
   list-style: none;
   font-size: 1.1rem;
 }
 
-.loadout__elements:not([data-open]) {
-  visibility: hidden;
+.loadout__stack {
+  display: flex;
+  flex-direction: column;
 }
 
 .loadout__elements li {
@@ -1407,9 +1406,12 @@
    On the panel rather than on the tile, which is the same argument once more:
    an empty slot is not a tile and has to line up with one. */
 .loadout {
-  /* The element row hangs off the top of this box rather than sitting in it. */
-  position: relative;
   --tile-pad: 0.15rem;
+  /* What the element row occupies, named once because two rules have to agree on
+     it: the row's own box, and the margin that holds its place while it is not
+     drawn. They disagreeing by a pixel is the whole defect this prevents. */
+  --elements-height: 1.6rem;
+  --elements-gap: 0.55rem;
 }
 
 /*
@@ -1637,6 +1639,15 @@
   --chrome-slice: 32;
   --chrome-frame: 12px;
   --chrome-radius: 0.6rem;
+}
+
+/* Closed, the panel starts lower by exactly what the element row occupies, so
+   the space is held open with no backdrop over it; opening moves the top edge up
+   to cover it and the row fills it. The distance from the heading to the first
+   boon is the same either way, which is the point.
+   Hades II only — the other game has no such row and nothing to reserve. */
+.loadout__panel[data-game="hades2"]:not([data-open]) {
+  margin-top: calc(var(--elements-height) + var(--elements-gap));
 }
 
 .loadout__card {
