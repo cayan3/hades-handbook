@@ -194,6 +194,8 @@ export function Loadout({
   return (
     <section
       className="loadout"
+      data-game={game}
+      data-open={showRest ? "true" : undefined}
       data-expanded={showRest}
       // On the panel rather than on each tile: moving from a tile to the card
       // it opened crosses the gap between them, and a handler per tile would

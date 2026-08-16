@@ -1289,7 +1289,7 @@
   display: flex;
   gap: 1rem;
   align-items: center;
-  justify-content: center;
+  justify-content: space-evenly;
   height: var(--elements-height);
   margin: 0 0 var(--elements-gap);
   padding: 0;
@@ -1421,6 +1421,8 @@
      drawn. They disagreeing by a pixel is the whole defect this prevents. */
   --elements-height: 1.6rem;
   --elements-gap: 0.55rem;
+  /* The heading's own gap, owned here because the reserve above adds to it. */
+  --heading-gap: 0.5rem;
 }
 
 /*
@@ -1650,13 +1652,27 @@
   --chrome-radius: 0.6rem;
 }
 
-/* Closed, the panel starts lower by exactly what the element row occupies, so
-   the space is held open with no backdrop over it; opening moves the top edge up
-   to cover it and the row fills it. The distance from the heading to the first
-   boon is the same either way, which is the point.
-   Hades II only — the other game has no such row and nothing to reserve. */
-.loadout__panel[data-game="hades2"]:not([data-open]) {
-  margin-top: calc(var(--elements-height) + var(--elements-gap));
+/*
+ * Closed, the space the element row will occupy is held open above the panel and
+ * no backdrop covers it; opening moves the panel's top edge up to fill it and the
+ * row lands there. The heading-to-first-boon distance is the same either way.
+ *
+ * The reserve is the **heading's** bottom margin rather than the panel's top
+ * one, and that is not a preference: adjacent siblings collapse their margins to
+ * the larger of the two, so a reserve on the panel swallowed the heading's own
+ * 0.5rem and the panel's bottom edge dropped by exactly that much on opening.
+ * One margin cannot collapse with anything.
+ *
+ * Hades II only — the other game has no such row and nothing to reserve.
+ */
+.loadout h2 {
+  margin-bottom: var(--heading-gap);
+}
+
+.loadout[data-game="hades2"]:not([data-open]) h2 {
+  margin-bottom: calc(
+    var(--heading-gap) + var(--elements-height) + var(--elements-gap)
+  );
 }
 
 .loadout__card {

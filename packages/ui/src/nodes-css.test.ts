@@ -366,23 +366,33 @@ describe("the node stylesheet", () => {
     ]);
   });
 
-  it("reserves exactly what the element row occupies, from one pair of values", () => {
-    // The row is drawn only while the panel is open and its place is held by the
-    // panel's margin while it is not. The two have to be the same length or the
-    // boons shift by the difference — so both read the same two properties, and
-    // this is what says neither grew a literal.
+  it("reserves exactly what the element row occupies, and not on the panel", () => {
+    // The row is drawn only while the panel is open and its place is held while
+    // it is not. The two lengths have to match or the boons shift by the
+    // difference, so both read the same pair of properties rather than a
+    // literal.
+    //
+    // The reserve is the heading's bottom margin, not the panel's top one:
+    // adjacent siblings collapse to the larger of their two margins, so a
+    // reserve on the panel swallowed the heading's own gap and dropped the
+    // panel's bottom edge by exactly that much on opening.
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
     const row = rules.match(/\.loadout__elements\s*\{([^}]*)\}/)?.[1] ?? "";
     expect(row).toContain("height: var(--elements-height)");
     expect(row).toContain("margin: 0 0 var(--elements-gap)");
 
-    const closed =
-      rules.match(/\.loadout__panel\[data-game="hades2"\]:not\(\[data-open\]\)\s*\{([^}]*)\}/)?.[1] ??
+    const heading =
+      rules.match(/\.loadout\[data-game="hades2"\]:not\(\[data-open\]\) h2\s*\{([^}]*)\}/)?.[1] ??
       "";
-    expect(closed.replace(/\s+/g, " ")).toContain(
-      "margin-top: calc(var(--elements-height) + var(--elements-gap))",
-    );
+    const flat = heading.replace(/\s+/g, " ");
+    expect(flat).toContain("var(--elements-height)");
+    expect(flat).toContain("var(--elements-gap)");
+    expect(flat).toContain("var(--heading-gap)");
+
+    // And nothing reserves it on the panel, which is where it collapsed.
+    expect(rules).not.toMatch(/\.loadout__panel[^{]*\{[^}]*margin-top/);
   });
+
 
   it("gives the loadout's two columns one row template", () => {
     // They stand side by side and are read across, so a rung in one has to be
