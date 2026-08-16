@@ -130,6 +130,7 @@ export {
 } from "./describe.js";
 export type { Displacement, ImpossibleNotice } from "./describe.js";
 export {
+  MARKING_HINT,
   OTHER_TAB_BODY,
   OTHER_TAB_TITLE,
   OVERRIDDEN_HINT,

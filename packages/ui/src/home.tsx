@@ -1,4 +1,8 @@
-import { UNAFFILIATED } from "./messages.js";
+import type { GodId } from "@repo/core";
+import { useState } from "react";
+import { GodArt } from "./boon-art.js";
+import { MARKING_HINT, UNAFFILIATED } from "./messages.js";
+import { useGame } from "./presentation.js";
 
 /**
  * The page behind the bar's first tab: what this run is, what is pinned, and
@@ -7,13 +11,20 @@ import { UNAFFILIATED } from "./messages.js";
  */
 
 export interface HomeProps {
+  /** How many boons the run holds, which is the shortest true thing about it. */
+  readonly held: number;
+  /** The gods this run has met, and the way back to what was being read. */
+  readonly pooled: readonly GodId[];
+  readonly onGod: (god: GodId) => void;
   /** Opens the shortcut list, which the `?` key otherwise reaches alone. */
   readonly onShortcuts: () => void;
 }
 
-export function Home({ onShortcuts }: HomeProps) {
+export function Home({ held, pooled, onGod, onShortcuts }: HomeProps) {
   return (
     <div className="home">
+      <ThisRun held={held} pooled={pooled} onGod={onGod} />
+
       {/* Last of the three regions: it has to be present and findable rather
           than in front of what a player came for. */}
       <section className="home__about">
@@ -40,6 +51,79 @@ export function Home({ onShortcuts }: HomeProps) {
       </section>
     </div>
   );
+}
+
+/**
+ * One region in two states rather than two views: a run that has started and
+ * one that has not are the same question answered differently, and two surfaces
+ * over one run is how a pair of them goes out of step.
+ */
+function ThisRun({
+  held,
+  pooled,
+  onGod,
+}: {
+  readonly held: number;
+  readonly pooled: readonly GodId[];
+  readonly onGod: (god: GodId) => void;
+}) {
+  const game = useGame();
+  /** Reachable with a run in progress too, so it is a disclosure and not a state. */
+  const [howTo, setHowTo] = useState(false);
+
+  return (
+    <section className="home__run">
+      <h3>This run</h3>
+      {held === 0 ? (
+        <p>Nothing marked yet. Pick a god from the bar above to start.</p>
+      ) : (
+        <>
+          <p className="home__resume">
+            {countOf(held, "boon")} from {countOf(pooled.length, "god")}.
+          </p>
+          {/* The gods rather than the boons: what a player left off doing was
+              reading one god's page, and the Loadout beside this already says
+              what the run holds. */}
+          <ul className="home__gods">
+            {pooled.map((god) => (
+              <li key={god}>
+                <button type="button" className="home__god" onClick={() => onGod(god)}>
+                  <GodArt game={game} god={god} className="home__godart" />
+                  {god}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      <button
+        type="button"
+        className="home__howto"
+        aria-expanded={howTo}
+        onClick={() => setHowTo(!howTo)}
+      >
+        Getting started
+      </button>
+      {/* Rendered or not, never `hidden`: that attribute is `display: none` in
+          the user-agent sheet and any display on the element beats it. */}
+      {!howTo ? null : (
+        <div className="home__steps">
+          <p>Pick a god from the bar to see everything they offer.</p>
+          <p>{MARKING_HINT}</p>
+          <p>
+            A goal shows up under Goals with what it still needs, and the run saves
+            itself as you go.
+          </p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/** "1 boon", "3 boons" — the plural is regular for both words this takes. */
+function countOf(many: number, thing: string): string {
+  return `${many} ${thing}${many === 1 ? "" : "s"}`;
 }
 
 /**

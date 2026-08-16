@@ -1461,6 +1461,22 @@ describe("the Home tab", () => {
     expect(current()).toBe(bar()[1]);
   });
 
+  /**
+   * The resume line reads the run rather than a copy of it, which is the whole
+   * of why it is here: a stored run reopens on Home and says what it holds.
+   */
+  it("counts the real run and hands back the gods it met", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    act(() => container.querySelector<HTMLElement>(".app__hometab")?.click());
+
+    expect(container.querySelector(".home__resume")?.textContent).toBe("1 boon from 1 god.");
+    expect(texts(".home__god").map((text) => text.trim())).toEqual(["Aphrodite"]);
+
+    act(() => container.querySelector<HTMLElement>(".home__god")?.click());
+    expect(current()).toBe("Aphrodite");
+  });
+
   it("goes to a god when one is picked, and comes back when Home is", async () => {
     await mount();
     showGod("Athena");

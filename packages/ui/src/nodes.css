@@ -2127,3 +2127,62 @@ kbd {
   font-size: 0.9rem;
   opacity: 0.7;
 }
+
+/* One region in two states rather than two views, so nothing here is keyed on
+   whether a run has started beyond which of the two paragraphs is drawn. */
+.home__resume {
+  font-size: 1.1rem;
+}
+
+.home__gods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* A row rather than a tab: this names the god, where the bar draws the symbol
+   alone, so the two controls do not read as the same one twice. */
+.home__god {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.3rem 0.6rem 0.3rem 0.35rem;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.home__god:hover,
+.home__god:focus-visible {
+  border-color: rgb(255 255 255 / 40%);
+}
+
+.home__godart {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+}
+
+.home__howto {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.home__steps {
+  margin-top: 0.6rem;
+  padding-left: 0.8rem;
+  border-left: 2px solid rgb(255 255 255 / 15%);
+  opacity: 0.85;
+}

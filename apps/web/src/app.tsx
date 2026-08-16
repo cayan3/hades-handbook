@@ -15,6 +15,7 @@ import {
   HomeGlyph,
   Loadout,
   type LoadoutEntry,
+  MARKING_HINT,
   NodePresentation,
   NoticeBar,
   type NodeSource,
@@ -669,7 +670,12 @@ function Run({
           {page === null ? (
             <section className="app__ladder">
               <h2>Home</h2>
-              <Home onShortcuts={() => setHelpOpen(true)} />
+              <Home
+                held={facts.held.size}
+                pooled={[...facts.godPool]}
+                onGod={(name) => setSelected({ kind: "god", god: name })}
+                onShortcuts={() => setHelpOpen(true)}
+              />
             </section>
           ) : (
             <section className="app__ladder">
@@ -685,11 +691,9 @@ function Run({
               />
               {/* Under the thing it is about, not above it: it is a first-visit
                   explanation and it stops being read long before it stops being
-                  on the page. */}
-              <p className="app__hint">
-                Tap a boon to mark it as taken. Long-press, or right-click, to set
-                it as a goal. Tapping one you already hold opens its details.
-              </p>
+                  on the page. Home's getting-started disclosure says the same
+                  three gestures, so the sentence is one constant. */}
+              <p className="app__hint">{MARKING_HINT}</p>
             </section>
           )}
         </main>

@@ -158,6 +158,15 @@ export const OVERRIDDEN_LABEL = "Held by hand";
 export const OVERRIDDEN_HINT = "You set this yourself. It won't be updated for you.";
 
 /**
+ * The three gestures a boon carries, said once. Home explains them to somebody
+ * who has not started and the god page repeats them under the graph, and two
+ * copies of a sentence is one of them going out of date.
+ */
+export const MARKING_HINT =
+  "Tap a boon to mark it as taken. Long-press, or right-click, to set it as a " +
+  "goal. Tapping one you already hold opens its details.";
+
+/**
  * The one thing this product has to say about itself before it is published,
  * and it is a constant so that changing it is one edit — the same shape the art
  * resolver has, for the same reason. Every surface that faces a stranger draws
