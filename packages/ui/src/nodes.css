@@ -1276,29 +1276,30 @@
 /* A total over the panel below it, so it reads above the grid rather than as a
    row of it. The count is the number a player is tracking; the symbol says
    which, and the element's name is there for a reader who meets neither. */
-/* Laid out whether or not it is showing, so opening the panel does not move
-   every boon under it down by the row's height. `visibility` rather than
-   `display` keeps the box and takes the contents out of the accessibility tree
-   with them, which is what "none while it is closed" has to mean. */
-.loadout__elements:not([data-open]) {
-  visibility: hidden;
-}
-
+/*
+ * Above the panel's own heading and out of the flow entirely, which is the only
+ * arrangement where appearing costs nothing: in flow it pushed either the whole
+ * panel down the page or every boon inside it down by its own height, and both
+ * were reported. Collapsed, the boons start directly under the heading.
+ *
+ * `visibility` rather than `display` for the hidden state, so the contents leave
+ * the accessibility tree with the drawing — which is what "none while it is
+ * closed" has to mean for a reader.
+ */
 .loadout__elements {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
   display: flex;
-  gap: 0.9rem;
-  margin: 0;
+  gap: 1rem;
+  margin: 0 0 0.2rem;
   padding: 0;
   list-style: none;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
 }
 
-/* The row above the grid, inside the panel's own frame. Outside it the row
-   appeared as the panel expanded and pushed the whole panel down the page. */
-.loadout__stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+.loadout__elements:not([data-open]) {
+  visibility: hidden;
 }
 
 .loadout__elements li {
@@ -1308,8 +1309,8 @@
 }
 
 .loadout__element {
-  width: 1.1rem;
-  height: 1.1rem;
+  width: 1.45rem;
+  height: 1.45rem;
   object-fit: contain;
 }
 
@@ -1406,6 +1407,8 @@
    On the panel rather than on the tile, which is the same argument once more:
    an empty slot is not a tile and has to line up with one. */
 .loadout {
+  /* The element row hangs off the top of this box rather than sitting in it. */
+  position: relative;
   --tile-pad: 0.15rem;
 }
 

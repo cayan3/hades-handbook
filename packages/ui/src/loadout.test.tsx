@@ -282,12 +282,13 @@ describe("the panel itself", () => {
     const row = [...container.querySelectorAll(".loadout__elements li")];
     expect(row.map((li) => li.textContent)).toEqual(["0Earth", "1Water", "0Air", "3Fire", "0Aether"]);
     expect(container.querySelectorAll(".node__element")).toHaveLength(0);
-    // Above the grid and inside the panel's own frame — outside it, the row
-    // appeared as the panel expanded and pushed the whole panel down the page.
+    // Above the panel's own heading and out of the flow, which is the only
+    // arrangement where appearing costs no vertical space: in flow it pushed
+    // either the panel down the page or every boon inside it down.
     const list = container.querySelector(".loadout__elements")!;
-    const grid = container.querySelector(".loadout__grid")!;
-    expect(container.querySelector(".loadout__panel")!.contains(list)).toBe(true);
-    expect(list.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const heading = container.querySelector("h2")!;
+    expect(list.compareDocumentPosition(heading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(container.querySelector(".loadout__panel")!.contains(list)).toBe(false);
   });
 
   it("draws the row only while the panel is open", () => {
@@ -346,19 +347,18 @@ describe("the panel itself", () => {
     expect(empty.dataset["game"]).toBe("hades2");
   });
 
-  it("draws no empty rung for a slot the game has no glyph for", () => {
+  it("keeps the rung for a slot the game draws no glyph for", () => {
     // Hades II's own tray has an icon for five of its six core slots and none
-    // for the Hex, and an empty box there is a rung that says nothing. A held
-    // Hex still draws, this being about the empty case only.
+    // for the Hex. The box stays anyway: the column is read by position, and a
+    // rung that vanished would shorten the column against the rest grid beside
+    // it, which counts its rows off the game's slot count either way.
     render(panel({ coreSlots: ["Spell"] }));
-    expect(container.querySelector(".loadout__emptyslot")).toBeNull();
-    expect(container.querySelectorAll(".loadout__core > li")).toHaveLength(0);
+    const empty = container.querySelector(".loadout__emptyslot")!;
+    expect(empty).not.toBeNull();
+    expect(empty.querySelector("img")).toBeNull();
 
     render(panel({ coreSlots: ["Ranged"] }));
     expect(container.querySelector(".loadout__emptyslot img")).not.toBeNull();
-
-    render(panel({ coreSlots: ["Spell"], entries: [entry("a", "Spell")] }));
-    expect(tiles()).toHaveLength(1);
   });
 
   it("hands the panel's frame over as a property, never as a path in the markup", () => {
