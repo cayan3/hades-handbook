@@ -1913,3 +1913,50 @@
 .junction[data-reached="true"] {
   filter: drop-shadow(0 0 0.3rem currentColor);
 }
+
+/*
+ * The command set written out. It reuses the sheet's own box, since it is the
+ * same kind of thing — a modal you opened, read and dismissed — and differs only
+ * in that nothing on the page opens it.
+ */
+.shortcuts h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1.15rem;
+}
+
+.shortcuts__list {
+  display: grid;
+  /* The keys column takes what its widest entry needs and no more, so the
+     descriptions all start at the same place without a number to keep in step. */
+  grid-template-columns: max-content 1fr;
+  gap: 0.55rem 0.9rem;
+  margin: 0;
+}
+
+.shortcuts__row {
+  display: contents;
+}
+
+.shortcuts__row dt {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.shortcuts__row dd {
+  margin: 0;
+  opacity: 0.85;
+}
+
+kbd {
+  display: inline-block;
+  min-width: 1.6rem;
+  padding: 0.1rem 0.35rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-bottom-width: 2px;
+  border-radius: 0.3rem;
+  background: rgb(255 255 255 / 6%);
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: center;
+}

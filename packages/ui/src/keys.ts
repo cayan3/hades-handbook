@@ -15,6 +15,14 @@
 /** What the panels and the shortcut list print. One key, no modifier. */
 export const GOAL_KEY = "g";
 export const HELP_KEY = "?";
+/**
+ * Brackets rather than letters for the two that act on the page rather than on
+ * whatever has focus. A search box is coming with the quick-add, and every
+ * unmodified letter spent here is one it cannot type — these two are already
+ * the convention for stepping through a set.
+ */
+export const PREVIOUS_GOD_KEY = "[";
+export const NEXT_GOD_KEY = "]";
 
 /**
  * A step through a surface's structure, never through its pixels.
@@ -55,8 +63,23 @@ export function isGoalKey(event: KeyEvent): boolean {
 /** Open the shortcut list. Shift is how `?` is typed, so it cannot disqualify it. */
 export function isHelpKey(event: KeyEvent): boolean {
   return (
-    !event.ctrlKey && !event.metaKey && !event.altKey && event.key === HELP_KEY && !isTyping(event.target)
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey &&
+    event.key === HELP_KEY &&
+    !isTyping(event.target)
   );
+}
+
+/**
+ * Which way through the gods a press asks for, or null. Acts on the page rather
+ * than on what has focus, so it is listened for on the document — which is also
+ * why the typing guard matters most here.
+ */
+export function godStep(event: KeyEvent): -1 | 1 | null {
+  if (hasModifier(event) || isTyping(event.target)) return null;
+  if (event.key === PREVIOUS_GOD_KEY) return -1;
+  return event.key === NEXT_GOD_KEY ? 1 : null;
 }
 
 /**
@@ -66,10 +89,16 @@ export function isHelpKey(event: KeyEvent): boolean {
  */
 export function isTyping(target: unknown): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
   const tag = target.tagName;
-  return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+  // Both, because neither is enough on its own: `isContentEditable` is the
+  // browser's own answer and accounts for an editable ancestor, and the runner
+  // does not implement it, so a test of that branch alone would be a test of
+  // nothing.
+  return target.isContentEditable || target.closest(EDITABLE) !== null;
 }
+
+const EDITABLE = "[contenteditable]:not([contenteditable='false'])";
 
 /**
  * The events this module reads, which is the shape React's and the document's
@@ -87,6 +116,19 @@ export interface KeyEvent {
 
 function hasModifier(event: KeyEvent): boolean {
   return event.ctrlKey || event.metaKey || event.altKey;
+}
+
+/**
+ * Which member of a surface a press landed in, read off the cell the focused
+ * control sits in rather than tracked in state.
+ *
+ * The document is the only thing that knows where focus actually is: a surface
+ * holding its own idea of it goes wrong the moment anything else moves focus —
+ * a dialog closing, a panel opening, a click.
+ */
+export function memberAt(target: unknown, attribute: string): string | null {
+  if (!(target instanceof Element)) return null;
+  return target.closest(`[${attribute}]`)?.getAttribute(attribute) ?? null;
 }
 
 /**
@@ -117,6 +159,35 @@ export function focusMember(
 function cssValue(id: string): string {
   return id.replace(/["\\]/g, "\\$&");
 }
+
+/**
+ * Every binding, as words — which is both the shortcut list's content and the
+ * only form of this set a screen reader ever meets.
+ *
+ * It lives beside the predicates above rather than in the component that draws
+ * it, so an edit to a binding and an edit to what the app says about it are in
+ * front of each other. The two keys that are constants are read from them;
+ * everything else is a string in one place.
+ */
+export interface Shortcut {
+  readonly keys: readonly string[];
+  readonly what: string;
+}
+
+export const SHORTCUTS: readonly Shortcut[] = [
+  { keys: ["Tab"], what: "Move to the next boon or control, in reading order." },
+  {
+    keys: ["↑", "↓"],
+    what: "Move a band up or down on a god's page, or a tile in the Loadout.",
+  },
+  { keys: ["←", "→"], what: "Move to the boon beside this one." },
+  { keys: ["Home", "End"], what: "The first or last of the band." },
+  { keys: ["Enter"], what: "Mark a boon as taken, or open the details of one you hold." },
+  { keys: [GOAL_KEY], what: "Set or clear a goal on the boon you are on." },
+  { keys: [PREVIOUS_GOD_KEY, NEXT_GOD_KEY], what: "The previous or next god." },
+  { keys: [HELP_KEY], what: "This list." },
+  { keys: ["Esc"], what: "Close whatever is open." },
+];
 
 /** Step through a list, clamped at both ends. Wrapping reads as teleporting. */
 export function stepIndex(from: number, step: Step, length: number): number {

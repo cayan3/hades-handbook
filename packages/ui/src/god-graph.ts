@@ -1,6 +1,7 @@
 import { keepsakesFor } from "@repo/catalog";
 import type { GodId, Requirement, RunFacts, Status, TraitId } from "@repo/core";
 import { evaluate } from "@repo/core";
+import { type Step, stepIndex } from "./keys.js";
 import { hexOf, kindOf, type NodeKind, type NodeSource } from "./node-view.js";
 
 /**
@@ -497,6 +498,45 @@ function partnerOf(source: NodeSource, god: GodId, trait: TraitId): GodId | null
   const pair = source.records[trait]?.duoGods;
   if (pair == null) return null;
   return pair.find((other) => other !== god) ?? null;
+}
+
+/**
+ * Where an arrow key lands, walked over the structure rather than over the page.
+ *
+ * This page keeps no coordinate model: the bands are flow layout and the node
+ * positions are read back off the browser after the fact, so a 2-D walk has
+ * nothing to consult and would be reading a render artefact. Up and down are a
+ * band, left and right a sibling, which is what the bands already are.
+ *
+ * A band wraps on a narrow screen and this does not know it has, so up from a
+ * wrapped row lands on the band above rather than on the row above. That is the
+ * structure answering a question about structure, and it is the same answer at
+ * every width — which the alternative is not.
+ *
+ * `bands` is what the page is *drawing*, not the graph's own list: the rim is
+ * behind a control, and stepping into a band nobody is showing moves focus to
+ * something that is not there.
+ */
+export function stepThrough(
+  bands: readonly GraphBand[],
+  from: TraitId,
+  step: Step,
+): TraitId | null {
+  const at = bands.findIndex((band) => band.members.some((member) => member.trait === from));
+  const band = bands[at];
+  if (band === undefined) return null;
+  const index = band.members.findIndex((member) => member.trait === from);
+
+  if (step === "left" || step === "right" || step === "first" || step === "last") {
+    const next = stepIndex(index, step, band.members.length);
+    return band.members[next]?.trait ?? null;
+  }
+
+  // The same position one band over, clamped: bands run 1 to 16 wide, so the
+  // column a node sits in often does not exist above or below it.
+  const target = bands[step === "up" ? at - 1 : at + 1];
+  if (target === undefined) return null;
+  return target.members[Math.min(index, target.members.length - 1)]?.trait ?? null;
 }
 
 /**

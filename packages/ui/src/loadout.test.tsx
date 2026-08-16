@@ -458,3 +458,56 @@ describe("the panel itself", () => {
     expect(container.querySelector(".loadout__card > .loadout__cardactions")).toBeNull();
   });
 });
+
+describe("the arrows across the tiles", () => {
+  /** Where focus is, by the tile it sits in. */
+  const on = () =>
+    (document.activeElement as HTMLElement | null)?.closest("[data-trait]")?.getAttribute(
+      "data-trait",
+    ) ?? null;
+
+  function press(trait: TraitId, key: string, over: KeyboardEventInit = {}): void {
+    const control = container.querySelector<HTMLElement>(
+      `[data-trait="${trait}"] .node__control`,
+    );
+    if (control === null) throw new Error(`no tile for ${trait}`);
+    act(() => control.focus());
+    act(() => {
+      control.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, ...over }));
+    });
+  }
+
+  /**
+   * All four arrows step through the tiles as drawn, because this panel owns no
+   * coordinate model either: the core is a column of one game's slot count and
+   * the rest is a grid whose width belongs to the stylesheet.
+   */
+  it("steps through the tiles in the order they are drawn", () => {
+    render(panel());
+
+    press("a", "ArrowDown");
+    expect(on()).toBe("b");
+    press("b", "ArrowRight");
+    expect(on()).toBe("c");
+    press("c", "ArrowUp");
+    expect(on()).toBe("b");
+    press("b", "End");
+    expect(on()).toBe("d");
+    press("d", "Home");
+    expect(on()).toBe("a");
+  });
+
+  /**
+   * An empty core slot is not a control and is deliberately out of the tab
+   * order, so the arrows have to skip it as well — which they do by it not
+   * carrying the attribute they walk rather than by a rule about it.
+   */
+  it("passes over a core slot the run has not filled", () => {
+    render(panel({ entries: [entry("a", "Melee")], coreSlots: ["Melee", "Secondary"] }));
+
+    expect(container.querySelectorAll(".loadout__emptyslot")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-trait]")).toHaveLength(1);
+    press("a", "ArrowDown");
+    expect(on()).toBe("a");
+  });
+});

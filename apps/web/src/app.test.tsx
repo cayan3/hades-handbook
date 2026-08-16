@@ -1101,3 +1101,93 @@ describe("what the boon list shows", () => {
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
   });
 });
+
+/**
+ * The two commands that act on the page rather than on whatever has focus, and
+ * the list that is the only place any of them is written down.
+ */
+describe("the page-wide keys", () => {
+  function press(key: string, over: KeyboardEventInit = {}): void {
+    act(() => {
+      document.body.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, ...over }));
+    });
+  }
+
+  const current = () =>
+    container.querySelector('.app__godtab[aria-current="page"]')?.textContent?.trim() ?? null;
+
+  it("steps the god bar on the brackets, clamped at both ends", async () => {
+    await mount();
+    showGod("Athena");
+    showGod("Ares");
+    const bar = texts(".app__godtab");
+    expect(bar.length).toBeGreaterThan(1);
+
+    press("[");
+    expect(current()).toBe(bar[bar.indexOf("Ares") - 1]);
+    press("]");
+    expect(current()).toBe("Ares");
+    // Clamped: pressing past the last tab is not a way round to the first.
+    press("]");
+    expect(current()).toBe(bar[bar.length - 1]);
+  });
+
+  it("opens the shortcut list on its key and closes it on Escape", async () => {
+    await mount();
+    expect(container.querySelector(".shortcuts")).toBeNull();
+
+    press("?", { shiftKey: true });
+    expect(container.querySelector(".shortcuts")).not.toBeNull();
+    expect(container.textContent).toContain("Set or clear a goal");
+
+    press("Escape");
+    expect(container.querySelector(".shortcuts")).toBeNull();
+  });
+
+  /**
+   * It is opened by a key and by nothing on screen, which is what makes it free:
+   * a player who never touches a keyboard never meets it at all.
+   */
+  it("puts no control on the page to open it with", async () => {
+    await mount();
+    expect(texts("button").some((label) => /shortcut/i.test(label))).toBe(false);
+  });
+
+  /**
+   * These listen on the document, so they hear every press in the app. The one
+   * field on the page today is the god picker's select, and a bracket typed into
+   * a search box tomorrow must not change the god.
+   */
+  it("leaves a press inside a field to the field", async () => {
+    await mount();
+    // A second tab first, or there is nowhere for the key to step and the test
+    // passes whether the guard is there or not. That is the shape to be
+    // suspicious of, and this one was written that way before it was checked.
+    showGod("Athena");
+    const before = current();
+    expect(texts(".app__godtab").length).toBeGreaterThan(1);
+
+    // Backwards, because the tab just selected is the last one and forwards
+    // clamps to where it already is — which is the same test passing for the
+    // wrong reason one step further along.
+    const field = container.querySelector<HTMLElement>(".app__addgod select");
+    expect(field).not.toBeNull();
+    act(() => {
+      field?.dispatchEvent(new KeyboardEvent("keydown", { key: "[", bubbles: true }));
+    });
+    expect(current()).toBe(before);
+  });
+
+  it("sets a goal from the keyboard, which is the gesture a pointer had alone", async () => {
+    await mount();
+    const boon = node(APHRODITE_MELEE);
+    act(() => boon.focus());
+    act(() => {
+      boon.dispatchEvent(new KeyboardEvent("keydown", { key: "g", bubbles: true }));
+    });
+
+    // The Goals control carries the count, so the pin is visible without opening
+    // the panel — and a pin is the one thing no keyboard could make before.
+    expect(control("Goals (1)")).toBeDefined();
+  });
+});

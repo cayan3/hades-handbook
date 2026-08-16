@@ -69,9 +69,34 @@ export type {
 export { createNodeCache } from "./node-cache.js";
 export type { NodeCache } from "./node-cache.js";
 
-export { godGraph, graphTraits, isJunctionId, neighbourhood, pageTraits } from "./god-graph.js";
-export { GOAL_KEY, HELP_KEY, isGoalKey, isHelpKey, isTyping } from "./keys.js";
-export type { KeyEvent } from "./keys.js";
+export {
+  godGraph,
+  graphTraits,
+  isJunctionId,
+  neighbourhood,
+  pageTraits,
+  stepThrough,
+} from "./god-graph.js";
+export {
+  GOAL_KEY,
+  HELP_KEY,
+  NEXT_GOD_KEY,
+  PREVIOUS_GOD_KEY,
+  SHORTCUTS,
+  focusMember,
+  godStep,
+  isGoalKey,
+  isHelpKey,
+  isTyping,
+  memberAt,
+  stepFor,
+  stepIndex,
+} from "./keys.js";
+export type { KeyEvent, Shortcut, Step } from "./keys.js";
+export { Shortcuts } from "./shortcuts.js";
+export type { ShortcutsProps } from "./shortcuts.js";
+export { useDialog } from "./dialog.js";
+export type { Dialog } from "./dialog.js";
 export type {
   BandKind,
   GodGraph,

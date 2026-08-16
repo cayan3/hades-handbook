@@ -489,3 +489,91 @@ describe("the gestures the page inherits", () => {
     expect(onGoal).toHaveBeenCalledWith("a");
   });
 });
+
+describe("the arrows over the page", () => {
+  /** Focus a node the way a keyboard would, then press a key on it. */
+  function focusNode(trait: string): HTMLElement {
+    const control = container.querySelector<HTMLElement>(
+      `[data-endpoint="${trait}"] .node__control`,
+    );
+    if (control === null) throw new Error(`no node for ${trait}`);
+    act(() => control.focus());
+    return control;
+  }
+
+  function press(trait: string, key: string, over: KeyboardEventInit = {}): void {
+    const control = focusNode(trait);
+    act(() => {
+      control.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, ...over }));
+    });
+  }
+
+  /** The node focus is on, by the endpoint of the cell it sits in. */
+  const on = () =>
+    (document.activeElement as HTMLElement | null)?.closest("[data-endpoint]")?.getAttribute(
+      "data-endpoint",
+    ) ?? null;
+
+  it("moves along a band and between bands", () => {
+    render(page(LADDER));
+
+    press("a", "ArrowRight");
+    expect(on()).toBe("b");
+    press("b", "ArrowLeft");
+    expect(on()).toBe("a");
+    press("a", "ArrowDown");
+    expect(on()).toBe("d");
+    press("d", "ArrowUp");
+    expect(on()).toBe("a");
+  });
+
+  it("stays put at an edge rather than wrapping round", () => {
+    render(page(LADDER));
+
+    press("a", "ArrowLeft");
+    expect(on()).toBe("a");
+    press("d", "ArrowDown");
+    expect(on()).toBe("d");
+  });
+
+  /**
+   * The rim is behind a control, so a step must be offered the bands the page is
+   * *drawing* — down from the bottom band into a hidden one moves focus to
+   * something nobody can see.
+   */
+  it("will not step into a band the page is not showing", () => {
+    const withRim: GodGraph = {
+      ...LADDER,
+      bands: [...LADDER.bands, band({ key: "duo", kind: "duo", members: [member("duo") ] })],
+    };
+    render(page(withRim));
+
+    expect(container.querySelector('[data-endpoint="duo"]')).toBeNull();
+    press("d", "ArrowDown");
+    expect(on()).toBe("d");
+  });
+
+  it("moves no focus and sets no index doing it", () => {
+    render(page(LADDER));
+
+    press("a", "ArrowRight");
+    // The whole design in one assertion: arrows move focus and the tab order is
+    // still whatever the document order is.
+    expect([...container.querySelectorAll("[tabindex]")]).toEqual([]);
+  });
+
+  it("leaves a modified arrow to the platform", () => {
+    render(page(LADDER));
+
+    press("a", "ArrowRight", { altKey: true });
+    expect(on()).toBe("a");
+  });
+
+  it("sets a goal on the goal key, wherever the node is drawn", () => {
+    const onGoal = vi.fn();
+    render(page(LADDER, { onGoal }));
+
+    press("b", "g");
+    expect(onGoal).toHaveBeenCalledWith("b");
+  });
+});

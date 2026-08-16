@@ -1,7 +1,8 @@
+import type { KeyboardEvent } from "react";
 import { GodArt } from "./boon-art.js";
 import { type BoonGestures, BoonNode } from "./boon-node.js";
 import { stateSentence } from "./describe.js";
-import { GOAL_KEY, isGoalKey } from "./keys.js";
+import { GOAL_KEY, focusMember, isGoalKey, memberAt, stepFor, stepIndex } from "./keys.js";
 import type { NodeDetail, NodeView, RequirementRow } from "./node-view.js";
 import { useGame } from "./presentation.js";
 
@@ -43,8 +44,25 @@ export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps
     );
   }
 
+  /**
+   * The arrows step between cards rather than between every control inside one:
+   * a card holds a node and, once a goal is met, nothing else worth stopping at,
+   * so stepping control by control is what Tab already does.
+   */
+  function walk(event: KeyboardEvent<HTMLElement>): void {
+    const step = stepFor(event);
+    const root = event.currentTarget;
+    const from = step === null ? null : memberAt(event.target, "data-trait");
+    if (step === null || from === null) return;
+
+    const traits = goals.map((goal) => goal.view.trait);
+    const next = traits[stepIndex(traits.indexOf(from), step, traits.length)];
+    if (next === undefined || !focusMember(root, "data-trait", next)) return;
+    event.preventDefault();
+  }
+
   return (
-    <section className="goals">
+    <section className="goals" onKeyDown={walk}>
       <h2>Goals</h2>
       {bestNextPick == null ? null : (
         /* The one boon that moves the most of these at once. It is a reading of
@@ -85,7 +103,10 @@ export function GoalCard({ goal, ...gestures }: { readonly goal: Goal } & BoonGe
         onGoal === undefined
           ? undefined
           : (event) => {
-              if (!isGoalKey(event)) return;
+              // The node inside the card takes the same key and gets there
+              // first; without this the press would clear the goal and set it
+              // again on the way up.
+              if (event.defaultPrevented || !isGoalKey(event)) return;
               event.preventDefault();
               onGoal(view.trait);
             }

@@ -4,6 +4,7 @@ import { BoonArt, ElementArt } from "./boon-art.js";
 import { stateSentence } from "./describe.js";
 import { DormantGlyph, MarkerGlyph } from "./glyphs.js";
 import { godColour } from "./god-palette.js";
+import { isGoalKey } from "./keys.js";
 import type { NodeView } from "./node-view.js";
 import { useGame, useLadder } from "./presentation.js";
 import { treatmentOf } from "./rarity-palette.js";
@@ -220,6 +221,24 @@ export function BoonNode({
             ? undefined
             : (event) => {
                 // The platform's menu would cover the thing it was opened on.
+                event.preventDefault();
+                onGoal(view.trait);
+              }
+        }
+        /**
+         * The keyboard's way to the same thing. A long press and a right-click
+         * both raise `contextmenu`, which no keyboard reliably does — so
+         * without this there is no way to set a goal without a pointer at all.
+         *
+         * It lives on the node rather than on each surface because a node is
+         * drawn in three of them, and the alternative is the same binding
+         * written three times.
+         */
+        onKeyDown={
+          onGoal === undefined
+            ? undefined
+            : (event) => {
+                if (!isGoalKey(event)) return;
                 event.preventDefault();
                 onGoal(view.trait);
               }

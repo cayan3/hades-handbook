@@ -1,7 +1,14 @@
 import { type TraitRecord, traitsFor } from "@repo/catalog";
 import type { GodId, Requirement, TraitId } from "@repo/core";
 import { describe, expect, it } from "vitest";
-import { godGraph, graphTraits, isJunctionId, neighbourhood, pageTraits } from "./god-graph.js";
+import {
+  godGraph,
+  graphTraits,
+  isJunctionId,
+  neighbourhood,
+  pageTraits,
+  stepThrough,
+} from "./god-graph.js";
 import { createNodeSource } from "./node-view.js";
 import { held, makeFacts, stubLookups, stubNaming, stubRules } from "./test-support.js";
 
@@ -604,5 +611,51 @@ describe("what a page carries", () => {
     for (const god of ["Zeus", "Ares", "Athena"] as GodId[]) {
       expect(godGraph(h1, god, makeFacts()).bands.some((b) => b.kind === "infusion")).toBe(false);
     }
+  });
+});
+
+describe("stepping through the bands", () => {
+  /**
+   * Three bands of different widths, which is the case that decides what up and
+   * down mean: real pages run 1 to 16 wide, so the column a node sits in usually
+   * does not exist on the band above it.
+   */
+  const source = world(
+    record("a", { god: ZEUS, tier: 1 }),
+    record("b", { god: ZEUS, tier: 1 }),
+    record("c", { god: ZEUS, tier: 1 }),
+    record("mid", { god: ZEUS, prereq: has("a") }),
+    record("low", { god: ZEUS, prereq: has("mid") }),
+  );
+  const bands = godGraph(source, ZEUS, makeFacts()).bands;
+
+  it("moves along a band and stops at its ends", () => {
+    expect(bands[0]?.members.map((m) => m.trait)).toEqual(["a", "b", "c"]);
+    expect(stepThrough(bands, "a", "right")).toBe("b");
+    expect(stepThrough(bands, "b", "left")).toBe("a");
+    // Clamped rather than wrapped: arriving at the far end of a row because you
+    // pressed past the near one reads as being moved rather than moving.
+    expect(stepThrough(bands, "a", "left")).toBe("a");
+    expect(stepThrough(bands, "c", "right")).toBe("c");
+    expect(stepThrough(bands, "b", "first")).toBe("a");
+    expect(stepThrough(bands, "b", "last")).toBe("c");
+  });
+
+  it("moves between bands, clamping to the narrower one", () => {
+    expect(stepThrough(bands, "a", "down")).toBe("mid");
+    expect(stepThrough(bands, "mid", "up")).toBe("a");
+    // `c` is the third of three; the band below holds one. Clamping is what
+    // keeps the key from doing nothing on most of a wide band.
+    expect(stepThrough(bands, "c", "down")).toBe("mid");
+    expect(stepThrough(bands, "a", "up")).toBeNull();
+    expect(stepThrough(bands, "low", "down")).toBeNull();
+  });
+
+  it("answers nothing for a trait no drawn band carries", () => {
+    // The rim is behind a control, so the page hands over what it is drawing
+    // rather than the whole graph — a step into a hidden band moves focus to
+    // something that is not on the page.
+    expect(stepThrough(bands, "elsewhere" as TraitId, "down")).toBeNull();
+    expect(stepThrough([], "a", "up")).toBeNull();
   });
 });

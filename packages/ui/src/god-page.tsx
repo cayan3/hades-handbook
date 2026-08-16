@@ -2,6 +2,7 @@ import type { TraitId } from "@repo/core";
 import {
   type CSSProperties,
   Fragment,
+  type KeyboardEvent,
   useCallback,
   useLayoutEffect,
   useMemo,
@@ -15,8 +16,10 @@ import {
   type GraphEdge,
   isJunctionId,
   neighbourhood,
+  stepThrough,
 } from "./god-graph.js";
 import { godColour } from "./god-palette.js";
+import { focusMember, memberAt, stepFor } from "./keys.js";
 import { Junction } from "./junction.js";
 import type { NodeView } from "./node-view.js";
 import { kindOutlineColour } from "./rarity-palette.js";
@@ -234,6 +237,33 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
     [drawn, places],
   );
 
+  /**
+   * The arrows, walked over the bands rather than over the page.
+   *
+   * `bands` and not `graph.bands`: the rim is behind a control, so a step has to
+   * be offered what is drawn. On the canvas rather than on each node, since the
+   * node it starts from is read off whatever has focus — a page holding its own
+   * idea of that goes wrong the first time anything else moves it.
+   *
+   * Tab order is untouched and nothing here sets a tab index. Every node is a
+   * button already, so this is a `focus()` call and the document order that has
+   * always been the promise still walks every one of them.
+   */
+  function walk(event: KeyboardEvent<HTMLElement>): void {
+    const step = stepFor(event);
+    if (step === null) return;
+    const from = memberAt(event.target, "data-endpoint");
+    // A junction has no tab stop, so nothing can be standing on one; guarded
+    // anyway, because `data-endpoint` is on both and a walk from one would look
+    // up a trait id that is a junction's.
+    if (from === null || isJunctionId(from)) return;
+    const next = stepThrough(bands, from, step);
+    if (next === null || !focusMember(canvas.current, "data-endpoint", next)) return;
+    // Only once it has moved: Home and End scroll a page that has nowhere to go
+    // and taking them anyway would break scrolling for nothing.
+    event.preventDefault();
+  }
+
   return (
     <div
       className="godpage"
@@ -241,6 +271,7 @@ export function GodPage({ graph, views, pinned, nameOf, ...gestures }: GodPagePr
       // Every node on this page belongs to this god, and the page says so in
       // that god's colour. Handed down as a property so the wires take it too.
       style={{ "--wire": godColour(graph.god) } as CSSProperties}
+      onKeyDown={walk}
     >
       <div className="godpage__controls">
         {graph.edges.length === 0 ? null : (

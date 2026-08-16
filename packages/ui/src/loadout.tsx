@@ -1,10 +1,11 @@
 import type { Element, SlotId, TraitId } from "@repo/core";
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, type KeyboardEvent, useState } from "react";
 import type { BoonActions } from "./boon-actions.js";
 import { ElementArt, SlotArt, chromeStyle } from "./boon-art.js";
 import { BoonNode } from "./boon-node.js";
 import { BoonRow } from "./boon-row.js";
 import { HoverMenu } from "./hover-menu.js";
+import { focusMember, memberAt, stepFor, stepIndex } from "./keys.js";
 import { OverrideMarker } from "./chrome.js";
 import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import { catalogNaming } from "./naming.js";
@@ -191,9 +192,32 @@ export function Loadout({
   // for; the control owns the half that survives the pointer leaving.
   const showRest = expanded || inside;
 
+  /**
+   * The arrows across the tiles, in the order the panel draws them.
+   *
+   * This panel owns no coordinate model either — the core is a column of one
+   * game's slot count and the rest is a grid whose width is the stylesheet's —
+   * so all four arrows step through the tiles as drawn rather than pretending
+   * to a row and a column. Home and End reach the ends.
+   */
+  function walk(event: KeyboardEvent<HTMLElement>): void {
+    const step = stepFor(event);
+    const root = event.currentTarget;
+    const from = step === null ? null : memberAt(event.target, "data-trait");
+    if (step === null || from === null) return;
+
+    const tiles = [...root.querySelectorAll<HTMLElement>("[data-trait]")].map(
+      (cell) => cell.dataset["trait"] ?? "",
+    );
+    const next = tiles[stepIndex(tiles.indexOf(from), step, tiles.length)];
+    if (next === undefined || !focusMember(root, "data-trait", next)) return;
+    event.preventDefault();
+  }
+
   return (
     <section
       className="loadout"
+      onKeyDown={walk}
       data-game={game}
       data-open={showRest ? "true" : undefined}
       data-expanded={showRest}
@@ -378,7 +402,9 @@ function Tiles({
             <EmptySlot slot={cell.slot} />
           </li>
         ) : (
-          <li key={cell.view.trait} className="loadout__entry">
+          // The arrows walk what carries this, so an empty slot is skipped by
+          // not having one — which is the same reason it is not a control.
+          <li key={cell.view.trait} className="loadout__entry" data-trait={cell.view.trait}>
             <Tile entry={cell} {...gestures} />
             {cell.overridden === true ? <OverrideMarker /> : null}
           </li>

@@ -172,3 +172,50 @@ describe("clearing a goal from its own card", () => {
     expect(onGoal).not.toHaveBeenCalled();
   });
 });
+
+describe("the arrows between cards", () => {
+  const on = () =>
+    (document.activeElement as HTMLElement | null)?.closest("[data-trait]")?.getAttribute(
+      "data-trait",
+    ) ?? null;
+
+  const second = (): Goal => ({
+    view: view({ trait: "PoseidonWeaponBoon" as TraitId, name: "Wave Pounding" }),
+    detail: detail(),
+  });
+
+  function press(trait: string, key: string): void {
+    const control = container.querySelector<HTMLElement>(
+      `[data-trait="${trait}"] .node__control`,
+    );
+    if (control === null) throw new Error(`no card for ${trait}`);
+    act(() => control.focus());
+    act(() => {
+      control.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+    });
+  }
+
+  it("steps between goals and stops at the ends", () => {
+    render(<GoalsPanel goals={[goal(), second()]} />);
+
+    press("AllCloseBoon", "ArrowDown");
+    expect(on()).toBe("PoseidonWeaponBoon");
+    press("PoseidonWeaponBoon", "ArrowUp");
+    expect(on()).toBe("AllCloseBoon");
+    press("AllCloseBoon", "ArrowUp");
+    expect(on()).toBe("AllCloseBoon");
+  });
+
+  /**
+   * The node inside a card takes the goal key too and gets there first. Without
+   * the guard the press would clear the goal and set it again on the way up,
+   * which looks exactly like the key doing nothing.
+   */
+  it("clears a goal once, not twice, from the node inside the card", () => {
+    const onGoal = vi.fn();
+    render(<GoalsPanel goals={[goal()]} onGoal={onGoal} />);
+
+    press("AllCloseBoon", "g");
+    expect(onGoal).toHaveBeenCalledTimes(1);
+  });
+});

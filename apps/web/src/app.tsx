@@ -20,6 +20,7 @@ import {
   OTHER_TAB_TITLE,
   STORAGE_ERROR_BODY,
   STORAGE_ERROR_TITLE,
+  Shortcuts,
   UNREADABLE_RUN_BODY,
   UNREADABLE_RUN_TITLE,
   UndoToast,
@@ -30,11 +31,13 @@ import {
   editSentence,
   godColour,
   godGraph,
+  godStep,
   graphTraits,
+  isHelpKey,
   migrationMessage,
   useHoverDisclosure,
 } from "@repo/ui";
-import { type CSSProperties, useCallback, useMemo, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 import {
   attempt,
   useCondition,
@@ -189,6 +192,8 @@ function Run({
    */
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [loadoutOpen, setLoadoutOpen] = useState(false);
+  /** The command set written out. Opened with `?`, and by nothing else. */
+  const [helpOpen, setHelpOpen] = useState(false);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -320,6 +325,35 @@ function Run({
       ),
     [session, write, intent],
   );
+
+  /**
+   * The two commands that act on the page rather than on whatever has focus, so
+   * they are listened for on the document: a handler on the page body would miss
+   * every press made while focus was inside a panel or a dialog.
+   *
+   * `[` and `]` step the god bar. Bracket keys rather than letters because the
+   * quick-add's search box is coming and every unmodified letter spent here is
+   * one it cannot type — the guard against typing is in the predicate either
+   * way, which is what makes a document-level binding safe at all.
+   */
+  useEffect(() => {
+    const press = (event: globalThis.KeyboardEvent) => {
+      if (isHelpKey(event)) {
+        event.preventDefault();
+        setHelpOpen(true);
+        return;
+      }
+      const way = godStep(event);
+      if (way === null) return;
+      const at = shownTabs.indexOf(showing);
+      const next = shownTabs[Math.min(shownTabs.length - 1, Math.max(0, at + way))];
+      if (next === undefined || next === showing) return;
+      event.preventDefault();
+      setGod(next);
+    };
+    document.addEventListener("keydown", press);
+    return () => document.removeEventListener("keydown", press);
+  }, [shownTabs, showing]);
 
   const goals: Goal[] = [...intent.pins].map((trait) => ({
     view: view(trait),
@@ -555,6 +589,8 @@ function Run({
             onDismiss={() => setDismissedEdit(condition.lastEdit)}
           />
         )}
+
+        {!helpOpen ? null : <Shortcuts onClose={() => setHelpOpen(false)} />}
 
         {openedView === null || opened === null ? null : (
           <ActionSheet
