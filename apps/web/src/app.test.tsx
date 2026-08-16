@@ -64,6 +64,13 @@ async function mount(store: RunStore = createMemoryStore(), persistent = true): 
   });
 }
 
+/** A key press on the document, which is where the page-wide commands listen. */
+function press(key: string, over: KeyboardEventInit = {}): void {
+  act(() => {
+    document.body.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, ...over }));
+  });
+}
+
 function texts(selector: string): string[] {
   return [...container.querySelectorAll(selector)].map((el) => el.textContent ?? "");
 }
@@ -525,6 +532,51 @@ describe("the Goals panel", () => {
       );
     });
     expect(container.querySelector(".goal")?.getAttribute("data-held-open")).toBeNull();
+  });
+
+  /**
+   * It lies over the right-hand end of the page, so clicking off it is the
+   * gesture people reach for — the same one the Action Sheet's shade takes.
+   */
+  it("closes on a click outside it, and not on one inside", async () => {
+    await mount();
+    click("Goals");
+
+    act(() => {
+      container.querySelector(".goals h2")?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+
+    act(() => {
+      document.body.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    expect(container.querySelector(".app__goals")).toBeNull();
+  });
+
+  /**
+   * The control that opens it is under the panel's own edge, so without the
+   * exclusion the same click would close it and reopen it.
+   */
+  it("still toggles from its own control while open", async () => {
+    await mount();
+    click("Goals");
+    click("Goals");
+    expect(container.querySelector(".app__goals")).toBeNull();
+  });
+
+  it("closes on Escape, unless a dialog is over it", async () => {
+    await mount();
+    goal("AllCloseBoon");
+    click("Goals (1)");
+
+    // A dialog listens on the document too, and Escape belongs to the thing on
+    // top — so the panel stays while one is open.
+    press("?", { shiftKey: true });
+    press("Escape");
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+
+    press("Escape");
+    expect(container.querySelector(".app__goals")).toBeNull();
   });
 
   it("says nothing there while one goal is pinned", async () => {
@@ -1172,12 +1224,6 @@ describe("what the boon list shows", () => {
  * the list that is the only place any of them is written down.
  */
 describe("the page-wide keys", () => {
-  function press(key: string, over: KeyboardEventInit = {}): void {
-    act(() => {
-      document.body.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true, ...over }));
-    });
-  }
-
   const current = () =>
     container.querySelector('.app__godtab[aria-current="page"]')?.textContent?.trim() ?? null;
 

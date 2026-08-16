@@ -427,23 +427,38 @@ describe("the node stylesheet", () => {
  * against not held, and the card's own pin is filled or hollow for the goal.
  */
 describe("a requirement row's have-against-need", () => {
+  /**
+   * The body of the rule whose selector this *is*, not of the first rule that
+   * mentions it — a selector naming another class in a `:not()` would otherwise
+   * be found first and the assertion would be about the wrong declarations.
+   */
   function rule(selector: string): string {
-    const at = CSS.indexOf(selector);
+    const at = CSS.indexOf(`\n${selector} {`);
     if (at === -1) throw new Error(`no rule for ${selector}`);
     return CSS.slice(CSS.indexOf("{", at) + 1, CSS.indexOf("}", at));
   }
 
-  it("colours the heading two ways and draws no marker beside it", () => {
-    const hue = /color:\s*(#[0-9a-f]{3,8})/i;
-    const unmet = rule(".goal__ask");
-    const met = rule('.goal__row[data-met="true"] .goal__ask');
-    expect(unmet).toMatch(hue);
-    expect(met).toMatch(hue);
-    expect(unmet.match(hue)?.[1]).not.toBe(met.match(hue)?.[1]);
-
-    // The dot is gone rather than hidden: a rule drawing one would put it back
-    // the next time somebody changed a colour.
+  /**
+   * The heading carries neither a marker nor a hue. Both said what the boons
+   * under it already say by being lit or dim, and a card whose text is coloured
+   * two ways is a card where the words are the last thing you read.
+   */
+  it("draws no marker beside the heading and no colour on it", () => {
     expect(CSS).not.toMatch(/\.goal__ask::before/);
+    expect(rule(".goal__ask")).not.toMatch(/(^|[\s;])color\s*:/);
+    // No rule anywhere in a card paints its words green or purple.
+    expect(CSS).not.toMatch(/\.goal__row\[data-met=[^{}]*\{[^}]*color\s*:\s*#/);
+  });
+
+  /**
+   * The one row with nothing underneath it — an element count, a keepsake, a god
+   * in the pool — takes the brightness its options would have carried, or it is
+   * the only row on the panel with no state at all.
+   */
+  it("gives a row that names no boon the treatment its options would have", () => {
+    expect(rule('.goal__row[data-met="false"]:not(:has(.goal__options))')).toMatch(
+      /opacity\s*:/,
+    );
   });
 
   /**
@@ -460,6 +475,7 @@ describe("a requirement row's have-against-need", () => {
     expect(rule('.goal__option[data-held="true"]::before')).toMatch(/background\s*:/);
   });
 
+  /** The card's pin is where the two colours live now, and the only place. */
   it("gives the card's pin the same two colours", () => {
     const pending = rule(".goal__marker");
     const done = rule('.goal__marker[data-met="true"]');

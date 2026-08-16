@@ -1183,7 +1183,10 @@
   border-bottom: 1px solid rgb(255 255 255 / 12%);
 }
 
+/* Set off from the name rather than run on: HTML collapses the second space, so
+   the gap is a margin. */
 .goals__serves {
+  margin-left: 0.3em;
   opacity: 0.7;
 }
 
@@ -1370,11 +1373,17 @@
   gap: var(--ask-gap);
   align-items: center;
   margin: 0;
-  color: #cbb0e8;
 }
 
-.goal__row[data-met="true"] .goal__ask {
-  color: #9fd8a8;
+/*
+ * A row that names boons needs no treatment of its own: the boons under it are
+ * lit or dim, and a heading saying the same thing again is the dot's mistake
+ * with a colour instead of a shape. A row that names *none* — an element count,
+ * a keepsake, a god in the pool — has nothing underneath it, so it takes the
+ * brightness its options would have carried.
+ */
+.goal__row[data-met="false"]:not(:has(.goal__options)) {
+  opacity: 0.55;
 }
 
 /* The god's own symbol leads the group, as both games' requirement panels draw

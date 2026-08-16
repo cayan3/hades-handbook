@@ -362,6 +362,40 @@ function Run({
     return () => document.removeEventListener("keydown", press);
   }, [shownTabs, showing]);
 
+  /**
+   * The Goals panel closes on a click outside it and on Escape.
+   *
+   * It lies over the right-hand end of the page, so the gesture people reach for
+   * is clicking off it — the same one the **Action Sheet**'s shade already takes.
+   * The panel is not a dialog and takes no shade of its own, since the page under
+   * it stays live.
+   *
+   * The control that opens it needs no exclusion, which was checked by removing
+   * one: React's handler is on the root container and this listens on the
+   * document, so the toggle runs first and both settle on closed. A dialog over
+   * the panel does need one — the sheet listens on the document too, and Escape
+   * belongs to whatever is on top.
+   */
+  useEffect(() => {
+    if (!goalsOpen) return;
+    const away = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.closest(".app__goals") !== null) return;
+      setGoalsOpen(false);
+    };
+    const escape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape" || document.querySelector('[role="dialog"]') !== null) return;
+      setGoalsOpen(false);
+    };
+    document.addEventListener("click", away);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("click", away);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [goalsOpen]);
+
   const goals: Goal[] = [...intent.pins].map((trait) => ({
     view: view(trait),
     detail: deriveNodeDetail(source, view(trait), facts, intent.pins),
