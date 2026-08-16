@@ -26,6 +26,12 @@ GOD_SPRITE = "GUI\\Screens\\BoonSelectSymbols\\%s"
 ELEMENT_KEY = re.compile(r"^Element_(\w+)$")
 ELEMENT_SPRITE = "GUI\\Icons\\Element_%s"
 
+# The glyph drawn in an unfilled slot. Not in the animation table either, and
+# Hades II packs three sizes of each on three pages, so the largest for the same
+# reason the element rule takes it.
+SLOT_KEY = re.compile(r"^SlotIcon_(\w+)$")
+SLOT_SPRITE = "GUI\\HUD\\PrimaryBoons\\SlotIcon_%s"
+
 
 def animation_map(content_root):
     """Icon key -> sprite path, from the game's animation tables.
@@ -72,6 +78,11 @@ class Resolver:
         element = ELEMENT_KEY.match(key)
         if element:
             found = self.biggest.get(ELEMENT_SPRITE % element.group(1))
+            if found:
+                return found
+        slot = SLOT_KEY.match(key)
+        if slot:
+            found = self.biggest.get(SLOT_SPRITE % slot.group(1))
             if found:
                 return found
         # Duo art is named for the pairing and needs no indirection.

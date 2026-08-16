@@ -49,6 +49,26 @@ HEXES = {
 # outside instead of being that boon's own picture.
 ELEMENTS = ("Aether", "Air", "Earth", "Fire", "Water")
 
+# The glyph each game draws in a slot nobody has filled. Both ship the same five
+# names, and which slot each belongs to is the game's own mapping rather than the
+# names' -- Hades II files its Magick slot under Wrath, the first game's Call.
+# That covers 5 of 5 core slots in Hades I and 5 of 6 in Hades II, the Hex having
+# no glyph in either tray.
+SLOT_ICONS = ("Attack", "Secondary", "Ranged", "Dash", "Wrath")
+
+# The Loadout's tray, and the one part of the set assembled rather than cropped.
+# Hades II ships the panel as one sprite; Hades I's own menu composites three
+# side by side, and a nine-slice needs both corners and the tileable middle in
+# one file. `_NoHeader` because this product draws its own heading.
+CHROME_PANEL = {
+    "hades1": (
+        "GUI\\Screens\\TraitTray",
+        "GUI\\Screens\\TraitTray_Center",
+        "GUI\\Screens\\TraitTray_Right",
+    ),
+    "hades2": ("GUI\\HUD\\TraitTrayBacking_NoHeader",),
+}
+
 # Visually indistinguishable from lossless on this art at a third of the size,
 # measured over extracted icons rather than assumed.
 QUALITY = 90
@@ -116,13 +136,75 @@ def wanted(game, scope):
     if scope in ("all", "elements") and game == "hades2":
         for element in ELEMENTS:
             keys.setdefault("Element_" + element, []).append("element:" + element)
+    if scope in ("all", "slots"):
+        for name in SLOT_ICONS:
+            keys.setdefault("SlotIcon_" + name, []).append("slot:" + name)
     return keys
+
+
+def cropped(sprite, pages, decoded, np, texture2ddecoder):
+    """A sprite's own rectangle, out of the atlas page holding it.
+
+    Pages are decoded once and kept: a page carries dozens of the sprites in
+    scope, and BC7 over a 4096-square page is the slow step here.
+    """
+    page_name = "bin\\Win\\Atlases\\" + sprite["page"].split("\\")[-1]
+    page = pages.get(page_name) or pages.get(sprite["page"])
+    if page is None:
+        print("    page missing from package: %s" % sprite["page"])
+        return None
+    if page["fmt"] != atlas.BC7:
+        print("    %s is format %d, not handled" % (page_name, page["fmt"]))
+        return None
+    if page_name not in decoded:
+        raw = texture2ddecoder.decode_bc7(page["data"], page["w"], page["h"])
+        # The decoder hands back BGRA; the channel order is the whole edit.
+        decoded[page_name] = np.frombuffer(raw, np.uint8).reshape(
+            page["h"], page["w"], 4
+        )[:, :, [2, 1, 0, 3]]
+    image = decoded[page_name]
+    return image[sprite["y"] : sprite["y"] + sprite["h"], sprite["x"] : sprite["x"] + sprite["w"]]
+
+
+def panel(game, sprites, pages, decoded, np, texture2ddecoder):
+    """The tray, left to right, from however many pieces the game ships it in.
+
+    The pieces are the same height by construction -- the game lays them in one
+    row -- so a mismatch means the wrong sprite was picked and is worth failing
+    on rather than padding around.
+    """
+    by_name = {s["name"]: s for s in sprites}
+    parts = []
+    for path in CHROME_PANEL[game]:
+        sprite = by_name.get(path)
+        if sprite is None:
+            print("    no sprite named %s" % path)
+            return None
+        piece = cropped(sprite, pages, decoded, np, texture2ddecoder)
+        if piece is None:
+            return None
+        parts.append(piece)
+    heights = {p.shape[0] for p in parts}
+    if len(heights) != 1:
+        raise ValueError("panel pieces disagree on height: %s" % sorted(heights))
+    tray = np.hstack(parts)
+
+    # Trimmed to the solid panel, which drops 62 transparent-to-soft rows above
+    # the Hades II tray and nothing at all from Hades I's. That bloom is lighting
+    # the game draws over the panel and it is only above part of the top edge, so
+    # a nine-slice band containing it would smear it along the whole width.
+    ys, xs = np.where(tray[:, :, 3] > 200)
+    return tray[ys.min() : ys.max() + 1, xs.min() : xs.max() + 1]
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--game", choices=sorted(GAMES), required=True)
-    ap.add_argument("--scope", choices=("all", "boons", "gods", "elements"), default="all")
+    ap.add_argument(
+        "--scope",
+        choices=("all", "boons", "gods", "elements", "slots", "chrome"),
+        default="all",
+    )
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -156,30 +238,29 @@ def main():
     out_dir = os.path.join(OUT, args.game)
     os.makedirs(out_dir, exist_ok=True)
     decoded, written, total_bytes = {}, 0, 0
+
+    def emit(key, array):
+        buf = io.BytesIO()
+        Image.fromarray(array, "RGBA").save(buf, "WEBP", quality=QUALITY, method=6)
+        open(os.path.join(out_dir, key + ".webp"), "wb").write(buf.getvalue())
+        return buf.tell()
+
     for key, sprite in sorted(targets.items()):
-        page_name = "bin\\Win\\Atlases\\" + sprite["page"].split("\\")[-1]
-        page = pages.get(page_name) or pages.get(sprite["page"])
-        if page is None:
-            print("    page missing from package: %s" % sprite["page"])
+        crop = cropped(sprite, pages, decoded, np, texture2ddecoder)
+        if crop is None:
             continue
-        if page["fmt"] != atlas.BC7:
-            print("    %s is format %d, not handled" % (page_name, page["fmt"]))
-            continue
-        if page_name not in decoded:
-            raw = texture2ddecoder.decode_bc7(page["data"], page["w"], page["h"])
-            # The decoder hands back BGRA; the channel order is the whole edit.
-            decoded[page_name] = np.frombuffer(raw, np.uint8).reshape(
-                page["h"], page["w"], 4
-            )[:, :, [2, 1, 0, 3]]
-        image = decoded[page_name]
-        crop = image[sprite["y"] : sprite["y"] + sprite["h"], sprite["x"] : sprite["x"] + sprite["w"]]
         if args.game == "hades2" and key.startswith("BoonSymbol"):
             crop = reframe(crop, np)
-        buf = io.BytesIO()
-        Image.fromarray(crop, "RGBA").save(buf, "WEBP", quality=QUALITY, method=6)
-        open(os.path.join(out_dir, key + ".webp"), "wb").write(buf.getvalue())
         written += 1
-        total_bytes += buf.tell()
+        total_bytes += emit(key, crop)
+
+    if args.scope in ("all", "chrome"):
+        tray = panel(args.game, sprites, pages, decoded, np, texture2ddecoder)
+        if tray is not None:
+            written += 1
+            total_bytes += emit("Chrome_Panel", tray)
+            print("  assembled Chrome_Panel at %dx%d" % (tray.shape[1], tray.shape[0]))
+
     print("  wrote %d files, %.2f MB, into %s" % (written, total_bytes / 1e6, out_dir))
     return 0
 

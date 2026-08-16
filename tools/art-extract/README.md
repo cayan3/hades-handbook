@@ -22,11 +22,24 @@ python3 -m venv .venv
 touching the packages or writing anything. It is the quick way to see whether a
 catalog change has left a record without art.
 
-`--scope` takes `all` (the default), `boons`, `gods` or `elements`.
+`--scope` takes `all` (the default), `boons`, `gods`, `elements`, `slots` or
+`chrome`.
 
 `elements` is Hades II only and pulls the five element symbols, which a node
-draws in its top-left corner. They are the one thing here not named by a record:
-the key is built from the element, the way a god's is built from its name.
+draws in its top-left corner. They are not named by a record: the key is built
+from the element, the way a god's is built from its name.
+
+`slots` pulls the five glyphs a game draws in an equip slot nobody has filled.
+Which slot each belongs to is the game's own mapping and not the names' — Hades
+II files its Magick slot under `SlotIcon_Wrath`, which is the first game's Call —
+so the mapping lives with the resolver rather than here.
+
+`chrome` is the panel behind the boon menu, and the one thing this tool assembles
+rather than crops. Hades II ships it as one sprite; Hades I's own menu builds it
+out of three laid side by side, and a nine-slice needs both corners and the
+tileable middle in one file. Both are then trimmed to their opaque bounds, which
+drops a soft bloom above the Hades II tray that would otherwise be smeared along
+the whole top edge by a fixed slice.
 
 Both games are expected in the default macOS Steam library. Nothing here reads
 an environment variable yet; if your install lives elsewhere, edit `GAMES` at the
