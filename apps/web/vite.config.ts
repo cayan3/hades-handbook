@@ -90,10 +90,16 @@ export default defineConfig({
       injectRegister: null,
       registerType: "autoUpdate",
       workbox: {
-        // The art set is not cached at all — it is served from public/, left
-        // out of this glob, and no runtime route picks it up. So an installed
-        // copy has no icons offline, which only passes while the fallback
-        // ladder is the default and draws no image anyway.
+        // The art caches two ways, split on how often a file is asked for.
+        //
+        // Precached: the 41 drawn on the first paint of any page — god symbols,
+        // element marks, slot glyphs, the two panel frames, the placeholder.
+        // 520 kB on top of 880. Offline without them, the god bar is empty.
+        //
+        // Runtime, below: the other 384, which are boon icons and arrive one god
+        // page at a time. In the precache they would be 384 more ways for a
+        // worker install to fail, and a failed install is an app that stops
+        // updating; uncached they are one placeholder on one page.
         //
         // The faces are precached even though they are not fingerprinted
         // either, and the difference is size against consequence: four files
@@ -101,7 +107,28 @@ export default defineConfig({
         // the moment it is offline — which is most of what "installable"
         // promises. Workbox gives an unfingerprinted file its own revision
         // hash, so replacing one still busts the entry.
-        globPatterns: ["**/*.{js,css,html,webmanifest,woff2}"],
+        globPatterns: [
+          "**/*.{js,css,html,webmanifest,woff2}",
+          "art/official/_missing.webp",
+          "art/official/*/{BoonSymbol,Element_,SlotIcon_,Chrome_}*.webp",
+        ],
+        runtimeCaching: [
+          {
+            // CacheFirst rather than StaleWhileRevalidate: these files never
+            // change without their name changing, since a key is the game's own
+            // and a re-extraction of the same key is the same drawing.
+            urlPattern: /\/art\/.*\.webp$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "art",
+              // Comfortably past the 425 the set holds, so the cap is a bound on
+              // a runaway rather than a policy about which icons are worth
+              // keeping. A year, because the eviction that matters is the user
+              // clearing storage.
+              expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+        ],
       },
       manifest: {
         name: "Hades Handbook",
