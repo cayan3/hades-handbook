@@ -93,6 +93,8 @@ export {
   stepIndex,
 } from "./keys.js";
 export type { KeyEvent, Shortcut, Step } from "./keys.js";
+export { bestNextPick } from "./planning.js";
+export type { BestPick } from "./planning.js";
 export { Shortcuts } from "./shortcuts.js";
 export type { ShortcutsProps } from "./shortcuts.js";
 export { useDialog } from "./dialog.js";

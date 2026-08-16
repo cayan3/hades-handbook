@@ -470,6 +470,37 @@ describe("the Goals panel", () => {
 
     expect(control("Goals (1)")).toBeDefined();
   });
+
+  /**
+   * The one line on the panel about the goals *together*. Island Getaway and
+   * Carnal Pleasure both accept an Aphrodite boon, so one mark is a step toward
+   * both — which is the whole of what the strip is for.
+   *
+   * Two boons tie exactly here: the pair shares Flutter Strike and Flutter
+   * Flourish and nothing else, and either satisfies both any-ofs. So this
+   * asserts the tie-break rather than a preference — `AphroditeSpecialBoon`
+   * sorts first, and it sorting first every time is the property that keeps the
+   * strip from swapping between them on an unrelated re-render.
+   */
+  it("names the boon two goals both want", async () => {
+    await mount();
+    goal("AllCloseBoon");
+    goal("BloodManaBurstBoon");
+    click("Goals (2)");
+
+    const strip = container.querySelector(".goals__best")?.textContent ?? "";
+    expect(strip).toContain(H2.AphroditeSpecialBoon?.name);
+    expect(strip).toContain("2 of these");
+  });
+
+  it("says nothing there while one goal is pinned", async () => {
+    await mount();
+    goal("AllCloseBoon");
+    click("Goals (1)");
+
+    // A single goal's prerequisites are what its own card says, in more detail.
+    expect(container.querySelector(".goals__best")).toBeNull();
+  });
 });
 
 describe("the Loadout", () => {

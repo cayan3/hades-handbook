@@ -219,3 +219,25 @@ describe("the arrows between cards", () => {
     expect(onGoal).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("the best next pick", () => {
+  it("names the boon and how many goals it serves", () => {
+    render(
+      <GoalsPanel
+        goals={[goal()]}
+        bestNextPick={{ ...view({ name: "Wave Pounding" }), serves: 2 }}
+      />,
+    );
+
+    const strip = container.querySelector(".goals__best")?.textContent ?? "";
+    expect(strip).toContain("Wave Pounding");
+    // The count is why it is being suggested, so it is on the strip rather than
+    // being something the player has to reconstruct by reading the cards.
+    expect(strip).toContain("2 of these");
+  });
+
+  it("draws nothing where no boon serves more than one", () => {
+    render(<GoalsPanel goals={[goal()]} bestNextPick={null} />);
+    expect(container.querySelector(".goals__best")).toBeNull();
+  });
+});

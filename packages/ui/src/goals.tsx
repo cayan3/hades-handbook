@@ -27,8 +27,11 @@ export interface Goal {
 
 export interface GoalsPanelProps extends BoonGestures {
   readonly goals: readonly Goal[];
-  /** The boon advancing the most goals at once, where one does. */
-  readonly bestNextPick?: NodeView | null;
+  /**
+   * The boon advancing the most goals at once, where one does — the view for its
+   * name, and how many of the pins it is a step toward.
+   */
+  readonly bestNextPick?: (NodeView & { readonly serves?: number }) | null;
 }
 
 export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps) {
@@ -65,11 +68,15 @@ export function GoalsPanel({ goals, bestNextPick, ...gestures }: GoalsPanelProps
     <section className="goals" onKeyDown={walk}>
       <h2>Goals</h2>
       {bestNextPick == null ? null : (
-        /* The one boon that moves the most of these at once. It is a reading of
-           the pins rather than a control: taking it is still a mark on the boon
-           itself, wherever the player meets it. */
+        /* The one boon that moves the most of these at once. A reading of the
+           pins rather than a control: taking it is still a mark on the boon
+           itself, wherever the player meets it. It names how many goals it
+           serves, because that is the whole of why it is being suggested. */
         <p className="goals__best">
           Best next pick: <strong>{bestNextPick.name}</strong>
+          {bestNextPick.serves === undefined ? null : (
+            <span className="goals__serves"> — a step toward {bestNextPick.serves} of these</span>
+          )}
         </p>
       )}
       {/* Arrow keys step between cards, so the list says so once rather than

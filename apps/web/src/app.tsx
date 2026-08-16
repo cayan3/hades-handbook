@@ -24,6 +24,7 @@ import {
   UNREADABLE_RUN_BODY,
   UNREADABLE_RUN_TITLE,
   UndoToast,
+  bestNextPick,
   createNodeCache,
   createNodeSource,
   deriveNodeDetail,
@@ -360,6 +361,22 @@ function Run({
     detail: deriveNodeDetail(source, view(trait), facts, intent.pins),
   }));
 
+  /**
+   * The boon that is a step toward the most pins at once, which is the one thing
+   * the Goals panel says that is about the goals *together* rather than about
+   * any one of them.
+   *
+   * Derived here because it needs the catalog and the run, both of which live at
+   * this layer; the panel takes an answer. Null far more often than not: it is
+   * silent until two goals want the same boon.
+   */
+  const best = bestNextPick(
+    source,
+    [...intent.pins],
+    facts,
+    (trait) => view(trait).state,
+  );
+
   const entries: LoadoutEntry[] = [...facts.held.keys()].map((trait) => ({
     view: view(trait),
     slot: source.records[trait]?.slot ?? null,
@@ -577,7 +594,14 @@ function Run({
             >
               Close
             </button>
-            <GoalsPanel goals={goals} onOpen={setOpened} onGoal={toggleGoal} />
+            <GoalsPanel
+              goals={goals}
+              bestNextPick={
+                best === null ? null : { ...view(best.trait), serves: best.goals.length }
+              }
+              onOpen={setOpened}
+              onGoal={toggleGoal}
+            />
           </aside>
         )}
 
