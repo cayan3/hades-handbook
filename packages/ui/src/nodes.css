@@ -1360,7 +1360,7 @@
 
 /* The games' own words for a gate that asks nothing, and it is drawn rather
    than left blank so an empty list cannot read as one that failed to load. */
-.goal__row--none {
+.goal__ask--none {
   opacity: 0.6;
   font-style: italic;
 }

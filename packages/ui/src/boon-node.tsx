@@ -173,8 +173,12 @@ export function BoonNode({
    * something you already hold means nothing, and opening a sheet on something
    * you do not is a dialog in front of the one gesture that has to stay
    * instant.
+   *
+   * Where a surface offers no mark, an un-held boon opens instead of doing
+   * nothing: the **Goals** panel passes only `onOpen`, so its cards had a
+   * control that was dead for every goal the run had not reached yet.
    */
-  const primary = held ? onOpen : onMark;
+  const primary = held ? onOpen : (onMark ?? onOpen);
 
   // The kind where the boon has one and the rarity otherwise, which the view
   // has already settled between, and nothing at all where the surface has

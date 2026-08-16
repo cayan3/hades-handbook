@@ -408,6 +408,27 @@ describe("the marker's two forms", () => {
     expect(container.innerHTML).toBe("");
   });
 
+  /**
+   * A surface offering no mark — the Goals panel is one — had a control that did
+   * nothing at all on every boon the run had not reached, since the click means
+   * "mark" there and there was nothing to mark with.
+   */
+  it("opens an un-held boon where the surface offers no way to mark it", () => {
+    const onOpen = vi.fn();
+    render(<BoonNode view={view({ state: "Available" })} onOpen={onOpen} />);
+    act(() => container.querySelector<HTMLElement>("button")?.click());
+    expect(onOpen).toHaveBeenCalledWith("ZeusWeaponTrait");
+  });
+
+  it("still marks where the surface offers both", () => {
+    const onOpen = vi.fn();
+    const onMark = vi.fn();
+    render(<BoonNode view={view({ state: "Available" })} onOpen={onOpen} onMark={onMark} />);
+    act(() => container.querySelector<HTMLElement>("button")?.click());
+    expect(onMark).toHaveBeenCalledWith("ZeusWeaponTrait");
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
   /** Hollow is a second fact, and the game draws no unfinished pin. */
   it("keeps the drawing for the hollow form whatever the resolver says", () => {
     render(<MarkerGlyph filled={false} />);

@@ -228,7 +228,11 @@ export function GoalCard({
           requirements rather than as one that has none. */}
       <ul className="goal__rows" hidden={!open}>
         {detail.rows.length === 0 ? (
-          <li className="goal__row goal__row--none">(None in particular)</li>
+          <li className="goal__row">
+            {/* The same element a heading is, so it lines up with one by
+                construction rather than by a matching number. */}
+            <p className="goal__ask goal__ask--none">(None in particular)</p>
+          </li>
         ) : (
           detail.rows.map((row) => (
             <li key={row.text} className="goal__row" data-met={row.met}>

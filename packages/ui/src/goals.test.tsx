@@ -158,7 +158,11 @@ describe("a Goal Card's requirement rows", () => {
     expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(true);
     openCard();
     expect(container.querySelector(".goal__rows")?.hasAttribute("hidden")).toBe(false);
-    expect(container.querySelector(".goal__row--none")?.textContent).toBe("(None in particular)");
+    // The same element a heading is, so it lines up with "One of the following:"
+    // by construction rather than by a number kept in step.
+    const none = container.querySelector(".goal__ask--none");
+    expect(none?.textContent).toBe("(None in particular)");
+    expect(none?.classList.contains("goal__ask")).toBe(true);
   });
 });
 

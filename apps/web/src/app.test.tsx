@@ -582,6 +582,33 @@ describe("the Goals panel", () => {
     expect(container.querySelector(".app__goals")).toBeNull();
   });
 
+  /**
+   * The sheet's close control is inside the shade, and by the time this click
+   * reaches the document React has already detached that subtree — `closest`
+   * still walks it, which is what keeps the panel out of it.
+   */
+  it("stays open when a dialog over it is dismissed", async () => {
+    await mount();
+    goal("AllCloseBoon");
+    click("Goals (1)");
+
+    // The sheet, opened from the card's own icon.
+    act(() => container.querySelector<HTMLElement>(".goal .node__control")?.click());
+    expect(container.querySelector(".sheet")).not.toBeNull();
+
+    // The sheet's own close, not the panel's — both say "Close" and the panel's
+    // comes first in the document.
+    act(() => container.querySelector<HTMLElement>(".sheet__close")?.click());
+    expect(container.querySelector(".sheet")).toBeNull();
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+
+    // And the shade, which is the other way out of a dialog.
+    act(() => container.querySelector<HTMLElement>(".goal .node__control")?.click());
+    act(() => container.querySelector<HTMLElement>(".sheet-scrim")?.click());
+    expect(container.querySelector(".sheet")).toBeNull();
+    expect(container.querySelector(".app__goals")).not.toBeNull();
+  });
+
   it("closes on Escape, unless a dialog is over it", async () => {
     await mount();
     goal("AllCloseBoon");

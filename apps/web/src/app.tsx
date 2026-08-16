@@ -385,7 +385,10 @@ function Run({
     const away = (event: MouseEvent) => {
       const target = event.target;
       if (!(target instanceof Element)) return;
-      if (target.closest(".app__goals, .app__goalstoggle") !== null) return;
+      // The scrim covers both dialogs, and a click on it or inside it belongs to
+      // them — including the close control, whose subtree React has already
+      // detached by the time this runs, `closest` still walking it.
+      if (target.closest(".app__goals, .app__goalstoggle, .sheet-scrim") !== null) return;
       setGoalsOpen(false);
     };
     const escape = (event: globalThis.KeyboardEvent) => {
