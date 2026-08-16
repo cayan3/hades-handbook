@@ -52,7 +52,13 @@ type Cell = LoadoutEntry | { readonly slot: SlotId; readonly view: null };
  * Taken from a capture of that tray rather than from a declared list: the game
  * builds the row by iterating a hash table, so its data has no order to read.
  */
-const ELEMENTS: readonly Element[] = ["Earth", "Water", "Air", "Fire", "Aether"];
+const ELEMENTS: readonly Element[] = [
+  "Earth",
+  "Water",
+  "Air",
+  "Fire",
+  "Aether",
+];
 
 export interface LoadoutProps {
   readonly entries: readonly LoadoutEntry[];
@@ -63,7 +69,10 @@ export interface LoadoutProps {
    */
   readonly coreSlots?: readonly SlotId[];
   /** The equipped kit, which is not the Loadout and is shown beside it. */
-  readonly equipped?: readonly { readonly label: string; readonly value: string }[];
+  readonly equipped?: readonly {
+    readonly label: string;
+    readonly value: string;
+  }[];
   /**
    * How much of each Element the run has, which is a Hades II question and empty
    * in Hades I. Asked once over the whole panel rather than marked on every
@@ -134,7 +143,10 @@ export function Loadout({
    * order that means anything is when they arrived.
    */
   const core: readonly Cell[] = coreSlots
-    .map((slot) => entries.find((entry) => entry.slot === slot) ?? { slot, view: null })
+    .map(
+      (slot) =>
+        entries.find((entry) => entry.slot === slot) ?? { slot, view: null },
+    )
     // An empty slot the game draws no glyph for is left out rather than drawn as
     // a bare box — the Hades II Hex, and only it. The rest column still counts
     // its rows off the game's slot count, so nothing below shifts.
@@ -156,7 +168,9 @@ export function Loadout({
    * boon can leave the run while the pointer is still on its tile.
    */
   const preview =
-    hovered !== null && held.has(hovered) && !open.includes(hovered) && !full ? hovered : null;
+    hovered !== null && held.has(hovered) && !open.includes(hovered) && !full
+      ? hovered
+      : null;
   const shown = preview === null ? open : [...open, preview];
 
   /**
@@ -176,7 +190,8 @@ export function Loadout({
     setHovered((now) => (now === trait ? null : now));
   }
 
-  const cardFor = (trait: TraitId) => entries.find((entry) => entry.view.trait === trait);
+  const cardFor = (trait: TraitId) =>
+    entries.find((entry) => entry.view.trait === trait);
   // Expanded under the pointer as well as by the control, which is what M2 asks
   // for; the control owns the half that survives the pointer leaving.
   const showRest = expanded || inside;
@@ -204,23 +219,6 @@ export function Loadout({
     >
       <h2>Loadout</h2>
 
-      {elements === undefined || game !== "hades2" || !showRest ? null : (
-        /* A total over everything below it, so it reads above the grid — which
-           is where the game's own tray puts it, count first and then the symbol.
-           All five while the panel is open and none at all while it is not: a
-           collapsed panel is the core slots and nothing else, and an Infusion is
-           planned against the ceiling as much as against the count. */
-        <ul className="loadout__elements">
-          {ELEMENTS.map((element) => (
-            <li key={element} data-met={elements.has(element) ? "true" : undefined}>
-              <span>{elements.get(element) ?? 0}</span>
-              <ElementArt game={game} element={element} className="loadout__element" />
-              <span className="visually-hidden">{element}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
       {entries.length === 0 ? (
         <p className="loadout__empty">No boons yet.</p>
       ) : (
@@ -245,25 +243,54 @@ export function Loadout({
               } as CSSProperties
             }
           >
-            <div className="loadout__grid">
-              <Tiles
-                className="loadout__core"
-                entries={core}
-                open={open}
-                lit={shown}
-                onToggle={toggle}
-                onPreview={setHovered}
-              />
-              {showRest ? (
+            {/* The row and the grid stack; the cards are the panel's other child
+                and stay beside them, or under them on a phone. */}
+            <div className="loadout__stack">
+              {elements === undefined ||
+              game !== "hades2" ||
+              !showRest ? null : (
+                /* A total over everything below it, so it reads above the grid — which
+                 is where the game's own tray puts it, count first and then the symbol.
+                 All five while the panel is open and none at all while it is not: a
+                 collapsed panel is the core slots and nothing else, and an Infusion is
+                 planned against the ceiling as much as against the count. */
+                <ul className="loadout__elements">
+                  {ELEMENTS.map((element) => (
+                    <li
+                      key={element}
+                      data-met={elements.has(element) ? "true" : undefined}
+                    >
+                      <span>{elements.get(element) ?? 0}</span>
+                      <ElementArt
+                        game={game}
+                        element={element}
+                        className="loadout__element"
+                      />
+                      <span className="visually-hidden">{element}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="loadout__grid">
                 <Tiles
-                  className="loadout__rest"
-                  entries={rest}
+                  className="loadout__core"
+                  entries={core}
                   open={open}
                   lit={shown}
                   onToggle={toggle}
                   onPreview={setHovered}
                 />
-              ) : null}
+                {showRest ? (
+                  <Tiles
+                    className="loadout__rest"
+                    entries={rest}
+                    open={open}
+                    lit={shown}
+                    onToggle={toggle}
+                    onPreview={setHovered}
+                  />
+                ) : null}
+              </div>
             </div>
             {/* Only while the panel has the pointer or the focus, the same rule
                 the rest of the grid follows. The stack itself is untouched, so
@@ -284,7 +311,9 @@ export function Loadout({
                       // do when it is the last one the run holds from its god.
                       alone={
                         entry.view.god !== null &&
-                        entries.filter((other) => other.view.god === entry.view.god).length === 1
+                        entries.filter(
+                          (other) => other.view.god === entry.view.god,
+                        ).length === 1
                       }
                       // Hovering a held-open tile brings its card forward and
                       // leaves it where it is in the stack, so a glance at one
@@ -338,7 +367,10 @@ function Tiles({
   className,
   entries,
   ...gestures
-}: { readonly className: string; readonly entries: readonly Cell[] } & TileGestures) {
+}: {
+  readonly className: string;
+  readonly entries: readonly Cell[];
+} & TileGestures) {
   if (entries.length === 0) return null;
   return (
     <ul className={`loadout__list ${className}`}>
@@ -407,7 +439,11 @@ function Tile({
       data-open={open.includes(trait) ? "true" : undefined}
       data-lit={lit.includes(trait) ? "true" : undefined}
       data-treatment={painted ? treatment.word : undefined}
-      style={painted ? ({ "--rarity": treatment.colour } as CSSProperties) : undefined}
+      style={
+        painted
+          ? ({ "--rarity": treatment.colour } as CSSProperties)
+          : undefined
+      }
       onMouseEnter={() => onPreview(trait)}
     >
       <BoonNode
@@ -446,7 +482,8 @@ function CardActions({
 }) {
   const { mark, remove, purge } = actions;
   const rarities = mark === undefined ? [] : view.rarities;
-  if (rarities.length === 0 && remove === undefined && purge === undefined) return null;
+  if (rarities.length === 0 && remove === undefined && purge === undefined)
+    return null;
 
   return (
     <div className="loadout__cardactions">
@@ -471,7 +508,11 @@ function CardActions({
       )}
 
       {purge === undefined ? null : (
-        <button type="button" className="loadout__cardremove" onClick={() => purge(view.trait)}>
+        <button
+          type="button"
+          className="loadout__cardremove"
+          onClick={() => purge(view.trait)}
+        >
           Remove
         </button>
       )}
@@ -480,7 +521,11 @@ function CardActions({
           the two removals agree, and offering a choice that makes no difference
           is a choice to get wrong. */}
       {!alone || remove === undefined ? null : (
-        <button type="button" className="loadout__cardremove" onClick={() => remove(view.trait)}>
+        <button
+          type="button"
+          className="loadout__cardremove"
+          onClick={() => remove(view.trait)}
+        >
           Remove boon and god from pool
         </button>
       )}
@@ -515,10 +560,19 @@ function BoonCard({
   const { view, overridden = false } = entry;
 
   return (
-    <article className="loadout__card" data-state={view.state} data-front={front ? "true" : undefined}>
+    <article
+      className="loadout__card"
+      data-state={view.state}
+      data-front={front ? "true" : undefined}
+    >
       {/* First in the document, and drawn in the corner, which is where the
           Action Sheet puts its own way out. */}
-      <button type="button" className="loadout__cardclose" aria-label="Close" onClick={onClose}>
+      <button
+        type="button"
+        className="loadout__cardclose"
+        aria-label="Close"
+        onClick={onClose}
+      >
         ×
       </button>
 
@@ -562,7 +616,6 @@ function BoonCard({
           )}
         </p>
       )}
-
     </article>
   );
 }

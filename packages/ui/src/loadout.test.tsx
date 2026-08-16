@@ -282,9 +282,12 @@ describe("the panel itself", () => {
     const row = [...container.querySelectorAll(".loadout__elements li")];
     expect(row.map((li) => li.textContent)).toEqual(["0Earth", "1Water", "0Air", "3Fire", "0Aether"]);
     expect(container.querySelectorAll(".node__element")).toHaveLength(0);
-    // Above the grid, which is where the game's own tray draws it.
-    const panelBox = container.querySelector(".loadout__panel")!;
-    expect(row[0]!.compareDocumentPosition(panelBox) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Above the grid and inside the panel's own frame — outside it, the row
+    // appeared as the panel expanded and pushed the whole panel down the page.
+    const list = container.querySelector(".loadout__elements")!;
+    const grid = container.querySelector(".loadout__grid")!;
+    expect(container.querySelector(".loadout__panel")!.contains(list)).toBe(true);
+    expect(list.compareDocumentPosition(grid) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("draws the row only while the panel is open", () => {
@@ -330,6 +333,15 @@ describe("the panel itself", () => {
     render(panel({ coreSlots: ["Rush", "Ranged"] }));
     const words = [...container.querySelectorAll(".loadout__emptyslot")].map((el) => el.textContent);
     expect(words).toEqual(["Dash — empty", "Cast — empty"]);
+  });
+
+  it("sizes an empty slot off the same property a tile does", () => {
+    // It is not a tile, so it inherits nothing from one: the size was reaching
+    // it through a fallback in the stylesheet while tiles had moved to each
+    // game's own God View size, and an empty slot drew visibly smaller.
+    render(panel({ coreSlots: ["Melee", "Ranged"] }));
+    const empty = container.querySelector<HTMLElement>(".loadout__emptyslot")!;
+    expect(empty.dataset["game"]).toBe("hades2");
   });
 
   it("draws no empty rung for a slot the game has no glyph for", () => {

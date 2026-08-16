@@ -151,8 +151,8 @@ describe("the node stylesheet", () => {
     expect(sizers).toEqual([
       ".node",
       '.godpage .node[data-game="hades2"]',
-      ".loadout__tile, .loadout__tile .node, .loadout__card .boonrow__icon",
-      '.loadout__tile[data-game="hades2"], .loadout__tile[data-game="hades2"] .node, .loadout__card .boonrow__icon[data-game="hades2"]',
+      ".loadout__tile, .loadout__tile .node, .loadout__emptyslot, .loadout__card .boonrow__icon",
+      '.loadout__tile[data-game="hades2"], .loadout__tile[data-game="hades2"] .node, .loadout__emptyslot[data-game="hades2"], .loadout__card .boonrow__icon[data-game="hades2"]',
     ]);
   });
 

@@ -1279,10 +1279,18 @@
 .loadout__elements {
   display: flex;
   gap: 0.9rem;
-  margin: 0 0 0.6rem;
+  margin: 0;
   padding: 0;
   list-style: none;
   font-size: 0.95rem;
+}
+
+/* The row above the grid, inside the panel's own frame. Outside it the row
+   appeared as the panel expanded and pushed the whole panel down the page. */
+.loadout__stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .loadout__elements li {
@@ -1400,8 +1408,8 @@
  */
 .loadout__emptyslot {
   display: inline-flex;
-  width: var(--node-size, 3.25rem);
-  height: var(--node-size, 3.25rem);
+  width: var(--node-size);
+  height: var(--node-size);
   padding: var(--tile-pad);
 }
 
@@ -1424,12 +1432,14 @@
    ignored that would reintroduce exactly the imbalance the god page corrects. */
 .loadout__tile,
 .loadout__tile .node,
+.loadout__emptyslot,
 .loadout__card .boonrow__icon {
   --node-size: 4.5rem;
 }
 
 .loadout__tile[data-game="hades2"],
 .loadout__tile[data-game="hades2"] .node,
+.loadout__emptyslot[data-game="hades2"],
 .loadout__card .boonrow__icon[data-game="hades2"] {
   --node-size: 3.9rem;
 }
