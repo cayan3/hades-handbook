@@ -246,15 +246,18 @@ export function Loadout({
             {/* The row and the grid stack; the cards are the panel's other child
                 and stay beside them, or under them on a phone. */}
             <div className="loadout__stack">
-              {elements === undefined ||
-              game !== "hades2" ||
-              !showRest ? null : (
+              {elements === undefined || game !== "hades2" ? null : (
                 /* A total over everything below it, so it reads above the grid — which
                  is where the game's own tray puts it, count first and then the symbol.
                  All five while the panel is open and none at all while it is not: a
                  collapsed panel is the core slots and nothing else, and an Infusion is
-                 planned against the ceiling as much as against the count. */
-                <ul className="loadout__elements">
+                 planned against the ceiling as much as against the count.
+                 Its box is laid out either way and hidden rather than dropped, or every
+                 boon under it moves down the moment the panel opens. */
+                <ul
+                  className="loadout__elements"
+                  data-open={showRest ? "true" : undefined}
+                >
                   {ELEMENTS.map((element) => (
                     <li
                       key={element}

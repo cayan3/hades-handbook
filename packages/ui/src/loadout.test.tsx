@@ -294,7 +294,9 @@ describe("the panel itself", () => {
     // The same disclosure the rest of the grid follows, so the panel opens as
     // one thing. Collapsed it is the core slots and nothing else.
     render(panel({ expanded: false, elements: new Map([["Fire" as const, 3]]) }));
-    expect(container.querySelector(".loadout__elements")).toBeNull();
+    // The box is laid out either way and the stylesheet hides it, or every boon
+    // under it moves down as the panel opens. `data-open` is the whole signal.
+    expect(container.querySelector(".loadout__elements")!.getAttribute("data-open")).toBeNull();
 
     act(() => {
       container

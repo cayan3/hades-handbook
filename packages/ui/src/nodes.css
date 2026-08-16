@@ -1276,6 +1276,14 @@
 /* A total over the panel below it, so it reads above the grid rather than as a
    row of it. The count is the number a player is tracking; the symbol says
    which, and the element's name is there for a reader who meets neither. */
+/* Laid out whether or not it is showing, so opening the panel does not move
+   every boon under it down by the row's height. `visibility` rather than
+   `display` keeps the box and takes the contents out of the accessibility tree
+   with them, which is what "none while it is closed" has to mean. */
+.loadout__elements:not([data-open]) {
+  visibility: hidden;
+}
+
 .loadout__elements {
   display: flex;
   gap: 0.9rem;
