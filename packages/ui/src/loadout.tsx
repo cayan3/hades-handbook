@@ -329,6 +329,7 @@ export function Loadout({
                 <Tiles
                   className="loadout__core"
                   entries={core}
+                  rows={coreSlots.length}
                   open={open}
                   lit={shown}
                   onToggle={toggle}
@@ -338,6 +339,7 @@ export function Loadout({
                   <Tiles
                     className="loadout__rest"
                     entries={rest}
+                    rows={coreSlots.length}
                     open={open}
                     lit={shown}
                     onToggle={toggle}
@@ -427,23 +429,41 @@ interface TileGestures {
 function Tiles({
   className,
   entries,
+  rows,
   ...gestures
 }: {
   readonly className: string;
   readonly entries: readonly Cell[];
+  /**
+   * The grid's row count, which is the game's slot count. The list is flat and
+   * the grid fills a column at a time, so this is the only way to say which
+   * column an entry landed in — and Hades I staggers every other one.
+   */
+  readonly rows: number;
 } & TileGestures) {
   if (entries.length === 0) return null;
+  // Every other column drops half a step in Hades I, so the diamonds pack along
+  // their edges the way the game's own tray does. The **first** is the dropped
+  // one, the game staggering it against the core column beside it. The
+  // stylesheet owns whether this means anything; here it only says which.
+  const column = (at: number) => String((Math.floor(at / Math.max(rows, 1)) + 1) % 2);
+
   return (
     <ul className={`loadout__list ${className}`}>
-      {entries.map((cell) =>
+      {entries.map((cell, at) =>
         cell.view === null ? (
-          <li key={cell.slot} className="loadout__entry">
+          <li key={cell.slot} className="loadout__entry" data-column={column(at)}>
             <EmptySlot slot={cell.slot} />
           </li>
         ) : (
           // The arrows walk what carries this, so an empty slot is skipped by
           // not having one — which is the same reason it is not a control.
-          <li key={cell.view.trait} className="loadout__entry" data-trait={cell.view.trait}>
+          <li
+            key={cell.view.trait}
+            className="loadout__entry"
+            data-column={column(at)}
+            data-trait={cell.view.trait}
+          >
             <Tile entry={cell} {...gestures} />
             {cell.overridden === true ? <OverrideMarker /> : null}
           </li>

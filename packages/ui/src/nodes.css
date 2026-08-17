@@ -1637,6 +1637,34 @@
   align-items: center;
 }
 
+/*
+ * Hades I packs its tray along the diamonds' edges, so the shapes interlock
+ * rather than sitting in a square grid; Hades II's rounded squares stack
+ * square. The silhouette rule reaching the panel.
+ *
+ * Both numbers are off the empty slots in the game's own tray: a 119.5px
+ * vertical step against a 79.2px horizontal one — 0.663 — and the offset
+ * columns land at exactly half a step.
+ *
+ * A transform, so the grid's rows still line up with the core column beside it.
+ */
+.loadout[data-game="hades1"] .loadout__rest {
+  column-gap: 0;
+  /* The overhang the negative margin leaves: a track is that much narrower than
+     the tile standing in it, so the last column would cross the panel's frame,
+     and the dropped column needs the same room under it. */
+  padding-right: calc(var(--tile-box) - 0.663 * var(--stack-step));
+  padding-bottom: calc(var(--stack-step) / 2);
+}
+
+.loadout[data-game="hades1"] .loadout__rest .loadout__entry {
+  margin-right: calc(0.663 * var(--stack-step) - var(--tile-box));
+}
+
+.loadout[data-game="hades1"] .loadout__rest .loadout__entry[data-column="1"] {
+  transform: translateY(calc(var(--stack-step) / 2));
+}
+
 .loadout__tile {
   position: relative;
   /* Same reason as the god page: the rarity band and the node inside are
@@ -1659,6 +1687,15 @@
   --elements-gap: 0.55rem;
   /* The heading's own gap, owned here because the reserve above adds to it. */
   --heading-gap: 0.5rem;
+  /* A tile's whole footprint and the rhythm the grid stacks it on, named here
+     because Hades I's stagger is a fraction of the second and the tile owns
+     neither. The gap is the grids' own 1rem. */
+  --tile-box: calc(4.5rem + 2 * var(--tile-pad));
+  --stack-step: calc(var(--tile-box) + 1rem);
+}
+
+.loadout[data-game="hades2"] {
+  --tile-box: calc(3.9rem + 2 * var(--tile-pad));
 }
 
 /*
