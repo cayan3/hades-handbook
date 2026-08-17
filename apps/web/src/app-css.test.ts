@@ -90,6 +90,30 @@ describe("the page stylesheet", () => {
   });
 
   /**
+   * The marks sit against the product's name rather than at the far end of the
+   * header. Nothing may grow between them: a title told to fill the row puts
+   * the whole of the rest of the header on the other side of the page, which is
+   * where they were for a round.
+   */
+  it("keeps the game marks beside the title", () => {
+    expect(bodyOf(".app__head h1")).not.toMatch(/flex:\s*1/);
+    // The end of the header is what pushes right, and it is the only thing that
+    // does.
+    expect(bodyOf(".app__headend")).toMatch(/margin-left:\s*auto/);
+  });
+
+  /** Lit at rest, brighter under the pointer, and never underlined. */
+  it("glows the title without being asked to", () => {
+    expect(bodyOf(".app__name")).toMatch(/text-shadow:/);
+    expect(bodyOf(".app__name")).toMatch(/text-decoration:\s*none/);
+
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const hover = rules.match(/\.app__name:hover,[^{]*\{([^}]*)\}/);
+    expect(hover?.[1]).toMatch(/text-shadow:\s*0 0 1\.1rem currentColor/);
+    expect(hover?.[1]).not.toMatch(/text-decoration:\s*underline/);
+  });
+
+  /**
    * The two ends of a mark have to meet: the numeral's square is the width the
    * revealed half starts at, so the rule leading it lands on that edge rather
    * than near it. Read as text, the runner having no layout to measure.
@@ -108,7 +132,10 @@ describe("the page stylesheet", () => {
     const reduced = rules.match(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/);
     expect(reduced?.[1]).toMatch(/\.app__markmore/);
     expect(reduced?.[1]).toMatch(/\.app__openmore/);
+    expect(reduced?.[1]).toMatch(/\.app__name/);
     expect(reduced?.[1]).toMatch(/transition:\s*none/);
+    // One block, so there is one place to forget rather than two.
+    expect(CSS.match(/@media \(prefers-reduced-motion/g)).toHaveLength(1);
   });
 
   /**

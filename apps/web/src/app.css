@@ -81,15 +81,15 @@
   --face-mono: "JetBrains Mono", ui-monospace, monospace;
 
   /*
-   * One accent per game, and they are the product's rather than the games' own.
-   * Measured against what each game draws: Hades I's blood really is hue 0 — its
-   * own laurels sample at #a00808 — while Hades II's accent is a teal at hue
-   * 165, its panel chrome sampling at #207060, so the green below is greener
-   * than anything that game puts on screen. Kept as one pair so that matching
-   * the games more closely is one edit rather than a sweep.
+   * One accent per game, both measured off what the games themselves draw.
+   * Hades I's blood is hue 0, its own laurels sampling at #a00808. Hades II's is
+   * a teal rather than a green: its panel chrome samples #207060 and its own
+   * screens #30b090, which is the lightness that reads against this ground.
+   * A true green was carried here for one round and was 15 degrees off anything
+   * that game puts on screen.
    */
   --hades1: #b70d12;
-  --hades2: #119f4c;
+  --hades2: #30b090;
 }
 
 body {
@@ -244,14 +244,19 @@ h1,
  */
 .app__name {
   color: var(--game, inherit);
+  /* Lit at rest and brighter under the pointer, so the glow reads as the
+     title's own rather than as something that only happens on hover. */
+  text-shadow: 0 0 0.5rem color-mix(in srgb, currentColor 45%, transparent);
   text-decoration: none;
+  transition: text-shadow 0.18s ease;
 }
 
 .app__name:hover,
 .app__name:focus-visible {
   text-decoration: none;
-  text-shadow: 0 0 0.7rem currentColor;
+  text-shadow: 0 0 1.1rem currentColor;
 }
+
 
 /* One place decides which game's colour the header is in, and everything under
    it reads the same property. */
@@ -393,8 +398,11 @@ h1,
   text-shadow: 0 0 0.6rem currentColor;
 }
 
-/* A slide nobody asked for is a slide that should not run. */
+/* A slide nobody asked for is a slide that should not run, and the title's own
+   glow is the same promise. One block rather than two, which is one place to
+   forget rather than two. */
 @media (prefers-reduced-motion: reduce) {
+  .app__name,
   .app__markmore,
   .app__openmore {
     transition: none;
@@ -416,7 +424,6 @@ h1,
  * then the tab labels, which sit under a symbol that is doing most of the work.
  */
 .app__head h1 {
-  flex: 1;
   margin: 0;
   font-size: 2.6rem;
 }
