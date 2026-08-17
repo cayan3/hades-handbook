@@ -24,6 +24,7 @@ import { act } from "react";
 import { type Root, createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "./app.js";
+import { GAME_HASH } from "./route.js";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -52,15 +53,27 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
+  window.location.hash = "";
 });
 
 /**
- * Mounts and lets the session's load settle. Opening is asynchronous — it reads
- * a store — so a render alone shows the loading state and nothing else.
+ * Mounts on a game's own route and lets the session's load settle. The bare URL
+ * is the site's front page now, which opens no run at all — so everything below
+ * would be looking at Home without this. Opening is asynchronous, so a render
+ * alone shows the loading state and nothing else.
  */
 async function mount(store: RunStore = createMemoryStore(), persistent = true): Promise<void> {
+  if (window.location.hash === "") window.location.hash = GAME_HASH.hades2;
   await act(async () => {
     root.render(<App store={store} presence={null} persistent={persistent} />);
+  });
+}
+
+/** Follows one of the app's own links, which is how a game is reached now. */
+async function follow(hash: string): Promise<void> {
+  await act(async () => {
+    window.location.hash = hash;
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
   });
 }
 
@@ -801,6 +814,9 @@ describe("another tab of the same run", () => {
       });
     };
 
+    // Rendered by hand rather than through `mount`, so it needs the game route
+    // for the same reason: the bare URL is the site's front page.
+    window.location.hash = GAME_HASH.hades2;
     await act(async () => {
       root.render(<App store={createMemoryStore()} presence={presence} persistent />);
     });
@@ -1216,11 +1232,11 @@ describe("what the boon list shows", () => {
 
     // Awaited, because a switch reopens the run against the other catalog and
     // the page shows its loading state until that settles.
-    await act(async () => control("Hades").click());
+    await follow(GAME_HASH.hades1);
     expect(texts(".app__godtab")).not.toContain("Athena");
     showGod("Ares");
 
-    await act(async () => control("Hades II").click());
+    await follow(GAME_HASH.hades2);
     expect(texts(".app__godtab")).toContain("Athena");
     // Ares is a god of both games and was asked for in only one of them.
     expect(texts(".app__godtab")).not.toContain("Ares");
@@ -1509,45 +1525,62 @@ describe("the Hub tab", () => {
 });
 
 /**
- * The site's own page. A hash rather than a path, because the product is meant
- * to be published on a static host with nothing configured, and a path route
- * 404s there on a cold load.
+ * The site's front page and the routes under it. A hash rather than a path,
+ * because the product is meant to be published on a static host with nothing
+ * configured, and a path route 404s there on a cold load.
  */
-describe("the site page", () => {
-  afterEach(() => {
-    window.location.hash = "";
-  });
-
-  it("is what the product's own name leads to", async () => {
-    await mount();
-    const name = container.querySelector<HTMLAnchorElement>(".app__name");
-    expect(name?.textContent).toBe("Hades Handbook");
-    expect(name?.getAttribute("href")).toBe("#/about");
-  });
-
-  it("draws the site page on that hash and the app on any other", async () => {
-    window.location.hash = "#/about";
-    await mount();
+describe("the site's pages", () => {
+  it("opens on Home, which runs no game", async () => {
+    await act(async () => {
+      root.render(<App store={createMemoryStore()} presence={null} persistent />);
+    });
 
     expect(container.querySelector(".home")).not.toBeNull();
     expect(container.querySelector(".app")).toBeNull();
-    // The one thing this page has to carry while its content is still to be
+    // The one thing this page has to carry while its overview is still to be
     // written.
     expect(container.querySelector(".home__disclaimer")?.textContent).toContain(
       "Supergiant Games",
     );
-
-    await act(async () => {
-      window.location.hash = "#/";
-      window.dispatchEvent(new HashChangeEvent("hashchange"));
-    });
-    expect(container.querySelector(".app")).not.toBeNull();
-    expect(container.querySelector(".home")).toBeNull();
   });
 
-  it("offers a way back into the app", async () => {
-    window.location.hash = "#/about";
+  it("offers a door per game, neither of them the default", async () => {
+    await act(async () => {
+      root.render(<App store={createMemoryStore()} presence={null} persistent />);
+    });
+
+    const doors = [...container.querySelectorAll<HTMLAnchorElement>(".home__game")];
+    expect(doors.map((a) => a.getAttribute("href"))).toEqual([
+      GAME_HASH.hades1,
+      GAME_HASH.hades2,
+    ]);
+    expect(doors.map((a) => a.textContent?.trim())).toEqual(["IHades", "IIHades II"]);
+  });
+
+  it("goes into a game on its hash and comes back on the bare one", async () => {
     await mount();
-    expect(container.querySelector(".home__enter")?.getAttribute("href")).toBe("#/");
+    expect(container.querySelector(".app")).not.toBeNull();
+
+    await follow("#/");
+    expect(container.querySelector(".home")).not.toBeNull();
+    expect(container.querySelector(".app")).toBeNull();
+  });
+
+  it("is what the product's own name leads to from inside a game", async () => {
+    await mount();
+    const name = container.querySelector<HTMLAnchorElement>(".app__name");
+    expect(name?.textContent).toBe("Hades Handbook");
+    expect(name?.getAttribute("href")).toBe("#/");
+  });
+
+  it("gives getting started a page of its own", async () => {
+    await act(async () => {
+      root.render(<App store={createMemoryStore()} presence={null} persistent />);
+    });
+    const started = container.querySelector<HTMLAnchorElement>(".home__started");
+    expect(started?.textContent?.trim()).toBe("Getting started");
+
+    await follow(started?.getAttribute("href") ?? "");
+    expect(container.querySelector("h1")?.textContent).toBe("Getting started");
   });
 });

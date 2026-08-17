@@ -42,7 +42,7 @@ import {
   useHoverDisclosure,
 } from "@repo/ui";
 import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
-import { ABOUT_HASH, useRoute } from "./route.js";
+import { GAME_HASH, useRoute } from "./route.js";
 import {
   attempt,
   useCondition,
@@ -51,7 +51,7 @@ import {
   useOtherTabOpen,
   useRunSession,
 } from "./session.js";
-import { Home } from "./home.js";
+import { GettingStarted, Home } from "./home.js";
 
 /**
  * The two layout profiles, over one run.
@@ -131,10 +131,15 @@ export interface AppProps {
   readonly persistent: boolean;
 }
 
+/**
+ * The router, and the only component that opens no run.
+ *
+ * A game's session lives one level down so that Home and Getting started cost
+ * nothing to visit: neither reads a run, and a hook here would open one for a
+ * page with nothing to put it in.
+ */
 export function App({ store, presence, persistent }: AppProps) {
   const route = useRoute();
-  const [game, setGame] = useState<GameId>("hades2");
-  const state = useRunSession(game, store);
   /**
    * The curated bars, held here rather than in `Run` because `Run` is keyed on
    * the game and a switch remounts it — which used to take the whole bar with
@@ -145,10 +150,39 @@ export function App({ store, presence, persistent }: AppProps) {
     hades2: NO_TABS,
   });
 
-  /* The site's own page, which the product's name leads to. Below the hooks and
-     above everything else: the run stays open behind it, so coming back is not
-     a reload. */
-  if (route === "about") return <Home />;
+  if (route.kind === "home") return <Home />;
+  if (route.kind === "getting-started") return <GettingStarted />;
+
+  const game = route.game;
+  return (
+    <GameApp
+      game={game}
+      store={store}
+      presence={presence}
+      persistent={persistent}
+      curated={curated[game]}
+      onCurated={(next) => setCurated({ ...curated, [game]: next })}
+    />
+  );
+}
+
+/** One game's run, opened for as long as its route is the one being read. */
+function GameApp({
+  game,
+  store,
+  presence,
+  persistent,
+  curated,
+  onCurated,
+}: {
+  readonly game: GameId;
+  readonly store: RunStore;
+  readonly presence: TabPresence | null;
+  readonly persistent: boolean;
+  readonly curated: Curated;
+  readonly onCurated: (curated: Curated) => void;
+}) {
+  const state = useRunSession(game, store);
 
   if (state.kind === "opening") return <p className="app__loading">Opening your run…</p>;
   if (state.kind === "failed") {
@@ -170,19 +204,17 @@ export function App({ store, presence, persistent }: AppProps) {
       // frame.
       key={game}
       game={game}
-      onGame={setGame}
       session={state.session}
       presence={presence}
       persistent={persistent && state.persistent}
-      curated={curated[game]}
-      onCurated={(next) => setCurated({ ...curated, [game]: next })}
+      curated={curated}
+      onCurated={onCurated}
     />
   );
 }
 
 function Run({
   game,
-  onGame,
   session,
   presence,
   persistent,
@@ -190,7 +222,6 @@ function Run({
   onCurated,
 }: {
   readonly game: GameId;
-  readonly onGame: (game: GameId) => void;
   readonly session: RunSession;
   readonly presence: TabPresence | null;
   readonly persistent: boolean;
@@ -500,20 +531,22 @@ function Run({
           {/* The name is the way to the site's own page, which is what a
               product's name leads to everywhere else on the web. */}
           <h1>
-            <a className="app__name" href={ABOUT_HASH}>
+            <a className="app__name" href="#/">
               Hades Handbook
             </a>
           </h1>
+          {/* Switching games is navigation now rather than state, so each is a
+              link: it can be shared, bookmarked and reached with the browser's
+              own back button. */}
           <nav className="app__games" aria-label="Game">
             {(["hades1", "hades2"] as const).map((id) => (
-              <button
+              <a
                 key={id}
-                type="button"
+                href={GAME_HASH[id]}
                 aria-current={id === game ? "page" : undefined}
-                onClick={() => onGame(id)}
               >
                 {id === "hades1" ? "Hades" : "Hades II"}
-              </button>
+              </a>
             ))}
           </nav>
           {/* In the header rather than pinned to the panel, so the control that

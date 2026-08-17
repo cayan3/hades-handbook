@@ -79,6 +79,17 @@
   --face-display: "Cinzel", Georgia, serif;
   --face-body: "Barlow", system-ui, sans-serif;
   --face-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /*
+   * One accent per game, and they are the product's rather than the games' own.
+   * Measured against what each game draws: Hades I's blood really is hue 0 — its
+   * own laurels sample at #a00808 — while Hades II's accent is a teal at hue
+   * 165, its panel chrome sampling at #207060, so the green below is greener
+   * than anything that game puts on screen. Kept as one pair so that matching
+   * the games more closely is one edit rather than a sweep.
+   */
+  --hades1: #b70d12;
+  --hades2: #119f4c;
 }
 
 body {
@@ -141,27 +152,84 @@ h1,
   opacity: 0.85;
 }
 
-.home__enter {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border: 1px solid rgb(255 255 255 / 30%);
-  border-radius: 0.35rem;
+.home__disclaimer {
+  margin: 0 0 2.5rem;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* A long rectangle across the page, which is what makes it the one thing to do
+   here that is not choosing a game. */
+.home__started {
+  display: block;
+  padding: 0.9rem 1.2rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.4rem;
   color: inherit;
   font-size: 1.15rem;
+  text-align: center;
   text-decoration: none;
 }
 
-.home__enter:hover,
-.home__enter:focus-visible {
-  border-color: rgb(255 255 255 / 60%);
+.home__started:hover,
+.home__started:focus-visible {
+  border-color: rgb(255 255 255 / 55%);
+  background: rgb(255 255 255 / 5%);
 }
 
-.home__disclaimer {
-  margin: 3rem 0 0;
-  padding-top: 0.8rem;
-  border-top: 1px solid rgb(255 255 255 / 12%);
-  font-size: 0.9rem;
-  opacity: 0.7;
+/* Side by side, and equal: neither game is the default one. They stack below
+   the width a phone gives two of them room at. */
+.home__games {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+@media (max-width: 26rem) {
+  .home__games {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.home__game {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 1.6rem 1rem;
+  border: 1px solid var(--game);
+  border-radius: 0.5rem;
+  color: inherit;
+  font-family: var(--face-display);
+  font-size: 1.3rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.home__game[data-game="hades1"] {
+  --game: var(--hades1);
+}
+
+.home__game[data-game="hades2"] {
+  --game: var(--hades2);
+}
+
+.home__game:hover,
+.home__game:focus-visible {
+  box-shadow: 0 0 0.7rem var(--game);
+}
+
+/* The game's own numeral, in its own colour and the product's own face. */
+.home__mark {
+  color: var(--game);
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.home__back {
+  color: inherit;
+  text-underline-offset: 0.2em;
 }
 
 /* The product's name, which leads to the page above. Underlined only under the
