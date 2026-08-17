@@ -41,7 +41,7 @@ import {
   useHoverDisclosure,
 } from "@repo/ui";
 import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
-import { useRoute } from "./route.js";
+import { HOME_HASH, useRoute } from "./route.js";
 import {
   attempt,
   useCondition,
@@ -190,16 +190,29 @@ function GameApp({
   const [choosing, setChoosing] = useState(true);
   const state = useRunSession(game, store);
 
-  if (state.kind === "opening") return <p className="app__loading">Opening your run…</p>;
+  /* Both of these wear the header, or a run that will not open is a page with
+     no way off it — which it was until the header became something every page
+     has. */
+  if (state.kind === "opening") {
+    return (
+      <div className="app">
+        <SiteHeader game={game} />
+        <p className="app__loading">Opening your run…</p>
+      </div>
+    );
+  }
   if (state.kind === "failed") {
     return (
-      <main className="app">
-        <NoticeBar
-          tone="alert"
-          title="The Handbook couldn't open your run."
-          body={state.cause.message}
-        />
-      </main>
+      <div className="app">
+        <SiteHeader game={game} />
+        <main>
+          <NoticeBar
+            tone="alert"
+            title="The Handbook couldn't open your run."
+            body={state.cause.message}
+          />
+        </main>
+      </div>
     );
   }
 
@@ -809,7 +822,7 @@ function Run({
               onChosen();
             }}
             onLeave={() => {
-              window.location.hash = "#/";
+              window.location.hash = HOME_HASH;
             }}
           />
         )}

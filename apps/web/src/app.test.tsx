@@ -1789,3 +1789,34 @@ describe("the save screen", () => {
     expect(container.querySelector(".home")).not.toBeNull();
   });
 });
+
+/**
+ * The two states a game route can be in before there is a run to draw. Neither
+ * wore the header until the header was something every page has, which made a
+ * store that refuses a page with no way off it.
+ */
+describe("a run that will not open", () => {
+  /** Rejects every read, which is the one failure nothing earlier can catch. */
+  function deadStore(): RunStore {
+    const fail = () => Promise.reject(new Error("storage is gone"));
+    return {
+      load: fail,
+      save: fail,
+      clear: fail,
+    } as unknown as RunStore;
+  }
+
+  it("keeps a way back to the front page", async () => {
+    window.location.hash = GAME_HASH.hades2;
+    await act(async () => {
+      root.render(<App store={deadStore()} presence={null} persistent />);
+    });
+
+    // The memory fallback catches a refused store, so this is the page a run
+    // that fails for any other reason lands on — either way there is a header.
+    expect(container.querySelector(".app__head")).not.toBeNull();
+    expect(container.querySelector<HTMLAnchorElement>(".app__name")?.getAttribute("href")).toBe(
+      "#/",
+    );
+  });
+});

@@ -90,6 +90,16 @@ describe("the page stylesheet", () => {
   });
 
   /**
+   * One class each, so the later rule wins. Placed first, the narrower page
+   * width did nothing at all and the test that would have caught it is this
+   * one — the runner computes no widths.
+   */
+  it("puts the page width after the width it narrows", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    expect(rules.indexOf(".app--page {")).toBeGreaterThan(rules.indexOf("\n.app {"));
+  });
+
+  /**
    * The marks sit against the product's name rather than at the far end of the
    * header. Nothing may grow between them: a title told to fill the row puts
    * the whole of the rest of the header on the other side of the page, which is

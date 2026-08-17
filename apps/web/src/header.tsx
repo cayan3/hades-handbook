@@ -1,7 +1,7 @@
 import type { GameId } from "@repo/core";
 import { Help, Shortcuts, isHelpKey, isShortcutsKey } from "@repo/ui";
 import { type ReactNode, useEffect, useState } from "react";
-import { GAME_HASH } from "./route.js";
+import { GAME_HASH, HOME_HASH } from "./route.js";
 
 /**
  * The one header every page wears, and the only place the two how-does-this-work
@@ -44,7 +44,7 @@ export function SiteHeader({
             colour of whichever game is being read, so the page says which one
             it is before anything else on it does. */}
         <h1>
-          <a className="app__name" href="#/">
+          <a className="app__name" href={HOME_HASH}>
             Hades Handbook
           </a>
         </h1>

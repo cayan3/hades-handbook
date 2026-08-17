@@ -31,6 +31,9 @@ export function SaveScreen({ run, onResume, onNew, onLeave }: SaveScreenProps) {
   const { ref, onKeyDown } = useDialog(onLeave);
   const titleId = useId();
 
+  /* No click-away, unlike the two dialogs that share this shade: leaving here
+     goes back to the front page rather than dismissing something, and a stray
+     click should not take a player out of the game they just opened. */
   return (
     <div className="sheet-scrim" onKeyDown={onKeyDown}>
       <div

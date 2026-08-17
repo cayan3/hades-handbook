@@ -24,6 +24,8 @@ export const GAME_HASH: Readonly<Record<GameId, string>> = {
 };
 
 export const GETTING_STARTED_HASH = "#/getting-started";
+/** Home is also every hash this app does not know, so this is the one it writes. */
+export const HOME_HASH = "#/";
 
 /**
  * One object per route, returned rather than rebuilt. `useSyncExternalStore`
