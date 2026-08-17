@@ -169,6 +169,20 @@ def test_a_bare_line_is_still_read_now_that_the_comma_is_allowed(tmp_path):
     assert entries["Plain"]["inheritFrom"] == "Elsewhere"
 
 
+def test_a_value_may_be_followed_by_a_block_comment(tmp_path):
+    """The next punctuation the file invented, on thirteen Hades I lines and
+    every one of them a DisplayName. They are the B-side Mirror talents, each
+    annotated with the talent it is paired against -- so the names a Mirror gate
+    has to be able to say were the exact ones being dropped."""
+    entries = bundle_file(tmp_path, '''
+{
+  Id = "Annotated"
+  DisplayName = "Ember Ward" /* Paired with RootWard "Root Ward" */
+}
+''')
+    assert entries["Annotated"]["displayName"] == "Ember Ward"
+
+
 def test_a_value_that_is_not_alone_on_its_line_is_still_refused(tmp_path):
     """The comma is optional; the rest of the anchoring is not. A line with a
     second field after the comma is a shape nobody has read against the game,

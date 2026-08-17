@@ -22,8 +22,15 @@ def _string_field(name):
     description, AND the InheritFrom that would otherwise have recovered the
     name a hop up. Same grammar for every field means the next punctuation
     somebody's hand-maintained file invents lands on all of them or none.
+
+    The next punctuation it invented was a trailing block comment, on thirteen
+    Hades I lines & every one of them a DisplayName. They are the B-side Mirror
+    talents, annotated with the talent each is paired against -- so this is the
+    same silence again, on exactly the names a Mirror gate has to be able to say.
     """
-    return re.compile(r'^\s*%s\s*=\s*"((?:[^"\\]|\\.)*)"\s*,?\s*$' % name, re.MULTILINE)
+    return re.compile(
+        r'^\s*%s\s*=\s*"((?:[^"\\]|\\.)*)"\s*,?\s*(?:/\*.*?\*/)?\s*$' % name, re.MULTILINE
+    )
 
 
 ID_LINE = _string_field("Id")
