@@ -81,8 +81,13 @@ export function useHoverDisclosure({ onHover = true }: HoverDisclosureOptions = 
         if (onHover) setOpen(true);
       },
       onMouseLeave: leave,
+      // Focus opens it exactly where hover does, and **only** there. A browser
+      // focuses a button on the way into clicking it, so where hover does not
+      // open, this one did — and the click behind it toggled straight back, so
+      // the first click on any card's menu did nothing. The keyboard still
+      // reaches it, that path going through `toggle`.
       onFocus: () => {
-        if (!dismissed.current) setOpen(true);
+        if (onHover && !dismissed.current) setOpen(true);
       },
       onBlur: (event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) leave();

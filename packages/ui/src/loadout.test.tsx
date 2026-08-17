@@ -517,6 +517,46 @@ describe("the panel itself", () => {
   });
 
   /**
+   * A browser focuses a button on the way into clicking it, and focus used to
+   * open the panel whether or not hover did — so the click that followed
+   * toggled it straight back and the first one on any card did nothing.
+   *
+   * `.click()` alone cannot see this: the runner fires no focus, so the whole
+   * defect lives in the order a real pointer produces. **The two go in separate
+   * `act`s on purpose** — in one, React batches them and reads `open` from a
+   * render that has not committed the focus yet, which hides the defect exactly
+   * the way the original test did.
+   */
+  it("opens on the first click, the focus a pointer brings with it included", () => {
+    const rare = { ...entry("c"), view: { ...view("c"), rarities: ["Common", "Epic"] as const } };
+    render(panel({ entries: [rare], actions: { mark: () => undefined } }));
+    hover("c");
+
+    const label = container.querySelector<HTMLButtonElement>(".cardmenu__open")!;
+    act(() => label.focus());
+    act(() => label.click());
+    expect(container.querySelector(".cardmenu__list")).not.toBeNull();
+
+    // And it is still a toggle once it is open.
+    act(() => label.click());
+    expect(container.querySelector(".cardmenu__list")).toBeNull();
+  });
+
+  /** The keyboard has no hover to open it with, so the click has to. */
+  it("still opens the menu for a keyboard, which never hovers", () => {
+    const rare = { ...entry("c"), view: { ...view("c"), rarities: ["Common", "Epic"] as const } };
+    render(panel({ entries: [rare], actions: { mark: () => undefined } }));
+    hover("c");
+
+    const label = container.querySelector<HTMLButtonElement>(".cardmenu__open")!;
+    act(() => label.focus());
+    expect(container.querySelector(".cardmenu__list")).toBeNull();
+    act(() => label.click());
+    expect(container.querySelector(".cardmenu__list")).not.toBeNull();
+  });
+
+
+  /**
    * Inside the row's text column, so it starts where the name and the
    * description start rather than under the icon.
    */
