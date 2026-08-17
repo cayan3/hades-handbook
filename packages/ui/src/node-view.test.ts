@@ -302,6 +302,20 @@ describe("what a mark would displace", () => {
 });
 
 describe("requirement rows", () => {
+  it("names a Mirror talent in words rather than by its id", () => {
+    // The reported bug, end to end: Lightning Rod is talent-gated and reaches a
+    // Goal Card, so a row here read "the AmmoMetaUpgrade Mirror talent" until
+    // the extractor gave a talent a record to resolve against.
+    const source = h1();
+    const facts = h1Facts(null);
+    const view = deriveNodeView(source, LIGHTNING_ROD, facts);
+    const { rows } = deriveNodeDetail(source, view, facts);
+    const talent = rows.find((row) => row.text.includes("Mirror talent"));
+
+    expect(talent?.text).toBe("the Infernal Soul Mirror talent");
+    expect(talent?.text).not.toContain(TALENT);
+  });
+
   it("marks the parts already met and counts the rest", () => {
     const source = h1();
     const facts = h1Facts("selected", ARTEMIS_BOON);
