@@ -663,7 +663,12 @@ h1,
  */
 .app__gods button[data-pooled="true"] {
   border-color: var(--god);
-  box-shadow: 0 0 0.4rem var(--god), inset 0 0 0.5rem rgb(255 255 255 / 8%);
+  /* The ring is the outline a shade heavier, drawn as a spread rather than a
+     wider border so the bar does not shift by 2px. It reinforces the glow's own
+     signal rather than adding a second one — selection is still the fill and
+     nothing else, so the two move further apart rather than closer. */
+  box-shadow: 0 0 0 1px var(--god), 0 0 0.4rem var(--god),
+    inset 0 0 0.5rem rgb(255 255 255 / 8%);
 }
 
 .app__notices {

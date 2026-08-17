@@ -385,6 +385,25 @@ describe("the node stylesheet", () => {
     expect(match![1]).toMatch(/--choice:\s*var\(--danger/);
   });
 
+  /**
+   * The gold says a card is held open, so it is drawn where the card is: a
+   * collapsed panel was pointing at one nobody could see.
+   */
+  it("lights a held-open tile only while the panel is open", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    // The Loadout's tiles only — a junction on the God View carries the same
+    // attribute for a different fact.
+    const lit = [...rules.matchAll(/([^{}]*\.loadout__tile[^{}]*\[data-lit\][^{}]*)\{/g)].map(
+      (m) => m[1]!.trim(),
+    );
+    expect(lit.length).toBeGreaterThan(0);
+    for (const selector of lit) {
+      expect(selector, `${selector} lights whatever the panel is doing`).toMatch(
+        /\.loadout\[data-open\]/,
+      );
+    }
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every

@@ -1597,12 +1597,15 @@
   --held-open: #c8a951;
 }
 
-.loadout__tile[data-lit] {
+/* Only while the panel is open, which is where the card it belongs to is drawn.
+   Collapsed, the glow was the one thing on screen pointing at a card nobody
+   could see. */
+.loadout[data-open] .loadout__tile[data-lit] {
   filter: drop-shadow(0 0 0.35rem var(--held-open))
     drop-shadow(0 0 0.7rem var(--held-open));
 }
 
-.loadout__tile[data-game="hades2"][data-lit] {
+.loadout[data-open] .loadout__tile[data-game="hades2"][data-lit] {
   filter: drop-shadow(0 0 0.5rem var(--held-open))
     drop-shadow(0 0 1rem var(--held-open));
 }
