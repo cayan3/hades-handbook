@@ -2082,30 +2082,30 @@ kbd {
 }
 
 /*
- * Home. One column of regions on a narrow screen and two above the width the
+ * Hub. One column of regions on a narrow screen and two above the width the
  * app already splits at, which is the same query the body uses rather than a
  * second breakpoint of its own.
  */
-.home {
+.hub {
   display: grid;
   gap: 1.5rem;
   align-items: start;
 }
 
 /* The same width the app splits its own columns at, rather than a second
-   breakpoint of Home's own: the glance sits beside this run above it and under
+   breakpoint of Hub's own: the glance sits beside this run above it and under
    it below. `what this is` spans both, being last either way. */
 @media (min-width: 48rem) {
-  .home {
+  .hub {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .home__about {
+  .hub__about {
     grid-column: 1 / -1;
   }
 }
 
-.home h3 {
+.hub h3 {
   margin: 0 0 0.5rem;
   font-size: 0.88rem;
   letter-spacing: 0.14em;
@@ -2113,14 +2113,14 @@ kbd {
   opacity: 0.6;
 }
 
-.home p {
+.hub p {
   margin: 0 0 0.6rem;
   max-width: 46rem;
 }
 
 /* A control that reads as a link: it opens a list rather than acting on the
    run, so it should not look like the buttons that do. */
-.home__shortcuts {
+.hub__shortcuts {
   padding: 0;
   border: 0;
   background: transparent;
@@ -2133,7 +2133,7 @@ kbd {
 
 /* Last and quiet, but never behind anything: it has to be present and findable
    rather than in front of what a player came for. */
-.home__disclaimer {
+.hub__disclaimer {
   margin: 1rem 0 0;
   padding-top: 0.8rem;
   border-top: 1px solid rgb(255 255 255 / 12%);
@@ -2143,11 +2143,11 @@ kbd {
 
 /* One region in two states rather than two views, so nothing here is keyed on
    whether a run has started beyond which of the two paragraphs is drawn. */
-.home__resume {
+.hub__resume {
   font-size: 1.1rem;
 }
 
-.home__gods {
+.hub__gods {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -2158,7 +2158,7 @@ kbd {
 
 /* A row rather than a tab: this names the god, where the bar draws the symbol
    alone, so the two controls do not read as the same one twice. */
-.home__god {
+.hub__god {
   display: flex;
   gap: 0.45rem;
   align-items: center;
@@ -2171,18 +2171,18 @@ kbd {
   cursor: pointer;
 }
 
-.home__god:hover,
-.home__god:focus-visible {
+.hub__god:hover,
+.hub__god:focus-visible {
   border-color: rgb(255 255 255 / 40%);
 }
 
-.home__godart {
+.hub__godart {
   width: 1.5rem;
   height: 1.5rem;
   object-fit: contain;
 }
 
-.home__howto {
+.hub__howto {
   padding: 0;
   border: 0;
   background: transparent;
@@ -2193,7 +2193,7 @@ kbd {
   cursor: pointer;
 }
 
-.home__steps {
+.hub__steps {
   margin-top: 0.6rem;
   padding-left: 0.8rem;
   border-left: 2px solid rgb(255 255 255 / 15%);
@@ -2202,7 +2202,7 @@ kbd {
 
 /* A glance rather than a card: the name, the panel's own sentence and the
    panel's own count, with nothing to open — the panel is one control away. */
-.home__goallist {
+.hub__goallist {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -2211,31 +2211,31 @@ kbd {
   list-style: none;
 }
 
-.home__goal {
+.hub__goal {
   display: grid;
   grid-template-columns: 1fr max-content;
   gap: 0 0.6rem;
   align-items: baseline;
 }
 
-.home__goalname {
+.hub__goalname {
   font-family: var(--face-display, inherit);
   letter-spacing: 0.02em;
 }
 
-.home__goalsummary {
+.hub__goalsummary {
   grid-column: 1;
   font-size: 0.9rem;
   opacity: 0.7;
 }
 
-.home__goalcount {
+.hub__goalcount {
   grid-row: 1 / span 2;
   grid-column: 2;
   opacity: 0.8;
 }
 
-.home__opengoals {
+.hub__opengoals {
   padding: 0.3rem 0.7rem;
   border: 1px solid rgb(255 255 255 / 25%);
   border-radius: 0.35rem;

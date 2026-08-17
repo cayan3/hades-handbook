@@ -11,8 +11,8 @@ import {
   GodPage,
   GodPicker,
   GoalsPanel,
-  Home,
-  HomeGlyph,
+  Hub,
+  HubGlyph,
   Loadout,
   type LoadoutEntry,
   MARKING_HINT,
@@ -51,7 +51,7 @@ import {
   useOtherTabOpen,
   useRunSession,
 } from "./session.js";
-import { SiteHome } from "./site-home.js";
+import { Home } from "./home.js";
 
 /**
  * The two layout profiles, over one run.
@@ -116,12 +116,12 @@ const NO_TABS: Curated = { added: new Set(), removed: new Set() };
  * and every pool question are all keyed by a god's name, and a pseudo-god would
  * reach all three.
  */
-type Selection = { readonly kind: "home" } | { readonly kind: "god"; readonly god: string };
+type Selection = { readonly kind: "hub" } | { readonly kind: "god"; readonly god: string };
 
-const HOME: Selection = { kind: "home" };
+const HUB: Selection = { kind: "hub" };
 
 function sameTab(a: Selection, b: Selection): boolean {
-  return a.kind === "god" ? b.kind === "god" && b.god === a.god : b.kind === "home";
+  return a.kind === "god" ? b.kind === "god" && b.god === a.god : b.kind === "hub";
 }
 
 export interface AppProps {
@@ -148,7 +148,7 @@ export function App({ store, presence, persistent }: AppProps) {
   /* The site's own page, which the product's name leads to. Below the hooks and
      above everything else: the run stays open behind it, so coming back is not
      a reload. */
-  if (route === "about") return <SiteHome />;
+  if (route === "about") return <Home />;
 
   if (state.kind === "opening") return <p className="app__loading">Opening your run…</p>;
   if (state.kind === "failed") {
@@ -207,8 +207,8 @@ function Run({
   const [dismissedEdit, setDismissedEdit] = useState<unknown>(null);
   /** What the last mark pushed out of the run, for the toast to say beside it. */
   const [cost, setCost] = useState<readonly string[]>([]);
-  /** Home until something is picked, which is the whole of what it is for. */
-  const [selected, setSelected] = useState<Selection>(HOME);
+  /** Hub until something is picked, which is the whole of what it is for. */
+  const [selected, setSelected] = useState<Selection>(HUB);
   /**
    * Closed by default. It used to open by default, on the argument that Goals
    * is the phone's home and half the accessible path — but the panel is fixed
@@ -262,9 +262,9 @@ function Run({
       added.delete(name);
       onCurated({ added, removed: new Set(curated.removed).add(name) });
       // The tab being read is held up by `showing`, so dropping it has to let
-      // the selection fall back or it removes nothing. Home rather than another
+      // the selection fall back or it removes nothing. Hub rather than another
       // god: it is the one tab that is certainly still there.
-      setSelected((now) => (now.kind === "god" && now.god === name ? HOME : now));
+      setSelected((now) => (now.kind === "god" && now.god === name ? HUB : now));
     },
     [curated, onCurated],
   );
@@ -284,12 +284,12 @@ function Run({
   const unshown = tabs.filter((name) => !shownTabs.includes(name));
 
   /**
-   * The bar itself, Home first. Pinning it here rather than conditioning it on
+   * The bar itself, Hub first. Pinning it here rather than conditioning it on
    * the run is what makes "the bar is never empty" structural, and it is what
    * the brackets step onto.
    */
   const bar: readonly Selection[] = [
-    HOME,
+    HUB,
     ...shownTabs.map((god) => ({ kind: "god", god }) as const),
   ];
 
@@ -299,7 +299,7 @@ function Run({
    * removal could not take down the tab you were looking at, because being
    * looked at was one of the reasons a tab was there.
    */
-  const showing = bar.find((tab) => sameTab(tab, selected)) ?? HOME;
+  const showing = bar.find((tab) => sameTab(tab, selected)) ?? HUB;
   const showingGod = showing.kind === "god" ? showing.god : null;
   // One cache for the whole page. What makes keying it on facts identity sound
   // is a property of the layer below, and is written down there.
@@ -307,7 +307,7 @@ function Run({
   const view = useCallback((trait: TraitId) => cache.viewOf(trait, facts), [cache, facts]);
   // The page's shape and the page's state, derived together because the
   // connectors carry path status and that is a fact about the run. Null is
-  // exactly Home, which draws no graph — keyed on the god's name rather than on
+  // exactly Hub, which draws no graph — keyed on the god's name rather than on
   // the selection, an object being a fresh one every render.
   const page = useMemo(
     () =>
@@ -383,7 +383,7 @@ function Run({
    * they are listened for on the document: a handler on the page body would miss
    * every press made while focus was inside a panel or a dialog.
    *
-   * `[` and `]` step the whole bar, Home included: it is a tab, so stepping off
+   * `[` and `]` step the whole bar, Hub included: it is a tab, so stepping off
    * the first god has somewhere to go. Bracket keys rather than letters because
    * the quick-add's search box is coming and every unmodified letter spent here
    * is one it cannot type — the guard against typing is in the predicate either
@@ -421,7 +421,7 @@ function Run({
    * registers this listener while the same click is still travelling to the
    * document, so without the exclusion the opening click reaches here and closes
    * the panel again — it never opened at all. The runner flushes effects at the
-   * end of `act` instead, so a mutation there shows nothing. Home's own control
+   * end of `act` instead, so a mutation there shows nothing. Hub's own control
    * is a second opener and needs the same exemption for the same reason.
    *
    * A dialog over the panel is the second exclusion: the sheet listens on the
@@ -435,7 +435,7 @@ function Run({
       // The scrim covers both dialogs, and a click on it or inside it belongs to
       // them — including the close control, whose subtree React has already
       // detached by the time this runs, `closest` still walking it.
-      const opener = ".app__goalstoggle, .home__opengoals";
+      const opener = ".app__goalstoggle, .hub__opengoals";
       if (target.closest(`.app__goals, ${opener}, .sheet-scrim`) !== null) return;
       setGoalsOpen(false);
     };
@@ -566,13 +566,13 @@ function Run({
                   removal is about the tabs a player put up. */}
               <button
                 type="button"
-                className="app__godtab app__hometab"
-                aria-current={showing.kind === "home" ? "page" : undefined}
-                title="Home"
-                onClick={() => setSelected(HOME)}
+                className="app__godtab app__hubtab"
+                aria-current={showing.kind === "hub" ? "page" : undefined}
+                title="Hub"
+                onClick={() => setSelected(HUB)}
               >
-                <HomeGlyph className="app__godart" />
-                <span className="visually-hidden">Home</span>
+                <HubGlyph className="app__godart" />
+                <span className="visually-hidden">Hub</span>
               </button>
               {shownTabs.map((name) => (
                 <span key={name} className="app__godslot">
@@ -681,12 +681,12 @@ function Run({
             actions={actions}
           />
 
-          {/* The two things this column can be. A null page is exactly Home,
+          {/* The two things this column can be. A null page is exactly Hub,
               which is a tab rather than a god and so has no graph. */}
           {page === null ? (
             <section className="app__ladder">
-              <h2>Home</h2>
-              <Home
+              <h2>Hub</h2>
+              <Hub
                 held={facts.held.size}
                 pooled={[...facts.godPool]}
                 goals={goals}
@@ -709,7 +709,7 @@ function Run({
               />
               {/* Under the thing it is about, not above it: it is a first-visit
                   explanation and it stops being read long before it stops being
-                  on the page. Home's getting-started disclosure says the same
+                  on the page. Hub's getting-started disclosure says the same
                   three gestures, so the sentence is one constant. */}
               <p className="app__hint">{MARKING_HINT}</p>
             </section>

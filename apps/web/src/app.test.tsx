@@ -557,17 +557,17 @@ describe("the Goals panel", () => {
   });
 
   /**
-   * Home's own way in is a second opener and needs the same exemption. Unlike
+   * Hub's own way in is a second opener and needs the same exemption. Unlike
    * the header's, this half can fail here: with the panel already open the
    * click reaches the handler for real, and without the exclusion it closes
    * what was just asked for.
    */
-  it("opens from Home's control and is not closed by it", async () => {
+  it("opens from Hub's control and is not closed by it", async () => {
     await mount();
     // A pin first: with nothing pinned the glance is a sentence and offers no
     // way in, there being nothing behind it.
     goal(APHRODITE_MELEE);
-    act(() => container.querySelector<HTMLElement>(".app__hometab")?.click());
+    act(() => container.querySelector<HTMLElement>(".app__hubtab")?.click());
 
     click("Open Goals");
     expect(container.querySelector(".app__goals")).not.toBeNull();
@@ -704,7 +704,7 @@ describe("the Loadout", () => {
    */
   it("draws the real art and offers no way to turn it off", async () => {
     await mount();
-    // A god's page, because the app opens on Home now and Home draws no node.
+    // A god's page, because the app opens on Hub now and Hub draws no node.
     node(APHRODITE_MELEE);
 
     expect(container.querySelector<HTMLElement>(".node")?.dataset["ladder"]).toBe("real-art");
@@ -1234,7 +1234,7 @@ describe("what the boon list shows", () => {
 
     // Every god this game attributes a boon to, and the picker has nothing
     // left. Counted inside the slots the gods are drawn in, which is also an
-    // assertion that Home is not one of them — it carries no removal.
+    // assertion that Hub is not one of them — it carries no removal.
     expect(container.querySelectorAll(".app__godslot .app__godtab").length).toBe(14);
     expect(container.querySelector(".godpicker")).toBeNull();
   });
@@ -1325,11 +1325,11 @@ describe("the page-wide keys", () => {
   });
 
   /**
-   * Home is the one way in that is not the key. Everywhere else it is opened by
+   * Hub is the one way in that is not the key. Everywhere else it is opened by
    * `?` and by nothing on screen, which is what keeps it free: a player reading
    * a god's page never meets a control they have no use for.
    */
-  it("offers it on Home and nowhere else", async () => {
+  it("offers it on Hub and nowhere else", async () => {
     await mount();
     const trigger = () => texts("button").filter((label) => /shortcut/i.test(label));
     expect(trigger()).toEqual(["Keyboard shortcuts"]);
@@ -1425,35 +1425,35 @@ describe("the page-wide keys", () => {
 });
 
 /**
- * Home, which is a tab on the bar and deliberately not a god: the bar's
+ * Hub, which is a tab on the bar and deliberately not a god: the bar's
  * selection is a sum, so nothing here can put a pseudo-god id in front of the
  * icon resolver, the picker's list or a pool question.
  */
-describe("the Home tab", () => {
+describe("the Hub tab", () => {
   const bar = () => texts(".app__godtab").map((text) => text.trim());
   const current = () =>
     container.querySelector('.app__godtab[aria-current="page"]')?.textContent?.trim() ?? null;
 
-  it("opens on Home and pins it in front of the gods", async () => {
+  it("opens on Hub and pins it in front of the gods", async () => {
     await mount();
 
-    expect(bar()[0]).toBe("Home");
-    expect(current()).toBe("Home");
-    expect(container.querySelector(".home__disclaimer")).not.toBeNull();
-    // No graph on Home, so nothing on it can be mistaken for a god's page.
+    expect(bar()[0]).toBe("Hub");
+    expect(current()).toBe("Hub");
+    expect(container.querySelector(".hub__disclaimer")).not.toBeNull();
+    // No graph on Hub, so nothing on it can be mistaken for a god's page.
     expect(container.querySelector(".godpage")).toBeNull();
   });
 
   /** Removal is about the tabs a player put up, so this one carries none. */
   it("offers no way to take it down", async () => {
     await mount();
-    const home = container.querySelector(".app__hometab");
+    const hub = container.querySelector(".app__hubtab");
 
-    expect(home?.closest(".app__godslot")).toBeNull();
+    expect(hub?.closest(".app__godslot")).toBeNull();
     for (const drop of [...container.querySelectorAll<HTMLElement>(".app__goddrop")]) {
       act(() => drop.click());
     }
-    expect(bar()).toContain("Home");
+    expect(bar()).toContain("Hub");
   });
 
   it("is where a god's page goes when its own tab comes down", async () => {
@@ -1465,7 +1465,7 @@ describe("the Home tab", () => {
       (button) => button.getAttribute("aria-label") === "Remove the Athena tab",
     );
     act(() => drop?.click());
-    expect(current()).toBe("Home");
+    expect(current()).toBe("Hub");
   });
 
   /** It is a tab, so the brackets reach it rather than stopping at the first god. */
@@ -1475,7 +1475,7 @@ describe("the Home tab", () => {
     press("[");
     press("[");
     press("[");
-    expect(current()).toBe("Home");
+    expect(current()).toBe("Hub");
 
     press("]");
     expect(current()).toBe(bar()[1]);
@@ -1483,28 +1483,28 @@ describe("the Home tab", () => {
 
   /**
    * The resume line reads the run rather than a copy of it, which is the whole
-   * of why it is here: a stored run reopens on Home and says what it holds.
+   * of why it is here: a stored run reopens on Hub and says what it holds.
    */
   it("counts the real run and hands back the gods it met", async () => {
     await mount();
     tap(APHRODITE_MELEE);
-    act(() => container.querySelector<HTMLElement>(".app__hometab")?.click());
+    act(() => container.querySelector<HTMLElement>(".app__hubtab")?.click());
 
-    expect(container.querySelector(".home__resume")?.textContent).toBe("1 boon from 1 god.");
-    expect(texts(".home__god").map((text) => text.trim())).toEqual(["Aphrodite"]);
+    expect(container.querySelector(".hub__resume")?.textContent).toBe("1 boon from 1 god.");
+    expect(texts(".hub__god").map((text) => text.trim())).toEqual(["Aphrodite"]);
 
-    act(() => container.querySelector<HTMLElement>(".home__god")?.click());
+    act(() => container.querySelector<HTMLElement>(".hub__god")?.click());
     expect(current()).toBe("Aphrodite");
   });
 
-  it("goes to a god when one is picked, and comes back when Home is", async () => {
+  it("goes to a god when one is picked, and comes back when Hub is", async () => {
     await mount();
     showGod("Athena");
     expect(container.querySelector(".godpage")).not.toBeNull();
 
-    act(() => container.querySelector<HTMLElement>(".app__hometab")?.click());
+    act(() => container.querySelector<HTMLElement>(".app__hubtab")?.click());
     expect(container.querySelector(".godpage")).toBeNull();
-    expect(container.querySelector(".home")).not.toBeNull();
+    expect(container.querySelector(".hub")).not.toBeNull();
   });
 });
 
@@ -1529,11 +1529,11 @@ describe("the site page", () => {
     window.location.hash = "#/about";
     await mount();
 
-    expect(container.querySelector(".site")).not.toBeNull();
+    expect(container.querySelector(".home")).not.toBeNull();
     expect(container.querySelector(".app")).toBeNull();
     // The one thing this page has to carry while its content is still to be
     // written.
-    expect(container.querySelector(".site__disclaimer")?.textContent).toContain(
+    expect(container.querySelector(".home__disclaimer")?.textContent).toContain(
       "Supergiant Games",
     );
 
@@ -1542,12 +1542,12 @@ describe("the site page", () => {
       window.dispatchEvent(new HashChangeEvent("hashchange"));
     });
     expect(container.querySelector(".app")).not.toBeNull();
-    expect(container.querySelector(".site")).toBeNull();
+    expect(container.querySelector(".home")).toBeNull();
   });
 
   it("offers a way back into the app", async () => {
     window.location.hash = "#/about";
     await mount();
-    expect(container.querySelector(".site__enter")?.getAttribute("href")).toBe("#/");
+    expect(container.querySelector(".home__enter")?.getAttribute("href")).toBe("#/");
   });
 });
