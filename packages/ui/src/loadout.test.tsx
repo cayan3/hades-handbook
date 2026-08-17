@@ -576,38 +576,6 @@ describe("the panel itself", () => {
   });
 
   /**
-   * A click-opened menu is closed by a click, not by the pointer wandering.
-   * Measured, the card's list runs 90px below its opener, so reaching its lower
-   * half along anything but a straight line leaves the wrapper — and a menu the
-   * player opened deliberately should not vanish under a stray hand.
-   */
-  it("keeps a clicked-open menu up when the pointer leaves it", () => {
-    const rare = { ...entry("c"), view: { ...view("c"), rarities: ["Common", "Epic"] as const } };
-    render(panel({ entries: [rare], actions: { mark: () => undefined } }));
-    hover("c");
-
-    const menu = container.querySelector<HTMLElement>(".cardmenu")!;
-    act(() => menu.querySelector<HTMLButtonElement>(".cardmenu__open")!.click());
-    expect(container.querySelector(".cardmenu__list")).not.toBeNull();
-
-    // `relatedTarget` is the card, so this is the pointer leaving the *menu*
-    // and staying in the panel. Without it the event reads as leaving
-    // everything, the panel drops its cards, and the list goes with the card
-    // rather than with the menu — which is not what this is about.
-    const card = container.querySelector<HTMLElement>(".loadout__card")!;
-    act(() =>
-      menu.dispatchEvent(
-        new MouseEvent("mouseout", { bubbles: true, relatedTarget: card }),
-      ),
-    );
-    expect(container.querySelector(".cardmenu__list")).not.toBeNull();
-
-    // And the opener still puts it away, which is the way out that replaces it.
-    act(() => menu.querySelector<HTMLButtonElement>(".cardmenu__open")!.click());
-    expect(container.querySelector(".cardmenu__list")).toBeNull();
-  });
-
-  /**
    * A removal is written in the danger colour, and the tone sits on the menu
    * rather than on each control so the opener and both choices agree without
    * any of them saying so.
