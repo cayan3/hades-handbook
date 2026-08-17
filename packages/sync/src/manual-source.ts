@@ -56,6 +56,17 @@ export interface MarkOptions {
 }
 
 /**
+ * What a correction says about the pool.
+ *
+ * Unset, the pool is worked out: a god stays where anything else still holds
+ * them there. `fromPool` is the one control that names the pool in its own
+ * label saying so outright, which no inference may then talk it out of.
+ */
+export interface RemoveOptions {
+  fromPool?: boolean;
+}
+
+/**
  * Which writer made the last edit, named after the writer itself so that
  * nothing here has to invent a second vocabulary for the same fifteen gestures.
  */
@@ -207,8 +218,15 @@ export interface ManualSource extends RunStateSource {
   /** Marks a boon held, with everything that implies. */
   mark(trait: TraitId, options?: MarkOptions): void;
 
-  /** A mis-tap: the boon was never taken. */
-  remove(trait: TraitId): void;
+  /**
+   * A mis-tap: the boon was never taken. The pool is worked out rather than
+   * dictated — see the implementation for the four rules that leave a god in it
+   * with no boon to show for it.
+   *
+   * `fromPool` makes it a dictation instead, for the one control that names the
+   * pool in its own label. A player choosing that knows what the run did before.
+   */
+  remove(trait: TraitId, options?: RemoveOptions): void;
 
   /** The boon was taken and then lost in game. */
   purge(trait: TraitId): void;
@@ -897,7 +915,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
      * deleted them; the run then under-reports the pool, which reads as a god
      * nobody has met.
      */
-    remove(trait: TraitId): void {
+    remove(trait: TraitId, options?: RemoveOptions): void {
       if (!state.facts.held.has(trait)) return;
       beginEdit("remove", trait);
       const found = Object.hasOwn(catalog.traits, trait) ? catalog.traits[trait] : undefined;
@@ -905,7 +923,17 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
 
       const godPool = new Set(state.facts.godPool);
       const god = found?.god ?? null;
-      if (god !== null && !stillHoldsBoonOf(held, god) && !rewardedWithoutBoon.has(god)) {
+      // Asked for by name, the god goes whatever the run did before: the guard
+      // below is an inference and this is an instruction. The standing reward
+      // goes with them, or re-marking and correcting hits the same wall again.
+      if (god !== null && options?.fromPool === true) {
+        godPool.delete(god);
+        if (rewardedWithoutBoon.has(god)) {
+          const standing = new Set(rewardedWithoutBoon);
+          standing.delete(god);
+          rewardedWithoutBoon = standing;
+        }
+      } else if (god !== null && !stillHoldsBoonOf(held, god) && !rewardedWithoutBoon.has(god)) {
         godPool.delete(god);
       }
 

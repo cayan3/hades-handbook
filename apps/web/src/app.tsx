@@ -385,7 +385,8 @@ function Run({
     () => ({
       mark: (trait: TraitId, rarity: Rarity | null) =>
         write(() => session.source.mark(trait, rarity === null ? {} : { rarity })),
-      remove: (trait: TraitId) => write(() => session.source.remove(trait)),
+      remove: (trait: TraitId, options?: { readonly fromPool?: boolean }) =>
+        write(() => session.source.remove(trait, options)),
       purge: (trait: TraitId) => write(() => session.source.purge(trait)),
       pin: (trait: TraitId) => write(() => session.source.pin(trait)),
       unpin: (trait: TraitId) => write(() => session.source.unpin(trait)),

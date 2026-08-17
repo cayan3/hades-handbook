@@ -57,6 +57,7 @@ export type {
   EditAction,
   ManualSource,
   MarkOptions,
+  RemoveOptions,
   MigrationNotice,
   OpenManualSourceOptions,
   SourceCondition,

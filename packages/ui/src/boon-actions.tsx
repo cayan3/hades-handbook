@@ -25,8 +25,15 @@ export interface BoonActions {
    * `null` where the data declares none and there was nothing to ask.
    */
   readonly mark?: (trait: TraitId, rarity: Rarity | null) => void;
-  /** A mis-tap: it never happened. */
-  readonly remove?: (trait: TraitId) => void;
+  /**
+   * A mis-tap: it never happened. The pool is worked out rather than dictated —
+   * a god stays where anything else still holds them there.
+   *
+   * `fromPool` says otherwise outright, for the one control that names the pool
+   * in its own label. Without it a god purged earlier in the run could never be
+   * taken back out, whatever the player chose.
+   */
+  readonly remove?: (trait: TraitId, options?: { readonly fromPool?: boolean }) => void;
   /** Held, and then lost in game. */
   readonly purge?: (trait: TraitId) => void;
   readonly pin?: (trait: TraitId) => void;

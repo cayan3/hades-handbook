@@ -702,10 +702,10 @@ describe("the Loadout", () => {
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
     expect(heldInLoadout("AllCloseBoon")).toBe(false);
 
-    click("Show all boons");
+    click("Expand");
     expect(heldInLoadout("AllCloseBoon")).toBe(true);
 
-    click("Core slots only");
+    click("Collapse");
     expect(heldInLoadout("AllCloseBoon")).toBe(false);
   });
 
@@ -1163,6 +1163,33 @@ describe("what the boon list shows", () => {
     click("Remove");
     click("Remove boon and god from pool");
     expect(shown()).toContain("Aphrodite");
+    expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
+  });
+
+  /**
+   * The card's second removal names the pool, so it does what it says whatever
+   * the run did earlier. Reported: a god who had been purged once could never be
+   * taken back out — the guard that keeps a god whose reward really was taken is
+   * an inference, and this control is an instruction.
+   */
+  it("takes a god out of the pool even where an earlier boon of theirs was purged", async () => {
+    await mount();
+    showGod("Aphrodite");
+
+    // A real reward, taken and then lost: the pool keeps her, and should.
+    tap(APHRODITE_MELEE);
+    tap(APHRODITE_MELEE);
+    click("Remove");
+    click("Remove boon only");
+    expect(
+      container.querySelector<HTMLElement>('.app__gods button[data-pooled="true"]')?.textContent,
+    ).toBe("Aphrodite");
+
+    // A second boon, and the player says outright that she is not in the pool.
+    tap("AphroditeSpecialBoon");
+    tap("AphroditeSpecialBoon");
+    click("Remove");
+    click("Remove boon and god from pool");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
   });
 

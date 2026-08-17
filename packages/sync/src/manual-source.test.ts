@@ -216,6 +216,45 @@ describe("removal, which is two different actions", () => {
     expect(source.getFacts().godPool.has("Hera")).toBe(true);
   });
 
+  /**
+   * The card's second removal names the pool, so it is an instruction rather
+   * than an inference — and the guard above is an inference. Asked for after a
+   * run where a god who had been purged once could never be taken back out: the
+   * player is saying *this god is not in my pool*, and they know what they
+   * purged.
+   *
+   * The rule above is untouched and still has its tests: a bare `remove` is
+   * "I mis-tapped", and there the pool is worked out rather than dictated.
+   */
+  it("drops a god on an explicit removal, whatever the run did before", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.purge("HeraAttack"); // a real reward, so the pool would keep her
+    source.mark("HeraSpecial");
+
+    source.remove("HeraSpecial", { fromPool: true });
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(false);
+  });
+
+  /**
+   * And the god does not come back on the next correction. `rewardedWithoutBoon`
+   * is what would have kept her, so an explicit removal has to clear it too —
+   * otherwise re-marking and correcting walks into the same wall a second time.
+   */
+  it("forgets the reward that would have kept an explicitly removed god", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.purge("HeraAttack");
+    source.mark("HeraSpecial");
+    source.remove("HeraSpecial", { fromPool: true });
+
+    source.mark("HeraAttack");
+    source.remove("HeraAttack");
+
+    expect(source.getFacts().godPool.has("Hera")).toBe(false);
+  });
+
   it("still drops a god whose only boon really was a mis-tap", async () => {
     const source = await open();
     source.mark("HeraAttack");
