@@ -507,3 +507,31 @@ describe("a requirement row's have-against-need", () => {
     expect(rule(".goal__rows[hidden]")).toMatch(/display:\s*none/);
   });
 });
+
+/**
+ * The shortcut list's own two rules, both of which are about position and so
+ * cannot be seen by the runner rendering it: jsdom computes no layout, so a
+ * test that measured either would be measuring nothing.
+ */
+describe("the shortcut list", () => {
+  function bodyOf(selector: string): string {
+    const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    return rules.match(new RegExp(`(^|[{}])\\s*${literal}\\s*\\{([^}]*)\\}`, "m"))?.[2] ?? "";
+  }
+
+  /** The title starts where the way out does rather than under it. */
+  it("puts the title and the close control on one row", () => {
+    expect(bodyOf(".shortcuts")).toMatch(/display:\s*grid/);
+    expect(bodyOf(".shortcuts")).toMatch(/align-items:\s*start/);
+    expect(bodyOf(".shortcuts .sheet__close")).toMatch(/grid-area:\s*1 \/ 2/);
+    expect(bodyOf(".shortcuts h2")).toMatch(/grid-area:\s*1 \/ 1/);
+    // The stacking margin the close control carries everywhere else would push
+    // it off that row by exactly its own height.
+    expect(bodyOf(".shortcuts .sheet__close")).toMatch(/margin:\s*0/);
+  });
+
+  it("keeps the list itself across both columns", () => {
+    expect(bodyOf(".shortcuts__list")).toMatch(/grid-column:\s*1 \/ -1/);
+  });
+});

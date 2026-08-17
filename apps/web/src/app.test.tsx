@@ -67,6 +67,18 @@ async function mount(store: RunStore = createMemoryStore(), persistent = true): 
   await act(async () => {
     root.render(<App store={store} presence={null} persistent={persistent} />);
   });
+  enterGame();
+}
+
+/**
+ * Answers the save screen, which stands between a page that is not a game and
+ * the game itself. Continuing where there is a run, starting where there is not
+ * — neither touches what is stored, so every test below starts where it did
+ * before this door existed.
+ */
+function enterGame(): void {
+  const slot = [...container.querySelectorAll<HTMLElement>(".saves__take")][0];
+  if (slot !== undefined) act(() => slot.click());
 }
 
 /** Follows one of the app's own links, which is how a game is reached now. */
@@ -1690,5 +1702,90 @@ describe("the site header", () => {
 
     press("h");
     expect(container.querySelector(".help")).not.toBeNull();
+  });
+});
+
+/**
+ * The save screen: the door into a game from a page that is not one. It is not
+ * a state the game is in — moving between the two games walks past it, which is
+ * what the games' own save screens do.
+ */
+describe("the save screen", () => {
+  const slots = () =>
+    [...container.querySelectorAll<HTMLElement>(".saves__slot")].map(
+      (el) => el.querySelector(".saves__what")?.textContent ?? el.textContent?.trim() ?? "",
+    );
+
+  it("offers a new run and nothing to resume where nothing is stored", async () => {
+    window.location.hash = GAME_HASH.hades2;
+    await act(async () => {
+      root.render(<App store={createMemoryStore()} presence={null} persistent />);
+    });
+
+    expect(slots()).toEqual(["Start a new run", "( Empty Save Slot )"]);
+    // The god bar is behind it, so answering is what gets you in.
+    enterGame();
+    expect(container.querySelector(".saves")).toBeNull();
+    expect(container.querySelector(".app__gods")).not.toBeNull();
+  });
+
+  it("puts the stored run in the first slot and says what it holds", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    tap(APHRODITE_MELEE);
+    goal("AllCloseBoon");
+
+    await follow("#/");
+    await follow(GAME_HASH.hades2);
+
+    expect(slots()).toEqual(["Continue run", "Start a new run"]);
+    expect(texts(".saves__stat dt")).toEqual(["Boons", "Gods met", "Goals"]);
+    expect(texts(".saves__stat dd")).toEqual(["1", "1", "1"]);
+  });
+
+  /**
+   * Filed rather than thrown away, which is the difference between this and the
+   * header's own Skip summary: the run somebody is leaving is still the run they
+   * played.
+   */
+  it("files the old run when a new one is started over it", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+
+    await follow("#/");
+    await follow(GAME_HASH.hades2);
+    await act(async () => {
+      [...container.querySelectorAll<HTMLElement>(".saves__take")][1]?.click();
+    });
+
+    expect(container.querySelector(".saves")).toBeNull();
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(false);
+  });
+
+  /**
+   * A switch between the two games is not a door. Held above the component that
+   * is keyed on the game, or every switch would raise this again.
+   */
+  it("does not stand between the two games", async () => {
+    await mount();
+    expect(container.querySelector(".saves")).toBeNull();
+
+    await follow(GAME_HASH.hades1);
+    expect(container.querySelector(".saves")).toBeNull();
+    expect(container.querySelector(".app__gods")).not.toBeNull();
+  });
+
+  it("goes back to the front page rather than into the game", async () => {
+    window.location.hash = GAME_HASH.hades2;
+    await act(async () => {
+      root.render(<App store={createMemoryStore()} presence={null} persistent />);
+    });
+
+    await act(async () => {
+      container.querySelector<HTMLElement>(".saves__back")?.click();
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+    expect(container.querySelector(".home")).not.toBeNull();
   });
 });

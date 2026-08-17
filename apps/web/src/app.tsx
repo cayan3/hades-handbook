@@ -17,6 +17,7 @@ import {
   type LoadoutEntry,
   MARKING_HINT,
   NodePresentation,
+  SaveScreen,
   NoticeBar,
   type NodeSource,
   OTHER_TAB_BODY,
@@ -181,6 +182,12 @@ function GameApp({
   readonly curated: Curated;
   readonly onCurated: (curated: Curated) => void;
 }) {
+  /**
+   * Whether the save screen is still to be answered. Held here rather than in
+   * `Run`, which is keyed on the game and so remounts on a switch: entering a
+   * game from outside is a door, and moving between the two is not.
+   */
+  const [choosing, setChoosing] = useState(true);
   const state = useRunSession(game, store);
 
   if (state.kind === "opening") return <p className="app__loading">Opening your run…</p>;
@@ -208,6 +215,8 @@ function GameApp({
       persistent={persistent && state.persistent}
       curated={curated}
       onCurated={onCurated}
+      choosing={choosing}
+      onChosen={() => setChoosing(false)}
     />
   );
 }
@@ -219,6 +228,8 @@ function Run({
   persistent,
   curated,
   onCurated,
+  choosing,
+  onChosen,
 }: {
   readonly game: GameId;
   readonly session: RunSession;
@@ -226,6 +237,8 @@ function Run({
   readonly persistent: boolean;
   readonly curated: Curated;
   readonly onCurated: (curated: Curated) => void;
+  readonly choosing: boolean;
+  readonly onChosen: () => void;
 }) {
   const facts = useFacts(session);
   const intent = useIntent(session);
@@ -504,6 +517,15 @@ function Run({
 
   const openedView = opened === null ? null : view(opened);
 
+  /**
+   * What the save screen's first slot holds, or null where there is nothing to
+   * resume. A run with a pin and no boons still counts: somebody put it there.
+   */
+  const stored =
+    facts.held.size === 0 && intent.pins.size === 0
+      ? null
+      : { held: facts.held.size, gods: facts.godPool.size, goals: intent.pins.size };
+
   /*
    * The art ships, so the real-art ladder is what the product is.
    *
@@ -765,6 +787,30 @@ function Run({
             cost={condition.lastEdit.action === "mark" ? cost : []}
             onUndo={() => write(() => session.source.undo())}
             onDismiss={() => setDismissedEdit(condition.lastEdit)}
+          />
+        )}
+
+        {/* The door, over the page rather than in front of it: dismissing it
+            is the same as continuing, which is what makes Escape safe here. */}
+        {!choosing ? null : (
+          <SaveScreen
+            run={stored}
+            onResume={onChosen}
+            onNew={() => {
+              // Filed rather than discarded: a run somebody is leaving behind is
+              // still the run they played, and it is what `last` is for. Nothing
+              // to file where the slot was empty, and filing an empty run would
+              // put one in front of the run it is meant to remember.
+              if (stored !== null) {
+                void session.finishRun().catch((cause: unknown) => {
+                  setFault(cause instanceof Error ? cause : new Error(String(cause)));
+                });
+              }
+              onChosen();
+            }}
+            onLeave={() => {
+              window.location.hash = "#/";
+            }}
           />
         )}
 

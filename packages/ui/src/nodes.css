@@ -2038,13 +2038,31 @@
  * The command set written out. It reuses the sheet's own box, since it is the
  * same kind of thing — a modal you opened, read and dismissed — and differs only
  * in that nothing on the page opens it.
+ *
+ * A grid rather than a stack so the title and the way out share a row and start
+ * at the same height. The close control stays first in the document, which is
+ * what decides where focus lands; the grid places it without moving it.
  */
+.shortcuts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: start;
+  gap: 0.8rem;
+}
+
+.shortcuts .sheet__close {
+  grid-area: 1 / 2;
+  margin: 0;
+}
+
 .shortcuts h2 {
-  margin: 0 0 0.8rem;
+  grid-area: 1 / 1;
+  margin: 0;
   font-size: 1.15rem;
 }
 
 .shortcuts__list {
+  grid-column: 1 / -1;
   display: grid;
   /* The keys column takes what its widest entry needs and no more, so the
      descriptions all start at the same place without a number to keep in step. */
@@ -2284,4 +2302,146 @@ kbd {
   font-size: 0.9rem;
   opacity: 0.75;
   text-align: center;
+}
+
+/*
+ * The door into a game, laid out the way both games lay theirs out: a title
+ * above a row of slots, the filled one carrying label-and-value lines and the
+ * empty one saying so. Its accent follows the game, which is the one thing that
+ * differs between the two screens.
+ */
+.saves {
+  width: min(48rem, 100%);
+  max-height: 90vh;
+  padding: 1.6rem;
+  overflow-y: auto;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 0.8rem;
+  background: var(--surface, #1b1815);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 55%);
+}
+
+.saves[data-game="hades1"] {
+  --game: var(--hades1, #b70d12);
+}
+
+.saves[data-game="hades2"] {
+  --game: var(--hades2, #119f4c);
+}
+
+.saves__title {
+  margin: 0 0 1.4rem;
+  font-family: var(--face-display, inherit);
+  font-size: 1.15rem;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.saves__slots {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0 0 1.2rem;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 32rem) {
+  .saves__slots {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A card taller than it is wide, which is the shape both games draw and what
+   makes a row of them read as slots rather than as buttons. */
+.saves__slot {
+  display: flex;
+  min-height: 11rem;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 0.5rem;
+}
+
+.saves__slot[data-filled="true"] {
+  border-color: var(--game);
+  box-shadow: 0 0 0.5rem var(--game);
+}
+
+.saves__slot[data-empty="true"] {
+  display: grid;
+  place-items: center;
+  opacity: 0.45;
+}
+
+.saves__take {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1rem;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.saves__take:hover,
+.saves__take:focus-visible {
+  background: rgb(255 255 255 / 5%);
+}
+
+.saves__what {
+  font-family: var(--face-display, inherit);
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+
+.saves__stats {
+  margin: 0;
+}
+
+/* The label above its value, in the game's own colour, which is how both games
+   draw a filled slot. */
+.saves__stat {
+  margin-bottom: 0.5rem;
+}
+
+.saves__stat dt {
+  color: var(--game);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.saves__stat dd {
+  margin: 0;
+  font-family: var(--face-mono, monospace);
+  font-size: 1.05rem;
+}
+
+.saves__note {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.saves__empty {
+  font-family: var(--face-display, inherit);
+  letter-spacing: 0.06em;
+}
+
+/* Centred under the row, where both games put the arrow out. */
+.saves__back {
+  display: block;
+  margin: 0 auto;
+  padding: 0.4rem 1.2rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
 }
