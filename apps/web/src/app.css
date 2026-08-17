@@ -303,18 +303,22 @@ h1,
   box-sizing: border-box;
   width: var(--mark);
   height: var(--mark);
-  border: 1px solid var(--game);
+  /* Dim at rest and full under the pointer, so the outline says which game it
+     is without competing with the god tabs below it for attention. */
+  border: 1px solid color-mix(in srgb, var(--game) 55%, transparent);
   border-radius: 0.35rem;
 }
 
 /* The one you are on stays lit without being hovered, which is the same job the
    god tabs' own current marker does. */
 .app__mark[data-current] .app__marknum {
+  border-color: var(--game);
   box-shadow: 0 0 0.35rem var(--game);
 }
 
 .app__mark:hover .app__marknum,
 .app__mark:focus-visible .app__marknum {
+  border-color: var(--game);
   box-shadow: 0 0 0.7rem var(--game);
 }
 
