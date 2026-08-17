@@ -18,6 +18,12 @@ export interface HoverMenuProps {
   /** Whether hovering the label opens it. Off inside a card, which is hovered. */
   readonly onHover?: boolean;
   /**
+   * What the whole menu is written in. `danger` for one that takes something
+   * out of the run — on the wrapper rather than on each control, so the opener
+   * and every choice under it agree without any of them saying so.
+   */
+  readonly tone?: "danger";
+  /**
    * The choices. Each should close the menu when it acts, which is what `onPick`
    * is handed to them for.
    */
@@ -28,12 +34,13 @@ export function HoverMenu({
   label,
   className = "hovermenu",
   onHover = true,
+  tone,
   children,
 }: HoverMenuProps) {
   const { open, opener, wrapper, toggle, close } = useHoverDisclosure({ onHover });
 
   return (
-    <span className={className} {...wrapper}>
+    <span className={className} data-tone={tone} {...wrapper}>
       <button
         type="button"
         ref={opener}

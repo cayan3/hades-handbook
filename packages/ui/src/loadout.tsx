@@ -348,12 +348,15 @@ export function Loadout({
                 ) : null}
               </div>
             </div>
-            {/* Only while the panel has the pointer or the focus, the same rule
-                the rest of the grid follows. The stack itself is untouched, so
-                the cards that come back are the ones that were there — a card
-                lies over the god page, and one left behind is covering
-                something nobody is reading the Loadout to see. */}
-            {!inside || shown.length === 0 || detailOf === undefined ? null : (
+            {/* The same rule the rest of the grid follows, which is `showRest`
+                and not the pointer alone: a panel held open by its own control
+                keeps its cards, where before they went with the pointer and the
+                control looked like it had only half worked. The stack itself is
+                untouched either way, so the cards that come back are the ones
+                that were there — a card lies over the god page, and one left
+                behind while the panel is shut is covering something nobody is
+                reading the Loadout to see. */}
+            {!showRest || shown.length === 0 || detailOf === undefined ? null : (
               // The stack splits the panel's height between the cards it holds,
               // so the count is what the stylesheet needs to lay them out.
               <div
@@ -608,7 +611,7 @@ function CardActions({
           </button>
         )
       ) : (
-        <HoverMenu label="Remove" className="cardmenu" onHover={false}>
+        <HoverMenu label="Remove" className="cardmenu" onHover={false} tone="danger">
           {(close) => (
             <>
               {purge === undefined ? null : (
@@ -619,7 +622,7 @@ function CardActions({
                     close();
                   }}
                 >
-                  Remove
+                  Remove boon only
                 </button>
               )}
               <button

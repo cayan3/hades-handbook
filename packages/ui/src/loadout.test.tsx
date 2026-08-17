@@ -277,8 +277,10 @@ describe("a tile's card", () => {
     expect(container.querySelector(".loadout__cards")).toBeNull();
   });
 
-  it("puts every card away when the pointer leaves the panel", () => {
-    render(panel());
+  it("puts every card away when the pointer leaves a panel it was holding open", () => {
+    // Not pinned: the panel is open because the pointer is on it, so the cards
+    // are the pointer's too.
+    render(panel({ expanded: false }));
     click("b");
     hover("a");
     // One held open and one only previewed, so this says something about both.
@@ -295,11 +297,30 @@ describe("a tile's card", () => {
     expect(cards()).toEqual([]);
   });
 
+  /**
+   * Pinned open by its own control, the cards stay. The control says *show all
+   * boons*, and a panel that kept the grid and dropped the cards read as one
+   * that had half worked.
+   */
+  it("keeps its cards when the panel is the control's rather than the pointer's", () => {
+    render(panel({ expanded: true }));
+    click("b");
+    click("a");
+    expect(cards()).toEqual(["b", "a"]);
+
+    act(() => {
+      container
+        .querySelector(".loadout")!
+        .dispatchEvent(new MouseEvent("mouseout", { bubbles: true }));
+    });
+    expect(cards()).toEqual(["b", "a"]);
+  });
+
   it("brings the same cards back on the next hover", () => {
     // What goes away is the drawing, not the stack. Otherwise leaving the panel
     // would silently undo the clicks that filled it, and the toggle would have
     // a second way to fire that nothing pressed.
-    render(panel());
+    render(panel({ expanded: false }));
     click("b");
     click("a");
     expect(cards()).toEqual(["b", "a"]);
@@ -313,8 +334,10 @@ describe("a tile's card", () => {
     // Still held open while nothing is drawn, which is what the tile says too.
     expect(tile("a").querySelector("button")?.getAttribute("aria-expanded")).toBe("true");
 
-    hover("c");
-    expect(cards()).toEqual(["b", "a", "c"]);
+    // A core tile, since an unpinned panel has put the rest of the grid away
+    // along with the cards — and both come back together.
+    hover("a");
+    expect(cards()).toEqual(["b", "a"]);
   });
 });
 
@@ -542,6 +565,33 @@ describe("the panel itself", () => {
     expect(container.querySelector(".cardmenu__list")).toBeNull();
   });
 
+  /**
+   * A removal is written in the danger colour, and the tone sits on the menu
+   * rather than on each control so the opener and both choices agree without
+   * any of them saying so.
+   */
+  it("marks the whole removal menu as the one that takes something away", () => {
+    render(
+      panel({
+        entries: [entry("c")],
+        actions: { purge: () => undefined, remove: () => undefined },
+      }),
+    );
+    hover("c");
+
+    // One boon from this god, so the pool question is a question and Remove is
+    // the menu rather than a plain button.
+    const menu = [...container.querySelectorAll<HTMLElement>(".cardmenu")].find(
+      (each) => each.querySelector(".cardmenu__open")?.textContent === "Remove",
+    )!;
+    expect(menu.dataset["tone"]).toBe("danger");
+
+    act(() => menu.querySelector<HTMLButtonElement>(".cardmenu__open")!.click());
+    expect(
+      [...menu.querySelectorAll(".cardmenu__list button")].map((each) => each.textContent),
+    ).toEqual(["Remove boon only", "Remove boon and god from pool"]);
+  });
+
   /** The keyboard has no hover to open it with, so the click has to. */
   it("still opens the menu for a keyboard, which never hovers", () => {
     const rare = { ...entry("c"), view: { ...view("c"), rarities: ["Common", "Epic"] as const } };
@@ -554,7 +604,6 @@ describe("the panel itself", () => {
     act(() => label.click());
     expect(container.querySelector(".cardmenu__list")).not.toBeNull();
   });
-
 
   /**
    * Inside the row's text column, so it starts where the name and the

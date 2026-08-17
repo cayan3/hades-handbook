@@ -1972,13 +1972,15 @@
   margin-top: 0.6rem;
 }
 
+/* The outline is whatever the control is written in — its own colour where it
+   has one, the ink where it does not — so a removal is red on both channels
+   rather than red words in a neutral box. */
 .loadout__cardremove,
 .cardmenu__open {
   padding: 0.25rem 0.5rem;
-  border: 1px solid rgb(255 255 255 / 25%);
+  border: 1px solid var(--choice, currentColor);
   border-radius: 0.3rem;
   background: transparent;
-  color: inherit;
   font: inherit;
   font-size: 0.85rem;
   cursor: pointer;
@@ -2009,32 +2011,24 @@
 }
 
 /*
- * Each choice wears the colour it stands for, so the list reads as the ladder
- * rather than as four words. `--choice` and not `--rarity`: the row sets that
- * one, and the removals share this list and would inherit the boon's colour.
+ * Each choice wears the colour it stands for — the word and the outline both —
+ * so the list reads as the ladder rather than as four words. `--choice` and not
+ * `--rarity`: the row sets that one, and the removals share this list and would
+ * otherwise inherit the boon's own colour.
  *
- * The shorthand carries a plain colour and the mix follows it, since a browser
- * that cannot mix drops the whole declaration it sits in and would leave an
- * option with no outline rather than one at full strength.
+ * The outline is that colour at full strength; what dims it at rest is the
+ * shared control treatment at the end of this file, so there is one place that
+ * decides how loud a resting control is.
  */
 .cardmenu__list button {
   padding: 0.2rem 0.45rem;
   border: 1px solid var(--choice, currentColor);
-  border-color: color-mix(in srgb, var(--choice, currentColor) 35%, transparent);
   border-radius: 0.25rem;
   background: transparent;
-  color: inherit;
   font: inherit;
   font-size: 0.85rem;
   text-align: left;
   cursor: pointer;
-}
-
-/* The current one is outlined without the pointer having to find it. */
-.cardmenu__list button:hover,
-.cardmenu__list button:focus-visible,
-.cardmenu__list button[aria-pressed="true"] {
-  border-color: var(--choice, currentColor);
 }
 
 /* In the corner and out of the row's way, which is where the sheet puts its
@@ -2113,12 +2107,18 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    left: calc(100% + 0.9rem);
+    left: 100%;
     z-index: 5;
     display: grid;
     grid-template-rows: repeat(var(--slots, 1), minmax(0, max-content));
     align-content: start;
     width: min(35rem, 45vw);
+    /* The gap to the panel is padding rather than an offset, so it belongs to
+       this box and the pointer crossing it never leaves the panel. As an offset
+       it was a strip of nothing between the two, and a slow hand moving out to
+       a card collapsed the panel on the way. The cards land where they did —
+       content-box, so the width is still theirs. */
+    padding-left: 0.9rem;
   }
 
   /*
@@ -2574,4 +2574,71 @@ kbd {
   color: inherit;
   font: inherit;
   cursor: pointer;
+}
+
+/*
+ * The hover treatment on this package's controls, reading the same two
+ * properties the app's header does: dim at rest, full ink and a glow of the
+ * control's own colour under the pointer or the keyboard.
+ *
+ * `--choice` is that colour where a control has one — a rarity in the card's
+ * menu, the danger red on a removal. Without it the glow is the ink, which is
+ * what the rest of these are written in.
+ */
+.sheet__actions button,
+.sheet__close,
+.loadout__more,
+.loadout__cardremove,
+.loadout__cardclose,
+.cardmenu__open,
+.cardmenu__list button,
+.godpicker__open,
+.hub__god {
+  color: var(--choice, inherit);
+  opacity: var(--control-rest, 0.72);
+  transition: opacity 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.sheet__actions button:hover,
+.sheet__actions button:focus-visible,
+.sheet__close:hover,
+.sheet__close:focus-visible,
+.loadout__more:hover,
+.loadout__more:focus-visible,
+.loadout__cardremove:hover,
+.loadout__cardremove:focus-visible,
+.loadout__cardclose:hover,
+.loadout__cardclose:focus-visible,
+.cardmenu__open:hover,
+.cardmenu__open:focus-visible,
+.cardmenu__list button:hover,
+.cardmenu__list button:focus-visible,
+.godpicker__open:hover,
+.godpicker__open:focus-visible,
+.hub__god:hover,
+.hub__god:focus-visible {
+  opacity: 1;
+  box-shadow: 0 0 var(--control-glow, 0.45rem)
+    color-mix(in srgb, var(--choice, currentColor) 45%, transparent);
+}
+
+/*
+ * The rarity a boon is already at, and the one the sheet says it was taken at.
+ * Full ink without the pointer having to find it — which is the whole ask — and
+ * no glow, so the three states stay three: dim, current, under the pointer.
+ */
+.cardmenu__list button[aria-pressed="true"],
+.sheet__rarities button[aria-pressed="true"] {
+  opacity: 1;
+}
+
+/*
+ * A removal is written in the danger colour wherever it appears on a card: the
+ * plain button, the menu that replaces it on the last boon a god has left, and
+ * both choices inside that menu. One property, so the menu's own rules above
+ * colour the outline and the glow with no second rule about red.
+ */
+.loadout__cardremove,
+.cardmenu[data-tone="danger"] {
+  --choice: var(--danger, #e5484d);
 }

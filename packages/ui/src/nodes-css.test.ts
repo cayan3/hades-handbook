@@ -352,6 +352,39 @@ describe("the node stylesheet", () => {
     }
   });
 
+  /**
+   * One hover treatment across two stylesheets: this package styles the panels'
+   * controls and the app styles the header's, and both read the same two
+   * properties rather than each carrying a number. A pixel of disagreement is
+   * what makes one treatment read as two.
+   */
+  it("reads the hover treatment's strength from a property rather than a literal", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const rest = [...rules.matchAll(/opacity:\s*var\(--control-rest[^)]*\)/g)];
+    const glow = [...rules.matchAll(/box-shadow:[^;]*var\(--control-glow[^;]*;/g)];
+    expect(rest.length, "no control reads the resting strength").toBeGreaterThan(0);
+    expect(glow.length, "no control reads the glow's reach").toBeGreaterThan(0);
+
+    // The glow takes the control's own colour, which is what makes a removal
+    // red and a rarity its own hue without a rule per case.
+    for (const [declaration] of glow) {
+      expect(declaration).toMatch(/var\(--choice/);
+    }
+  });
+
+  /**
+   * A removal is red wherever a card offers one, and the colour arrives as
+   * `--choice` so the outline and the glow follow it with no second rule.
+   */
+  it("writes a card's removals in the danger colour", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const match = rules.match(
+      /\.loadout__cardremove,\s*\.cardmenu\[data-tone="danger"\]\s*\{([^}]*)\}/,
+    );
+    expect(match, "the removals do not name a colour together").not.toBeNull();
+    expect(match![1]).toMatch(/--choice:\s*var\(--danger/);
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every

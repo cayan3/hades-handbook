@@ -90,6 +90,27 @@
    */
   --hades1: #b70d12;
   --hades2: #30b090;
+
+  /*
+   * What a control that takes something out of the run is written in. Chosen by
+   * the contrast floor rather than by eye: it is the only candidate clearing
+   * 4.5:1 on both grounds (4.85 and 4.52), the deeper reds all dipping under on
+   * the surface, where a card's own buttons sit. Hades I's blood is 2.78 and was
+   * never eligible. Nearest neighbour is the Heroic rarity at ΔE 8.0, which is
+   * close — they are different roles and never adjacent, but that is the one
+   * pairing to look at if this ever reads wrong.
+   */
+  --danger: #e5484d;
+
+  /*
+   * What a control-that-is-a-word does under the pointer: it comes up to full
+   * ink and takes a glow of whatever colour it is written in. Two stylesheets
+   * apply it — the header's controls are this file's and the panels' are the ui
+   * package's — so the values are named once here and both read them, a pixel of
+   * disagreement being the thing that makes two treatments read as two.
+   */
+  --control-rest: 0.72;
+  --control-glow: 0.45rem;
 }
 
 body {
@@ -792,4 +813,79 @@ h1,
   border-radius: 50%;
   background: var(--rarity);
   vertical-align: -0.05em;
+}
+
+/*
+ * The hover treatment, on the controls in this file that are a word in a box.
+ * Dim at rest, full ink and a glow of their own colour under the pointer or the
+ * keyboard. `--choice` is the colour where a control has one; without it the
+ * glow is the ink, which is what these all are.
+ *
+ * The ui package applies the same thing to the panels' controls, reading the
+ * same two properties.
+ */
+.app__goalstoggle,
+.app__finish,
+.app__help {
+  opacity: var(--control-rest, 0.72);
+  transition: opacity 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.app__goalstoggle:hover,
+.app__goalstoggle:focus-visible,
+.app__finish:hover,
+.app__finish:focus-visible,
+.app__help:hover,
+.app__help:focus-visible {
+  opacity: 1;
+  box-shadow: 0 0 var(--control-glow, 0.45rem)
+    color-mix(in srgb, var(--choice, currentColor) 45%, transparent);
+}
+
+/*
+ * Hub has no god colour to light up with, so hovering it takes the neutral
+ * outline to white — the same channel every other tab uses, on the one tab that
+ * has no hue to put there. The god tabs are left alone: their outline is already
+ * the god and their glow already means the run has met them.
+ */
+.app__hubtab {
+  transition: border-color 120ms ease;
+}
+
+.app__hubtab:hover,
+.app__hubtab:focus-visible {
+  border-color: #fff;
+}
+
+/*
+ * Open the Handbook lights its outline and never its words: the two halves are
+ * links to different games and the label above them belongs to neither. White
+ * while the pointer is on the label or the arrow, each game's own colour while
+ * it is on that game's name.
+ */
+.app__open {
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.app__open:hover,
+.app__open:focus-within {
+  border-color: #fff;
+  box-shadow: 0 0 var(--control-glow, 0.45rem) rgb(255 255 255 / 30%);
+}
+
+.app__open:has(.app__opengame:hover),
+.app__open:has(.app__opengame:focus-visible) {
+  border-color: var(--open-game);
+  box-shadow: 0 0 var(--control-glow, 0.45rem)
+    color-mix(in srgb, var(--open-game) 45%, transparent);
+}
+
+.app__open:has(.app__opengame[data-game="hades1"]:hover),
+.app__open:has(.app__opengame[data-game="hades1"]:focus-visible) {
+  --open-game: var(--hades1);
+}
+
+.app__open:has(.app__opengame[data-game="hades2"]:hover),
+.app__open:has(.app__opengame[data-game="hades2"]:focus-visible) {
+  --open-game: var(--hades2);
 }

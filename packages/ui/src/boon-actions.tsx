@@ -1,7 +1,8 @@
 import type { Rarity, TraitId } from "@repo/core";
+import type { CSSProperties } from "react";
 import { PURGE_HINT, PURGE_LABEL, REMOVE_HINT, REMOVE_LABEL } from "./messages.js";
 import type { NodeView } from "./node-view.js";
-import { byLadder } from "./rarity-palette.js";
+import { byLadder, rarityColour } from "./rarity-palette.js";
 
 /**
  * The gestures a surface can offer about one boon.
@@ -82,7 +83,14 @@ export function BoonActionBar({
         <fieldset className="sheet__rarities">
           <legend>Mark as have, at</legend>
           {rarities.map((rarity) => (
-            <button key={rarity} type="button" onClick={() => mark?.(view.trait, rarity)}>
+            <button
+              key={rarity}
+              type="button"
+              // The colour it will paint, the same as the card's own menu: the
+              // word and its outline both, so a rarity reads as itself here too.
+              style={{ "--choice": rarityColour(rarity) } as CSSProperties}
+              onClick={() => mark?.(view.trait, rarity)}
+            >
               {rarity}
             </button>
           ))}
@@ -99,6 +107,7 @@ export function BoonActionBar({
               key={rarity}
               type="button"
               aria-pressed={view.rarity === rarity}
+              style={{ "--choice": rarityColour(rarity) } as CSSProperties}
               onClick={() => mark?.(view.trait, rarity)}
             >
               {rarity}
