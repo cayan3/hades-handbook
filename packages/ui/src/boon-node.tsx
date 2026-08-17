@@ -334,7 +334,12 @@ export function NodeBox({
       {!showElement || view.element === null ? null : (
         <ElementArt game={game} element={view.element} />
       )}
-      {pinned ? <MarkerGlyph /> : null}
+      {/* A pinned boon is a Goal, so this is the goal's banner. Fulfilled is
+          read off the node's own state — Available and Obtained are both "every
+          requirement met", which is what the game's green marker says. */}
+      {pinned ? (
+        <MarkerGlyph met={view.state === "Available" || view.state === "Obtained"} />
+      ) : null}
       {view.dormant ? <DormantGlyph /> : null}
     </span>
   );

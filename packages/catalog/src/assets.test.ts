@@ -263,8 +263,12 @@ describe("nameFor", () => {
  * choice, so what it answers is the whole of the decision.
  */
 describe("markerIconFor", () => {
-  it("prefers the game's own pin, and namespaces it like everything else", () => {
-    expect(markerIconFor("hades2")).toBe("official/hades2/Marker_ForgetMeNot");
+  it("gives met and unmet two pictures rather than one recoloured", () => {
+    // The game's own model: `_Complete` is a second sprite that turns the knot
+    // green and adds a star, so a caller asks for a state and never for a tint.
+    expect(markerIconFor("hades2", "goal")).toBe("official/hades2/Marker_Goal");
+    expect(markerIconFor("hades2", "goalMet")).toBe("official/hades2/Marker_GoalMet");
+    expect(markerIconFor("hades2", "goal")).not.toBe(markerIconFor("hades2", "goalMet"));
   });
 
   it("answers nothing in the game with no Forget-Me-Not", () => {
@@ -272,6 +276,8 @@ describe("markerIconFor", () => {
     // chrome and the empty slots follow: a broken-file mark in a card's corner
     // says the opposite of what a pin means. Hades I has no such resource, so
     // the drawn glyph is not a fallback there -- it is the answer.
-    expect(markerIconFor("hades1")).toBeNull();
+    for (const kind of ["goal", "goalMet"] as const) {
+      expect(markerIconFor("hades1", kind)).toBeNull();
+    }
   });
 });

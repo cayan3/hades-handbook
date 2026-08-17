@@ -186,9 +186,16 @@ def wanted(game, scope):
             if record.get("icon"):
                 keys.setdefault(record["icon"], []).append("talent:" + talent_id)
     if scope in ("all", "marker") and game == "hades2":
-        # The Forget-Me-Not pin. Hades II's alone -- the first game has no such
-        # resource and never will.
-        keys.setdefault("Marker_ForgetMeNot", []).append("marker")
+        # A goal's own banner, unmet and met. Hades II's alone -- the first game
+        # has no such resource and never will.
+        #
+        # The bare-hand pair the game draws for a thing that merely counts toward
+        # a tracked one is deliberately not here, though `resolve.py` knows where
+        # both are. Measured: one pinned goal names a median 7 boons against a
+        # god page's median 15, and the widest names 22 -- so marking them would
+        # put a pin on half of every page and say it in hue.
+        for kind in ("Goal", "GoalMet"):
+            keys.setdefault("Marker_" + kind, []).append("marker:" + kind)
     return keys
 
 

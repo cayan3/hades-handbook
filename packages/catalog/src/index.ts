@@ -39,7 +39,7 @@ export {
   talentNameFor,
   textFor,
 } from "./assets.js";
-export type { ChromePart } from "./assets.js";
+export type { ChromePart, MarkerKind } from "./assets.js";
 export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
 export { mirrorRowsFor, talentsFor } from "./talents.js";

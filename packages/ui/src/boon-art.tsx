@@ -1,6 +1,7 @@
 import {
   type ChromePart,
   type GameKey,
+  type MarkerKind,
   chromeFor,
   elementIconFor,
   godIconFor,
@@ -153,12 +154,14 @@ export function SlotArt({
  */
 export function MarkerArt({
   game,
+  kind,
   className = "node__marker",
 }: {
   readonly game: GameKey;
+  readonly kind: MarkerKind;
   readonly className?: string;
 }) {
-  const key = markerIconFor(game);
+  const key = markerIconFor(game, kind);
   const url = key === null ? null : artUrl(key);
   const [src, setSrc] = useState(url);
 

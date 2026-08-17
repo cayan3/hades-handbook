@@ -143,6 +143,20 @@ const CHROME: Readonly<Record<GameKey, Partial<Record<ChromePart, string>>>> = {
 };
 
 /**
+ * What a Forget-Me-Not pin says: a goal, and whether its requirements are met.
+ *
+ * A key rather than a boolean because the game draws the two states as two
+ * pictures — `_Complete` turns the knot green and adds a star — instead of
+ * recolouring one.
+ *
+ * The game has a second pair, the bare hand it draws for a thing that merely
+ * counts toward a tracked one. Not shipped: a pinned goal names a median of
+ * seven boons against a god page's median of fifteen, so marking them would put
+ * a pin on half of every page, in hue.
+ */
+export type MarkerKind = "goal" | "goalMet";
+
+/**
  * The Forget-Me-Not marker, and the second arm allowed to answer with nothing.
  *
  * **The game's own asset is the default and the drawn glyph is the fallback**,
@@ -151,22 +165,19 @@ const CHROME: Readonly<Record<GameKey, Partial<Record<ChromePart, string>>>> = {
  * this function rather than a component's choice. Answering `null` is that path
  * — one edit here and every marker is the glyph again.
  *
- * **Null today, because the art is not extracted.** The marker's own consumer —
- * a card that says whether a goal is finished — is newer than the extraction
- * pass that skipped it, and a key naming a file that is not there resolves to
- * the missing-art placeholder rather than to nothing. So this stays honest until
- * `ForgetMeNot`/`TrackedRecipes` land, and the component draws its glyph.
- *
  * Hades I has no such resource and never will: Forget-Me-Not is a Hades II
- * thing, so the game is a parameter with one answer today and a real one later.
+ * thing, so `null` there is the answer rather than a gap waiting on extraction.
  */
-export function markerIconFor(game: GameKey): string | null {
-  const key = MARKER_ICONS[game];
+export function markerIconFor(game: GameKey, kind: MarkerKind): string | null {
+  const key = MARKER_ICONS[game]?.[kind];
   return key === undefined ? null : `${ART_SET}/${game}/${key}`;
 }
 
-const MARKER_ICONS: Readonly<Partial<Record<GameKey, string>>> = {
-  hades2: "Marker_ForgetMeNot",
+const MARKER_ICONS: Readonly<Partial<Record<GameKey, Readonly<Record<MarkerKind, string>>>>> = {
+  hades2: {
+    goal: "Marker_Goal",
+    goalMet: "Marker_GoalMet",
+  },
 };
 
 /**

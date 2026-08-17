@@ -43,6 +43,11 @@
      the junction it was first matched to, which a corner mark can carry because
      it sits outside the icon rather than over it. */
   --element: calc(var(--node-size) * 0.42);
+  /* The pin is the game's own drawn banner and reads at the element's size for
+     the same reason: it is artwork rather than a two-tone glyph, and a fifth of
+     the node lost it. Matched to `--element` by intent, not by accident — the
+     two corners are the same kind of mark and a reader meets them together. */
+  --marker: calc(var(--node-size) * 0.42);
 
   /* The node takes the shape of the art it holds. Hades I draws its boons as
      diamonds and Hades II as rounded squares, so a single silhouette has to
@@ -243,16 +248,22 @@
  * collision this arrangement resolves. All three sit outside the clip path, or
  * the corners are exactly what gets clipped away.
  */
-.node__marker,
 .node__dormant {
   position: absolute;
   width: var(--corner);
   height: var(--corner);
 }
 
+/* `contain` because the pin is not square — the banner is 53x80 — and the box it
+   sits in is. Without it the art is stretched to the box, which the old pin was
+   and nobody saw because it was small. */
 .node__marker {
-  top: calc(var(--corner) * -0.22);
-  right: calc(var(--corner) * -0.22);
+  position: absolute;
+  top: calc(var(--marker) * -0.22);
+  right: calc(var(--marker) * -0.22);
+  width: var(--marker);
+  height: var(--marker);
+  object-fit: contain;
 }
 
 .node__dormant {
@@ -1348,14 +1359,19 @@
 }
 
 /*
- * The pin in the card's own corner, saying whether the goal is finished. Fill
- * before colour, as everywhere else here: hollow while it is not, filled when
- * it is, and green against purple second.
+ * The pin in the card's own corner, saying whether the goal's requirements are
+ * fulfilled. The game's own banner where there is one; the drawing behind it
+ * keeps fill before colour, hollow while it is not and filled when it is.
+ *
+ * Sized off the game's own goal row rather than chosen: measured there, the
+ * banner is 68px against a 122px row — 0.557 — and this card's head is the
+ * 4.5rem node, which puts it at 2.5rem. The ratio is the sprite's own 53x80, so
+ * the square box that stretched it is gone.
  */
 .goal__marker {
   display: block;
-  width: 1.1rem;
-  height: 1.1rem;
+  height: 2.5rem;
+  aspect-ratio: 53 / 80;
   color: #cbb0e8;
 }
 

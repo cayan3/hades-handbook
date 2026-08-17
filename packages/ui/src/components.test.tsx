@@ -420,8 +420,35 @@ describe("the marker's two forms", () => {
   it("renders nothing at all rather than a placeholder", () => {
     // The rule the panel chrome and the empty slots already follow: a
     // broken-file mark in a pin's corner says the opposite of what a pin means.
-    render(<MarkerArt game="hades1" />);
+    render(<MarkerArt game="hades1" kind="goal" />);
     expect(container.innerHTML).toBe("");
+  });
+
+  it("takes the game's own unfulfilled pin rather than falling back to the drawing", () => {
+    // The rule this replaces said the unfulfilled form stays drawn because the
+    // game draws no unfinished pin. It does: the purple banner is that pin, and
+    // the green one is the same banner once the requirements are met.
+    render(
+      <NodePresentation ladder="real-art" game="hades2">
+        <MarkerGlyph met={false} />
+      </NodePresentation>,
+    );
+
+    const img = container.querySelector("img.node__marker");
+    expect(img?.getAttribute("src")).toContain("Marker_Goal");
+    expect(img?.getAttribute("src")).not.toContain("Marker_GoalMet");
+  });
+
+  it("swaps to the met form rather than recolouring the unmet one", () => {
+    render(
+      <NodePresentation ladder="real-art" game="hades2">
+        <MarkerGlyph met />
+      </NodePresentation>,
+    );
+
+    expect(container.querySelector("img.node__marker")?.getAttribute("src")).toContain(
+      "Marker_GoalMet",
+    );
   });
 
   /**
@@ -445,12 +472,30 @@ describe("the marker's two forms", () => {
     expect(onOpen).not.toHaveBeenCalled();
   });
 
-  /** Hollow is a second fact, and the game draws no unfinished pin. */
-  it("keeps the drawing for the hollow form whatever the resolver says", () => {
-    render(<MarkerGlyph filled={false} />);
+  /**
+   * The fallback still has to carry both states, and one path cannot draw a
+   * knot — so where there is no asset the drawing says it with fill against
+   * outline, which is the channel it always used.
+   */
+  it("carries met and unmet in the drawing where a game has no asset", () => {
+    render(
+      <NodePresentation ladder="real-art" game="hades1">
+        <MarkerGlyph met={false} />
+      </NodePresentation>,
+    );
+    const hollow = container.querySelector("svg.node__marker path");
+    expect(hollow?.getAttribute("fill")).toBe("none");
+    expect(Number(hollow?.getAttribute("stroke-width"))).toBeGreaterThan(0);
 
-    const path = container.querySelector("svg.node__marker path");
-    expect(path?.getAttribute("fill")).toBe("none");
-    expect(Number(path?.getAttribute("stroke-width"))).toBeGreaterThan(0);
+    act(() =>
+      root.render(
+        <NodePresentation ladder="real-art" game="hades1">
+          <MarkerGlyph met />
+        </NodePresentation>,
+      ),
+    );
+    expect(container.querySelector("svg.node__marker path")?.getAttribute("fill")).toBe(
+      "currentColor",
+    );
   });
 });

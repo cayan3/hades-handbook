@@ -33,11 +33,25 @@ ELEMENT_SPRITE = "GUI\\Icons\\Element_%s"
 SLOT_KEY = re.compile(r"^SlotIcon_(\w+)$")
 SLOT_SPRITE = "GUI\\HUD\\PrimaryBoons\\SlotIcon_%s"
 
-# The Forget-Me-Not pin, which the game draws over a reward a tracked recipe
-# wants -- the same thing this product's pin says. Three sizes again, so the
-# largest for the same reason.
+# The Forget-Me-Not pin, in the game's own four combinations. Two presentations
+# and two states, both read out of the game's tables rather than guessed:
+# `UIData.StoreItemPin` draws the bare hand, the `StoreItemPin` animation draws
+# the banner form, and `_Complete` is each one once the pinned thing is met.
+#
+# All four are mapped and only the banner pair is asked for -- knowing where a
+# sprite is and choosing not to ship it are different things, and this is the
+# half worth keeping written down.
+#
+# Explicitly *not* `RoomReward\SubIcon_ForgetMeNot`, which is the same glyph
+# drawn at the angle a reward plinth is seen from -- right on a plinth and wrong
+# anywhere a flat interface draws it.
 MARKER_KEY = re.compile(r"^Marker_(\w+)$")
-MARKER_SPRITE = "GUI\\Icons\\RoomReward\\SubIcon_%s"
+MARKER_SPRITES = {
+    "Goal": "GUI\\Icons\\ReminderBanner",
+    "GoalMet": "GUI\\Icons\\ReminderBanner_Complete",
+    "Boon": "GUI\\Icons\\Reminder",
+    "BoonMet": "GUI\\Icons\\Reminder_Complete",
+}
 
 
 def animation_map(content_root):
@@ -94,7 +108,7 @@ class Resolver:
                 return found
         marker = MARKER_KEY.match(key)
         if marker:
-            found = self.biggest.get(MARKER_SPRITE % marker.group(1))
+            found = self.biggest.get(MARKER_SPRITES.get(marker.group(1), ""))
             if found:
                 return found
         # Duo art is named for the pairing and needs no indirection.

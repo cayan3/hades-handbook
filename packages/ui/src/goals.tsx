@@ -197,12 +197,13 @@ export function GoalCard({
           <p className="goal__summary">{goalProgress(goal).summary}</p>
         </div>
         <div className="goal__status">
-          {/* The pin, in the card's own corner, carrying whether the goal is
-              finished — filled and green when it is, outline and purple while
-              it is not. Hidden from a reader: the summary beside it says the
-              same thing in words, and hearing it twice is worse than once. */}
+          {/* The pin, in the card's own corner, carrying whether the goal's
+              requirements are fulfilled — the game's green banner when they are
+              and its purple one while they are not. Hidden from a reader: the
+              summary beside it says the same thing in words, and hearing it
+              twice is worse than once. */}
           <span className="goal__marker" data-met={done} aria-hidden="true">
-            <MarkerGlyph filled={done} />
+            <MarkerGlyph met={done} />
           </span>
           {of === 0 ? null : (
             <p className="goal__progress">

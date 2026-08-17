@@ -176,19 +176,28 @@ describe("the node stylesheet", () => {
   });
 
   it("scales every corner mark with the node rather than pinning it", () => {
-    // Two sizes, not one: the element symbol is drawn art saying which of five
-    // and reads at a junction's 1.1rem, where a pin only has to say that it is
-    // there. Both are shares of the node, which is what a fixed length loses.
-    const glyphs = CSS.match(/\.node__marker,\s*\.node__dormant\s*\{([^}]*)\}/);
-    expect(glyphs?.[1]).toMatch(/width:\s*var\(--corner\)/);
-    const element = CSS.match(/\.node__element\s*\{([^}]*)\}/);
-    expect(element?.[1]).toMatch(/width:\s*var\(--element\)/);
-    for (const body of [glyphs?.[1], element?.[1]]) {
+    // Three sizes, not one. The dormant ring only has to say it is there; the
+    // element symbol and the pin are both drawn art and read larger. All three
+    // are shares of the node, which is what a fixed length loses.
+    const bodies = {
+      "--corner": CSS.match(/\.node__dormant\s*\{([^}]*)\}/)?.[1],
+      "--marker": CSS.match(/\.node__marker\s*\{([^}]*)\}/)?.[1],
+      "--element": CSS.match(/\.node__element\s*\{([^}]*)\}/)?.[1],
+    };
+    for (const [token, body] of Object.entries(bodies)) {
+      expect(body).toMatch(new RegExp(`width:\\s*var\\(${token}\\)`));
       expect(body).not.toMatch(/width:\s*[\d.]+rem/);
-    }
-    for (const token of ["--corner", "--element"]) {
       expect(CSS).toMatch(new RegExp(`${token}:\\s*calc\\(var\\(--node-size\\)`));
     }
+  });
+
+  it("fits the pin's own shape rather than stretching it to a square box", () => {
+    // The banner is 53x80 and its box is square, so without this the game's art
+    // is distorted — which the pin that shipped before this was, unnoticed
+    // because it was a fifth of the node.
+    expect(CSS.match(/\.node__marker\s*\{([^}]*)\}/)?.[1]).toMatch(
+      /object-fit:\s*contain/,
+    );
   });
 
   /**
