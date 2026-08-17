@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { NodeKind, NodeView } from "./node-view.js";
 import {
+  byLadder,
   kindOutlineColour,
   kindWordColour,
   rarityColour,
@@ -24,6 +25,28 @@ describe("the rarity palette", () => {
     // Two of the game's own rarity colours are identical, which is why nothing
     // anywhere depends on telling two hues apart.
     expect(rarityColour("Duo")).toBe(rarityColour("Perfect"));
+  });
+
+  /**
+   * The records declare rarities alphabetically — every one of the 784 that
+   * declares any hands back `Common, Epic, Heroic, Rare` — so a list drawn in
+   * record order reads as a jumble rather than as the ladder it is.
+   */
+  it("puts a list of rarities in the ladder's order", () => {
+    expect(byLadder(["Common", "Epic", "Heroic", "Rare"])).toEqual([
+      "Common",
+      "Rare",
+      "Epic",
+      "Heroic",
+    ]);
+  });
+
+  it("leaves a rarity a patch adds at the end rather than dropping it", () => {
+    expect(byLadder(["Epic", "Mythic" as never, "Common"])).toEqual([
+      "Common",
+      "Epic",
+      "Mythic",
+    ]);
   });
 
   it("falls back to the ink for a rarity a patch adds", () => {

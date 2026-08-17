@@ -1,6 +1,7 @@
 import type { Rarity, TraitId } from "@repo/core";
 import { PURGE_HINT, PURGE_LABEL, REMOVE_HINT, REMOVE_LABEL } from "./messages.js";
 import type { NodeView } from "./node-view.js";
+import { byLadder } from "./rarity-palette.js";
 
 /**
  * The gestures a surface can offer about one boon.
@@ -61,6 +62,10 @@ export function BoonActionBar({
   readonly actions: BoonActions;
 }) {
   const { mark, remove, purge, pin, unpin } = actions;
+  // The ladder rather than the record's own order, which is alphabetical. The
+  // order is a fact about rarities, so it is the same list the card's menu
+  // draws; the colour on each choice is that menu's own.
+  const rarities = byLadder(view.rarities);
   const marking = !held && mark !== undefined;
   const rerarity = held && mark !== undefined && view.rarities.length > 0;
   const removing = held && (remove !== undefined || purge !== undefined);
@@ -76,7 +81,7 @@ export function BoonActionBar({
       ) : (
         <fieldset className="sheet__rarities">
           <legend>Mark as have, at</legend>
-          {view.rarities.map((rarity) => (
+          {rarities.map((rarity) => (
             <button key={rarity} type="button" onClick={() => mark?.(view.trait, rarity)}>
               {rarity}
             </button>
@@ -89,7 +94,7 @@ export function BoonActionBar({
           {/* The mark itself could not ask, being one tap. This is the answer
               arriving late rather than a question nobody was asked. */}
           <legend>Taken at</legend>
-          {view.rarities.map((rarity) => (
+          {rarities.map((rarity) => (
             <button
               key={rarity}
               type="button"

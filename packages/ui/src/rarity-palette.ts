@@ -37,6 +37,32 @@ export function rarityColour(rarity: Rarity): string {
 }
 
 /**
+ * The ladder, for a surface that offers rarities to pick from.
+ *
+ * The extracted records declare them **alphabetically** — all 784 that declare
+ * any hand back `Common, Epic, Heroic, Rare` — so a list in record order reads
+ * as a jumble. Anything not named here keeps its place at the end.
+ */
+const RARITY_LADDER: readonly Rarity[] = [
+  "Common",
+  "Rare",
+  "Epic",
+  "Heroic",
+  "Legendary",
+  "Duo",
+  "Elemental",
+  "Perfect",
+];
+
+export function byLadder(rarities: readonly Rarity[]): readonly Rarity[] {
+  const rank = (rarity: Rarity) => {
+    const at = RARITY_LADDER.indexOf(rarity);
+    return at === -1 ? RARITY_LADDER.length : at;
+  };
+  return [...rarities].sort((a, b) => rank(a) - rank(b));
+}
+
+/**
  * The word a surface shows about a boon, and the colour to draw it in.
  *
  * One function because it is one rule: a boon with a **kind** shows that kind's
