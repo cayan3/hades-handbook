@@ -2592,8 +2592,7 @@ kbd {
 .loadout__cardclose,
 .cardmenu__open,
 .cardmenu__list button,
-.godpicker__open,
-.hub__god {
+.godpicker__open {
   color: var(--choice, inherit);
   opacity: var(--control-rest, 0.72);
   transition: opacity 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
@@ -2614,9 +2613,7 @@ kbd {
 .cardmenu__list button:hover,
 .cardmenu__list button:focus-visible,
 .godpicker__open:hover,
-.godpicker__open:focus-visible,
-.hub__god:hover,
-.hub__god:focus-visible {
+.godpicker__open:focus-visible {
   opacity: 1;
   box-shadow: 0 0 var(--control-glow, 0.45rem)
     color-mix(in srgb, var(--choice, currentColor) 45%, transparent);
