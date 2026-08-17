@@ -324,17 +324,15 @@ function Run({
   );
 
   /**
-   * The first god is always here, so the bar is never empty on a run that has
-   * met nobody — and so that the tab a player starts on does not vanish the
-   * moment they look at a second god, which is what happens if the only reason
-   * it was there was that it was selected.
+   * The gods this run has met plus the ones the player added, and nothing else.
+   *
+   * The first god used to be here unconditionally so the bar could not empty,
+   * and the Hub retires that: it is always the first tab, so a run that has met
+   * nobody shows the Hub alone rather than an arbitrary god who cannot be taken
+   * down and is replaced by somebody else on the first mark.
    */
-  const offered = tabs.filter(
-    (name) => facts.godPool.has(name) || curated.added.has(name) || name === tabs[0],
-  );
-  const kept = offered.filter((name) => !curated.removed.has(name));
-  // Never empty: a bar with no tabs has nothing to select and no way back.
-  const shownTabs = kept.length > 0 ? kept : offered.slice(0, 1);
+  const offered = tabs.filter((name) => facts.godPool.has(name) || curated.added.has(name));
+  const shownTabs = offered.filter((name) => !curated.removed.has(name));
   const unshown = tabs.filter((name) => !shownTabs.includes(name));
 
   /**
@@ -819,6 +817,10 @@ function Run({
                   setFault(cause instanceof Error ? cause : new Error(String(cause)));
                 });
               }
+              // The bar goes with the run: a god added to plan with belongs to
+              // the run they were added for, and the pool half empties itself.
+              onCurated(NO_TABS);
+              setSelected(HUB);
               onChosen();
             }}
             onLeave={() => {

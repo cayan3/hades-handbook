@@ -1136,11 +1136,13 @@ describe("what the boon list shows", () => {
     const shown = () => texts(".app__gods button");
     expect(shown()).not.toContain("Ares");
 
-    // Added for planning, without having met them — and the tab that was
-    // showing before does not vanish behind it.
+    // Added for planning, without having met them. The tab that was showing
+    // before is the Hub, which is always there — a run that has met nobody
+    // carries no god at all now that the Hub holds the bar open.
+    expect(shown()).toEqual(["Hub", "+Add a god"]);
     showGod("Ares");
     expect(shown()).toContain("Ares");
-    expect(shown()).toContain("Aphrodite");
+    expect(shown()).not.toContain("Aphrodite");
 
     tap(APHRODITE_MELEE);
     expect(
@@ -1222,13 +1224,21 @@ describe("what the boon list shows", () => {
     expect(texts(".godpicker__god")).toContain("Aphrodite");
   });
 
-  /** A bar with no tabs has nothing to select and no way back. */
-  it("never empties the bar", async () => {
+  /**
+   * Every god tab can come down now, because the Hub is what holds the bar open
+   * — it used to be the first god, who could not be removed and was swapped for
+   * somebody else the moment a run met anyone.
+   */
+  it("lets every god tab come down, leaving the Hub", async () => {
     await mount();
+    showGod("Ares");
+    showGod("Athena");
+
     for (const drop of [...container.querySelectorAll<HTMLElement>(".app__goddrop")]) {
       act(() => drop.click());
     }
-    expect(container.querySelectorAll(".app__godtab").length).toBeGreaterThan(0);
+    expect(texts(".app__godtab").map((t) => t.trim())).toEqual(["Hub"]);
+    expect(container.querySelector(".app__goddrop")).toBeNull();
   });
 
   /**
@@ -1627,20 +1637,25 @@ describe("the site header", () => {
   it("draws a mark per game, with the one being read marked as current", async () => {
     await mount();
 
+    // The game being read comes first, so the mark that says "you're here" is
+    // the one against the title.
     expect(marks()).toEqual([
-      {
-        game: "hades1",
-        current: false,
-        label: "Switch to Hades",
-        href: GAME_HASH.hades1,
-      },
       {
         game: "hades2",
         current: true,
         label: "Hades II — you are here",
         href: GAME_HASH.hades2,
       },
+      {
+        game: "hades1",
+        current: false,
+        label: "Switch to Hades",
+        href: GAME_HASH.hades1,
+      },
     ]);
+
+    await follow(GAME_HASH.hades1);
+    expect(marks().map((m) => m.game)).toEqual(["hades1", "hades2"]);
   });
 
   /**
@@ -1650,8 +1665,8 @@ describe("the site header", () => {
    */
   it("keeps the second half of a mark in the document", async () => {
     await mount();
-    const texts = [...container.querySelectorAll(".app__markmore")].map((el) => el.textContent);
-    expect(texts).toEqual(["|Switch to Hades", "|You're here!"]);
+    const said = [...container.querySelectorAll(".app__markmore")].map((el) => el.textContent);
+    expect(said).toEqual(["|You're here!", "|Switch to Hades"]);
   });
 
   it("says which game the header is in, so the name can take its colour", async () => {
@@ -1681,6 +1696,8 @@ describe("the site header", () => {
       GAME_HASH.hades1,
       GAME_HASH.hades2,
     ]);
+    // The games' own names, which is what every other surface calls them.
+    expect(games.map((a) => a.textContent?.trim())).toEqual(["Hades", "Hades II"]);
   });
 
   /** Help is the one control on both, which is what being game-agnostic means. */
@@ -1817,6 +1834,40 @@ describe("a run that will not open", () => {
     expect(container.querySelector(".app__head")).not.toBeNull();
     expect(container.querySelector<HTMLAnchorElement>(".app__name")?.getAttribute("href")).toBe(
       "#/",
+    );
+  });
+});
+
+/**
+ * The bar on a run that has met nobody. It carried an arbitrary first god for as
+ * long as "never empty" was derived rather than structural; the Hub is what
+ * makes it structural, and this is that promise finally kept.
+ */
+describe("an empty bar", () => {
+  const bar = () => texts(".app__godtab").map((t) => t.trim());
+
+  it("shows the Hub alone before a run has met anyone", async () => {
+    await mount();
+    expect(bar()).toEqual(["Hub"]);
+  });
+
+  it("shows the Hub alone again when a new run is started", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    // A god added to plan with as well, since that half is the player's rather
+    // than the run's and would otherwise outlive the run it was added for.
+    showGod("Athena");
+    expect(bar()).toEqual(["Hub", "Aphrodite", "Athena"]);
+
+    await follow("#/");
+    await follow(GAME_HASH.hades2);
+    await act(async () => {
+      [...container.querySelectorAll<HTMLElement>(".saves__take")][1]?.click();
+    });
+
+    expect(bar()).toEqual(["Hub"]);
+    expect(container.querySelector('.app__godtab[aria-current="page"]')?.textContent?.trim()).toBe(
+      "Hub",
     );
   });
 });

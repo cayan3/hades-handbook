@@ -50,8 +50,11 @@ export function SiteHeader({
         </h1>
 
         {game === null ? null : (
+          /* The game being read comes first, so the mark that opens onto "you're
+             here" is the one against the title and the other reads as the way
+             out of it. */
           <nav className="app__games" aria-label="Game">
-            {(["hades1", "hades2"] as const).map((id) => (
+            {([game, game === "hades1" ? "hades2" : "hades1"] as const).map((id) => (
               <GameMark key={id} game={id} current={id === game} />
             ))}
           </nav>
@@ -120,8 +123,10 @@ function OpenHandbook() {
       <span className="app__opentext">Open the Handbook</span>
       <span className="app__openmore">
         <span aria-hidden="true">→</span>
+        {/* The games' own names, which is what every other surface calls them —
+            "Hades I" is nobody's name for the first one. */}
         <a className="app__opengame" data-game="hades1" href={GAME_HASH.hades1}>
-          Hades I
+          Hades
         </a>
         <span aria-hidden="true">|</span>
         <a className="app__opengame" data-game="hades2" href={GAME_HASH.hades2}>
