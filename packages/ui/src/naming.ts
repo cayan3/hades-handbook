@@ -1,4 +1,4 @@
-import { type GameKey, keepsakeNameFor, nameFor } from "@repo/catalog";
+import { type GameKey, keepsakeNameFor, nameFor, talentNameFor } from "@repo/catalog";
 import type { AspectId, GodId, KeepsakeId, TalentId, TraitId } from "@repo/core";
 
 /**
@@ -31,15 +31,15 @@ export interface Naming {
  * A weapon form is an ordinary trait record in both games, so an aspect goes
  * through the trait resolver — `ShieldLoadAmmoTrait` is Aspect of Beowulf,
  * `AxeRecoveryAspect` is Aspect of Melinoë. Gods are already the word a player
- * uses. Talents are the one id with nothing behind it: the extractor emits no
- * talent records.
+ * uses. A talent has a record of its own now, and a resolver to match, the
+ * Mirror's names living in a file the extractor did not used to read.
  */
 export function catalogNaming(game: GameKey): Naming {
   return {
     trait: (id) => nameFor(game, id),
     god: (id) => id,
     keepsake: (id) => keepsakeNameFor(game, id),
-    talent: (id) => id,
+    talent: (id) => talentNameFor(game, id),
     aspect: (id) => nameFor(game, id),
     slot: (id) => SLOTS[game][id] ?? null,
   };

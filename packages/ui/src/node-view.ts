@@ -416,7 +416,7 @@ export function deriveNodeDetail(
   const needed = status.kind === "pending" ? neededLines(status.residual, naming) : [];
 
   return {
-    description: record?.descriptionRef == null ? null : textFor(record.descriptionRef),
+    description: record?.descriptionRef == null ? null : textFor(source.game, record.descriptionRef),
     needed,
     rows: requirementRows(source, prereq, facts, status.kind === "unsatisfiable"),
     activation:

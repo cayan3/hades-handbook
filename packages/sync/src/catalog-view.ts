@@ -1,4 +1,4 @@
-import { type TraitRecord, dataFor, traitsFor } from "@repo/catalog";
+import { type TraitRecord, dataFor, mirrorRowsFor, traitsFor } from "@repo/catalog";
 import type { GameId, GodId, KeepsakeId, Requirement, SlotId, TalentId, TraitId } from "@repo/core";
 
 /**
@@ -60,10 +60,8 @@ export interface SyncCatalog {
   talents: ReadonlySet<TalentId>;
 
   /**
-   * The Mirror rows a source asks about, one three-way question each.
-   *
-   * Empty for both shipped games today (see `shippedCatalog` for why, and for
-   * what has to change upstream before it stops being empty).
+   * The Mirror rows a source asks about, one three-way question each. Twelve in
+   * Hades I, none in Hades II.
    */
   mirrorRows: readonly MirrorRow[];
 }
@@ -159,24 +157,17 @@ function build(game: GameId): SyncCatalog {
   }
 
   /**
-   * No rows; this is a gap instead of a game fact.
+   * The rows the game itself states, in its own order. Twelve in Hades I and
+   * none in Hades II, which replaces the Mirror with Arcana.
    *
-   * Hades I really does have three rows, and a source is supposed to read
-   * the pairs from here so that a fourth row is a data change instead of a UI
-   * change. The extraction doesn't emit them bc a talent has no record and the
-   * pairing (i.e. which two members/mirror talents are opposites) isn't
-   * anywhere that the extractor reads rn. Writing the three rows out by hand
-   * here is what the overlay check exists to catch, and one of the six ids
-   * involved gates nothing at all, so nothing downstream would ever even notice
-   * it going stale :persevere: :persevere:.
-   *
-   * The consequence while this is empty is that a manual source doesn't ask
-   * any questions abt the Mirror, every talent stays uncollected, and a
-   * talent-gated Hades I trait reads as "nobody asked" lol instead of as
-   * impossible. This is the safe direction of the two, which is why this ships
-   * as empty instead of guessed.
+   * All twelve rather than the three that gate something: a player answering
+   * the Mirror answers the whole Mirror, and a member left out of `talents`
+   * below would have its answer quarantined on the next reload. Which rows a
+   * surface is worth showing is that surface's question.
    */
-  const mirrorRows: readonly MirrorRow[] = [];
+  const mirrorRows: readonly MirrorRow[] = Object.entries(mirrorRowsFor(game))
+    .map(([id, row]) => ({ id, members: [row.members[0], row.members[1]] as [TalentId, TalentId] }))
+    .filter((row) => row.members.every((member) => member !== undefined));
   for (const row of mirrorRows) for (const member of row.members) talents.add(member);
 
   return {

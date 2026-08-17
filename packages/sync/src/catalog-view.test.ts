@@ -249,33 +249,43 @@ describe("the identifier sets a stored run is checked against", () => {
   });
 
   /**
-   * Hades I's five gating talents, recovered from the gates that read them
-   * bc a talent has no record of its own anywhere in the extraction.
-   * Hades II doesn't have any bc its Arcana gates nothing, so no requirement
-   * mentions it.
+   * Both halves of the union, and the union is why this is 24 rather than the
+   * five the gates name. A row member that gates nothing appears in no
+   * requirement, and quarantining it on reload would throw away an answer the
+   * player gave.
    */
-  it("recovers the Mirror talents from the gates that read them", () => {
-    expect([...shippedCatalog("hades1").talents].sort()).toEqual([
+  it("holds every talent a gate names and every talent a row offers", () => {
+    const talents = shippedCatalog("hades1").talents;
+    expect(talents.size).toBe(24);
+    for (const gating of [
       "AmmoMetaUpgrade",
       "BackstabMetaUpgrade",
       "ExtraChanceReplenishMetaUpgrade",
       "FirstStrikeMetaUpgrade",
       "ReloadAmmoMetaUpgrade",
-    ]);
+    ]) {
+      expect(talents.has(gating)).toBe(true);
+    }
+    // Gates nothing; reachable only through the row it sits in.
+    expect(talents.has("ExtraChanceMetaUpgrade")).toBe(true);
     expect(shippedCatalog("hades2").talents.size).toBe(0);
   });
 
   /**
-   * Pinned because it's a gap and not an actual game fact. Hades I has three
-   * Mirror rows and the extraction emits none of them, so a manual source
-   * doesn't ask any questions abt the Mirror so every talent stays "uncollected"
-   * (which is the safe direction of the two bc it would read as "nobody asked"
-   * instead of just impossible). This assertion is what turns emitting them
-   * into a deliberate change: when the rows arrive, it fails, and whoever fixes
-   * it has to look at the surface that consumes them.
+   * Twelve, which is what the game's own table states, not the three that gate
+   * anything the Handbook models. A row is keyed by its first member: the table
+   * gives its rows no names, and inventing twelve would be inventing eleven
+   * nothing has ever needed to say.
    */
-  it("has no Mirror rows to ask about, in either game", () => {
-    expect(shippedCatalog("hades1").mirrorRows).toEqual([]);
+  it("asks about every Mirror row the game has, in the game's own pairs", () => {
+    const rows = shippedCatalog("hades1").mirrorRows;
+    expect(rows.length).toBe(12);
+    for (const row of rows) expect(row.members.length).toBe(2);
+    expect(rows.find((row) => row.id === "AmmoMetaUpgrade")?.members).toEqual([
+      "AmmoMetaUpgrade",
+      "ReloadAmmoMetaUpgrade",
+    ]);
+    // Hades II replaces the Mirror with Arcana and gates no boon on one.
     expect(shippedCatalog("hades2").mirrorRows).toEqual([]);
   });
 });

@@ -1,7 +1,8 @@
-import type { Element, GodId, KeepsakeId, SlotId, TraitId } from "@repo/core";
+import type { Element, GodId, KeepsakeId, SlotId, TalentId, TraitId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
 import { keepsakesFor } from "./keepsakes.js";
 import type { GodRecord, TraitRecord } from "./schema.js";
+import { talentsFor } from "./talents.js";
 import { traitsFor } from "./traits.js";
 
 /**
@@ -93,6 +94,16 @@ function godIconKey(game: GameKey, god: GodId): string | null {
   const key = (dataFor(game).gods as Record<string, GodRecord>)[god]?.iconKey;
   if (key !== undefined && key !== null && key !== "") return key;
   return EXTRA_SYMBOLS[game].includes(god) ? `BoonSymbol${god}` : null;
+}
+
+/**
+ * A Mirror talent's own symbol. Its own function because a talent is its own id
+ * space, which is the rule every arm here follows.
+ */
+export function talentIconFor(game: GameKey, talent: TalentId): string {
+  const key = talentsFor(game)[talent]?.icon;
+  if (key === undefined || key === null) return `${ART_SET}/_missing`;
+  return `${ART_SET}/${game}/${key}`;
 }
 
 /**
@@ -190,18 +201,18 @@ const SLOT_ICONS: Readonly<Record<GameKey, Readonly<Record<string, string>>>> = 
 /**
  * Codex text for a description key.
  *
- * Bundle isn't actually shipped yet (descriptions are official/used in-game,
- * so were held back until this fn existed to give it a way out (one could even
- * say that without this fn, "there is no escape" haha get it :smile: :smile?).
- * Right now, this resolves against nothing and just returns the key itself
- * (which is stable, clearly not actual prose lol, and yk safe to render yay).
+ * The bundle it was waiting for ships now, and returning `ref` again is what a
+ * withdrawal is: one function body, no call site moved, which is the whole
+ * reason this was written as a passthrough rather than left out.
  *
- * Callers must go through this even while it's a passthrough. If a component
- * just reads a description off a record instead, the single edit that would
- * withdraw the text stops actually being "single" (:pensive: :pensive:).
+ * It takes the game, which the passthrough did not need. Five refs are named by
+ * a record in both games and all five carry different prose — the two
+ * Temporary* families read as Hades I passives and Hades II blessings — so a
+ * flat bundle would hand one game the other's sentence.
  */
-export function textFor(ref: string): string {
-  return ref;
+export function textFor(game: GameKey, ref: string): string | null {
+  const bundle = dataFor(game).descriptions as Record<string, string>;
+  return bundle[ref] ?? null;
 }
 
 /**
@@ -225,6 +236,11 @@ export function nameFor(game: GameKey, traitId: TraitId): string {
 
 export function keepsakeNameFor(game: GameKey, keepsake: KeepsakeId): string {
   return orId(keepsakesFor(game)[keepsake]?.name, keepsake);
+}
+
+/** A Mirror talent's name — a third id space, so a third function. */
+export function talentNameFor(game: GameKey, talent: TalentId): string {
+  return orId(talentsFor(game)[talent]?.name, talent);
 }
 
 function orId(name: string | null | undefined, id: string): string {

@@ -35,16 +35,21 @@ export {
   nameFor,
   slotIconFor,
   markerIconFor,
+  talentIconFor,
+  talentNameFor,
   textFor,
 } from "./assets.js";
 export type { ChromePart } from "./assets.js";
 export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
+export { mirrorRowsFor, talentsFor } from "./talents.js";
 export { refusedTraits, traitsFor } from "./traits.js";
 export type {
   BuildFailure,
   GodRecord,
   KeepsakeRecord,
+  MirrorRowRecord,
   SetRecord,
+  TalentRecord,
   TraitRecord,
 } from "./schema.js";

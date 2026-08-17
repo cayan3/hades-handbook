@@ -1,4 +1,4 @@
-import { type TraitRecord, traitsFor } from "@repo/catalog";
+import { type TraitRecord, textFor, traitsFor } from "@repo/catalog";
 import type { Requirement, TraitId } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import { POOL_FULL_BODY } from "./describe.js";
@@ -237,7 +237,12 @@ describe("deriveNodeDetail", () => {
     const facts = h1Facts(null);
     const view = deriveNodeView(source, LIGHTNING_ROD, facts);
     const detail = deriveNodeDetail(source, view, facts);
-    expect(detail.description).toBe(H1[LIGHTNING_ROD]?.descriptionRef);
+    // Prose now rather than the ref, which is what a card had been drawing.
+    // The ref is what the resolver is asked with, so seeing it come back out
+    // would mean the bundle stopped answering.
+    expect(detail.description).toBe(textFor("hades1", H1[LIGHTNING_ROD]?.descriptionRef ?? ""));
+    expect(detail.description).not.toBe(H1[LIGHTNING_ROD]?.descriptionRef);
+    expect(detail.description).toMatch(/lightning/i);
   });
 });
 

@@ -9,10 +9,13 @@ import {
   markerIconFor,
   nameFor,
   slotIconFor,
+  talentIconFor,
+  talentNameFor,
   textFor,
 } from "./assets.js";
-import type { GameKey } from "./data.js";
+import { type GameKey, dataFor } from "./data.js";
 import { keepsakesFor } from "./keepsakes.js";
+import { talentsFor } from "./talents.js";
 import { traitsFor } from "./traits.js";
 
 /**
@@ -145,13 +148,74 @@ describe("slotIconFor", () => {
 });
 
 describe("textFor", () => {
-  it("is a passthrough today and is still the only way in", () => {
-    // The Codex bundle is deliberately not shipped yet -- it is the most
-    // exposed text in the project and was held back until something existed to
-    // withdraw it. Callers go through this while it is an identity function,
-    // because the moment one reads a description off a record instead, the
-    // single edit stops being single.
-    expect(textFor("SomeDescriptionRef")).toBe("SomeDescriptionRef");
+  it("gives the game's own sentence rather than the key", () => {
+    expect(textFor("hades2", "AphroditeWeaponBoon")).toBe(
+      "Your Attacks deal more damage to nearby foes.",
+    );
+    expect(textFor("hades1", "AphroditeWeaponTrait")).toBe(
+      "Your Attack deals more damage and inflicts Weak.",
+    );
+  });
+
+  it("answers nothing for a ref the bundle has no prose for", () => {
+    // Two refs in Hades I and thirty-three in Hades II name an entry with no
+    // description at all. Returning the id was the defect this closes, so the
+    // absence has to be an absence.
+    expect(textFor("hades1", "HadesShoutTrait")).toBeNull();
+    expect(textFor("hades2", "NotARealRef")).toBeNull();
+  });
+
+  it("answers per game, because five refs mean different things in each", () => {
+    // Both games have a record naming `TemporaryBoonRarityTrait`, and the two
+    // sentences are not the same sentence. A flat bundle would hand one game
+    // the other's prose with nothing to notice it.
+    const h1 = textFor("hades1", "TemporaryBoonRarityTrait");
+    const h2 = textFor("hades2", "TemporaryBoonRarityTrait");
+    expect(h1).not.toBeNull();
+    expect(h2).not.toBeNull();
+    expect(h1).not.toBe(h2);
+  });
+
+  it("carries no markup through to a caller", () => {
+    // The games write descriptions as display markup and this renders text, so
+    // a surviving brace is a construction the extractor did not resolve.
+    for (const game of ["hades1", "hades2"] as const) {
+      const bundle = dataFor(game).descriptions as Record<string, string>;
+      const withMarkup = Object.entries(bundle).filter(([, text]) => /[{}]/.test(text));
+      expect(withMarkup).toEqual([]);
+    }
+  });
+});
+
+describe("talentNameFor", () => {
+  it("names both sides of every Mirror row", () => {
+    // The gap this closes was a gate rendering "the AmmoMetaUpgrade Mirror
+    // talent" on a Goal Card. Both sides, because the B-side names are the ones
+    // the text bundle annotates with a trailing comment and the parser dropped.
+    expect(talentNameFor("hades1", "AmmoMetaUpgrade")).toBe("Infernal Soul");
+    expect(talentNameFor("hades1", "ReloadAmmoMetaUpgrade")).toBe("Stygian Soul");
+    expect(talentNameFor("hades1", "FirstStrikeMetaUpgrade")).toBe("Fiery Presence");
+    for (const talent of Object.keys(talentsFor("hades1"))) {
+      expect(talentNameFor("hades1", talent)).not.toBe(talent);
+    }
+  });
+
+  it("falls back to the id, like every other name resolver", () => {
+    expect(talentNameFor("hades2", "AmmoMetaUpgrade")).toBe("AmmoMetaUpgrade");
+  });
+});
+
+describe("talentIconFor", () => {
+  it("resolves under the game like everything else here", () => {
+    expect(talentIconFor("hades1", "AmmoMetaUpgrade")).toBe(
+      "official/hades1/MirrorIcon_AmmoSupply",
+    );
+  });
+
+  it("lands on the placeholder where there is no talent", () => {
+    // The ordinary rule rather than chrome's: nothing here is designed to work
+    // without a picture, so an absence is a hole.
+    expect(talentIconFor("hades2", "AmmoMetaUpgrade")).toBe("official/_missing");
   });
 });
 

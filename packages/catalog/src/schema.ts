@@ -7,6 +7,7 @@ import type {
   Requirement,
   SetId,
   SlotId,
+  TalentId,
   TraitId,
 } from "@repo/core";
 
@@ -237,6 +238,29 @@ export interface KeepsakeRecord {
 export interface SetRecord {
   id: SetId;
   members: readonly TraitId[];
+  source?: string;
+}
+
+/**
+ * A Mirror of Night talent. The one identifier in the model with no trait
+ * record until now: the ids occur inside the gates that read them and the game
+ * states them in a file of its own, which is where these come from.
+ */
+export interface TalentRecord {
+  id: TalentId;
+  name: string | null;
+  /** Only an asset key. Resolved by the icon resolver like every other. */
+  icon: string | null;
+  source: string | null;
+}
+
+/**
+ * One mutually exclusive pair at the Mirror, keyed by its first member. The
+ * game's own table gives its rows no name, and inventing twelve would be
+ * inventing eleven the product has never had a reason to say.
+ */
+export interface MirrorRowRecord {
+  members: readonly TalentId[];
   source?: string;
 }
 
