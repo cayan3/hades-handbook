@@ -56,17 +56,27 @@ ELEMENTS = ("Aether", "Air", "Earth", "Fire", "Water")
 # no glyph in either tray.
 SLOT_ICONS = ("Attack", "Secondary", "Ranged", "Dash", "Wrath")
 
-# The Loadout's tray, and the one part of the set assembled rather than cropped.
-# Hades II ships the panel as one sprite; Hades I's own menu composites three
-# side by side, and a nine-slice needs both corners and the tileable middle in
-# one file. `_NoHeader` because this product draws its own heading.
-CHROME_PANEL = {
-    "hades1": (
-        "GUI\\Screens\\TraitTray",
-        "GUI\\Screens\\TraitTray_Center",
-        "GUI\\Screens\\TraitTray_Right",
-    ),
-    "hades2": ("GUI\\HUD\\TraitTrayBacking_NoHeader",),
+# The parts of the games' own interface this product borrows, each named for
+# what it is rather than for the sprite it came from, and each laid left to right
+# from however many pieces the game ships. The Loadout's tray is the one part
+# assembled rather than cropped: Hades II ships it as one sprite, Hades I's own
+# menu composites three side by side, and a nine-slice needs both corners and the
+# tileable middle in one file. `_NoHeader` because this product draws its own
+# heading. The save slot is one sprite in both, taller than it is wide, which is
+# the shape the save screen already draws.
+CHROME_PARTS = {
+    "hades1": {
+        "Chrome_Panel": (
+            "GUI\\Screens\\TraitTray",
+            "GUI\\Screens\\TraitTray_Center",
+            "GUI\\Screens\\TraitTray_Right",
+        ),
+        "Chrome_SaveSlot": ("GUI\\Screens\\SaveProfileSlot",),
+    },
+    "hades2": {
+        "Chrome_Panel": ("GUI\\HUD\\TraitTrayBacking_NoHeader",),
+        "Chrome_SaveSlot": ("GUI\\Screens\\SaveProfileSlot",),
+    },
 }
 
 # Visually indistinguishable from lossless on this art at a third of the size,
@@ -168,6 +178,17 @@ def wanted(game, scope):
     if scope in ("all", "slots"):
         for name in SLOT_ICONS:
             keys.setdefault("SlotIcon_" + name, []).append("slot:" + name)
+    if scope in ("all", "talents"):
+        # Hades I only, and asked for by the key the Mirror's own records carry.
+        # Twenty-four of them: the twelve rows the game presents, both sides.
+        talents = json.load(open(os.path.join(CATALOG, game, "talents.json")))
+        for talent_id, record in talents.items():
+            if record.get("icon"):
+                keys.setdefault(record["icon"], []).append("talent:" + talent_id)
+    if scope in ("all", "marker") and game == "hades2":
+        # The Forget-Me-Not pin. Hades II's alone -- the first game has no such
+        # resource and never will.
+        keys.setdefault("Marker_ForgetMeNot", []).append("marker")
     return keys
 
 
@@ -195,8 +216,8 @@ def cropped(sprite, pages, decoded, np, texture2ddecoder):
     return image[sprite["y"] : sprite["y"] + sprite["h"], sprite["x"] : sprite["x"] + sprite["w"]]
 
 
-def panel(game, sprites, pages, decoded, np, texture2ddecoder):
-    """The tray, left to right, from however many pieces the game ships it in.
+def chrome(game, part, sprites, pages, decoded, np, texture2ddecoder):
+    """One chrome part, left to right, from however many pieces the game ships.
 
     The pieces are the same height by construction -- the game lays them in one
     row -- so a mismatch means the wrong sprite was picked and is worth failing
@@ -204,7 +225,7 @@ def panel(game, sprites, pages, decoded, np, texture2ddecoder):
     """
     by_name = {s["name"]: s for s in sprites}
     parts = []
-    for path in CHROME_PANEL[game]:
+    for path in CHROME_PARTS[game][part]:
         sprite = by_name.get(path)
         if sprite is None:
             print("    no sprite named %s" % path)
@@ -216,14 +237,14 @@ def panel(game, sprites, pages, decoded, np, texture2ddecoder):
     heights = {p.shape[0] for p in parts}
     if len(heights) != 1:
         raise ValueError("panel pieces disagree on height: %s" % sorted(heights))
-    tray = np.hstack(parts)
+    assembled = np.hstack(parts)
 
-    # Trimmed to the solid panel, which drops 62 transparent-to-soft rows above
+    # Trimmed to the solid part, which drops 62 transparent-to-soft rows above
     # the Hades II tray and nothing at all from Hades I's. That bloom is lighting
     # the game draws over the panel and it is only above part of the top edge, so
     # a nine-slice band containing it would smear it along the whole width.
-    ys, xs = np.where(tray[:, :, 3] > 200)
-    return tray[ys.min() : ys.max() + 1, xs.min() : xs.max() + 1]
+    ys, xs = np.where(assembled[:, :, 3] > 200)
+    return assembled[ys.min() : ys.max() + 1, xs.min() : xs.max() + 1]
 
 
 def main():
@@ -231,7 +252,10 @@ def main():
     ap.add_argument("--game", choices=sorted(GAMES), required=True)
     ap.add_argument(
         "--scope",
-        choices=("all", "boons", "gods", "keepsakes", "elements", "slots", "chrome"),
+        choices=(
+            "all", "boons", "gods", "keepsakes", "elements", "slots", "chrome",
+            "talents", "marker",
+        ),
         default="all",
     )
     ap.add_argument("--dry-run", action="store_true")
@@ -290,11 +314,12 @@ def main():
         total_bytes += emit(key, crop)
 
     if args.scope in ("all", "chrome"):
-        tray = panel(args.game, sprites, pages, decoded, np, texture2ddecoder)
-        if tray is not None:
-            written += 1
-            total_bytes += emit("Chrome_Panel", tray)
-            print("  assembled Chrome_Panel at %dx%d" % (tray.shape[1], tray.shape[0]))
+        for part in sorted(CHROME_PARTS[args.game]):
+            piece = chrome(args.game, part, sprites, pages, decoded, np, texture2ddecoder)
+            if piece is not None:
+                written += 1
+                total_bytes += emit(part, piece)
+                print("  assembled %s at %dx%d" % (part, piece.shape[1], piece.shape[0]))
 
     print("  wrote %d files, %.2f MB, into %s" % (written, total_bytes / 1e6, out_dir))
     return 0

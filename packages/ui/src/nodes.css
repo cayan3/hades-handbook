@@ -2486,13 +2486,37 @@ kbd {
   }
 }
 
-/* A card taller than it is wide, which is the shape both games draw and what
-   makes a row of them read as slots rather than as buttons. */
+/*
+ * A card taller than it is wide, which is the shape both games draw and what
+ * makes a row of them read as slots rather than as buttons.
+ *
+ * The games' own slot wears the same skin the Loadout's tray does. Unset
+ * `--chrome-panel` and the two image properties compute to `none`, leaving the
+ * plain border below — which is what shipped before the art existed.
+ *
+ * Measured off the extracted files rather than chosen: the frame band runs 8px
+ * into Hades I's 291x572 at the top and bottom and 5px at the sides, and 20px
+ * into Hades II's 351x572; the corner reaches full alpha within 4px in both. The
+ * slices clear those bands and the widths are them at the size the card draws.
+ */
 .saves__slot {
+  --chrome-slice: 12;
+  --chrome-frame: 8px;
   display: flex;
   min-height: 11rem;
   border: 1px solid rgb(255 255 255 / 15%);
+  border-image-source: var(--chrome-panel);
+  border-image-slice: var(--chrome-slice);
+  border-image-width: var(--chrome-frame);
   border-radius: 0.5rem;
+  background-image: var(--chrome-panel);
+  background-position: center;
+  background-size: cover;
+}
+
+.saves[data-game="hades2"] .saves__slot {
+  --chrome-slice: 24;
+  --chrome-frame: 10px;
 }
 
 .saves__slot[data-filled="true"] {

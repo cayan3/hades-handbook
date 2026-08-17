@@ -33,6 +33,12 @@ ELEMENT_SPRITE = "GUI\\Icons\\Element_%s"
 SLOT_KEY = re.compile(r"^SlotIcon_(\w+)$")
 SLOT_SPRITE = "GUI\\HUD\\PrimaryBoons\\SlotIcon_%s"
 
+# The Forget-Me-Not pin, which the game draws over a reward a tracked recipe
+# wants -- the same thing this product's pin says. Three sizes again, so the
+# largest for the same reason.
+MARKER_KEY = re.compile(r"^Marker_(\w+)$")
+MARKER_SPRITE = "GUI\\Icons\\RoomReward\\SubIcon_%s"
+
 
 def animation_map(content_root):
     """Icon key -> sprite path, from the game's animation tables.
@@ -84,6 +90,11 @@ class Resolver:
         slot = SLOT_KEY.match(key)
         if slot:
             found = self.biggest.get(SLOT_SPRITE % slot.group(1))
+            if found:
+                return found
+        marker = MARKER_KEY.match(key)
+        if marker:
+            found = self.biggest.get(MARKER_SPRITE % marker.group(1))
             if found:
                 return found
         # Duo art is named for the pairing and needs no indirection.

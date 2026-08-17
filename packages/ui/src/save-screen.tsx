@@ -1,4 +1,5 @@
-import { useId } from "react";
+import { type CSSProperties, useId } from "react";
+import { chromeStyle } from "./boon-art.js";
 import { useDialog } from "./dialog.js";
 import { useGame } from "./presentation.js";
 
@@ -48,7 +49,11 @@ export function SaveScreen({ run, onResume, onNew, onLeave }: SaveScreenProps) {
           Choose a save slot to begin
         </h2>
 
-        <ul className="saves__slots">
+        {/* The game's own slot frame, on the list rather than on each slot: one
+            declaration inherits to all three, and a slot that is only ever
+            drawn beside its siblings never differs from them. Absent art sets
+            nothing and the plain border stays. */}
+        <ul className="saves__slots" style={chromeStyle(game, "saveslot") as CSSProperties}>
           {run === null ? null : (
             <li className="saves__slot" data-filled="true">
               <button type="button" className="saves__take" onClick={onResume}>

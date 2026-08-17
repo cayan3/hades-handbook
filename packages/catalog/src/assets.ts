@@ -118,9 +118,9 @@ export function elementIconFor(game: GameKey, element: Element): string {
 
 /**
  * A part of the games' own interface, rather than a picture of a thing in them.
- * One entry today; the boon card's frame is the next.
+ * Two entries; the boon card's frame is the next.
  */
-export type ChromePart = "panel";
+export type ChromePart = "panel" | "saveslot";
 
 /**
  * Panel art, and the first arm here allowed to answer with nothing. Everything
@@ -138,8 +138,8 @@ export function chromeFor(game: GameKey, part: ChromePart): string | null {
 }
 
 const CHROME: Readonly<Record<GameKey, Partial<Record<ChromePart, string>>>> = {
-  hades1: { panel: "Chrome_Panel" },
-  hades2: { panel: "Chrome_Panel" },
+  hades1: { panel: "Chrome_Panel", saveslot: "Chrome_SaveSlot" },
+  hades2: { panel: "Chrome_Panel", saveslot: "Chrome_SaveSlot" },
 };
 
 /**
@@ -165,7 +165,9 @@ export function markerIconFor(game: GameKey): string | null {
   return key === undefined ? null : `${ART_SET}/${game}/${key}`;
 }
 
-const MARKER_ICONS: Readonly<Partial<Record<GameKey, string>>> = {};
+const MARKER_ICONS: Readonly<Partial<Record<GameKey, string>>> = {
+  hades2: "Marker_ForgetMeNot",
+};
 
 /**
  * The glyph the game draws in a core slot nobody has filled. Null where the game

@@ -607,4 +607,20 @@ describe("the shortcut list", () => {
   it("keeps the list itself across both columns", () => {
     expect(bodyOf(".shortcuts__list")).toMatch(/grid-column:\s*1 \/ -1/);
   });
+
+  /**
+   * The save slot's frame is a `border-image`, which no component expresses and
+   * the runner computes nothing about, so the stylesheet is the only layer that
+   * can see it. What matters is that the plain border survives beside it: with
+   * no art the image properties compute to `none` and the card keeps the frame
+   * it had before there was any.
+   */
+  it("skins the save slot without losing the frame it works without", () => {
+    const slot = bodyOf(".saves__slot");
+    expect(slot).toMatch(/border-image-source:\s*var\(--chrome-panel\)/);
+    expect(slot).toMatch(/border:\s*1px solid/);
+    expect(slot).toMatch(/background-size:\s*cover/);
+    // Per game, because the two files carry different frame bands.
+    expect(bodyOf('.saves[data-game="hades2"] .saves__slot')).toMatch(/--chrome-slice:/);
+  });
 });

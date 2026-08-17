@@ -263,20 +263,15 @@ describe("nameFor", () => {
  * choice, so what it answers is the whole of the decision.
  */
 describe("markerIconFor", () => {
-  it("answers nothing while the art is not extracted", () => {
-    // Null rather than the missing-art placeholder, which is the rule the panel
-    // chrome and the empty slots follow: a broken-file mark in a card's corner
-    // says the opposite of what a pin means.
-    expect(markerIconFor("hades1")).toBeNull();
-    expect(markerIconFor("hades2")).toBeNull();
+  it("prefers the game's own pin, and namespaces it like everything else", () => {
+    expect(markerIconFor("hades2")).toBe("official/hades2/Marker_ForgetMeNot");
   });
 
-  it("namespaces by game like everything else here, when it has one", () => {
-    // The shape rather than today's answer: a key resolves under the game, so
-    // dropping the art in is a table entry and nothing else.
-    for (const game of ["hades1", "hades2"] as const) {
-      const key = markerIconFor(game);
-      if (key !== null) expect(key.startsWith(`official/${game}/`)).toBe(true);
-    }
+  it("answers nothing in the game with no Forget-Me-Not", () => {
+    // Null rather than the missing-art placeholder, which is the rule the panel
+    // chrome and the empty slots follow: a broken-file mark in a card's corner
+    // says the opposite of what a pin means. Hades I has no such resource, so
+    // the drawn glyph is not a fallback there -- it is the answer.
+    expect(markerIconFor("hades1")).toBeNull();
   });
 });

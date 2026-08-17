@@ -390,12 +390,28 @@ describe("the textual state of a node", () => {
 
 /**
  * The pin prefers the game's own asset and falls back to the drawing, the
- * resolver owning which. Today it answers nothing, so the drawing is what shows
- * — and that is the state to pin, because it is the one a withdrawal returns to.
+ * resolver owning which. Both halves are live now — Hades II ships a
+ * Forget-Me-Not and Hades I has no such thing — so both are pinned, and the
+ * fallback is still the state a withdrawal returns to.
  */
 describe("the marker's two forms", () => {
-  it("draws the glyph while the resolver has no art", () => {
-    render(<BoonNode view={view()} pinned />);
+  it("takes the game's own pin where the game has one", () => {
+    render(
+      <NodePresentation ladder="real-art" game="hades2">
+        <BoonNode view={view()} pinned />
+      </NodePresentation>,
+    );
+
+    expect(container.querySelector("img.node__marker")).not.toBeNull();
+    expect(container.querySelector("svg.node__marker")).toBeNull();
+  });
+
+  it("draws the glyph in the game with no such resource", () => {
+    render(
+      <NodePresentation ladder="real-art" game="hades1">
+        <BoonNode view={view()} pinned />
+      </NodePresentation>,
+    );
 
     expect(container.querySelector("svg.node__marker")).not.toBeNull();
     expect(container.querySelector("img.node__marker")).toBeNull();
@@ -404,7 +420,7 @@ describe("the marker's two forms", () => {
   it("renders nothing at all rather than a placeholder", () => {
     // The rule the panel chrome and the empty slots already follow: a
     // broken-file mark in a pin's corner says the opposite of what a pin means.
-    render(<MarkerArt game="hades2" />);
+    render(<MarkerArt game="hades1" />);
     expect(container.innerHTML).toBe("");
   });
 
