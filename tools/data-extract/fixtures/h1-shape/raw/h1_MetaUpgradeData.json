@@ -1,0 +1,46 @@
+{
+ "BaseMetaUpgrade": {
+  "ResourceName": "LockKeys",
+  "UnlockCost": 10
+ },
+ "EbbMetaUpgrade": {
+  "CostTable": [
+   40
+  ],
+  "Icon": "MirrorIcon_Ebb",
+  "InheritFrom": [
+   "BaseMetaUpgrade"
+  ]
+ },
+ "KindleMetaUpgrade": {
+  "CostTable": [
+   20,
+   80
+  ],
+  "Icon": "MirrorIcon_Kindle",
+  "InheritFrom": [
+   "BaseMetaUpgrade"
+  ],
+  "Starting": true
+ },
+ "SmotherMetaUpgrade": {
+  "CostTable": [
+   60,
+   120
+  ],
+  "Icon": "MirrorIcon_Smother",
+  "InheritFrom": [
+   "BaseMetaUpgrade"
+  ],
+  "Starting": true
+ },
+ "TideMetaUpgrade": {
+  "CostTable": [
+   40
+  ],
+  "Icon": "MirrorIcon_Tide",
+  "InheritFrom": [
+   "BaseMetaUpgrade"
+  ]
+ }
+}

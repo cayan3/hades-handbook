@@ -1,0 +1,86 @@
+{
+ "AmmoMetaUpgrade": {
+  "members": [
+   "AmmoMetaUpgrade",
+   "ReloadAmmoMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "BackstabMetaUpgrade": {
+  "members": [
+   "BackstabMetaUpgrade",
+   "FirstStrikeMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "DoorHealMetaUpgrade": {
+  "members": [
+   "DoorHealMetaUpgrade",
+   "DarknessHealMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "EpicBoonDropMetaUpgrade": {
+  "members": [
+   "EpicBoonDropMetaUpgrade",
+   "DuoRarityBoonDropMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "ExtraChanceMetaUpgrade": {
+  "members": [
+   "ExtraChanceMetaUpgrade",
+   "ExtraChanceReplenishMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "HealthMetaUpgrade": {
+  "members": [
+   "HealthMetaUpgrade",
+   "HighHealthDamageMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "MoneyMetaUpgrade": {
+  "members": [
+   "MoneyMetaUpgrade",
+   "InterestMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "RareBoonDropMetaUpgrade": {
+  "members": [
+   "RareBoonDropMetaUpgrade",
+   "RunProgressRewardMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "RerollMetaUpgrade": {
+  "members": [
+   "RerollMetaUpgrade",
+   "RerollPanelMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "StaminaMetaUpgrade": {
+  "members": [
+   "StaminaMetaUpgrade",
+   "PerfectDashMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "StoredAmmoVulnerabilityMetaUpgrade": {
+  "members": [
+   "StoredAmmoVulnerabilityMetaUpgrade",
+   "StoredAmmoSlowMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ },
+ "VulnerabilityEffectBonusMetaUpgrade": {
+  "members": [
+   "VulnerabilityEffectBonusMetaUpgrade",
+   "GodEnhancementMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:882"
+ }
+}

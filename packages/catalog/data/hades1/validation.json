@@ -529,6 +529,13 @@
  "buildFailures": [],
  "danglingPrereqReferenceCount": 0,
  "danglingPrereqReferences": {},
+ "descriptionCount": 366,
+ "descriptionRefsWithNoProse": [
+  "HadesShoutTrait",
+  "TemporaryDoorHealTrait_Patroclus"
+ ],
+ "descriptionRefsWithNoProseCount": 2,
+ "descriptionsCarryingMarkup": [],
  "duoBoonCount": 28,
  "duoBoons": [
   "AmmoBoltTrait",
@@ -582,6 +589,7 @@
  "godNamesOutsideKnownVocabulary": [],
  "godRecordsWithoutASource": [],
  "infusionsWithoutAnElementGate": [],
+ "mirrorRowCount": 12,
  "raritiesNeverUsedByAnyBoon": [
   "Duo"
  ],
@@ -596,6 +604,8 @@
   "Rare"
  ],
  "requirementsAskingForMoreThanExists": [],
+ "talentCount": 24,
+ "talentsGatedOnWithNoRecord": [],
  "tiersInconsistentWithPrereqs": [],
  "totalBoonRecords": 449,
  "totalGodRecords": 13,

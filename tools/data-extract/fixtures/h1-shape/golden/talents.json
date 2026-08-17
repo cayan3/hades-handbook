@@ -1,0 +1,26 @@
+{
+ "EbbMetaUpgrade": {
+  "icon": "MirrorIcon_Ebb",
+  "id": "EbbMetaUpgrade",
+  "name": null,
+  "source": "Scripts/MetaUpgradeData.lua:44"
+ },
+ "KindleMetaUpgrade": {
+  "icon": "MirrorIcon_Kindle",
+  "id": "KindleMetaUpgrade",
+  "name": null,
+  "source": "Scripts/MetaUpgradeData.lua:18"
+ },
+ "SmotherMetaUpgrade": {
+  "icon": "MirrorIcon_Smother",
+  "id": "SmotherMetaUpgrade",
+  "name": null,
+  "source": "Scripts/MetaUpgradeData.lua:26"
+ },
+ "TideMetaUpgrade": {
+  "icon": "MirrorIcon_Tide",
+  "id": "TideMetaUpgrade",
+  "name": null,
+  "source": "Scripts/MetaUpgradeData.lua:37"
+ }
+}

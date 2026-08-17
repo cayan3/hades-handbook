@@ -42,6 +42,12 @@ def find_key_anywhere(path, key):
     file lol, and returns the line number (or None if either zero or multiple
     candidates are found o_0).
     """
+    # Absent file, no citation -- the same answer `index_keys_at_depth` gives,
+    # and for the same reason: a fixture run carries only the files its grammar
+    # needs, and a missing one is a lack of evidence rather than an error.
+    if not os.path.exists(path):
+        return None
+
     pattern = re.compile(r'^\s*' + re.escape(key) + r'\s*=\s*(\{)?\s*(--.*)?$')
     hits = []
     with open(path, "r", encoding="utf-8-sig") as f:

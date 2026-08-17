@@ -7,7 +7,7 @@
  "bundleShortVersion": "0.0",
  "bundleVersion": "1",
  "installDir": "Hades/Game.macOS.app",
- "extractedAtUtc": "2026-08-06T00:21:38.836895Z",
+ "extractedAtUtc": "2026-08-17T20:29:38.686195Z",
  "source": {
   "steamAppManifest": "steamapps/appmanifest_1145360.acf",
   "infoPlist": "Hades/Game.macOS.app/Contents/Info.plist"

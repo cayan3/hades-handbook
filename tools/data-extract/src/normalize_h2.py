@@ -1,5 +1,6 @@
 import glob, json, re, os, sys
 from parse_text_bundle import parse_sjson_text_bundle, resolve_display_name
+from render_text import descriptions_for, render_name
 from line_index import index_keys_at_depth
 import build_guard
 import requirements
@@ -114,6 +115,16 @@ text_bundle = {
 with open(OUT + "text.json", "w") as f:
     json.dump(text_bundle, f, indent=1, sort_keys=True)
     f.write("\n")
+
+# The keyword titles a description quotes are in a second file here, unlike
+# Hades I where one file holds both. Read once and used for names as well:
+# thirteen records write their name as markup rather than as a word.
+keyword_bundle = parse_sjson_text_bundle(TEXT_EN + "HelpText.en.sjson")
+
+
+def named(entry_id):
+    return render_name(resolve_display_name(text_bundle_raw, entry_id), keyword_bundle)
+
 
 # ---------------------------------------------------------------------------
 # God records
@@ -310,7 +321,7 @@ for kid, kdata in TraitSetData.get("Keepsakes", {}).items():
     line = keepsake_src_index.get(kid)
     keepsakes[kid] = {
         "id": kid,
-        "name": resolve_display_name(text_bundle_raw, kid),
+        "name": named(kid),
         "associatedGod": npc_to_god.get(npc, npc),  # NPC id verbatim if not a pantheon god
         "associatedNpcId": npc,
         "iconKey": kdata.get("Icon") if isinstance(kdata, dict) else None,
@@ -622,7 +633,7 @@ for trait_id, data in ALL_DEFS.items():
         "id": trait_id,
         "god": god,
         "duoGods": duo_gods,
-        "name": resolve_display_name(text_bundle_raw, trait_id),
+        "name": named(trait_id),
         "descriptionRef": trait_id if trait_id in text_bundle_raw else None,
         "icon": icon if isinstance(icon, str) and not is_unresolved(icon) else None,
         "boonCategory": classify_category(trait_id, god, fname, data, chain),
@@ -760,4 +771,35 @@ with open(OUT + "_clause_report.json", "w") as f:
               f, indent=1, sort_keys=True)
     f.write("\n")
 
+# ---------------------------------------------------------------------------
+# Codex descriptions
+# ---------------------------------------------------------------------------
+# All 129 keywords the shipped descriptions reference resolve out of the keyword
+# bundle read beside the trait text above.
+
+descriptions = descriptions_for(
+    [rec["descriptionRef"] for rec in boons.values() if rec["descriptionRef"]],
+    text_bundle_raw,
+    keyword_bundle,
+)
+with open(OUT + "descriptions.json", "w") as f:
+    json.dump(descriptions, f, indent=1, sort_keys=True, ensure_ascii=False)
+    f.write("\n")
+
+# ---------------------------------------------------------------------------
+# Mirror talents
+# ---------------------------------------------------------------------------
+# Hades II replaces the Mirror with Arcana and no boon prerequisite in the
+# extraction references one, so these are empty rather than absent: a consumer
+# asking either game the same question should get a list, not a missing file.
+
+with open(OUT + "talents.json", "w") as f:
+    json.dump({}, f, indent=1, sort_keys=True)
+    f.write("\n")
+
+with open(OUT + "mirror_rows.json", "w") as f:
+    json.dump({}, f, indent=1, sort_keys=True)
+    f.write("\n")
+
 print("H2 boon records:", len(boons), "skipped base archetypes:", len(skipped_base_archetypes))
+print("H2 descriptions:", len(descriptions))

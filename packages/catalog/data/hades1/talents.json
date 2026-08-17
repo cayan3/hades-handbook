@@ -1,0 +1,146 @@
+{
+ "AmmoMetaUpgrade": {
+  "icon": "MirrorIcon_AmmoSupply",
+  "id": "AmmoMetaUpgrade",
+  "name": "Infernal Soul",
+  "source": "Scripts/MetaUpgradeData.lua:160"
+ },
+ "BackstabMetaUpgrade": {
+  "icon": "MirrorIcon_SneakAttack",
+  "id": "BackstabMetaUpgrade",
+  "name": "Shadow Presence",
+  "source": "Scripts/MetaUpgradeData.lua:268"
+ },
+ "DarknessHealMetaUpgrade": {
+  "icon": "MirrorIcon_DarknessHeal",
+  "id": "DarknessHealMetaUpgrade",
+  "name": "Dark Regeneration",
+  "source": "Scripts/MetaUpgradeData.lua:71"
+ },
+ "DoorHealMetaUpgrade": {
+  "icon": "MirrorIcon_DoorHeal",
+  "id": "DoorHealMetaUpgrade",
+  "name": "Chthonic Vitality",
+  "source": "Scripts/MetaUpgradeData.lua:60"
+ },
+ "DuoRarityBoonDropMetaUpgrade": {
+  "icon": "MirrorIcon_DuoRarityBoon",
+  "id": "DuoRarityBoonDropMetaUpgrade",
+  "name": "Gods' Legacy",
+  "source": "Scripts/MetaUpgradeData.lua:513"
+ },
+ "EpicBoonDropMetaUpgrade": {
+  "icon": "MirrorIcon_EpicBoonChance",
+  "id": "EpicBoonDropMetaUpgrade",
+  "name": "Gods' Pride",
+  "source": "Scripts/MetaUpgradeData.lua:501"
+ },
+ "ExtraChanceMetaUpgrade": {
+  "icon": "MirrorIcon_ExtraChance",
+  "id": "ExtraChanceMetaUpgrade",
+  "name": "Death Defiance",
+  "source": "Scripts/MetaUpgradeData.lua:399"
+ },
+ "ExtraChanceReplenishMetaUpgrade": {
+  "icon": "MirrorIcon_ExtraChanceReplenish",
+  "id": "ExtraChanceReplenishMetaUpgrade",
+  "name": "Stubborn Defiance",
+  "source": "Scripts/MetaUpgradeData.lua:429"
+ },
+ "FirstStrikeMetaUpgrade": {
+  "icon": "MirrorIcon_FirstStrike",
+  "id": "FirstStrikeMetaUpgrade",
+  "name": "Fiery Presence",
+  "source": "Scripts/MetaUpgradeData.lua:282"
+ },
+ "GodEnhancementMetaUpgrade": {
+  "icon": "MirrorIcon_GodEnhancement",
+  "id": "GodEnhancementMetaUpgrade",
+  "name": "Family Favorite",
+  "source": "Scripts/MetaUpgradeData.lua:380"
+ },
+ "HealthMetaUpgrade": {
+  "icon": "MirrorIcon_StartingHealth",
+  "id": "HealthMetaUpgrade",
+  "name": "Thick Skin",
+  "source": "Scripts/MetaUpgradeData.lua:11"
+ },
+ "HighHealthDamageMetaUpgrade": {
+  "icon": "MirrorIcon_HighHealthDamage",
+  "id": "HighHealthDamageMetaUpgrade",
+  "name": "High Confidence",
+  "source": "Scripts/MetaUpgradeData.lua:31"
+ },
+ "InterestMetaUpgrade": {
+  "icon": "MirrorIcon_Interest",
+  "id": "InterestMetaUpgrade",
+  "name": "Golden Touch",
+  "source": "Scripts/MetaUpgradeData.lua:477"
+ },
+ "MoneyMetaUpgrade": {
+  "icon": "MirrorIcon_StartingMoney",
+  "id": "MoneyMetaUpgrade",
+  "name": "Deep Pockets",
+  "source": "Scripts/MetaUpgradeData.lua:465"
+ },
+ "PerfectDashMetaUpgrade": {
+  "icon": "MirrorIcon_PerfectDash",
+  "id": "PerfectDashMetaUpgrade",
+  "name": "Ruthless Reflex",
+  "source": "Scripts/MetaUpgradeData.lua:239"
+ },
+ "RareBoonDropMetaUpgrade": {
+  "icon": "MirrorIcon_RareBoonChance",
+  "id": "RareBoonDropMetaUpgrade",
+  "name": "Olympian Favor",
+  "source": "Scripts/MetaUpgradeData.lua:489"
+ },
+ "ReloadAmmoMetaUpgrade": {
+  "icon": "MirrorIcon_ReloadAmmo",
+  "id": "ReloadAmmoMetaUpgrade",
+  "name": "Stygian Soul",
+  "source": "Scripts/MetaUpgradeData.lua:191"
+ },
+ "RerollMetaUpgrade": {
+  "icon": "MirrorIcon_Reroll",
+  "id": "RerollMetaUpgrade",
+  "name": "Fated Authority",
+  "source": "Scripts/MetaUpgradeData.lua:546"
+ },
+ "RerollPanelMetaUpgrade": {
+  "icon": "MirrorIcon_RerollPanel",
+  "id": "RerollPanelMetaUpgrade",
+  "name": "Fated Persuasion",
+  "source": "Scripts/MetaUpgradeData.lua:559"
+ },
+ "RunProgressRewardMetaUpgrade": {
+  "icon": "MirrorIcon_EpicHeroicBoon",
+  "id": "RunProgressRewardMetaUpgrade",
+  "name": "Dark Foresight",
+  "source": "Scripts/MetaUpgradeData.lua:535"
+ },
+ "StaminaMetaUpgrade": {
+  "icon": "MirrorIcon_DashCharges",
+  "id": "StaminaMetaUpgrade",
+  "name": "Greater Reflex",
+  "source": "Scripts/MetaUpgradeData.lua:215"
+ },
+ "StoredAmmoSlowMetaUpgrade": {
+  "icon": "MirrorIcon_UnstoredAmmoVulnerability",
+  "id": "StoredAmmoSlowMetaUpgrade",
+  "name": "Abyssal Blood",
+  "source": "Scripts/MetaUpgradeData.lua:314"
+ },
+ "StoredAmmoVulnerabilityMetaUpgrade": {
+  "icon": "MirrorIcon_AmmoVulnerability",
+  "id": "StoredAmmoVulnerabilityMetaUpgrade",
+  "name": "Boiling Blood",
+  "source": "Scripts/MetaUpgradeData.lua:298"
+ },
+ "VulnerabilityEffectBonusMetaUpgrade": {
+  "icon": "MirrorIcon_EffectVulnerability",
+  "id": "VulnerabilityEffectBonusMetaUpgrade",
+  "name": "Privileged Status",
+  "source": "Scripts/MetaUpgradeData.lua:362"
+ }
+}

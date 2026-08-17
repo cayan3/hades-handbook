@@ -1,5 +1,6 @@
 import json, re, os, sys
 from parse_text_bundle import parse_sjson_text_bundle, resolve_display_name
+from render_text import descriptions_for, render_name
 from line_index import index_keys_at_depth, find_key_anywhere
 import build_guard
 import requirements
@@ -297,7 +298,50 @@ with open(OUT + "named_sets.json", "w") as f:
     json.dump(named_sets, f, indent=1, sort_keys=True)
     f.write("\n")
 
+# ---------------------------------------------------------------------------
+# Mirror talents and the rows they oppose each other in
+# ---------------------------------------------------------------------------
+# A talent has no trait record, so the ids a gate names are recoverable only
+# here. MetaUpgradeOrder states the pairing outright; a row is keyed by its
+# first member rather than by a name, the file giving its rows none.
+
+MetaUpgradeData = load("h1_MetaUpgradeData.json") if os.path.exists(RAW + "h1_MetaUpgradeData.json") else {}
+MetaUpgradeOrder = load("h1_MetaUpgradeOrder.json") if os.path.exists(RAW + "h1_MetaUpgradeOrder.json") else []
+talent_source = index_keys_at_depth(SCRIPTS + "MetaUpgradeData.lua", 1)
+order_line = find_key_anywhere(SCRIPTS + "MetaUpgradeData.lua", "MetaUpgradeOrder")
+
+talents = {}
+mirror_rows = {}
+for pair in MetaUpgradeOrder:
+    members = [m for m in pair if isinstance(m, str)]
+    if len(members) != 2:
+        continue
+    mirror_rows[members[0]] = {
+        "members": members,
+        "source": ("%sMetaUpgradeData.lua:%d" % (REL_SCRIPTS, order_line) if order_line
+                   else "%sMetaUpgradeData.lua" % REL_SCRIPTS),
+    }
+    for tid in members:
+        data = MetaUpgradeData.get(tid) or {}
+        icon = data.get("Icon")
+        line = talent_source.get(tid)
+        talents[tid] = {
+            "id": tid,
+            "name": render_name(resolve_display_name(text_bundle_raw, tid), text_bundle_raw),
+            "icon": icon if isinstance(icon, str) and not is_unresolved(icon) else None,
+            "source": "%sMetaUpgradeData.lua:%d" % (REL_SCRIPTS, line) if line else None,
+        }
+
+with open(OUT + "talents.json", "w") as f:
+    json.dump(talents, f, indent=1, sort_keys=True)
+    f.write("\n")
+
+with open(OUT + "mirror_rows.json", "w") as f:
+    json.dump(mirror_rows, f, indent=1, sort_keys=True)
+    f.write("\n")
+
 print("H1 gods:", len(gods), "keepsakes:", len(keepsakes), "named_sets:", len(named_sets))
+print("H1 talents:", len(talents), "mirror rows:", len(mirror_rows))
 
 # ---------------------------------------------------------------------------
 # Prerequisite index: every LinkedUpgrades entry across every god's LootData
@@ -584,4 +628,21 @@ with open(OUT + "_clause_report.json", "w") as f:
               f, indent=1, sort_keys=True)
     f.write("\n")
 
+# ---------------------------------------------------------------------------
+# Codex descriptions
+# ---------------------------------------------------------------------------
+# Hades I keeps its keyword titles in the same file as its trait text, so the
+# bundle resolves its own references. Only the refs a record names are rendered;
+# the rest of the file is the whole game's help text.
+
+descriptions = descriptions_for(
+    [rec["descriptionRef"] for rec in boons.values() if rec["descriptionRef"]],
+    text_bundle_raw,
+    text_bundle_raw,
+)
+with open(OUT + "descriptions.json", "w") as f:
+    json.dump(descriptions, f, indent=1, sort_keys=True, ensure_ascii=False)
+    f.write("\n")
+
 print("H1 boon records:", len(boons), "excluded (keepsakes, emitted separately):", len(skipped_keepsakes_in_main_catalog))
+print("H1 descriptions:", len(descriptions))

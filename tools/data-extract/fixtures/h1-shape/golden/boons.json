@@ -22,7 +22,7 @@
    "Rare"
   ],
   "slot": "Secondary",
-  "source": "Scripts/TraitData.lua:122",
+  "source": "Scripts/TraitData.lua:126",
   "tier": 1
  },
  "AuricGroveTrait": {
@@ -48,7 +48,7 @@
    "Rare"
   ],
   "slot": "Ranged",
-  "source": "Scripts/TraitData.lua:132",
+  "source": "Scripts/TraitData.lua:136",
   "tier": 1
  },
  "AuricRootTrait": {
@@ -74,7 +74,7 @@
    "Rare"
   ],
   "slot": "Melee",
-  "source": "Scripts/TraitData.lua:115",
+  "source": "Scripts/TraitData.lua:119",
   "tier": 1
  },
  "FennickHasteTrait": {
@@ -105,7 +105,7 @@
     }
    ]
   },
-  "prereqSource": "Scripts/TraitData.lua:206",
+  "prereqSource": "Scripts/TraitData.lua:210",
   "rarity": [
    "Common",
    "Epic",
@@ -113,7 +113,7 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData.lua:206",
+  "source": "Scripts/TraitData.lua:210",
   "tier": 1
  },
  "FennickSwiftTrait": {
@@ -139,7 +139,7 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData.lua:145",
+  "source": "Scripts/TraitData.lua:149",
   "tier": 1
  },
  "GiftTrait": {
@@ -160,7 +160,7 @@
   "prereqSource": null,
   "rarity": [],
   "slot": null,
-  "source": "Scripts/TraitData.lua:186",
+  "source": "Scripts/TraitData.lua:190",
   "tier": null
  },
  "SableAuricBloomTrait": {
@@ -183,7 +183,7 @@
    "Legendary"
   ],
   "slot": null,
-  "source": "Scripts/TraitData.lua:109",
+  "source": "Scripts/TraitData.lua:113",
   "tier": null
  },
  "SableDebugTrait": {
@@ -209,7 +209,7 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData.lua:154",
+  "source": "Scripts/TraitData.lua:158",
   "tier": 1
  },
  "SableEmberComboTrait": {
@@ -250,7 +250,7 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData.lua:87",
+  "source": "Scripts/TraitData.lua:91",
   "tier": 2
  },
  "SableEmberTrait": {
@@ -333,7 +333,7 @@
     }
    ]
   },
-  "prereqSource": "Scripts/TraitData.lua:165",
+  "prereqSource": "Scripts/TraitData.lua:169",
   "rarity": [
    "Common",
    "Epic",
@@ -341,7 +341,7 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData.lua:165",
+  "source": "Scripts/TraitData.lua:169",
   "tier": 1
  },
  "SablePyreTrait": {
@@ -407,7 +407,7 @@
    "Legendary"
   ],
   "slot": null,
-  "source": "Scripts/TraitData.lua:76",
+  "source": "Scripts/TraitData.lua:80",
   "tier": null
  },
  "SableTideTrait": {
@@ -433,7 +433,7 @@
    "Rare"
   ],
   "slot": null,
-  "source": "Scripts/TraitData.lua:177",
+  "source": "Scripts/TraitData.lua:181",
   "tier": 1
  },
  "SableWardenTrait": {
@@ -450,8 +450,11 @@
   "icon": "Boon_Sable_03",
   "id": "SableWardenTrait",
   "name": null,
-  "prereq": null,
-  "prereqSource": null,
+  "prereq": {
+   "kind": "hasTalent",
+   "talent": "KindleMetaUpgrade"
+  },
+  "prereqSource": "Scripts/TraitData.lua:67",
   "rarity": [
    "Common",
    "Epic",
@@ -459,7 +462,7 @@
    "Rare"
   ],
   "slot": "Ranged",
-  "source": "Scripts/TraitData.lua:64",
+  "source": "Scripts/TraitData.lua:67",
   "tier": 1
  },
  "ShopTier1Trait": {

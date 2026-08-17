@@ -186,10 +186,11 @@ def godsent_hexes(boons):
 def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                   raw_defs=None, loot_membership=None, external_references=None,
                   aspect_ids=None, godsent_hexes_expected=None,
-                  duo_boons_expected=None):
+                  duo_boons_expected=None, descriptions=None, talents=None,
+                  mirror_rows=None):
     """Check one game's emitted catalog. Returns (report, fatal messages).
 
-    The six trailing arguments are the inputs a check needs that the emitted
+    The nine trailing arguments are the inputs a check needs that the emitted
     catalog does not carry. Each is optional, and the checks that need one are
     skipped when it is absent: the fixtures do not have a whole game's scripts
     to scan, and a check that could not run is a different thing from one that
@@ -551,6 +552,56 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
             % (game_key, bid)
         )
 
+    # 18. Codex descriptions. The rendering resolves the game's markup and drops
+    # what it cannot resolve, so a brace surviving means a construction nobody
+    # has read -- and it would reach a card verbatim, which is the one place
+    # this text is looked at.
+    if descriptions is not None:
+        report["descriptionCount"] = len(descriptions)
+        with_markup = sorted(k for k, v in descriptions.items() if "{" in v or "}" in v)
+        report["descriptionsCarryingMarkup"] = with_markup
+        for ref in with_markup:
+            fatal.append("%s the description for %s still carries markup: %r"
+                         % (game_key, ref, descriptions[ref]))
+        # A record naming a ref with nothing behind it is not a defect: roughly a
+        # fifth of each game's entries are debug and cut content with no text at
+        # all. Counted so a collapse in the number is visible.
+        unresolved = sorted(
+            b["descriptionRef"] for b in boons.values()
+            if b.get("descriptionRef") and b["descriptionRef"] not in descriptions
+        )
+        report["descriptionRefsWithNoProse"] = unresolved
+        report["descriptionRefsWithNoProseCount"] = len(unresolved)
+
+    # 19. Mirror talents. A talent has no trait record, so a gate naming one is
+    # checked against the talent table instead -- without this the ids in those
+    # gates are the only ones in either catalog nothing resolves at all.
+    if talents is not None:
+        report["talentCount"] = len(talents)
+        named_by_gates = set()
+        for b in boons.values():
+            for field in ("prereq", "activation"):
+                named_by_gates |= {
+                    n["talent"] for n in requirements.walk(b.get(field))
+                    if n.get("kind") == "hasTalent"
+                }
+        unknown = sorted(t for t in named_by_gates if t not in talents)
+        report["talentsGatedOnWithNoRecord"] = unknown
+        for talent in unknown:
+            fatal.append("%s a gate names the Mirror talent %s, which has no record"
+                         % (game_key, talent))
+        if mirror_rows is not None:
+            report["mirrorRowCount"] = len(mirror_rows)
+            for row_id, row in sorted(mirror_rows.items()):
+                members = row.get("members") or []
+                if len(members) != 2:
+                    fatal.append("%s Mirror row %s has %d members, and a row opposes two"
+                                 % (game_key, row_id, len(members)))
+                for member in members:
+                    if member not in talents:
+                        fatal.append("%s Mirror row %s names %s, which has no talent record"
+                                     % (game_key, row_id, member))
+
     return report, fatal
 
 
@@ -711,6 +762,9 @@ def main():
         aspect_ids=h2_aspects,
         godsent_hexes_expected=GODSENT_HEXES_HADES2,
         duo_boons_expected=DUO_BOONS["hades2"],
+        descriptions=_load_optional(OUT + "hades2/descriptions.json"),
+        talents=_load_optional(OUT + "hades2/talents.json"),
+        mirror_rows=_load_optional(OUT + "hades2/mirror_rows.json"),
     )
     h2_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h2_defs)
 
@@ -789,6 +843,9 @@ def main():
         external_references=_external_references("hades1"),
         aspect_ids=aspects_by_inheritance(h1_defs, "WeaponEnchantmentTrait"),
         duo_boons_expected=DUO_BOONS["hades1"],
+        descriptions=_load_optional(OUT + "hades1/descriptions.json"),
+        talents=_load_optional(OUT + "hades1/talents.json"),
+        mirror_rows=_load_optional(OUT + "hades1/mirror_rows.json"),
     )
     h1_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h1_defs, (h1_loot,))
 

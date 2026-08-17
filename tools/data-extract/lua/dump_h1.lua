@@ -77,12 +77,21 @@ ok, err = pcall(dofile_stripbom, SCRIPTS .. "GiftData.lua")
 if not ok then print("ERROR loading GiftData.lua: " .. tostring(err)) end
 print("GiftData loaded")
 
+-- The Mirror of Night. Its talents have no trait record, so the ids that reach
+-- a requirement are recoverable nowhere else, and MetaUpgradeOrder states which
+-- two of them oppose each other rather than leaving the pairing to be guessed.
+ok, err = pcall(dofile_stripbom, SCRIPTS .. "MetaUpgradeData.lua")
+if not ok then print("ERROR loading MetaUpgradeData.lua: " .. tostring(err)) end
+print("MetaUpgradeData loaded")
+
 print("== Dumping ==")
 writeFile("h1_TraitData.json", json_encode_object(TraitData))
 writeFile("h1_LootData.json", json_encode_object(LootData or {}))
 writeFile("h1_Color.json", json_encode_object(Color or {}))
 writeFile("h1_GiftData.json", json_encode_object(GiftData or {}))
 writeFile("h1_GiftOrdering.json", json_encode(GiftOrdering or {}))
+writeFile("h1_MetaUpgradeData.json", json_encode_object(MetaUpgradeData or {}))
+writeFile("h1_MetaUpgradeOrder.json", json_encode(MetaUpgradeOrder or {}))
 -- Which build this data came from. Carries no timestamp and no paths: a
 -- timestamp would make two dumps of the same build differ, which would cost the
 -- drift check its byte comparison over this file, and a path would put somebody's

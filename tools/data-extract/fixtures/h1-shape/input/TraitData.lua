@@ -61,12 +61,16 @@ TraitData =
 		Slot = "Secondary",
 		Icon = "Boon_Sable_02",
 	},
+	-- Gated on which side of a Mirror row the run picked. The talent has no
+	-- trait record anywhere, so this gate is the only place its id is written
+	-- and MetaUpgradeData.lua is the only place it can be resolved against.
 	SableWardenTrait =
 	{
 		InheritFrom = { "ShopTier1Trait" },
 		God = "Sable",
 		Slot = "Ranged",
 		Icon = "Boon_Sable_03",
+		RequiredMetaUpgradeSelected = "KindleMetaUpgrade",
 	},
 
 	-- Legendary; its actual OneFromEachSet prerequisite lives inline in

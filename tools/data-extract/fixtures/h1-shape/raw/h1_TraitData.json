@@ -119,6 +119,7 @@
   "InheritFrom": [
    "ShopTier1Trait"
   ],
+  "RequiredMetaUpgradeSelected": "KindleMetaUpgrade",
   "Slot": "Ranged"
  },
  "ShopTier1Trait": {

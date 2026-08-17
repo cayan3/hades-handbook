@@ -1,0 +1,16 @@
+{
+ "KindleMetaUpgrade": {
+  "members": [
+   "KindleMetaUpgrade",
+   "SmotherMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:52"
+ },
+ "TideMetaUpgrade": {
+  "members": [
+   "TideMetaUpgrade",
+   "EbbMetaUpgrade"
+  ],
+  "source": "Scripts/MetaUpgradeData.lua:52"
+ }
+}
