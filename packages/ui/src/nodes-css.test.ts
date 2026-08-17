@@ -248,25 +248,36 @@ describe("the node stylesheet", () => {
   });
 
   /**
-   * Hades I runs its Codex list inside one panel, so rarity shows on an edge;
-   * Hades II slabs each entry. Read out of the stylesheet for the reason the
-   * Loadout's wedge is: the rule that breaks it is one line in the base
-   * forgetting there are two games.
+   * Hades I slices rarity off the row's top-left corner and Hades II slabs the
+   * whole entry. Read out of the stylesheet for the reason the Loadout's wedge
+   * is: the rule that breaks it is one line in the base forgetting there are
+   * two games.
+   *
+   * Both paint on the row's own `::before` rather than as its background. On a
+   * card the row carries the card's padding, so a background stopped at the
+   * content box and drew a second frame inside the first.
    */
-  it("slabs a Hades II boon row and edges a Hades I one", () => {
+  it("slabs a Hades II boon row and slices a Hades I one", () => {
     const rule = (selector: string) => {
       const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       return CSS.match(new RegExp(`${literal}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
     };
 
-    const hades2 = rule('.boonrow[data-game="hades2"][data-treatment]');
+    const layer = rule(".boonrow[data-treatment]::before");
+    expect(layer, "the tint is not a layer over the row's own box").toMatch(
+      /position:\s*absolute/,
+    );
+    expect(layer).toMatch(/inset:\s*0/);
+
+    const hades2 = rule('.boonrow[data-game="hades2"][data-treatment]::before');
     expect(hades2, "Hades II's row is not tinted").toMatch(/background:\s*linear-gradient/);
 
-    const hades1 = rule('.boonrow[data-game="hades1"][data-treatment]');
-    expect(hades1, "Hades I's row does not take an edge").toMatch(
-      /border-right:\s*[\d.]+px solid var\(--rarity\)/,
-    );
-    expect(hades1).not.toMatch(/background/);
+    // The slice's width is its height times the ratio the game draws, so it
+    // holds at every card height; a literal would hold at exactly one.
+    const hades1 = rule('.boonrow[data-game="hades1"][data-treatment]::before');
+    expect(hades1, "Hades I's row does not take a slice").toMatch(/clip-path:\s*polygon\(/);
+    expect(hades1).toMatch(/aspect-ratio:\s*1\.3/);
+    expect(hades1).not.toMatch(/border-right/);
   });
 
   /**
@@ -347,8 +358,18 @@ describe("the node stylesheet", () => {
     // Hades II icon. What shape still never says is what kind of boon this is --
     // a Duo and a Legendary look alike inside one game. So the two shapes are
     // allowed, and the thing worth guarding is what may choose between them.
-    const shapes = new Set([...CSS.matchAll(/clip-path:\s*([^;]+);/g)].map((m) => m[1]!.trim()));
-    expect(shapes).toEqual(new Set(["var(--node-clip)"]));
+    //
+    // The rarity slice is the one literal shape and is named here rather than
+    // waved through: it is a tint behind a Codex row, not a silhouette, and a
+    // second one appearing anywhere still fails.
+    const clipped = [...CSS.matchAll(/([^{}]+)\{[^}]*clip-path:\s*([^;]+);/g)].map((m) => ({
+      selector: m[1]!.trim().split("\n").pop()!.trim(),
+      shape: m[2]!.trim(),
+    }));
+    const silhouettes = clipped.filter((rule) => rule.shape !== "var(--node-clip)");
+    expect(silhouettes.map((rule) => rule.selector)).toEqual([
+      '.boonrow[data-game="hades1"][data-treatment]::before',
+    ]);
 
     // Comments first: this file explains itself at length, and a prose block
     // mentioning a property reads as a rule setting one.

@@ -308,6 +308,9 @@ describe("the three ways a boon leaves a run", () => {
    * game was really taken, so the god stays. The Loadout's card asks it only
    * where it changes anything — the last boon a god has left — and the sheet
    * keeps both, being about one boon rather than about a run.
+   *
+   * On the card the pool half is a choice under **Remove** rather than a second
+   * button beside it, so it takes a click to reach and is absent until then.
    */
   it("offers the pool half of a removal exactly where it changes anything", async () => {
     await mount();
@@ -315,12 +318,16 @@ describe("the three ways a boon leaves a run", () => {
     tap(APHRODITE_MELEE);
 
     expect(control("Remove")).toBeDefined();
+    expect(() => control("Remove boon and god from pool")).toThrow();
+    click("Remove");
     expect(control("Remove boon and god from pool")).toBeDefined();
 
-    // A second boon from the same god, and the choice stops being one.
+    // A second boon from the same god, and the choice stops being one — so
+    // Remove goes back to being a button that removes rather than one that asks.
+    // Read off `aria-expanded` rather than by clicking it, which would remove.
     tap("AphroditeSpecialBoon");
     tap("AphroditeSpecialBoon");
-    expect(control("Remove")).toBeDefined();
+    expect(control("Remove").getAttribute("aria-expanded")).toBeNull();
     expect(() => control("Remove boon and god from pool")).toThrow();
   });
 
@@ -786,6 +793,7 @@ describe("the Loadout", () => {
     tap(APHRODITE_MELEE);
     expect(container.querySelector(".loadout__card")).not.toBeNull();
 
+    click("Remove");
     click("Remove boon and god from pool");
     expect(container.querySelector(".loadout__card")).toBeNull();
   });
@@ -1152,6 +1160,7 @@ describe("what the boon list shows", () => {
     // Correcting the mis-tap takes Aphrodite back out of the pool; the tab
     // stays, because it is the player's and not the pool's.
     tap(APHRODITE_MELEE);
+    click("Remove");
     click("Remove boon and god from pool");
     expect(shown()).toContain("Aphrodite");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();

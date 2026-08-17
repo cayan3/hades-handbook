@@ -11,7 +11,7 @@ import { OVERRIDDEN_HINT, OVERRIDDEN_LABEL } from "./messages.js";
 import { catalogNaming } from "./naming.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 import { useGame } from "./presentation.js";
-import { treatmentOf } from "./rarity-palette.js";
+import { byLadder, rarityColour, treatmentOf } from "./rarity-palette.js";
 
 /**
  * The run's obtained boons, styled after the game's own boon menu: icons, no
@@ -61,6 +61,22 @@ const ELEMENTS: readonly Element[] = [
   "Aether",
 ];
 
+/**
+ * How wide a card's title column is, in characters of the display face.
+ *
+ * Counted rather than measured, which is the point: the runner has no layout,
+ * so a capacity read off the DOM would leave the no-room rule with no test.
+ * Measured on the shipped card at its full width — a 369.7px column beside the
+ * rarity word over a 13.5px mean glyph. A card bounded by the viewport instead
+ * is narrower than this, so there it over-estimates and admits one sooner.
+ */
+const NAME_COLUMNS = 27;
+
+/** What one card costs the stack: a name that wraps hides twice as much. */
+function nameLines(name: string): number {
+  return Math.max(1, Math.ceil(name.length / NAME_COLUMNS));
+}
+
 export interface LoadoutProps {
   readonly entries: readonly LoadoutEntry[];
   /**
@@ -101,8 +117,15 @@ export interface LoadoutProps {
    */
   readonly detailOf?: (trait: TraitId) => NodeDetail;
   /**
-   * How many cards fit beside the grid — "until they run out of room" counted
-   * in cards, since this component owns no layout to measure.
+   * How much room the stack has, counted in **boon-name lines**.
+   *
+   * The cards split the panel's height between them, so a card is refused when
+   * admitting it would squeeze the strip that shows an open card's name. Room
+   * is pixels and this panel owns no layout to measure — so the caller says how
+   * many name lines its area holds, and a card costs the lines its own name
+   * needs. Ten is the shipped desktop profile solved: a 490.4px panel over a
+   * 9.6px gap leaves each of ten a 40.4px band against the 40.2px a name takes,
+   * and eleven leaves 35.9.
    */
   readonly capacity?: number;
   /** The edits a card offers — the two removals and the rarity. */
@@ -117,7 +140,7 @@ export function Loadout({
   expanded = false,
   onExpanded,
   detailOf,
-  capacity = 3,
+  capacity = 10,
   actions,
 }: LoadoutProps) {
   // The element symbols are the game's own art, and the two games' sets differ.
@@ -152,11 +175,20 @@ export function Loadout({
   /** A card whose boon has left the run describes a boon nobody holds. */
   const held = new Set(entries.map((entry) => entry.view.trait));
   const open = stack.filter((trait) => held.has(trait));
-  const full = open.length >= capacity;
+
+  /**
+   * What one more card would cost the stack, in the name lines `capacity`
+   * counts. A card is refused when paying it would leave an open card's name
+   * with nowhere to be drawn.
+   */
+  const cost = (trait: TraitId) =>
+    nameLines(entries.find((entry) => entry.view.trait === trait)?.view.name ?? "");
+  const spent = open.reduce((lines, trait) => lines + cost(trait), 0);
+  const roomFor = (trait: TraitId) => spent + cost(trait) <= capacity;
 
   /**
    * A hovered tile is in the held-open view too, so the glow and the stack are
-   * one set — except when the stack is full, where nothing further can be added
+   * one set — except where there is no room for it, and then nothing is added
    * or lit. A tile that lit on hover and then refused to open would be the
    * panel lying about what a click does.
    *
@@ -164,7 +196,7 @@ export function Loadout({
    * boon can leave the run while the pointer is still on its tile.
    */
   const preview =
-    hovered !== null && held.has(hovered) && !open.includes(hovered) && !full
+    hovered !== null && held.has(hovered) && !open.includes(hovered) && roomFor(hovered)
       ? hovered
       : null;
   const shown = preview === null ? open : [...open, preview];
@@ -179,7 +211,7 @@ export function Loadout({
    */
   function toggle(trait: TraitId): void {
     if (!open.includes(trait)) {
-      if (!full) setStack([...open, trait]);
+      if (roomFor(trait)) setStack([...open, trait]);
       return;
     }
     setStack(open.filter((other) => other !== trait));
@@ -320,8 +352,13 @@ export function Loadout({
                 lies over the god page, and one left behind is covering
                 something nobody is reading the Loadout to see. */}
             {!inside || shown.length === 0 || detailOf === undefined ? null : (
-              <div className="loadout__cards">
-                {shown.map((trait) => {
+              // The stack splits the panel's height between the cards it holds,
+              // so the count is what the stylesheet needs to lay them out.
+              <div
+                className="loadout__cards"
+                style={{ "--slots": String(shown.length) } as CSSProperties}
+              >
+                {shown.map((trait, slot) => {
                   const entry = cardFor(trait);
                   if (entry === undefined) return null;
                   return (
@@ -329,6 +366,8 @@ export function Loadout({
                       key={trait}
                       entry={entry}
                       detail={detailOf(trait)}
+                      slot={slot}
+                      onHover={() => setHovered(trait)}
                       // Whether the two removals differ for this boon: they only
                       // do when it is the last one the run holds from its god.
                       alone={
@@ -337,9 +376,9 @@ export function Loadout({
                           (other) => other.view.god === entry.view.god,
                         ).length === 1
                       }
-                      // Hovering a held-open tile brings its card forward and
-                      // leaves it where it is in the stack, so a glance at one
-                      // card does not rearrange the others.
+                      // Hovering a held-open tile — or the card itself — brings
+                      // that card forward and leaves it where it is in the
+                      // stack, so a glance at one does not rearrange the others.
                       front={trait === hovered}
                       onClose={() => toggle(trait)}
                       actions={actions}
@@ -505,9 +544,13 @@ function CardActions({
   readonly actions: BoonActions;
 }) {
   const { mark, remove, purge } = actions;
-  const rarities = mark === undefined ? [] : view.rarities;
-  if (rarities.length === 0 && remove === undefined && purge === undefined)
-    return null;
+  // The ladder rather than the record's own order, which is alphabetical in all
+  // 784 records declaring one and reads as a jumble.
+  const rarities = mark === undefined ? [] : byLadder(view.rarities);
+  // The pool question only differs on the last boon a god has left, and there
+  // it is a second choice under Remove rather than a second button beside it.
+  const pooled = alone && remove !== undefined;
+  if (rarities.length === 0 && !pooled && purge === undefined) return null;
 
   return (
     <div className="loadout__cardactions">
@@ -519,6 +562,9 @@ function CardActions({
                 key={rarity}
                 type="button"
                 aria-pressed={view.rarity === rarity}
+                // The colour it will paint, so the list reads as the ladder.
+                // Common has none anywhere and falls through to the ink.
+                style={{ "--choice": rarityColour(rarity) } as CSSProperties}
                 onClick={() => {
                   mark?.(view.trait, rarity);
                   close();
@@ -531,27 +577,43 @@ function CardActions({
         </HoverMenu>
       )}
 
-      {purge === undefined ? null : (
-        <button
-          type="button"
-          className="loadout__cardremove"
-          onClick={() => purge(view.trait)}
-        >
-          Remove
-        </button>
-      )}
-
-      {/* Only where it changes anything. With another of this god's boons held
-          the two removals agree, and offering a choice that makes no difference
-          is a choice to get wrong. */}
-      {!alone || remove === undefined ? null : (
-        <button
-          type="button"
-          className="loadout__cardremove"
-          onClick={() => remove(view.trait)}
-        >
-          Remove boon and god from pool
-        </button>
+      {!pooled ? (
+        purge === undefined ? null : (
+          <button
+            type="button"
+            className="loadout__cardremove"
+            onClick={() => purge(view.trait)}
+          >
+            Remove
+          </button>
+        )
+      ) : (
+        <HoverMenu label="Remove" className="cardmenu" onHover={false}>
+          {(close) => (
+            <>
+              {purge === undefined ? null : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    purge(view.trait);
+                    close();
+                  }}
+                >
+                  Remove
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  remove(view.trait);
+                  close();
+                }}
+              >
+                Remove boon and god from pool
+              </button>
+            </>
+          )}
+        </HoverMenu>
       )}
     </div>
   );
@@ -570,6 +632,8 @@ function BoonCard({
   detail,
   front,
   alone,
+  slot,
+  onHover,
   onClose,
   actions = {},
 }: {
@@ -578,6 +642,9 @@ function BoonCard({
   readonly front: boolean;
   /** The last boon the run holds from this god, which is when the two removals differ. */
   readonly alone: boolean;
+  /** Where it sits in the stack, which is the band the stylesheet gives it. */
+  readonly slot: number;
+  readonly onHover: () => void;
   readonly onClose: () => void;
   readonly actions?: BoonActions | undefined;
 }) {
@@ -588,6 +655,10 @@ function BoonCard({
       className="loadout__card"
       data-state={view.state}
       data-front={front ? "true" : undefined}
+      style={{ "--slot": String(slot) } as CSSProperties}
+      // The card answers the pointer as well as its tile: a squeezed stack
+      // shows little more than a name, and the card is the bigger target.
+      onMouseEnter={onHover}
     >
       {/* First in the document, and drawn in the corner, which is where the
           Action Sheet puts its own way out. */}

@@ -184,6 +184,77 @@ describe("a tile's card", () => {
     expect(cards()).toEqual(["a", "b"]);
   });
 
+  /**
+   * The room a card takes is its **name's** lines, not one card. The cards
+   * split the panel's height between them, so what a further one costs is the
+   * strip the ones already open need to show their names — and a name that
+   * wraps needs two of them.
+   */
+  it("charges a wrapping name two of the stack's lines", () => {
+    const long = entry("a name long enough to wrap the card's title column");
+    render(panel({ entries: [...ENTRIES, long], capacity: 3 }));
+
+    click(long.view.trait);
+    click("a");
+    // Two lines for the long one and one for `a` is three, so nothing further.
+    expect(cards()).toEqual([long.view.trait, "a"]);
+
+    hover("b");
+    expect(cards()).toEqual([long.view.trait, "a"]);
+    click("b");
+    expect(cards()).toEqual([long.view.trait, "a"]);
+
+    // Take the long one out and the same click has room twice over.
+    click(long.view.trait);
+    click("b");
+    expect(cards()).toEqual(["a", "b"]);
+  });
+
+  /**
+   * The stack splits the panel's height between the cards it holds, which is
+   * arithmetic only the stylesheet can do — so the counts go to it as
+   * properties. Read here because the runner has no layout to measure and this
+   * is the half of the rule it can still hold to account.
+   */
+  it("hands the stylesheet the stack's size and each card's place in it", () => {
+    render(panel());
+    click("a");
+    click("b");
+    click("c");
+
+    const stack = container.querySelector<HTMLElement>(".loadout__cards")!;
+    expect(stack.style.getPropertyValue("--slots")).toBe("3");
+    expect(
+      [...container.querySelectorAll<HTMLElement>(".loadout__card")].map((card) =>
+        card.style.getPropertyValue("--slot"),
+      ),
+    ).toEqual(["0", "1", "2"]);
+  });
+
+  /**
+   * Hovering the card itself brings it forward, not just its tile: a squeezed
+   * stack shows little more than a name, and the card is the bigger target.
+   * It stays where it is in the stack either way.
+   */
+  it("brings a card forward when the pointer is on the card", () => {
+    render(panel());
+    click("a");
+    click("b");
+    click("c");
+
+    const cardFor = (trait: string) =>
+      [...container.querySelectorAll<HTMLElement>(".loadout__card")].find((card) =>
+        card.querySelector(".boonrow__title")?.textContent?.startsWith(trait),
+      )!;
+
+    act(() => cardFor("a").dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    expect(cardFor("a").dataset["front"]).toBe("true");
+    expect(cardFor("c").dataset["front"]).toBeUndefined();
+    // Still first, and still carrying the first band.
+    expect(cards()).toEqual(["a", "b", "c"]);
+    expect(cardFor("a").style.getPropertyValue("--slot")).toBe("0");
+  });
+
   it("takes a card away when its boon leaves the run", () => {
     render(panel());
     click("a");
