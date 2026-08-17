@@ -1547,7 +1547,9 @@ describe("the site's pages", () => {
     });
 
     expect(container.querySelector(".home")).not.toBeNull();
-    expect(container.querySelector(".app")).toBeNull();
+    // The god bar, which is the thing a game view has and this page does not —
+    // both wear the same header, so `.app` is on the page either way.
+    expect(container.querySelector(".app__gods")).toBeNull();
     // The one thing this page has to carry while its overview is still to be
     // written.
     expect(container.querySelector(".home__disclaimer")?.textContent).toContain(
@@ -1570,11 +1572,11 @@ describe("the site's pages", () => {
 
   it("goes into a game on its hash and comes back on the bare one", async () => {
     await mount();
-    expect(container.querySelector(".app")).not.toBeNull();
+    expect(container.querySelector(".app__gods")).not.toBeNull();
 
     await follow("#/");
     expect(container.querySelector(".home")).not.toBeNull();
-    expect(container.querySelector(".app")).toBeNull();
+    expect(container.querySelector(".app__gods")).toBeNull();
   });
 
   it("is what the product's own name leads to from inside a game", async () => {
@@ -1592,6 +1594,101 @@ describe("the site's pages", () => {
     expect(started?.textContent?.trim()).toBe("Getting started");
 
     await follow(started?.getAttribute("href") ?? "");
-    expect(container.querySelector("h1")?.textContent).toBe("Getting started");
+    expect(container.querySelector(".home h1")?.textContent).toBe("Getting started");
+  });
+});
+
+/**
+ * The header every page wears. What changes between them is its two ends: the
+ * marks and the run-wide controls belong to a game, and the way in belongs to a
+ * page that is not one.
+ */
+describe("the site header", () => {
+  const marks = () =>
+    [...container.querySelectorAll<HTMLElement>(".app__mark")].map((el) => ({
+      game: el.dataset["game"],
+      current: el.dataset["current"] === "true",
+      label: el.getAttribute("aria-label"),
+      href: el.getAttribute("href"),
+    }));
+
+  it("draws a mark per game, with the one being read marked as current", async () => {
+    await mount();
+
+    expect(marks()).toEqual([
+      {
+        game: "hades1",
+        current: false,
+        label: "Switch to Hades",
+        href: GAME_HASH.hades1,
+      },
+      {
+        game: "hades2",
+        current: true,
+        label: "Hades II — you are here",
+        href: GAME_HASH.hades2,
+      },
+    ]);
+  });
+
+  /**
+   * Clipped rather than removed, so the slide has something to animate — which
+   * is also why the link carries its own name: the visible halves read as two
+   * fragments and the label reads as one thing.
+   */
+  it("keeps the second half of a mark in the document", async () => {
+    await mount();
+    const texts = [...container.querySelectorAll(".app__markmore")].map((el) => el.textContent);
+    expect(texts).toEqual(["|Switch to Hades", "|You're here!"]);
+  });
+
+  it("says which game the header is in, so the name can take its colour", async () => {
+    await mount();
+    expect(container.querySelector(".app__head")?.getAttribute("data-game")).toBe("hades2");
+
+    await follow("#/");
+    expect(container.querySelector(".app__head")?.getAttribute("data-game")).toBeNull();
+  });
+
+  /**
+   * The run-wide controls act on a session, so a page with no game has none —
+   * and the way in takes their place.
+   */
+  it("swaps the run's controls for the way in on a page with no game", async () => {
+    await mount();
+    expect(container.querySelector(".app__goalstoggle")).not.toBeNull();
+    expect(container.querySelector(".app__open")).toBeNull();
+
+    await follow("#/");
+    expect(container.querySelector(".app__goalstoggle")).toBeNull();
+    expect(container.querySelector(".app__finish")).toBeNull();
+    expect(container.querySelector(".app__mark")).toBeNull();
+
+    const games = [...container.querySelectorAll<HTMLAnchorElement>(".app__opengame")];
+    expect(games.map((a) => a.getAttribute("href"))).toEqual([
+      GAME_HASH.hades1,
+      GAME_HASH.hades2,
+    ]);
+  });
+
+  /** Help is the one control on both, which is what being game-agnostic means. */
+  it("carries help on every page", async () => {
+    await mount();
+    expect(container.querySelector(".app__help")).not.toBeNull();
+
+    await follow("#/");
+    expect(container.querySelector(".app__help")).not.toBeNull();
+
+    act(() => container.querySelector<HTMLElement>(".app__help")?.click());
+    expect(container.querySelector(".help")).not.toBeNull();
+  });
+
+  it("opens help from a key on a page with no run at all", async () => {
+    await act(async () => {
+      root.render(<App store={createMemoryStore()} presence={null} persistent />);
+    });
+
+    press("h");
+    expect(container.querySelector(".help")).not.toBeNull();
   });
 });

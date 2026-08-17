@@ -117,6 +117,10 @@ h1,
   font-family: var(--face-mono);
 }
 
+.app--page {
+  max-width: 60rem;
+}
+
 .app {
   max-width: 90rem;
   margin: 0 auto;
@@ -232,18 +236,165 @@ h1,
   text-underline-offset: 0.2em;
 }
 
-/* The product's name, which leads to the page above. Underlined only under the
-   pointer: a title with a rule under it reads as a heading style rather than as
-   somewhere to go. */
+/*
+ * The product's name, which leads to the front page. It takes the colour of the
+ * game being read, so the page says which one it is before anything else does,
+ * and it glows in that same colour under the pointer. Never underlined: a rule
+ * under a title reads as a heading style rather than as somewhere to go.
+ */
 .app__name {
-  color: inherit;
+  color: var(--game, inherit);
   text-decoration: none;
 }
 
 .app__name:hover,
 .app__name:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
+  text-decoration: none;
+  text-shadow: 0 0 0.7rem currentColor;
+}
+
+/* One place decides which game's colour the header is in, and everything under
+   it reads the same property. */
+.app__head[data-game="hades1"] {
+  --game: var(--hades1);
+}
+
+.app__head[data-game="hades2"] {
+  --game: var(--hades2);
+}
+
+/* The run-wide controls sit at the end of the header, so a control that opens
+   leftward has the room to. */
+.app__headend {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: auto;
+}
+
+/*
+ * A game, as its numeral: a square in that game's colour at rest, opening to the
+ * right under the pointer. The revealed half begins at the square's own edge, so
+ * the rule that leads it lands exactly where that edge was.
+ */
+.app__mark {
+  --mark: 2.3rem;
+  display: inline-flex;
+  align-items: center;
+  color: var(--game);
+  font-family: var(--face-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+}
+
+.app__mark[data-game="hades1"] {
+  --game: var(--hades1);
+}
+
+.app__mark[data-game="hades2"] {
+  --game: var(--hades2);
+}
+
+.app__marknum {
+  display: grid;
+  flex: none;
+  place-items: center;
+  box-sizing: border-box;
+  width: var(--mark);
+  height: var(--mark);
+  border: 1px solid var(--game);
+  border-radius: 0.35rem;
+}
+
+/* The one you are on stays lit without being hovered, which is the same job the
+   god tabs' own current marker does. */
+.app__mark[data-current] .app__marknum {
+  box-shadow: 0 0 0.35rem var(--game);
+}
+
+.app__mark:hover .app__marknum,
+.app__mark:focus-visible .app__marknum {
+  box-shadow: 0 0 0.7rem var(--game);
+}
+
+/*
+ * Clipped rather than removed, and animated on a width the box actually has:
+ * `max-width` goes from nothing to more than the text needs, so the label slides
+ * out from behind the square instead of appearing.
+ */
+.app__markmore {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.18s ease;
+}
+
+.app__mark:hover .app__markmore,
+.app__mark:focus-visible .app__markmore {
+  max-width: 16rem;
+}
+
+.app__markbar {
+  padding: 0 0.45rem;
+  opacity: 0.5;
+}
+
+/*
+ * The way into a game from a page that is not one. It opens the other way — the
+ * right edge is pinned by the header's own end, so the label slides left as the
+ * games arrive rather than pushing into nothing.
+ */
+.app__open {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  font-size: 1.15rem;
+  white-space: nowrap;
+}
+
+.app__openmore {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: center;
+  max-width: 0;
+  overflow: hidden;
+  transition: max-width 0.18s ease;
+}
+
+.app__open:hover .app__openmore,
+.app__open:focus-within .app__openmore {
+  max-width: 22rem;
+}
+
+.app__opengame {
+  color: var(--game);
+  font-family: var(--face-display);
+  text-decoration: none;
+}
+
+.app__opengame[data-game="hades1"] {
+  --game: var(--hades1);
+}
+
+.app__opengame[data-game="hades2"] {
+  --game: var(--hades2);
+}
+
+.app__opengame:hover,
+.app__opengame:focus-visible {
+  text-shadow: 0 0 0.6rem currentColor;
+}
+
+/* A slide nobody asked for is a slide that should not run. */
+@media (prefers-reduced-motion: reduce) {
+  .app__markmore,
+  .app__openmore {
+    transition: none;
+  }
 }
 
 .app__head {
@@ -308,7 +459,6 @@ h1,
   cursor: pointer;
 }
 
-.app__games a,
 .app__goalstoggle,
 .app__finish {
   padding: 0.4rem 0.8rem;
@@ -384,15 +534,6 @@ h1,
  *
  * **Whether the run has met them** is the glow, and only that.
  */
-.app__games a {
-  text-decoration: none;
-}
-
-.app__games a[aria-current] {
-  border-color: currentColor;
-  background: rgb(255 255 255 / 10%);
-}
-
 /*
  * The symbol and nothing else. The name was drawn under it for a round and the
  * tab had to be wide enough for the longest one; icon-only, the square is the

@@ -23,7 +23,6 @@ import {
   OTHER_TAB_TITLE,
   STORAGE_ERROR_BODY,
   STORAGE_ERROR_TITLE,
-  Shortcuts,
   UNREADABLE_RUN_BODY,
   UNREADABLE_RUN_TITLE,
   UndoToast,
@@ -37,14 +36,11 @@ import {
   godGraph,
   godStep,
   graphTraits,
-  Help,
-  isHelpKey,
-  isShortcutsKey,
   migrationMessage,
   useHoverDisclosure,
 } from "@repo/ui";
 import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
-import { GAME_HASH, useRoute } from "./route.js";
+import { useRoute } from "./route.js";
 import {
   attempt,
   useCondition,
@@ -53,6 +49,7 @@ import {
   useOtherTabOpen,
   useRunSession,
 } from "./session.js";
+import { SiteHeader } from "./header.js";
 import { GettingStarted, Home } from "./home.js";
 
 /**
@@ -252,10 +249,6 @@ function Run({
    */
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [loadoutOpen, setLoadoutOpen] = useState(false);
-  /** How to use the Handbook: the header's own control, `?` and `h`. */
-  const [helpOpen, setHelpOpen] = useState(false);
-  /** Every binding written out, a step past Help rather than Help itself. */
-  const [keysOpen, setKeysOpen] = useState(false);
   /**
    * The Goal Cards clicked open. Held here rather than in the panel because the
    * panel is unmounted while it is closed, and a card that forgot it was open
@@ -414,9 +407,10 @@ function Run({
   );
 
   /**
-   * The two commands that act on the page rather than on whatever has focus, so
-   * they are listened for on the document: a handler on the page body would miss
-   * every press made while focus was inside a panel or a dialog.
+   * The command that acts on the page rather than on whatever has focus, so it
+   * is listened for on the document: a handler on the page body would miss every
+   * press made while focus was inside a panel or a dialog. The two that open a
+   * dialog belong to the header, which every page wears.
    *
    * `[` and `]` step the whole bar, Hub included: it is a tab, so stepping off
    * the first god has somewhere to go. Bracket keys rather than letters because
@@ -426,16 +420,6 @@ function Run({
    */
   useEffect(() => {
     const press = (event: globalThis.KeyboardEvent) => {
-      if (isHelpKey(event)) {
-        event.preventDefault();
-        setHelpOpen(true);
-        return;
-      }
-      if (isShortcutsKey(event)) {
-        event.preventDefault();
-        setKeysOpen(true);
-        return;
-      }
       const way = godStep(event);
       if (way === null) return;
       const at = bar.findIndex((tab) => sameTab(tab, showing));
@@ -536,28 +520,7 @@ function Run({
   return (
     <NodePresentation ladder="real-art" game={game}>
       <div className="app">
-        <header className="app__head">
-          {/* The name is the way to the site's own page, which is what a
-              product's name leads to everywhere else on the web. */}
-          <h1>
-            <a className="app__name" href="#/">
-              Hades Handbook
-            </a>
-          </h1>
-          {/* Switching games is navigation now rather than state, so each is a
-              link: it can be shared, bookmarked and reached with the browser's
-              own back button. */}
-          <nav className="app__games" aria-label="Game">
-            {(["hades1", "hades2"] as const).map((id) => (
-              <a
-                key={id}
-                href={GAME_HASH[id]}
-                aria-current={id === game ? "page" : undefined}
-              >
-                {id === "hades1" ? "Hades" : "Hades II"}
-              </a>
-            ))}
-          </nav>
+        <SiteHeader game={game}>
           {/* In the header rather than pinned to the panel, so the control that
               opens it cannot sit on top of anything at a narrow width. */}
           <button
@@ -573,17 +536,7 @@ function Run({
             onClear={() => session.clearRun()}
             onFault={setFault}
           />
-          {/* Game-agnostic, so it sits apart from the two controls beside it
-              that act on a run — and it is on every page, where they are not. */}
-          <button
-            type="button"
-            className="app__help"
-            aria-label="How to use this Handbook"
-            onClick={() => setHelpOpen(true)}
-          >
-            <span aria-hidden="true">?</span>
-          </button>
-        </header>
+        </SiteHeader>
 
         <Notices
           condition={condition}
@@ -814,10 +767,6 @@ function Run({
             onDismiss={() => setDismissedEdit(condition.lastEdit)}
           />
         )}
-
-        {!helpOpen ? null : <Help onClose={() => setHelpOpen(false)} />}
-
-        {!keysOpen ? null : <Shortcuts onClose={() => setKeysOpen(false)} />}
 
         {openedView === null || opened === null ? null : (
           <ActionSheet

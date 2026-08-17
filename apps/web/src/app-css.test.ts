@@ -61,16 +61,17 @@ describe("the page stylesheet", () => {
    */
   it("steps the header's type down from the title", () => {
     const title = remOf(".app__head h1");
-    const controls = remOf(".app__games a,\n.app__goalstoggle,\n.app__finish");
+    const controls = remOf(".app__goalstoggle,\n.app__finish");
 
     expect(title).toBeGreaterThan(controls);
     expect(bodyOf(".app__godtab")).not.toMatch(/font-size/);
   });
 
   /**
-   * The three that act on the whole run are one size because they are one kind
-   * of thing. Goals had a rule of its own and was a step smaller than the two
-   * beside it, which is the sort of drift a shared rule cannot have.
+   * The two that act on the whole run are one size because they are one kind of
+   * thing. Goals had a rule of its own and was a step smaller than the one
+   * beside it, which is the sort of drift a shared rule cannot have. The game
+   * switch left this rule when it became a pair of marks with their own size.
    */
   it("gives the run-wide controls one rule between them", () => {
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
@@ -82,10 +83,32 @@ describe("the page stylesheet", () => {
         /font-size:/.test(body!) && selector!.split(",").some((s) => s.trim() === ".app__finish"),
     );
     const names = (shared?.[1] ?? "").split(",").map((s) => s.trim());
-    expect(names.sort()).toEqual([".app__finish", ".app__games a", ".app__goalstoggle"]);
+    expect(names.sort()).toEqual([".app__finish", ".app__goalstoggle"]);
 
     // And none of them carries a second size that would win over it.
     expect(bodyOf(".app__goalstoggle")).not.toMatch(/font-size/);
+  });
+
+  /**
+   * The two ends of a mark have to meet: the numeral's square is the width the
+   * revealed half starts at, so the rule leading it lands on that edge rather
+   * than near it. Read as text, the runner having no layout to measure.
+   */
+  it("starts a mark's second half at the square's own edge", () => {
+    // The square is sized by one property and nothing else sets a width, so the
+    // revealed half begins where the box ends by construction.
+    expect(bodyOf(".app__marknum")).toMatch(/width:\s*var\(--mark\)/);
+    expect(bodyOf(".app__marknum")).toMatch(/box-sizing:\s*border-box/);
+    expect(bodyOf(".app__markmore")).not.toMatch(/margin-left|padding-left/);
+  });
+
+  /** A slide nobody asked for is a slide that should not run. */
+  it("stops both slides where motion is refused", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const reduced = rules.match(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/);
+    expect(reduced?.[1]).toMatch(/\.app__markmore/);
+    expect(reduced?.[1]).toMatch(/\.app__openmore/);
+    expect(reduced?.[1]).toMatch(/transition:\s*none/);
   });
 
   /**
