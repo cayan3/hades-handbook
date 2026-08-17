@@ -164,4 +164,29 @@ describe("the page stylesheet", () => {
     expect(wide?.[1]).toMatch(/\.app__godbar\s*\{[^}]*grid-column:\s*2/);
   });
 
+  /**
+   * A `border` whose colour is an unresolved `var()` is dropped **whole**,
+   * taking the style and the width with it, so the element gets no box rather
+   * than a box in the wrong colour.
+   *
+   * Not hypothetical: `.app__godtab` set `border: 1px solid var(--god)` and
+   * **Hub** is a tab rather than a god, so `--god` was unset there and that tab
+   * had no border for as long as the Hub has existed — while a rule below set a
+   * neutral `border-color` on it, painting an edge that was not there. Same
+   * shape as a `color-mix` inside a shorthand, which was the finding one session
+   * earlier.
+   */
+  it("never puts a bare custom property in a border shorthand", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const bare: string[] = [];
+    for (const match of rules.matchAll(/(?:^|\n)\s*border\s*:\s*([^;]+);/g)) {
+      const declaration = match[1]!;
+      // The fallback is a second argument, so a comma inside the `var()` is
+      // exactly what makes one of these safe.
+      for (const use of declaration.matchAll(/var\(\s*--[\w-]+\s*\)/g)) {
+        bare.push(`border: ${declaration.trim()} — ${use[0]}`);
+      }
+    }
+    expect(bare).toEqual([]);
+  });
 });

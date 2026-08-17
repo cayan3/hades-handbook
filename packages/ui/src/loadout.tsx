@@ -393,7 +393,10 @@ export function Loadout({
               </div>
             )}
           </div>
-          {rest.length === 0 || onExpanded === undefined ? null : (
+          {/* Drawn whatever the run holds, not only where there is a second
+              column to reveal: expanding is also what pins the cards, so a run
+              with nothing but core slots still needs it to keep one on screen. */}
+          {onExpanded === undefined ? null : (
             <button
               type="button"
               className="loadout__more"
@@ -402,7 +405,7 @@ export function Loadout({
               aria-expanded={expanded}
               onClick={() => onExpanded(!expanded)}
             >
-              {expanded ? "Core slots only" : "Show all boons"}
+              {expanded ? "Collapse" : "Expand"}
             </button>
           )}
         </>
@@ -628,7 +631,10 @@ function CardActions({
               <button
                 type="button"
                 onClick={() => {
-                  remove(view.trait);
+                  // Named in the label, so it is said outright rather than
+                  // inferred: a god purged earlier in the run is still one the
+                  // player can take out here.
+                  remove(view.trait, { fromPool: true });
                   close();
                 }}
               >

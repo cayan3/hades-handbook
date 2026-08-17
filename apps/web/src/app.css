@@ -225,7 +225,7 @@ h1,
   gap: 0.4rem;
   align-items: center;
   padding: 1.6rem 1rem;
-  border: 1px solid var(--game);
+  border: 1px solid var(--game, rgb(255 255 255 / 35%));
   border-radius: 0.5rem;
   color: inherit;
   font-family: var(--face-display);
@@ -336,7 +336,7 @@ h1,
      is without competing with the god tabs below it for attention. Declared in
      two steps because a browser that cannot mix drops the whole shorthand, and
      a mark with no outline is worse than one at full strength. */
-  border: 1px solid var(--game);
+  border: 1px solid var(--game, rgb(255 255 255 / 35%));
   border-color: color-mix(in srgb, var(--game) 55%, transparent);
   border-radius: 0.35rem;
 }
@@ -584,7 +584,11 @@ h1,
   width: 3.25rem;
   height: 3.25rem;
   padding: 0.4rem;
-  border: 1px solid var(--god);
+  /* The fallback is what keeps the box: **Hub** is a tab and not a god, so
+     `--god` is unset there, and an unresolved `var()` invalidates the whole
+     shorthand rather than just its colour — the tab had no border at all, and
+     the neutral colour set below was painting an edge that did not exist. */
+  border: 1px solid var(--god, rgb(255 255 255 / 35%));
   border-radius: 0.35rem;
   background: transparent;
   color: inherit;

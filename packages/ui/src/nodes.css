@@ -1010,6 +1010,25 @@
  * Inside the padding rather than over a row: the entries stay legible right up
  * to the edge and only the gap above and below them dims.
  */
+/*
+ * The column under the opener, which is the one place the pointer can fall out
+ * of this menu. The list is flush and runs far below a 3.25rem button —
+ * measured, 463.7px against 52 — so a hand that dips before it goes right leaves
+ * the wrapper and the menu shuts. This covers that column and starts below the
+ * button, or it would take the clicks meant for it.
+ *
+ * The card's menus need none of this: they open on a click and no longer close
+ * on a leave at all.
+ */
+.godpicker__list::before {
+  position: absolute;
+  top: 3.25rem;
+  right: 100%;
+  bottom: 0;
+  width: 3.25rem;
+  content: "";
+}
+
 .godpicker__list[data-more="above"],
 .godpicker__list[data-more="both"] {
   border-top-color: rgb(255 255 255 / 45%);

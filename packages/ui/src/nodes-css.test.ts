@@ -385,6 +385,27 @@ describe("the node stylesheet", () => {
     expect(match![1]).toMatch(/--choice:\s*var\(--danger/);
   });
 
+  /**
+   * The column under the picker's opener is the one place a pointer can fall
+   * out of an L-shaped menu: the list is flush and runs far below the button, so
+   * a hand that dips before it goes right leaves the wrapper. The bridge covers
+   * it and starts below the button, or it would swallow the clicks meant for it.
+   */
+  it("bridges the column under the picker's opener without covering it", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const bridge = rules.match(/\.godpicker__list::before\s*\{([^}]*)\}/)?.[1] ?? "";
+    expect(bridge, "no bridge under the picker's opener").toMatch(/position:\s*absolute/);
+    expect(bridge).toMatch(/right:\s*100%/);
+    expect(bridge).toMatch(/bottom:\s*0/);
+
+    // It starts at the opener's own height, and the two have to agree.
+    const opener = rules.match(/\.godpicker__open\s*\{([^}]*)\}/)?.[1] ?? "";
+    const height = opener.match(/height:\s*([\d.]+rem)/)?.[1];
+    expect(height, "the opener declares no height to start below").toBeDefined();
+    expect(bridge).toMatch(new RegExp(`top:\\s*${height!.replace(".", "\\.")}`));
+    expect(bridge).toMatch(new RegExp(`width:\\s*${height!.replace(".", "\\.")}`));
+  });
+
   it("takes its shape from the game and from nothing else", () => {
     // Shape follows the artwork: Hades I draws boons as diamonds and Hades II
     // as rounded squares, and one silhouette for both crops 44% off every

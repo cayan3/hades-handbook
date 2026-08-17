@@ -80,7 +80,15 @@ export function useHoverDisclosure({ onHover = true }: HoverDisclosureOptions = 
         hovered.current = true;
         if (onHover) setOpen(true);
       },
-      onMouseLeave: leave,
+      // Leaving closes what hovering opened, and only that. A menu opened by a
+      // click is closed by one — measured, the card's list runs 90px below its
+      // opener, so reaching its lower half along anything but a straight line
+      // leaves the wrapper, and a deliberate menu vanishing under a stray hand
+      // is worse than one that waits to be dismissed. Escape, a choice, the
+      // opener again and focus leaving all still close it.
+      onMouseLeave: () => {
+        if (onHover) leave();
+      },
       // Focus opens it exactly where hover does, and **only** there. A browser
       // focuses a button on the way into clicking it, so where hover does not
       // open, this one did — and the click behind it toggled straight back, so

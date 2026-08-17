@@ -487,13 +487,23 @@ describe("the panel itself", () => {
     expect(tiles()).toHaveLength(2);
   });
 
+  /**
+   * Drawn whatever the run holds. Expanding is also what pins the cards, so a
+   * run with nothing but core slots still needs the control to keep one on
+   * screen — it used to appear only where there was a second column to reveal.
+   */
+  it("offers the control even where there is nothing extra to show", () => {
+    render(panel({ entries: [entry("a", "Melee")], onExpanded: () => {} }));
+    expect(container.querySelector(".loadout__more")).not.toBeNull();
+  });
+
   it("keeps the control saying what will still be true once the pointer has gone", () => {
     const control = () =>
       [...container.querySelectorAll("button")].find((el) => el.className === "loadout__more")!;
     render(panel({ expanded: false, onExpanded: () => {} }));
 
     expect(control().getAttribute("aria-expanded")).toBe("false");
-    expect(control().textContent).toBe("Show all boons");
+    expect(control().textContent).toBe("Expand");
   });
 
   /**
@@ -562,6 +572,38 @@ describe("the panel itself", () => {
 
     // And it is still a toggle once it is open.
     act(() => label.click());
+    expect(container.querySelector(".cardmenu__list")).toBeNull();
+  });
+
+  /**
+   * A click-opened menu is closed by a click, not by the pointer wandering.
+   * Measured, the card's list runs 90px below its opener, so reaching its lower
+   * half along anything but a straight line leaves the wrapper — and a menu the
+   * player opened deliberately should not vanish under a stray hand.
+   */
+  it("keeps a clicked-open menu up when the pointer leaves it", () => {
+    const rare = { ...entry("c"), view: { ...view("c"), rarities: ["Common", "Epic"] as const } };
+    render(panel({ entries: [rare], actions: { mark: () => undefined } }));
+    hover("c");
+
+    const menu = container.querySelector<HTMLElement>(".cardmenu")!;
+    act(() => menu.querySelector<HTMLButtonElement>(".cardmenu__open")!.click());
+    expect(container.querySelector(".cardmenu__list")).not.toBeNull();
+
+    // `relatedTarget` is the card, so this is the pointer leaving the *menu*
+    // and staying in the panel. Without it the event reads as leaving
+    // everything, the panel drops its cards, and the list goes with the card
+    // rather than with the menu — which is not what this is about.
+    const card = container.querySelector<HTMLElement>(".loadout__card")!;
+    act(() =>
+      menu.dispatchEvent(
+        new MouseEvent("mouseout", { bubbles: true, relatedTarget: card }),
+      ),
+    );
+    expect(container.querySelector(".cardmenu__list")).not.toBeNull();
+
+    // And the opener still puts it away, which is the way out that replaces it.
+    act(() => menu.querySelector<HTMLButtonElement>(".cardmenu__open")!.click());
     expect(container.querySelector(".cardmenu__list")).toBeNull();
   });
 
