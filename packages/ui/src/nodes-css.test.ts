@@ -521,15 +521,19 @@ describe("a requirement row's have-against-need", () => {
   }
 
   /**
-   * The heading carries neither a marker nor a hue. Both said what the boons
-   * under it already say by being lit or dim, and a card whose text is coloured
-   * two ways is a card where the words are the last thing you read.
+   * The heading carries no marker — a dot beside it said what the boons under it
+   * already say — and it takes a hue in one direction only: a met group goes
+   * green, which is what both games' own requirement panel does, and an unmet
+   * one is left alone so the card is never two colours of text at once.
    */
-  it("draws no marker beside the heading and no colour on it", () => {
+  it("greens a met heading and leaves an unmet one alone", () => {
     expect(CSS).not.toMatch(/\.goal__ask::before/);
     expect(rule(".goal__ask")).not.toMatch(/(^|[\s;])color\s*:/);
-    // No rule anywhere in a card paints its words green or purple.
-    expect(CSS).not.toMatch(/\.goal__row\[data-met=[^{}]*\{[^}]*color\s*:\s*#/);
+    expect(rule('.goal__row[data-met="true"] > .goal__ask')).toMatch(/color\s*:\s*#/);
+    // Nothing paints an unmet heading, and nothing paints the boons under
+    // either — the god's symbol above them is what carries whose these are.
+    expect(CSS).not.toMatch(/\.goal__row\[data-met="false"\][^{}]*\{[^}]*color\s*:\s*#/);
+    expect(rule(".goal__option")).not.toMatch(/(^|[\s;])color\s*:/);
   });
 
   /**

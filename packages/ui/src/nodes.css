@@ -1427,14 +1427,9 @@
 }
 
 /*
- * Have against need on a group is the heading's own colour — green when the
- * group is met, purple while it is not. There was a dot beside it saying the
- * same thing twice; the words are what a reader reads, so the dot is what went.
- *
- * The structural half is not lost with it: every boon under the heading still
- * carries fill against outline for held against not held, and the card's own
- * pin carries it for the goal as a whole. Each row also says which it is in
- * words, for a reader who gets no colour at all.
+ * The heading of one group. It carries no colour of its own while the group is
+ * unmet — the boons under it are lit or dim and the card's pin speaks for the
+ * goal — so the only hue here is the met one below.
  */
 .goal__ask {
   display: flex;
@@ -1444,11 +1439,24 @@
 }
 
 /*
- * A row that names boons needs no treatment of its own: the boons under it are
- * lit or dim, and a heading saying the same thing again is the dot's mistake
- * with a colour instead of a shape. A row that names *none* — an element count,
- * a keepsake, a god in the pool — has nothing underneath it, so it takes the
- * brightness its options would have carried.
+ * A met group's heading goes green, which is what both games do in their own
+ * requirement panel. One direction only: an unmet heading is unchanged, and the
+ * boons underneath keep their neutral text either way, so this adds a channel
+ * to the "met" half rather than turning the list into a colour code.
+ *
+ * #92d066 is the games' own, sampled off the Codex requirement panel — three
+ * headings, medians within 5 of each other per channel. 9.63:1 on the card
+ * surface, so it is legible before it is a signal.
+ */
+.goal__row[data-met="true"] > .goal__ask {
+  color: #92d066;
+}
+
+/*
+ * A row that names boons needs no *dimming* of its own: the boons under it are
+ * lit or dim already. A row that names *none* — an element count, a keepsake, a
+ * god in the pool — has nothing underneath it, so it takes the brightness its
+ * options would have carried.
  */
 .goal__row[data-met="false"]:not(:has(.goal__options)) {
   opacity: 0.55;
