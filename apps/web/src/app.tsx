@@ -37,7 +37,9 @@ import {
   godGraph,
   godStep,
   graphTraits,
+  Help,
   isHelpKey,
+  isShortcutsKey,
   migrationMessage,
   useHoverDisclosure,
 } from "@repo/ui";
@@ -250,8 +252,10 @@ function Run({
    */
   const [goalsOpen, setGoalsOpen] = useState(false);
   const [loadoutOpen, setLoadoutOpen] = useState(false);
-  /** The command set written out. Opened with `?`, and by nothing else. */
+  /** How to use the Handbook: the header's own control, `?` and `h`. */
   const [helpOpen, setHelpOpen] = useState(false);
+  /** Every binding written out, a step past Help rather than Help itself. */
+  const [keysOpen, setKeysOpen] = useState(false);
   /**
    * The Goal Cards clicked open. Held here rather than in the panel because the
    * panel is unmounted while it is closed, and a card that forgot it was open
@@ -427,6 +431,11 @@ function Run({
         setHelpOpen(true);
         return;
       }
+      if (isShortcutsKey(event)) {
+        event.preventDefault();
+        setKeysOpen(true);
+        return;
+      }
       const way = godStep(event);
       if (way === null) return;
       const at = bar.findIndex((tab) => sameTab(tab, showing));
@@ -564,6 +573,16 @@ function Run({
             onClear={() => session.clearRun()}
             onFault={setFault}
           />
+          {/* Game-agnostic, so it sits apart from the two controls beside it
+              that act on a run — and it is on every page, where they are not. */}
+          <button
+            type="button"
+            className="app__help"
+            aria-label="How to use this Handbook"
+            onClick={() => setHelpOpen(true)}
+          >
+            <span aria-hidden="true">?</span>
+          </button>
         </header>
 
         <Notices
@@ -717,15 +736,15 @@ function Run({
           {/* The two things this column can be. A null page is exactly Hub,
               which is a tab rather than a god and so has no graph. */}
           {page === null ? (
+            /* No heading of its own: the tab that opened it is the label, and
+               the two regions inside carry their own. */
             <section className="app__ladder">
-              <h2>Hub</h2>
               <Hub
                 held={facts.held.size}
                 pooled={[...facts.godPool]}
                 goals={goals}
                 onGod={(name) => setSelected({ kind: "god", god: name })}
                 onGoals={() => setGoalsOpen(true)}
-                onShortcuts={() => setHelpOpen(true)}
               />
             </section>
           ) : (
@@ -742,8 +761,8 @@ function Run({
               />
               {/* Under the thing it is about, not above it: it is a first-visit
                   explanation and it stops being read long before it stops being
-                  on the page. Hub's getting-started disclosure says the same
-                  three gestures, so the sentence is one constant. */}
+                  on the page. Help says the same three gestures, so the sentence
+                  is one constant. */}
               <p className="app__hint">{MARKING_HINT}</p>
             </section>
           )}
@@ -796,7 +815,9 @@ function Run({
           />
         )}
 
-        {!helpOpen ? null : <Shortcuts onClose={() => setHelpOpen(false)} />}
+        {!helpOpen ? null : <Help onClose={() => setHelpOpen(false)} />}
+
+        {!keysOpen ? null : <Shortcuts onClose={() => setKeysOpen(false)} />}
 
         {openedView === null || opened === null ? null : (
           <ActionSheet

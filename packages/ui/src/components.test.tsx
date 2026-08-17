@@ -379,7 +379,7 @@ describe("the textual state of a node", () => {
 
     const control = container.querySelector("button")!;
     act(() => {
-      control.dispatchEvent(new KeyboardEvent("keydown", { key: "d", bubbles: true }));
+      control.dispatchEvent(new KeyboardEvent("keydown", { key: "b", bubbles: true }));
     });
     expect(onOpen).toHaveBeenCalledWith("ZeusWeaponTrait");
     // The marking gesture is untouched: it is what a player does dozens of times

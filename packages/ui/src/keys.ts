@@ -14,7 +14,14 @@
 
 /** What the panels and the shortcut list print. One key, no modifier. */
 export const GOAL_KEY = "g";
+/**
+ * Help is what a player reaches for first, so it takes the key every other page
+ * on the web puts help on — and `h`, for anybody who does not know that. The
+ * shortcut list is one step further in, on its own letter.
+ */
 export const HELP_KEY = "?";
+export const HELP_KEY_ALT = "h";
+export const SHORTCUTS_KEY = "k";
 /**
  * Opens a boon's details whatever its state, which Enter does only for one the
  * run holds — a click on a boon it does not marks it instead, deliberately, so
@@ -26,7 +33,7 @@ export const HELP_KEY = "?";
  * at all. Reading what a boon needs before deciding to take it is the ordinary
  * case, and it had no gesture.
  */
-export const DETAILS_KEY = "d";
+export const DETAILS_KEY = "b";
 /**
  * Brackets rather than letters for the two that act on the page rather than on
  * whatever has focus. A search box is coming with the quick-add, and every
@@ -77,14 +84,22 @@ export function isDetailsKey(event: KeyEvent): boolean {
   return !hasModifier(event) && event.key.toLowerCase() === DETAILS_KEY && !isTyping(event.target);
 }
 
-/** Open the shortcut list. Shift is how `?` is typed, so it cannot disqualify it. */
+/** Open Help. Shift is how `?` is typed, so it cannot disqualify either key. */
 export function isHelpKey(event: KeyEvent): boolean {
+  const key = event.key === HELP_KEY ? HELP_KEY : event.key.toLowerCase();
   return (
     !event.ctrlKey &&
     !event.metaKey &&
     !event.altKey &&
-    event.key === HELP_KEY &&
+    (key === HELP_KEY || key === HELP_KEY_ALT) &&
     !isTyping(event.target)
+  );
+}
+
+/** Open the list of every binding, which is a step past Help rather than it. */
+export function isShortcutsKey(event: KeyEvent): boolean {
+  return (
+    !hasModifier(event) && event.key.toLowerCase() === SHORTCUTS_KEY && !isTyping(event.target)
   );
 }
 
@@ -203,7 +218,8 @@ export const SHORTCUTS: readonly Shortcut[] = [
   { keys: [DETAILS_KEY], what: "Open the details of the boon you are on, held or not." },
   { keys: [GOAL_KEY], what: "Set or clear a goal on the boon you are on." },
   { keys: [PREVIOUS_GOD_KEY, NEXT_GOD_KEY], what: "The previous or next god." },
-  { keys: [HELP_KEY], what: "This list." },
+  { keys: [HELP_KEY, HELP_KEY_ALT], what: "How to use the Handbook." },
+  { keys: [SHORTCUTS_KEY], what: "This list." },
   { keys: ["Esc"], what: "Close whatever is open." },
 ];
 

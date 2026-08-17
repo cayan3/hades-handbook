@@ -308,7 +308,7 @@ h1,
   cursor: pointer;
 }
 
-.app__games button,
+.app__games a,
 .app__goalstoggle,
 .app__finish {
   padding: 0.4rem 0.8rem;
@@ -384,7 +384,11 @@ h1,
  *
  * **Whether the run has met them** is the glow, and only that.
  */
-.app__games button[aria-current] {
+.app__games a {
+  text-decoration: none;
+}
+
+.app__games a[aria-current] {
   border-color: currentColor;
   background: rgb(255 255 255 / 10%);
 }
@@ -597,6 +601,28 @@ h1,
    other two controls that act on the whole run. */
 .app__goalstoggle {
   border-radius: 0.35rem;
+}
+
+/* A square, because it is not one of the run-wide controls beside it: this one
+   is on every page and acts on nothing. */
+.app__help {
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.app__help:hover,
+.app__help:focus-visible {
+  border-color: rgb(255 255 255 / 55%);
 }
 
 .rarity__swatch {

@@ -2245,3 +2245,43 @@ kbd {
   font-size: 0.9rem;
   cursor: pointer;
 }
+
+/*
+ * How to use the Handbook. It reuses the sheet's own box — same kind of thing,
+ * a modal you open, read and dismiss — and takes the games' own arrangement for
+ * what is inside it: a wide-tracked title, sections with hairlines between them,
+ * and short paragraphs rather than a wall.
+ */
+.help__title {
+  margin: 0 0 1.2rem;
+  font-family: var(--face-display, inherit);
+  font-size: 1.35rem;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.help__part + .help__part {
+  padding-top: 1rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+}
+
+.help__part h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+}
+
+.help__part p {
+  margin: 0 0 0.6rem;
+  opacity: 0.88;
+}
+
+.help__more {
+  margin: 1.2rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  font-size: 0.9rem;
+  opacity: 0.75;
+  text-align: center;
+}

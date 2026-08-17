@@ -61,7 +61,7 @@ describe("the page stylesheet", () => {
    */
   it("steps the header's type down from the title", () => {
     const title = remOf(".app__head h1");
-    const controls = remOf(".app__games button,\n.app__goalstoggle,\n.app__finish");
+    const controls = remOf(".app__games a,\n.app__goalstoggle,\n.app__finish");
 
     expect(title).toBeGreaterThan(controls);
     expect(bodyOf(".app__godtab")).not.toMatch(/font-size/);
@@ -82,7 +82,7 @@ describe("the page stylesheet", () => {
         /font-size:/.test(body!) && selector!.split(",").some((s) => s.trim() === ".app__finish"),
     );
     const names = (shared?.[1] ?? "").split(",").map((s) => s.trim());
-    expect(names.sort()).toEqual([".app__finish", ".app__games button", ".app__goalstoggle"]);
+    expect(names.sort()).toEqual([".app__finish", ".app__games a", ".app__goalstoggle"]);
 
     // And none of them carries a second size that would win over it.
     expect(bodyOf(".app__goalstoggle")).not.toMatch(/font-size/);

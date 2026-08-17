@@ -1,9 +1,8 @@
 /**
  * @vitest-environment jsdom
  *
- * Hub, whose one non-negotiable is the last paragraph: a product that ships
- * somebody else's artwork with no statement of whose it is has no business
- * being published, so that sentence is asserted rather than trusted.
+ * The Hub: what this run holds and what is pinned, and deliberately nothing
+ * about the product itself.
  */
 
 import { act, type ReactElement } from "react";
@@ -13,7 +12,6 @@ import type { GodId, TraitId } from "@repo/core";
 import type { Goal } from "./goals.js";
 import type { NodeView, RequirementRow } from "./node-view.js";
 import { Hub, type HubProps } from "./hub.js";
-import { UNAFFILIATED } from "./messages.js";
 import { NodePresentation } from "./presentation.js";
 
 declare global {
@@ -53,7 +51,6 @@ function hub(over: Partial<HubProps> = {}) {
       goals={[]}
       onGod={() => {}}
       onGoals={() => {}}
-      onShortcuts={() => {}}
       {...over}
     />
   );
@@ -103,32 +100,20 @@ function texts(selector: string): string[] {
 }
 
 describe("Hub", () => {
-  it("says whose the artwork is, in words a stranger reads", () => {
+  /**
+   * What it does *not* draw. The overview and the disclaimer are the site's
+   * front page and the how-to is the Help popup, so a copy here would be a
+   * second one to keep in step.
+   */
+  it("says nothing about the product itself", () => {
     render(hub());
 
-    const said = container.querySelector(".hub__disclaimer")?.textContent ?? "";
-    expect(said).toBe(UNAFFILIATED);
-    expect(said).toContain("Supergiant Games");
-    expect(said).toContain("unofficial");
+    expect(container.querySelector(".hub__about")).toBeNull();
+    expect(container.querySelector(".hub__disclaimer")).toBeNull();
+    expect(container.textContent).not.toContain("Supergiant");
   });
 
-  /** Last on the page and behind nothing: findable, never in front of the run. */
-  it("draws the disclaimer after everything else in the region", () => {
-    render(hub());
 
-    const about = container.querySelector(".hub__about");
-    expect(about?.lastElementChild).toBe(container.querySelector(".hub__disclaimer"));
-  });
-
-  it("offers the shortcut list a way in that is not a key", () => {
-    const opened = vi.fn();
-    render(hub({ onShortcuts: opened }));
-
-    const control = container.querySelector<HTMLElement>(".hub__shortcuts");
-    expect(control?.textContent).toBe("Keyboard shortcuts");
-    act(() => control?.click());
-    expect(opened).toHaveBeenCalledTimes(1);
-  });
 });
 
 describe("this run", () => {
@@ -156,22 +141,6 @@ describe("this run", () => {
     expect(container.querySelector(".hub__resume")?.textContent).toBe("1 boon from 1 god.");
   });
 
-  /**
-   * A disclosure rather than a state: it is still reachable once a run is going,
-   * which is what keeps it from being a first-visit view you navigate away from
-   * and never find again.
-   */
-  it("keeps getting started reachable with a run in progress", () => {
-    render(hub({ held: 3, pooled: ["Ares"] as GodId[] }));
-
-    const control = container.querySelector<HTMLElement>(".hub__howto");
-    expect(control?.getAttribute("aria-expanded")).toBe("false");
-    expect(container.querySelector(".hub__steps")).toBeNull();
-
-    act(() => control?.click());
-    expect(container.querySelector(".hub__howto")?.getAttribute("aria-expanded")).toBe("true");
-    expect(container.querySelector(".hub__steps")?.textContent).toContain("mark it as taken");
-  });
 });
 
 describe("goals at a glance", () => {

@@ -51,6 +51,8 @@ export type { RarityTreatment } from "./rarity-palette.js";
 export type { NoticeBarProps, UndoToastProps } from "./chrome.js";
 export { GoalCard, GoalsPanel } from "./goals.js";
 export type { Goal, GoalsPanelProps } from "./goals.js";
+export { Help } from "./help.js";
+export type { HelpProps } from "./help.js";
 export { Hub, HubGlyph } from "./hub.js";
 export type { HubProps } from "./hub.js";
 export { Loadout } from "./loadout.js";
@@ -83,14 +85,17 @@ export {
   DETAILS_KEY,
   GOAL_KEY,
   HELP_KEY,
+  HELP_KEY_ALT,
   NEXT_GOD_KEY,
   PREVIOUS_GOD_KEY,
   SHORTCUTS,
+  SHORTCUTS_KEY,
   focusMember,
   godStep,
   isDetailsKey,
   isGoalKey,
   isHelpKey,
+  isShortcutsKey,
   isTyping,
   memberAt,
   stepFor,

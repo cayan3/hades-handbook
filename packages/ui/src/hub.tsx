@@ -1,14 +1,13 @@
 import type { GodId } from "@repo/core";
-import { useState } from "react";
 import { GodArt } from "./boon-art.js";
 import { type Goal, goalProgress } from "./goals.js";
-import { MARKING_HINT, UNAFFILIATED } from "./messages.js";
 import { useGame } from "./presentation.js";
 
 /**
- * The page behind the bar's first tab: what this run is, and what is pinned. The
- * Hub is a thing in this product and not in either game, so its icon is drawn
- * here rather than resolved.
+ * The page behind the bar's first tab: what this run is, and what is pinned, and
+ * nothing else — the overview and the disclaimer are the site's front page, and
+ * how to use the thing is the Help popup. The Hub is a thing in this product and
+ * not in either game, so its icon is drawn here rather than resolved.
  */
 
 export interface HubProps {
@@ -20,11 +19,9 @@ export interface HubProps {
   /** What is pinned, summarised the way the panel's own cards summarise it. */
   readonly goals: readonly Goal[];
   readonly onGoals: () => void;
-  /** Opens the shortcut list, which the `?` key otherwise reaches alone. */
-  readonly onShortcuts: () => void;
 }
 
-export function Hub({ held, pooled, goals, onGod, onGoals, onShortcuts }: HubProps) {
+export function Hub({ held, pooled, goals, onGod, onGoals }: HubProps) {
   return (
     <div className="hub">
       <ThisRun held={held} pooled={pooled} onGod={onGod} />
@@ -64,30 +61,6 @@ export function Hub({ held, pooled, goals, onGod, onGoals, onShortcuts }: HubPro
         )}
       </section>
 
-      {/* Last of the three regions: it has to be present and findable rather
-          than in front of what a player came for. */}
-      <section className="hub__about">
-        <h3>What this is</h3>
-        <p>A planner for boon builds in Hades and Hades II.</p>
-        <p>
-          Mark what a run hands you and pin the boons you are working toward. Every
-          surface then answers one question: what is still needed, what is already
-          met, and what this run can no longer reach.
-        </p>
-        <p>
-          Everything is typed in by hand and kept in this browser. Nothing is
-          uploaded and there is no account.
-        </p>
-        <p>
-          {/* The list is opened by `?` and by nothing else, which is what makes
-              it free to a player who never presses a key — so the one visible
-              way in belongs here rather than in the header. */}
-          <button type="button" className="hub__shortcuts" onClick={onShortcuts}>
-            Keyboard shortcuts
-          </button>
-        </p>
-        <p className="hub__disclaimer">{UNAFFILIATED}</p>
-      </section>
     </div>
   );
 }
@@ -107,8 +80,6 @@ function ThisRun({
   readonly onGod: (god: GodId) => void;
 }) {
   const game = useGame();
-  /** Reachable with a run in progress too, so it is a disclosure and not a state. */
-  const [howTo, setHowTo] = useState(false);
 
   return (
     <section className="hub__run">
@@ -136,26 +107,6 @@ function ThisRun({
         </>
       )}
 
-      <button
-        type="button"
-        className="hub__howto"
-        aria-expanded={howTo}
-        onClick={() => setHowTo(!howTo)}
-      >
-        Getting started
-      </button>
-      {/* Rendered or not, never `hidden`: that attribute is `display: none` in
-          the user-agent sheet and any display on the element beats it. */}
-      {!howTo ? null : (
-        <div className="hub__steps">
-          <p>Pick a god from the bar to see everything they offer.</p>
-          <p>{MARKING_HINT}</p>
-          <p>
-            A goal shows up under Goals with what it still needs, and the run saves
-            itself as you go.
-          </p>
-        </div>
-      )}
     </section>
   );
 }

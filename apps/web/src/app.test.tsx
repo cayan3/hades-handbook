@@ -1332,7 +1332,7 @@ describe("the page-wide keys", () => {
     await mount();
     expect(container.querySelector(".shortcuts")).toBeNull();
 
-    press("?", { shiftKey: true });
+    press("k");
     expect(container.querySelector(".shortcuts")).not.toBeNull();
     expect(container.textContent).toContain("Set or clear a goal");
 
@@ -1341,23 +1341,35 @@ describe("the page-wide keys", () => {
   });
 
   /**
-   * Hub is the one way in that is not the key. Everywhere else it is opened by
-   * `?` and by nothing on screen, which is what keeps it free: a player reading
-   * a god's page never meets a control they have no use for.
+   * Two dialogs, one step apart: Help is how to use the thing and is on every
+   * page, and the shortcut list is every binding written out and is a step past
+   * it. `?` used to open the second, which is why this pins both.
    */
-  it("offers it on Hub and nowhere else", async () => {
+  it("keeps help and the shortcut list on separate keys", async () => {
     await mount();
-    const trigger = () => texts("button").filter((label) => /shortcut/i.test(label));
-    expect(trigger()).toEqual(["Keyboard shortcuts"]);
 
-    showGod("Athena");
-    expect(trigger()).toEqual([]);
+    press("?", { shiftKey: true });
+    expect(container.querySelector(".help")).not.toBeNull();
+    expect(container.querySelector(".shortcuts")).toBeNull();
+    press("Escape");
+
+    press("h");
+    expect(container.querySelector(".help")).not.toBeNull();
+    press("Escape");
+
+    press("k");
+    expect(container.querySelector(".shortcuts")).not.toBeNull();
+    expect(container.querySelector(".help")).toBeNull();
   });
 
-  it("opens the list from that control as well as from the key", async () => {
+  it("puts help behind a control and the shortcut list behind none", async () => {
     await mount();
-    click("Keyboard shortcuts");
-    expect(container.querySelector(".shortcuts")).not.toBeNull();
+    expect(texts("button").some((label) => /shortcut/i.test(label))).toBe(false);
+
+    const help = container.querySelector<HTMLElement>(".app__help");
+    expect(help?.getAttribute("aria-label")).toBe("How to use this Handbook");
+    act(() => help?.click());
+    expect(container.querySelector(".help")).not.toBeNull();
   });
 
   /**
@@ -1417,7 +1429,7 @@ describe("the page-wide keys", () => {
     const boon = node("AllCloseBoon");
     act(() => boon.focus());
     act(() => {
-      boon.dispatchEvent(new KeyboardEvent("keydown", { key: "d", bubbles: true }));
+      boon.dispatchEvent(new KeyboardEvent("keydown", { key: "b", bubbles: true }));
     });
 
     expect(container.querySelector(".sheet")).not.toBeNull();
@@ -1455,8 +1467,7 @@ describe("the Hub tab", () => {
 
     expect(bar()[0]).toBe("Hub");
     expect(current()).toBe("Hub");
-    expect(container.querySelector(".hub__disclaimer")).not.toBeNull();
-    // No graph on Hub, so nothing on it can be mistaken for a god's page.
+    // No graph on the Hub, so nothing on it can be mistaken for a god's page.
     expect(container.querySelector(".godpage")).toBeNull();
   });
 
