@@ -43,11 +43,12 @@
      the junction it was first matched to, which a corner mark can carry because
      it sits outside the icon rather than over it. */
   --element: calc(var(--node-size) * 0.42);
-  /* The pin is the game's own drawn banner and reads at the element's size for
-     the same reason: it is artwork rather than a two-tone glyph, and a fifth of
-     the node lost it. Matched to `--element` by intent, not by accident — the
-     two corners are the same kind of mark and a reader meets them together. */
-  --marker: calc(var(--node-size) * 0.42);
+  /* The pin is the game's own drawn banner and reads larger than a two-tone
+     glyph would need to: a fifth of the node lost it entirely. It started at the
+     element symbol's 0.42 and took a third more on the user's eye — the banner
+     is narrow for its height, so it carries less width at the same nominal size
+     than the element's square does. */
+  --marker: calc(var(--node-size) * 0.546);
 
   /* The node takes the shape of the art it holds. Hades I draws its boons as
      diamonds and Hades II as rounded squares, so a single silhouette has to
@@ -1277,7 +1278,11 @@
      rather than the symbol beside them. */
   --ask-icon: 1.45rem;
   --ask-gap: 0.45rem;
-  padding: 0.7rem 0.8rem;
+  /* Named because the pin hangs from the card's own top edge and has to climb
+     back out of it — a literal in both places is the pin drifting off the card
+     the next time the padding moves. */
+  --card-pad-y: 0.7rem;
+  padding: var(--card-pad-y) 0.8rem;
   cursor: pointer;
   border: 1px solid rgb(255 255 255 / 14%);
   border-radius: 0.55rem;
@@ -1370,7 +1375,10 @@
  */
 .goal__marker {
   display: block;
-  height: 2.5rem;
+  /* The banner hangs from the top edge of the card, which is where both games
+     put it, so it climbs back out of the card's own top padding. */
+  margin-top: calc(var(--card-pad-y) * -1);
+  height: 3.75rem;
   aspect-ratio: 53 / 80;
   color: #cbb0e8;
 }
@@ -1444,12 +1452,13 @@
  * boons underneath keep their neutral text either way, so this adds a channel
  * to the "met" half rather than turning the list into a colour code.
  *
- * #92d066 is the games' own, sampled off the Codex requirement panel — three
- * headings, medians within 5 of each other per channel. 9.63:1 on the card
- * surface, so it is legible before it is a signal.
+ * The games' own is #92d066, sampled off the Codex requirement panel — three
+ * headings, medians within 5 of each other per channel. This is that hue held
+ * exactly and lifted a step in value on the user's eye: 24% more relative
+ * luminance, 11.74:1 on the card surface against the sample's 9.63.
  */
 .goal__row[data-met="true"] > .goal__ask {
-  color: #92d066;
+  color: #a3e475;
 }
 
 /*

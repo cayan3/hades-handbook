@@ -537,6 +537,19 @@ describe("a requirement row's have-against-need", () => {
   });
 
   /**
+   * The pin hangs from the card's own top edge, which is where both games put
+   * it, so it has to climb back out of the card's top padding. One property in
+   * two places would drift the moment either moved, so the padding is a
+   * property and the pin negates it — checked here because jsdom computes no
+   * layout and could not see the pin land in the wrong place.
+   */
+  it("hangs the card's pin from the card's top edge", () => {
+    expect(rule(".goal")).toMatch(/--card-pad-y:\s*[\d.]+rem/);
+    expect(rule(".goal")).toMatch(/padding:\s*var\(--card-pad-y\)/);
+    expect(rule(".goal__marker")).toMatch(/margin-top:\s*calc\(var\(--card-pad-y\) \* -1\)/);
+  });
+
+  /**
    * The one row with nothing underneath it — an element count, a keepsake, a god
    * in the pool — takes the brightness its options would have carried, or it is
    * the only row on the panel with no state at all.
