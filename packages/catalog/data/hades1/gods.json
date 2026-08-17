@@ -51,7 +51,7 @@
  "Hades": {
   "iconKey": null,
   "id": "HadesUpgrade",
-  "kind": "PoolSlot",
+  "kind": "NonPoolSlot",
   "name": "Hades",
   "source": "Scripts/LootData.lua:20294"
  },

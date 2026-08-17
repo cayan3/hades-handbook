@@ -168,7 +168,11 @@ for godname, upgradeId in GOD_UPGRADE_IDS.items():
     data = LootData.get(upgradeId)
     if not isinstance(data, dict):
         continue
-    is_pool = bool(resolve_loot_field(upgradeId, "GodLoot"))  # resolved through InheritFrom (BaseLoot.GodLoot = true; Hermes overrides false)
+    # Resolved through InheritFrom (BaseLoot.GodLoot = true; Hermes overrides
+    # false). DebugOnly is read off the record itself and not resolved, BaseLoot
+    # carrying one too: Hades has a real loot table and the pool-selection code
+    # excludes him, and he is the one god here the flag is directly on.
+    is_pool = bool(resolve_loot_field(upgradeId, "GodLoot")) and not data.get("DebugOnly")
     if is_pool:
         pool_god_names.add(godname)
     for listField in ("PriorityUpgrades", "WeaponUpgrades", "Traits"):
@@ -537,7 +541,7 @@ for tid, data in TraitData.items():
     if clauses.negations:
         declared_negations[tid] = clauses.negations
 
-    prereq = clauses.requirement()
+    prereq = requirements.retarget_aspects(clauses.requirement(), is_aspect)
     build_failures = [dict(f, stage="prereq") for f in clauses.unclassified]
     if clauses.unclassified:
         prereq = {"type": requirements.UNCLASSIFIED_MARKER}
@@ -562,7 +566,10 @@ for tid, data in TraitData.items():
         "icon": icon if isinstance(icon, str) and not is_unresolved(icon) else None,
         "boonCategory": boon_category,
         "godKind": ("PoolSlot" if god in pool_god_names else "NonPoolSlot") if god else None,
-        "slot": get_slot_h1(tid),
+        # A form carries the slot of the weapon move it replaces, which files it
+        # among the boons a run holds. Hades II already marks its own; this is
+        # what lets a picker find one and a mark refuse it.
+        "slot": "Aspect" if is_aspect(tid) else get_slot_h1(tid),
         "tier": None,
         "rarity": get_rarity_h1(tid),
         "exclusiveGroup": None,

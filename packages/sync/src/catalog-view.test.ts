@@ -223,6 +223,7 @@ describe("the two god id spaces", () => {
 describe("the identifier sets a stored run is checked against", () => {
   it("names every slot some record claims", () => {
     expect([...shippedCatalog("hades1").slots].sort()).toEqual([
+      "Aspect",
       "Assist",
       "Keepsake",
       "Melee",
@@ -302,12 +303,13 @@ describe("a weapon form", () => {
     expect(Object.hasOwn(traitsFor("hades2").valueOf(), "TorchAutofireAspect")).toBe(true);
   });
 
-  it("is marked as one in Hades II and, for now, in neither way in Hades I", () => {
+  it("is marked as one in both games now", () => {
     const marked = (game: GameId) =>
       Object.values(traitsFor(game)).filter((record) => record.slot === "Aspect").length;
     expect(marked("hades2")).toBe(24);
-    // Hades I doesn't emit any marker at all, which is why the manual source
-    // can only refuse a form for one of the two games.
-    expect(marked("hades1")).toBe(0);
+    // Twenty-four named forms plus four unnamed internal ones. Hades I emitted
+    // no marker at all until now, which is why a Hades I run could record a
+    // form as a held trait and nothing downstream saw it.
+    expect(marked("hades1")).toBe(28);
   });
 });

@@ -513,7 +513,10 @@ def classify_category(trait_id, god, fname, data, chain):
     if "InPersonOlympianTrait" in chain or "LegacyTrait" in chain:
         return "NonStandard"  # one-off narrative cameo boon (Athena/Artemis/Dionysus), not pool content
     if fname == "TraitData_Elementals.lua":
-        return "StandardOlympian" if god else "NonStandard"
+        # A god's kind decides here as it does everywhere else. Testing only
+        # that a god was named made Hermes' Infusion the one record of his
+        # thirteen filed as pantheon-standard content.
+        return "StandardOlympian" if god in pool_god_names else "NonStandard"
     if god in pool_god_names:
         return "StandardOlympian"
     if fname in MECHANIC_ONLY_FILES:
@@ -588,7 +591,7 @@ for trait_id, data in ALL_DEFS.items():
     if clauses.negations:
         declared_negations[trait_id] = clauses.negations
 
-    prereq = clauses.requirement()
+    prereq = requirements.retarget_aspects(clauses.requirement(), is_aspect)
     if central.requirements and prereq_line:
         prereq_citation = "Scripts/TraitData.lua:%d" % prereq_line
     elif prereq is not None:
@@ -616,7 +619,7 @@ for trait_id, data in ALL_DEFS.items():
     # literally exists to answer :sobbing: :sobbing:.
     clauses.discarded.extend(activation_clauses.discarded)
     if not activation_clauses.unclassified:
-        activation = activation_clauses.requirement()
+        activation = requirements.retarget_aspects(activation_clauses.requirement(), is_aspect)
 
     affinities = get_element_affinities(trait_id)
     if len(set(affinities)) > 1:

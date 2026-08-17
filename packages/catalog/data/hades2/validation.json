@@ -4,9 +4,7 @@
  "blocksWithARemovableBlocker": [],
  "boonsNotReferencedOutsideTraitData": [],
  "boonsNotReferencedOutsideTraitDataCount": 0,
- "boonsWhoseCategoryOutranksTheirGod": [
-  "ElementalUnifiedBoon"
- ],
+ "boonsWhoseCategoryOutranksTheirGod": [],
  "boonsWithNoDescriptionRef": [
   "AxeHammerTrait",
   "BaseBoonUpgradeKeepsake",

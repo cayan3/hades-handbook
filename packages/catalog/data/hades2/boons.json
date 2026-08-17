@@ -6948,7 +6948,7 @@
   },
   "aspectConflicts": null,
   "blockedBy": null,
-  "boonCategory": "StandardOlympian",
+  "boonCategory": "NonStandard",
   "descriptionRef": "ElementalUnifiedBoon",
   "duoGods": null,
   "elementAffinity": null,
@@ -15293,8 +15293,10 @@
   "id": "SpellMoonBeamTrait",
   "name": "Sky Fall",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "SuitHexAspect"
+   "aspects": [
+    "SuitHexAspect"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:657",
   "rarity": [],

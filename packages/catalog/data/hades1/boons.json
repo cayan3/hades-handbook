@@ -2290,7 +2290,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38374",
   "tier": null
  },
@@ -2317,7 +2317,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:41157",
   "tier": null
  },
@@ -2336,8 +2336,10 @@
   "id": "BowBondBoostTrait",
   "name": "Repulse Shot",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "BowBondTrait"
+   "aspects": [
+    "BowBondTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:41096",
   "rarity": [],
@@ -2368,7 +2370,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:40498",
   "tier": null
  },
@@ -2521,7 +2523,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:40079",
   "tier": null
  },
@@ -2569,7 +2571,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:39856",
   "tier": null
  },
@@ -2764,7 +2766,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:40341",
   "tier": null
  },
@@ -5143,7 +5145,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38625",
   "tier": null
  },
@@ -5479,7 +5481,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:36694",
   "tier": null
  },
@@ -5582,8 +5584,10 @@
   "id": "FistDetonateBoostTrait",
   "name": "Rending Claws",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "FistDetonateTrait"
+   "aspects": [
+    "FistDetonateTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:38197",
   "rarity": [],
@@ -5614,7 +5618,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:37025",
   "tier": null
  },
@@ -5851,7 +5855,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:33483",
   "tier": null
  },
@@ -5878,7 +5882,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:36752",
   "tier": null
  },
@@ -6077,7 +6081,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38575",
   "tier": null
  },
@@ -6314,7 +6318,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:30945",
   "tier": null
  },
@@ -6396,8 +6400,10 @@
   "id": "GunLoadedGrenadeBoostTrait",
   "name": "Greater Inferno",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "GunLoadedGrenadeTrait"
+   "aspects": [
+    "GunLoadedGrenadeTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:39659",
   "rarity": [],
@@ -6420,8 +6426,10 @@
   "id": "GunLoadedGrenadeInfiniteAmmoTrait",
   "name": "Eternal Chamber",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "GunLoadedGrenadeTrait"
+   "aspects": [
+    "GunLoadedGrenadeTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:39812",
   "rarity": [],
@@ -6444,8 +6452,10 @@
   "id": "GunLoadedGrenadeLaserTrait",
   "name": "Concentrated Beam",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "GunLoadedGrenadeTrait"
+   "aspects": [
+    "GunLoadedGrenadeTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:39703",
   "rarity": [],
@@ -6468,8 +6478,10 @@
   "id": "GunLoadedGrenadeSpeedTrait",
   "name": "Flash Fire",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "GunLoadedGrenadeTrait"
+   "aspects": [
+    "GunLoadedGrenadeTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:39733",
   "rarity": [],
@@ -6500,7 +6512,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38975",
   "tier": null
  },
@@ -6519,8 +6531,10 @@
   "id": "GunLoadedGrenadeWideTrait",
   "name": "Triple Beam",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "GunLoadedGrenadeTrait"
+   "aspects": [
+    "GunLoadedGrenadeTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:39781",
   "rarity": [],
@@ -6551,7 +6565,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38811",
   "tier": null
  },
@@ -6643,13 +6657,13 @@
   "activation": null,
   "aspectConflicts": null,
   "blockedBy": null,
-  "boonCategory": "StandardOlympian",
+  "boonCategory": "NonStandard",
   "descriptionRef": "HadesShoutTrait",
   "duoGods": null,
   "elementAffinity": null,
   "exclusiveGroup": null,
   "god": "Hades",
-  "godKind": "PoolSlot",
+  "godKind": "NonPoolSlot",
   "icon": "Boon_Hades_01",
   "id": "HadesShoutTrait",
   "name": "Hades' Aid",
@@ -9651,7 +9665,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38504",
   "tier": null
  },
@@ -9741,7 +9755,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:25195",
   "tier": null
  },
@@ -9933,8 +9947,10 @@
   "id": "ShieldLoadAmmoBoostTrait",
   "name": "Unyielding Defense",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "ShieldLoadAmmoTrait"
+   "aspects": [
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:25102",
   "rarity": [],
@@ -9965,7 +9981,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:23583",
   "tier": null
  },
@@ -9984,8 +10000,10 @@
   "id": "ShieldLoadAmmo_AphroditeRangedTrait",
   "name": "Passion Flare",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "ShieldLoadAmmoTrait"
+   "aspects": [
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:8548",
   "rarity": [
@@ -10013,8 +10031,10 @@
   "id": "ShieldLoadAmmo_AresRangedTrait",
   "name": "Slicing Flare",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "ShieldLoadAmmoTrait"
+   "aspects": [
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:8647",
   "rarity": [
@@ -10042,8 +10062,10 @@
   "id": "ShieldLoadAmmo_ArtemisRangedTrait",
   "name": "Hunter's Flare",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "ShieldLoadAmmoTrait"
+   "aspects": [
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:24712",
   "rarity": [
@@ -10071,8 +10093,10 @@
   "id": "ShieldLoadAmmo_AthenaRangedTrait",
   "name": "Phalanx Flare",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "ShieldLoadAmmoTrait"
+   "aspects": [
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:24638",
   "rarity": [
@@ -10100,8 +10124,10 @@
   "id": "ShieldLoadAmmo_DemeterRangedTrait",
   "name": "Icy Flare",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "ShieldLoadAmmoTrait"
+   "aspects": [
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:24824",
   "rarity": [
@@ -10129,18 +10155,11 @@
   "id": "ShieldLoadAmmo_DionysusRangedTrait",
   "name": "Trippy Flare",
   "prereq": {
-   "kind": "anyOf",
-   "min": 1,
-   "of": [
-    {
-     "kind": "hasTrait",
-     "trait": "BowLoadAmmoTrait"
-    },
-    {
-     "kind": "hasTrait",
-     "trait": "ShieldLoadAmmoTrait"
-    }
-   ]
+   "aspects": [
+    "BowLoadAmmoTrait",
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:12910",
   "rarity": [
@@ -10168,8 +10187,10 @@
   "id": "ShieldLoadAmmo_PoseidonRangedTrait",
   "name": "Flood Flare",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "ShieldLoadAmmoTrait"
+   "aspects": [
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:4591",
   "rarity": [
@@ -10197,8 +10218,10 @@
   "id": "ShieldLoadAmmo_ZeusRangedTrait",
   "name": "Thunder Flare",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "ShieldLoadAmmoTrait"
+   "aspects": [
+    "ShieldLoadAmmoTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:25009",
   "rarity": [
@@ -10276,7 +10299,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:23454",
   "tier": null
  },
@@ -10576,7 +10599,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:25985",
   "tier": null
  },
@@ -11026,7 +11049,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38426",
   "tier": null
  },
@@ -11221,7 +11244,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:27739",
   "tier": null
  },
@@ -11240,8 +11263,10 @@
   "id": "SpearSpinTravelDurationTrait",
   "name": "Winged Serpent",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "SpearSpinTravel"
+   "aspects": [
+    "SpearSpinTravel"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:22049",
   "rarity": [],
@@ -11264,8 +11289,10 @@
   "id": "SpearSpinTravelRadiusDamageTrait",
   "name": null,
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "SpearSpinTravel"
+   "aspects": [
+    "SpearSpinTravel"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:22097",
   "rarity": [],
@@ -11296,7 +11323,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:42030",
   "tier": null
  },
@@ -11470,7 +11497,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:41748",
   "tier": null
  },
@@ -11779,7 +11806,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38752",
   "tier": null
  },
@@ -11827,7 +11854,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:38263",
   "tier": null
  },
@@ -11867,8 +11894,10 @@
   "id": "SwordConsecrationBoostTrait",
   "name": "Greater Consecration",
   "prereq": {
-   "kind": "hasTrait",
-   "trait": "SwordConsecrationTrait"
+   "aspects": [
+    "SwordConsecrationTrait"
+   ],
+   "kind": "hasAspect"
   },
   "prereqSource": "Scripts/TraitData.lua:22139",
   "rarity": [],
@@ -11899,7 +11928,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:20424",
   "tier": null
  },
@@ -11947,7 +11976,7 @@
    "Legendary",
    "Rare"
   ],
-  "slot": null,
+  "slot": "Aspect",
   "source": "Scripts/TraitData.lua:20267",
   "tier": null
  },

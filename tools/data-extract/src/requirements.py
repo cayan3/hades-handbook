@@ -59,6 +59,10 @@ def has_talent(talent):
     return {"kind": "hasTalent", "talent": talent}
 
 
+def has_aspect(aspects):
+    return {"kind": "hasAspect", "aspects": sorted(set(aspects))}
+
+
 def all_of(parts):
     """AND the parts, collapsing the degenerate cases.
 
@@ -153,6 +157,38 @@ def referenced_trait_ids(requirement):
 def referenced_keepsake_ids(requirement):
     """Every keepsake id a requirement names."""
     return {n["keepsake"] for n in walk(requirement) if n.get("kind") == "hasKeepsake"}
+
+
+def referenced_aspect_ids(requirement):
+    """Every weapon form a requirement names.
+
+    Trait-space, like the exclusion fields: a form is an ordinary trait record
+    that the run equips rather than holds.
+    """
+    return {a for n in walk(requirement) if n.get("kind") == "hasAspect"
+            for a in n.get("aspects") or ()}
+
+
+def retarget_aspects(requirement, is_aspect):
+    """Rewrite a gate that names a weapon form through the atom that reads one.
+
+    A form is equipped, not held, so `hasTrait` about one asks after it in the
+    set of traits the run picked up and is never satisfied. A disjunction over
+    forms collapses into a single atom, which is what `hasAspect` taking a list
+    is for.
+    """
+    if not isinstance(requirement, dict):
+        return requirement
+    kind = requirement.get("kind")
+    if kind == "hasTrait" and is_aspect(requirement["trait"]):
+        return has_aspect([requirement["trait"]])
+    if kind in ("all", "anyOf"):
+        children = [retarget_aspects(c, is_aspect) for c in requirement.get("of") or []]
+        if (kind == "anyOf" and requirement.get("min", 1) <= 1 and children
+                and all(c.get("kind") == "hasAspect" for c in children)):
+            return has_aspect(a for c in children for a in c["aspects"])
+        return dict(requirement, of=children)
+    return requirement
 
 
 def referenced_catalog_ids(requirement):

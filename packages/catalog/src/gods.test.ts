@@ -21,7 +21,10 @@ import type { GodRecord, KeepsakeRecord } from "./schema.js";
  */
 
 const GAMES: readonly GameKey[] = ["hades1", "hades2"];
-const EXPECTED: Record<GameKey, number> = { hades1: 9, hades2: 9 };
+// Eight in Hades I and nine in Hades II. The first game's Hades has a real
+// loot table and the game's own selection code excludes him, which the
+// extraction reads now: he is a god with boons and never a slot.
+const EXPECTED: Record<GameKey, number> = { hades1: 8, hades2: 9 };
 
 describe.each(GAMES)("%s pool gods", (game) => {
   const pooled = poolGods(game);

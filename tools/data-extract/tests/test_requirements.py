@@ -482,3 +482,71 @@ def test_a_cycle_is_reported_rather_than_resolved():
     gods = dict.fromkeys(prereqs, "G")
     _, cycles = requirements.compute_tiers(prereqs, gods, set(prereqs))
     assert cycles
+
+
+# ---------------------------------------------------------------------------
+# Weapon forms, which a gate names as if they were held
+# ---------------------------------------------------------------------------
+
+FORMS = {"BeowulfForm", "LuciferForm"}
+
+
+def retarget(requirement):
+    return requirements.retarget_aspects(requirement, lambda tid: tid in FORMS)
+
+
+def test_a_gate_naming_a_form_asks_for_the_equipped_one():
+    """A form is equipped rather than picked up, so `hasTrait` about one looks
+    for it among the traits a run holds and never finds it. Twenty records in
+    the two games read as permanently unmet on exactly this."""
+    assert retarget(requirements.has_trait("BeowulfForm")) == {
+        "kind": "hasAspect",
+        "aspects": ["BeowulfForm"],
+    }
+
+
+def test_an_ordinary_trait_is_left_where_it_is():
+    assert retarget(requirements.has_trait("EmberWardTrait")) == {
+        "kind": "hasTrait",
+        "trait": "EmberWardTrait",
+    }
+
+
+def test_either_of_two_forms_becomes_one_atom_naming_both():
+    """`hasAspect` takes a list precisely so the disjunctive case is one atom
+    rather than an `anyOf` over two."""
+    either = requirements.any_of(
+        [requirements.has_trait("LuciferForm"), requirements.has_trait("BeowulfForm")]
+    )
+    assert retarget(either) == {"kind": "hasAspect", "aspects": ["BeowulfForm", "LuciferForm"]}
+
+
+def test_a_mixed_disjunction_keeps_its_shape():
+    """Only a branch that is forms all the way collapses: one that offers a form
+    or a boon is a real choice between two different facts."""
+    mixed = requirements.any_of(
+        [requirements.has_trait("BeowulfForm"), requirements.has_trait("EmberWardTrait")]
+    )
+    assert retarget(mixed) == {
+        "kind": "anyOf",
+        "min": 1,
+        "of": [
+            {"kind": "hasAspect", "aspects": ["BeowulfForm"]},
+            {"kind": "hasTrait", "trait": "EmberWardTrait"},
+        ],
+    }
+
+
+def test_a_form_nested_under_a_conjunction_is_still_found():
+    both = requirements.all_of(
+        [requirements.has_trait("BeowulfForm"), requirements.has_boon_from("Sable")]
+    )
+    assert retarget(both)["of"][0] == {"kind": "hasAspect", "aspects": ["BeowulfForm"]}
+
+
+def test_a_form_a_gate_names_is_still_an_id_the_catalog_must_carry():
+    """Rewriting the atom would otherwise take these ids out of the dangling
+    check, which is the one thing that notices a gate pointing at nothing."""
+    assert requirements.referenced_aspect_ids(
+        retarget(requirements.has_trait("BeowulfForm"))
+    ) == {"BeowulfForm"}

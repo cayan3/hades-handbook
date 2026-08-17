@@ -34,20 +34,18 @@ describe.each(GAMES)("%s forcing keepsakes", (game) => {
     for (const god of forcing.values()) expect(pooled.has(god)).toBe(true);
   });
 
-  it("covers every pool god except the one Hades I files as a pool god and never offers", () => {
+  it("covers every pool god, with none left over", () => {
     const gods = dataFor(game).gods as Record<string, GodRecord>;
     const uncovered = Object.entries(gods)
       .filter(([, record]) => record.kind === "PoolSlot")
       .map(([god]) => god)
       .filter((god) => ![...forcing.values()].includes(god));
-    // Hades I's Hades has a loot table and is filed as holding a pool slot, but
-    // the game's own selection code excludes him: he is never offered, and no
-    // keepsake forces him. The one trait under his name comes from a keepsake
-    // rather than from a pool. The extraction is faithful to a table that
-    // really exists; what disagrees with the game is the kind derived from that
-    // table. Left alone here on purpose, since reading the catalog is this
-    // package's job and fixing it is the extractor's.
-    expect(uncovered).toEqual(game === "hades1" ? ["Hades"] : []);
+    // This found the finding it now pins the fix for. Hades I's Hades used to
+    // sit here, a pool god with nothing to force him into a pool because the
+    // game never offers him; the extractor reads the flag that says so, so
+    // every pool god in both games has a forcing keepsake and the count is
+    // one per god.
+    expect(uncovered).toEqual([]);
   });
 
   it("names gods in the id space a requirement and a god pool speak", () => {

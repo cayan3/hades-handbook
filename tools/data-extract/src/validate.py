@@ -61,18 +61,12 @@ GOD_DISAGREES_WITH_LOOT_TABLE_KNOWN = {
     "ShieldLoadAmmo_DemeterRangedTrait",
 }
 
-# Tall Order, Hermes' Infusion in Hades II, and the one record in either game
-# filed StandardOlympian under a god who takes no pool slot. It reaches the
-# category through the Elementals file instead of through its god, which is
-# right for what it is despite being wrong-looking when compared to like every
-# other Hermes record rip. This is listed here instead of corrected bc whether
-# something is an Infusion that belongs to its god's category or to its
-# mechanic's is a taxonomy call that hasn't really been made, and the check
-# beside this exists so that the second such record is a decision instead of
-# a discovery.
-CATEGORY_OUTRANKS_GOD_KNOWN = {
-    "ElementalUnifiedBoon",
-}
+# Empty, and kept rather than deleted. Tall Order (Hermes' Infusion in Hades II)
+# sat here while the taxonomy call went unmade; it is made now -- an Infusion
+# takes its god's standing like every other record -- so the emitter answers it
+# and there is nothing to exempt. The next record to reach this check is a
+# decision rather than a discovery, which is what the list is for.
+CATEGORY_OUTRANKS_GOD_KNOWN = set()
 
 # One Godsent Hex per Hex per Olympian, and the game ships nine of each.
 # This is a number instead of a list of ids bc the ids are derived, so listing
@@ -226,6 +220,10 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
             expr = b.get(field)
             missing |= {r for r in requirements.referenced_trait_ids(expr) if r not in boons}
             missing |= {r for r in requirements.referenced_keepsake_ids(expr) if r not in keepsakes}
+            # A form named by `hasAspect` is a trait record too, and rewriting
+            # those gates out of `hasTrait` would otherwise take them out of
+            # every check at once.
+            missing |= {r for r in requirements.referenced_aspect_ids(expr) if r not in boons}
         # The exclusion fields are trait-space throughout: a group, a block, and
         # an aspect conflict all name something the run holds or equips as a
         # trait record.
