@@ -80,7 +80,6 @@ export type EditAction =
   | "equipKeepsake"
   | "answerMirrorRow"
   | "answerTalent"
-  | "setElement"
   | "setResource"
   | "pin"
   | "unpin"
@@ -257,7 +256,6 @@ export interface ManualSource extends RunStateSource {
    */
   answerTalent(talent: TalentId, selection: TalentSelection | null): void;
 
-  setElement(element: Element, count: number): void;
   setResource(resource: ResourceId, amount: number): void;
 
   pin(trait: TraitId): void;
@@ -422,7 +420,16 @@ interface SourceSeed {
 
 function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   const { catalog, store, unreadableRun } = seed;
-  let state = seed.state;
+  /**
+   * The seed's element counts are recomputed rather than trusted. A stored run
+   * predating the derivation carries whatever was in the record, and nothing
+   * ever wrote one — so a load is where a run last written by an older build
+   * gets its counts, with no migration to schedule and nothing to re-stamp.
+   */
+  let state: RunState = {
+    ...seed.state,
+    facts: { ...seed.state.facts, elements: elementsFrom(seed.state.facts.held, catalog) },
+  };
   let quarantine = seed.quarantine;
   let pending = seed.pendingNotice;
   let overrides = seed.overrides;
@@ -548,7 +555,11 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
    * waking every facts listener for one is a miss for all of them and news for
    * none.
    */
-  function commit(facts: RunFacts, intent = state.intent, alsoMoved = false): void {
+  function commit(incoming: RunFacts, intent = state.intent, alsoMoved = false): void {
+    // Derived here rather than by each writer, so a writer added later cannot
+    // forget it. Nothing else maintains the map, which is how it came to be
+    // written by nothing at all.
+    const facts: RunFacts = { ...incoming, elements: elementsFrom(incoming.held, catalog) };
     const factsMoved = !sameFacts(facts, state.facts);
     const intentMoved = !sameIntent(intent, state.intent);
     if (!factsMoved && !intentMoved && !alsoMoved) {
@@ -1097,14 +1108,6 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       commit({ ...state.facts, equipped });
     },
 
-    setElement(element: Element, count: number): void {
-      beginEdit("setElement", element);
-      const elements = new Map(state.facts.elements);
-      if (count === 0) elements.delete(element);
-      else elements.set(element, count);
-      commit({ ...state.facts, elements });
-    },
-
     setResource(resource: ResourceId, amount: number): void {
       beginEdit("setResource", resource);
       const resources = new Map(state.facts.resources);
@@ -1295,6 +1298,36 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       });
     },
   };
+}
+
+/**
+ * The run's element counts, worked out from what it holds.
+ *
+ * Derived rather than stored, which is what the game itself does: its own
+ * counts are a cache rebuilt from the trait list, with the only two writers
+ * inside that rebuild. A stored copy is a cache with no invalidation, and this
+ * field spent a tier as one written by nothing.
+ *
+ * One per element the record grants, per trait held. Rarity does not enter
+ * into it — the game's accumulator increments by one and reads no multiplier.
+ * A trait held at level 3 is still one trait, so `held` is walked by key.
+ *
+ * An element the run has none of has no entry rather than a zero, which is
+ * what `hasElement` reads as "none of these yet" either way, and what keeps
+ * Hades I's map empty instead of five zeroes.
+ */
+function elementsFrom(
+  held: ReadonlyMap<TraitId, HeldTrait>,
+  catalog: SyncCatalog,
+): Map<Element, number> {
+  const counts = new Map<Element, number>();
+  for (const trait of held.keys()) {
+    const record = Object.hasOwn(catalog.traits, trait) ? catalog.traits[trait] : undefined;
+    for (const element of record?.elementGrants ?? []) {
+      counts.set(element, (counts.get(element) ?? 0) + 1);
+    }
+  }
+  return counts;
 }
 
 /**

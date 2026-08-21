@@ -285,6 +285,102 @@ describe("marking a boon", () => {
   });
 });
 
+/**
+ * The run's element counts, end to end over the shipped catalog.
+ *
+ * Three surfaces read the same map and each is asserted on its own here,
+ * because a change that fixes one and leaves another wrong is exactly what
+ * happened: the counts were maintained by nothing, so the row showed five
+ * zeroes *and* all 17 element gates read as unmet by a run that had met them.
+ * Self Healing is obtainable at 2 Fire and live at 3, so one boon covers the
+ * two gates at two different thresholds.
+ */
+describe("the run's elements", () => {
+  /** Three Fire boons with no gate, no slot and no exclusion between them. */
+  const FIRE = ["AloneDamageBoon", "BurnExplodeBoon", "ApolloRetaliateBoon"];
+  const SELF_HEALING = "ElementalRallyBoon";
+
+  function elementRow(): string[] {
+    return [...container.querySelectorAll(".loadout__elements li")].map(
+      (li) => li.textContent ?? "",
+    );
+  }
+
+  /** The row is drawn only while the panel is open, all five and never fewer. */
+  function openLoadout(): void {
+    const toggle = [...container.querySelectorAll<HTMLElement>("button")].find(
+      (button) => button.textContent?.trim() === "Expand",
+    );
+    if (toggle !== undefined) act(() => toggle.click());
+  }
+
+  it("counts one per boon held, and the row says so", async () => {
+    await mount();
+    for (const trait of FIRE) tap(trait);
+    openLoadout();
+
+    // Five entries whatever the run has met, with the count beside each
+    // symbol — so the four it has not met read zero rather than going missing.
+    expect(elementRow()).toHaveLength(5);
+    expect(elementRow().some((entry) => entry.startsWith("3") && entry.includes("Fire"))).toBe(true);
+    expect(elementRow().filter((entry) => entry.startsWith("0"))).toHaveLength(4);
+  });
+
+  it("counts the boon and not its rarity", async () => {
+    await mount();
+    tap(FIRE[0] as string);
+    // A second tap on a held boon opens its sheet, where the rarity the mark
+    // had to guess gets corrected.
+    tap(FIRE[0] as string);
+    click("Heroic");
+    openLoadout();
+
+    // The game's accumulator increments by one and reads no multiplier, so a
+    // Heroic is worth exactly what a Common is.
+    expect(elementRow().some((entry) => entry.startsWith("1") && entry.includes("Fire"))).toBe(true);
+  });
+
+  it("opens the prerequisite gate once the count reaches it", async () => {
+    await mount();
+    const before = node(SELF_HEALING).getAttribute("aria-label");
+    expect(before).not.toContain("Available");
+
+    tap(FIRE[0] as string);
+    tap(FIRE[1] as string);
+
+    expect(node(SELF_HEALING).getAttribute("aria-label")).toContain("Available");
+  });
+
+  it("clears the dormant badge once the activation count is reached", async () => {
+    await mount();
+    for (const trait of FIRE.slice(0, 2)) tap(trait);
+    tap(SELF_HEALING);
+
+    // Held at 2 Fire, and its effect is gated at 3 — which the game signals
+    // with a popup that is gone a second later and nowhere else.
+    expect(node(SELF_HEALING).parentElement?.textContent).toContain("not active yet");
+
+    tap(FIRE[2] as string);
+
+    expect(node(SELF_HEALING).parentElement?.textContent).not.toContain("not active yet");
+  });
+
+  it("derives the count for a run stored before anything maintained it", async () => {
+    // The record this run is built from carries no counts at all, which is what
+    // every run written before the derivation looks like. Nothing migrates it:
+    // the count is worked out from `held` when the run opens.
+    const store = createMemoryStore();
+    const state = emptyRun("hades2", currentBuild());
+    for (const trait of FIRE) state.facts.held.set(trait, { rarity: "Common", level: 1 });
+    await store.save("hades2", "active", toPersisted({ state, quarantine: [] }));
+
+    await mount(store);
+    openLoadout();
+
+    expect(elementRow().some((entry) => entry.startsWith("3") && entry.includes("Fire"))).toBe(true);
+  });
+});
+
 describe("marking opens nothing", () => {
   /**
    * The contract the marking test above left unasserted: a tap on a boon the

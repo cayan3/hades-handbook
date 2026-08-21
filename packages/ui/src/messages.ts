@@ -38,7 +38,6 @@ const VERBS: Readonly<Record<EditAction, string>> = {
   equipKeepsake: "Changed keepsake",
   answerMirrorRow: "Answered the Mirror row",
   answerTalent: "Answered",
-  setElement: "Set",
   setResource: "Set",
   pin: "Pinned",
   unpin: "Unpinned",
@@ -72,11 +71,10 @@ function subjectName(edit: UndoableEdit, naming: Naming): string {
       return naming.keepsake(subject);
     case "answerTalent":
       return naming.talent(subject);
-    // A weapon, a Mirror row, an element and a resource are already the word
-    // the player uses; the last two never reach here, having no subject.
+    // A weapon, a Mirror row and a resource are already the word the player
+    // uses; the last two never reach here, having no subject.
     case "equipWeapon":
     case "answerMirrorRow":
-    case "setElement":
     case "setResource":
     case "acceptMigration":
       return subject;

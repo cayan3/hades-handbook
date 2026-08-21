@@ -1,5 +1,4 @@
 import type {
-  Element,
   GameId,
   GodId,
   HeldTrait,
@@ -100,7 +99,6 @@ interface PersistedFacts {
   dataVersion: string;
   held: [TraitId, HeldTrait][];
   godPool: GodId[];
-  elements: [Element, number][];
   slots: [SlotId, TraitId | null][];
   equipped: {
     weapon?: string;
@@ -157,7 +155,6 @@ export function toPersisted(run: StoredRun): PersistedRun {
       dataVersion: facts.dataVersion,
       held: [...facts.held],
       godPool: [...facts.godPool],
-      elements: [...facts.elements],
       slots: [...facts.slots],
       equipped,
       resources: [...facts.resources],
@@ -431,7 +428,10 @@ export function fromPersisted(record: unknown): StoredRun {
         dataVersion: facts.dataVersion,
         held: new Map(readHeld(facts.held)),
         godPool: new Set(facts.godPool),
-        elements: new Map(facts.elements),
+        // Not stored: the counts are derived from `held` by whoever opens the
+        // run, so a record cannot carry a stale one. Empty here rather than
+        // absent because `RunFacts` requires the field.
+        elements: new Map(),
         slots: new Map(facts.slots),
         equipped,
         resources: new Map(facts.resources),

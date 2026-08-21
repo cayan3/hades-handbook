@@ -5,7 +5,6 @@ function populated() {
   const state = emptyRun("hades2", "build-1");
   state.facts.held.set("HeraAttack", { rarity: "Epic", level: 3 });
   state.facts.godPool.add("Hera");
-  state.facts.elements.set("Fire", 2);
   state.facts.slots.set("Melee", "HeraAttack");
   state.facts.slots.set("Ranged", null);
   state.facts.resources.set("Ash", 12);
@@ -32,6 +31,28 @@ describe("a run written to storage and read back", () => {
     expect(after.facts.held.get("HeraAttack")).toEqual({ rarity: "Epic", level: 3 });
     expect(after.facts.slots.get("Ranged")).toBeNull();
     expect(after.intent.notes.get("HeraAttack")).toBe("keep at Epic");
+  });
+
+  /**
+   * The counts are a pure function of what the run holds, so storing them puts
+   * a cache in the record with nothing to invalidate it — which is the state
+   * this field was actually in for a tier, maintained by no writer at all.
+   * Whoever opens the run derives them instead.
+   *
+   * `STORE_VERSION` deliberately does not move for this. A record written
+   * before the change carries a count that is now ignored and a record written
+   * after it carries none, and both read correctly on either build; bumping
+   * would send every run in existence to the unreadable slot to buy nothing.
+   */
+  it("does not carry the element counts, which are derived", () => {
+    const before = emptyRun("hades2", "build-1");
+    before.facts.held.set("HeraAttack", { rarity: "Epic", level: 3 });
+    before.facts.elements.set("Fire", 2);
+
+    const stored = JSON.parse(JSON.stringify(toPersisted({ state: before, quarantine: [] })));
+
+    expect(stored.facts).not.toHaveProperty("elements");
+    expect(fromPersisted(stored).state.facts.elements.size).toBe(0);
   });
 
   it("carries quarantined entries with it", () => {

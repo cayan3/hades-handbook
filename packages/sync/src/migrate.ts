@@ -258,6 +258,9 @@ function scanFacts(
     dataVersion: facts.dataVersion,
     held,
     godPool,
+    // Carried rather than scanned: an element name is a closed set the type
+    // fixes, and a load derives the counts from `held` regardless of what is
+    // in here.
     elements: new Map(facts.elements),
     slots,
     equipped,

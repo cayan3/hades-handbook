@@ -100,6 +100,150 @@ describe("marking a boon", () => {
   });
 });
 
+/**
+ * The element counts, which are worked out from `held` rather than kept beside
+ * it. The game does the same — its own counts are a cache rebuilt off the
+ * trait list — and a stored copy is a cache with nothing to invalidate it,
+ * which is the state this field was in for a tier with no writer at all.
+ */
+describe("the run's element counts", () => {
+  function elemental(): SyncCatalog {
+    return testCatalog({
+      game: "hades2",
+      dataVersion: "build-1",
+      traits: traitTable(
+        testTrait("HestiaFire", { god: "Hera", elementGrants: ["Fire"] }),
+        testTrait("ApolloFire", { god: "Zeus", elementGrants: ["Fire"] }),
+        testTrait("AllFive", {
+          god: "Hera",
+          elementGrants: ["Aether", "Air", "Earth", "Fire", "Water"],
+        }),
+        testTrait("Plain", { god: "Hera", slot: "Melee" }),
+        testTrait("AlsoMelee", { god: "Zeus", slot: "Melee", elementGrants: ["Water"] }),
+      ),
+      gods: new Set(["Hera", "Zeus"]),
+      slots: new Set(["Melee"]),
+    });
+  }
+
+  const openElemental = (store: RunStore = createMemoryStore()) =>
+    openManualSource({ game: "hades2", catalog: elemental(), store });
+
+  it("adds one per boon held", async () => {
+    const source = await openElemental();
+
+    source.mark("HestiaFire");
+    source.mark("ApolloFire");
+
+    expect(source.getFacts().elements.get("Fire")).toBe(2);
+  });
+
+  it("adds one per element a boon grants, for a boon that grants several", async () => {
+    const source = await openElemental();
+
+    source.mark("AllFive");
+
+    expect([...source.getFacts().elements].sort()).toEqual([
+      ["Aether", 1], ["Air", 1], ["Earth", 1], ["Fire", 1], ["Water", 1],
+    ]);
+  });
+
+  /**
+   * The game's accumulator increments by one and reads no multiplier, so a
+   * Heroic is worth what a Common is. Rarity is the obvious wrong guess here
+   * and every other number in this game scales with it.
+   */
+  it("reads neither the rarity nor the level", async () => {
+    const source = await openElemental();
+
+    source.mark("HestiaFire", { rarity: "Heroic", level: 5 });
+
+    expect(source.getFacts().elements.get("Fire")).toBe(1);
+  });
+
+  it("has no entry for an element the run has met none of", async () => {
+    const source = await openElemental();
+
+    source.mark("HestiaFire");
+
+    expect(source.getFacts().elements.has("Water")).toBe(false);
+  });
+
+  it("drops the count when the boon leaves the run, whichever way it goes", async () => {
+    for (const leave of ["remove", "purge"] as const) {
+      const source = await openElemental();
+      source.mark("HestiaFire");
+      source[leave]("HestiaFire");
+
+      expect(source.getFacts().elements.has("Fire")).toBe(false);
+    }
+  });
+
+  /**
+   * A displaced boon leaves the run entirely, so it stops counting toward
+   * every requirement that named it — the element counts included. Its god
+   * stays in the pool and that asymmetry does not reach here.
+   */
+  it("drops the count for a boon displaced out of its slot", async () => {
+    const source = await openElemental();
+    source.mark("Plain");
+
+    source.mark("AlsoMelee");
+
+    expect(source.getFacts().elements.get("Water")).toBe(1);
+    expect(source.getFacts().slots.get("Melee")).toBe("AlsoMelee");
+  });
+
+  it("puts the count back with the boon when an edit is taken back", async () => {
+    const source = await openElemental();
+    source.mark("HestiaFire");
+
+    source.remove("HestiaFire");
+    source.undo();
+
+    expect(source.getFacts().elements.get("Fire")).toBe(1);
+  });
+
+  /**
+   * The stale-record case, and the reason nothing had to be migrated: a run
+   * written before anything maintained this map carries no counts, and gets
+   * them at the load rather than at whatever the player happens to tap next.
+   */
+  it("works them out when a run is opened, not when it is next touched", async () => {
+    const store = createMemoryStore();
+    const state = emptyRun("hades2", "build-1");
+    state.facts.held.set("HestiaFire", { rarity: "Common", level: 1 });
+    state.facts.held.set("AllFive", { rarity: "Common", level: 1 });
+    await store.save("hades2", "active", toPersisted({ state, quarantine: [] }));
+
+    const source = await openElemental(store);
+
+    expect(source.getFacts().elements.get("Fire")).toBe(2);
+  });
+
+  /**
+   * 0 of 449 Hades I records declare an affinity, so that game's map is empty
+   * for good — which is what lets every branch above be guarded on the game
+   * having elements rather than on the map having entries.
+   */
+  it("stays empty in a game with no elements", async () => {
+    const source = await openManualSource({
+      game: "hades1",
+      catalog: testCatalog({
+        game: "hades1",
+        dataVersion: "build-1",
+        traits: traitTable(testTrait("ZeusLightning", { god: "Zeus" })),
+        gods: new Set(["Zeus"]),
+      }),
+      store: createMemoryStore(),
+    });
+
+    source.mark("ZeusLightning");
+
+    expect(source.getFacts().elements.size).toBe(0);
+  });
+});
+
 describe("a second boon in an occupied slot", () => {
   it("displaces the first, which leaves the run entirely", async () => {
     const source = await open();
@@ -696,7 +840,7 @@ describe("a writer that moves nothing", () => {
 
     source.unpin("HeraAttack");
     source.unplan("HeraAttack");
-    source.setElement("Fire", 0);
+    source.setResource("Ash", 0);
     source.equipKeepsake(null);
     source.equipWeapon(null);
 
@@ -707,14 +851,14 @@ describe("a writer that moves nothing", () => {
 
   it("announces nothing and keeps the facts object it already handed out", async () => {
     const source = await open();
-    source.setElement("Fire", 2);
+    source.setResource("Ash", 2);
     const before = source.getFacts();
     let heard = 0;
     source.subscribe(() => {
       heard += 1;
     });
 
-    source.setElement("Fire", 2);
+    source.setResource("Ash", 2);
     source.equipWeapon(null);
 
     expect(heard).toBe(0);
@@ -827,7 +971,7 @@ describe("what the source has to say about itself", () => {
     });
 
     source.unpin("HeraAttack");
-    source.setElement("Fire", 0);
+    source.setResource("Ash", 0);
     await source.flush();
 
     expect(heard).toBe(0);
