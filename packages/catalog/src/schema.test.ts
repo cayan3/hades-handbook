@@ -37,6 +37,7 @@ const ALWAYS_EMITTED: Record<RequiredKey<TraitRecord>, true> = {
   duoGods: true,
   exclusiveGroup: true,
   elementAffinity: true,
+  elementGrants: true,
   prereq: true,
   prereqSource: true,
   tier: true,

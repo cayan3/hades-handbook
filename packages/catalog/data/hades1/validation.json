@@ -2,6 +2,7 @@
  "aspectsNamedAsHeldTraits": [],
  "asymmetricExclusiveGroups": [],
  "blocksWithARemovableBlocker": [],
+ "boonsGrantingAllElementsByRarity": [],
  "boonsNotReferencedOutsideTraitData": [
   "ChaosBlessingHealTrait",
   "CollisionTouchTrait",
@@ -574,6 +575,7 @@
    "PoseidonDamage"
   ]
  },
+ "elementGrantProblems": [],
  "godDisagreesWithOwningLootTable": [
   {
    "declared": "Zeus",

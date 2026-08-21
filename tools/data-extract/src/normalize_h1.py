@@ -583,6 +583,7 @@ for tid, data in TraitData.items():
         "blockedBy": None,
         "aspectConflicts": None,
         "elementAffinity": None,   # Hades I doesn't yk have an elemental-infusion mechanic
+        "elementGrants": [],       # and so nothing here adds to a count that doesn't exist
         "prereq": prereq,
         "prereqSource": prereq_citation,
         "activation": None,        # Hades I also has no Infusions lol (so no boons have like a second threshold to meet or anything)

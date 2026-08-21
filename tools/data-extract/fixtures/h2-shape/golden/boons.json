@@ -1,4 +1,32 @@
 {
+ "CindraAllElementsBoon": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "StandardOlympian",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [
+   "Aether",
+   "Ember",
+   "Root"
+  ],
+  "exclusiveGroup": null,
+  "god": "Cindra",
+  "godKind": "PoolSlot",
+  "icon": "Boon_Cindra_40",
+  "id": "CindraAllElementsBoon",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [
+   "Legendary"
+  ],
+  "slot": null,
+  "source": "Scripts/TraitData_Cindra.lua:123",
+  "tier": 1
+ },
  "CindraArcCastBoon": {
   "activation": null,
   "aspectConflicts": null,
@@ -7,6 +35,7 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [],
   "exclusiveGroup": [
    "CindraArcCastBoon",
    "CindraEchoCastBoon",
@@ -37,6 +66,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Ember"
+  ],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -52,7 +84,7 @@
    "Rare"
   ],
   "slot": "Rush",
-  "source": "Scripts/TraitData_Cindra.lua:120",
+  "source": "Scripts/TraitData_Cindra.lua:132",
   "tier": 1
  },
  "CindraEchoCastBoon": {
@@ -63,6 +95,7 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [],
   "exclusiveGroup": [
    "CindraArcCastBoon",
    "CindraEchoCastBoon",
@@ -93,6 +126,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Ember"
+  ],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -136,6 +172,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Ember"
+  ],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -162,6 +201,7 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [],
   "exclusiveGroup": [
    "CindraArcCastBoon",
    "CindraEchoCastBoon",
@@ -208,6 +248,7 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -236,6 +277,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Ember"
+  ],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -311,6 +355,7 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -337,6 +382,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Ember"
+  ],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -366,6 +414,9 @@
    "Verdan"
   ],
   "elementAffinity": null,
+  "elementGrants": [
+   "Aether"
+  ],
   "exclusiveGroup": null,
   "god": null,
   "godKind": null,
@@ -429,6 +480,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Ember"
+  ],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -460,6 +514,7 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [],
   "exclusiveGroup": null,
   "god": "Cindra",
   "godKind": "PoolSlot",
@@ -489,6 +544,7 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [],
   "exclusiveGroup": null,
   "god": "Orithia",
   "godKind": "NonPoolSlot",
@@ -512,6 +568,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Root"
+  ],
   "exclusiveGroup": null,
   "god": "Verdan",
   "godKind": "PoolSlot",
@@ -538,6 +597,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Root"
+  ],
   "exclusiveGroup": null,
   "god": "Verdan",
   "godKind": "PoolSlot",
@@ -577,6 +639,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Root"
+  ],
   "exclusiveGroup": null,
   "god": "Verdan",
   "godKind": "PoolSlot",
@@ -603,6 +668,9 @@
   "descriptionRef": null,
   "duoGods": null,
   "elementAffinity": null,
+  "elementGrants": [
+   "Root"
+  ],
   "exclusiveGroup": null,
   "god": "Verdan",
   "godKind": "PoolSlot",

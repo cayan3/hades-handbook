@@ -2,6 +2,7 @@
  "aspectsNamedAsHeldTraits": [],
  "asymmetricExclusiveGroups": [],
  "blocksWithARemovableBlocker": [],
+ "boonsGrantingAllElementsByRarity": [],
  "boonsNotReferencedOutsideTraitData": [],
  "boonsNotReferencedOutsideTraitDataCount": 0,
  "boonsWhoseCategoryOutranksTheirGod": [],
@@ -701,6 +702,7 @@
    "HephaestusVoice"
   ]
  },
+ "elementGrantProblems": [],
  "godNamesOutsideKnownVocabulary": [],
  "godRecordsWithoutASource": [],
  "godsentHexCount": 9,

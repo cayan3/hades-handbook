@@ -115,6 +115,18 @@ OverwriteTableKeys( TraitData, {
 		},
 	},
 
+	-- Declares its own Elements rather than inheriting an affinity base, and
+	-- declares several. Coverage #14 -- what a trait adds to the run's element
+	-- counts is read off the record's own field, so this one grants three
+	-- while the chain walk that derives elementAffinity finds nothing above it
+	-- and leaves that field null.
+	CindraAllElementsBoon =
+	{
+		Icon = "Boon_Cindra_40",
+		InheritFrom = { "LegendaryTraitTemplate" },
+		Elements = { "Root", "Aether", "Ember" },
+	},
+
 	-- DebugOnly trait: looks like a normal offerable boon (real Slot, real
 	-- Icon) but must be excluded from the catalog. Coverage #13.
 	CindraDebugOnlyBoon =

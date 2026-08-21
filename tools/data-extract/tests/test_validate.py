@@ -34,7 +34,8 @@ def boon(**fields):
         "name": "X", "descriptionRef": "X", "icon": None,
         "boonCategory": "NonStandard", "slot": None, "tier": None,
         "rarity": [], "exclusiveGroup": None, "blockedBy": None,
-        "elementAffinity": None, "prereq": None, "prereqSource": None,
+        "elementAffinity": None, "elementGrants": [],
+        "prereq": None, "prereqSource": None,
         "activation": None, "source": "Scripts/TraitData.lua:1",
     }
     record.update(fields)
@@ -426,11 +427,46 @@ def test_an_element_gated_boon_with_no_element_threshold_stops_the_run():
 
 def test_an_element_gated_boon_carrying_an_affinity_of_its_own_stops_the_run():
     _, fatal = check(
-        {"I": boon(id="I", elementAffinity="Fire",
+        {"I": boon(id="I", elementAffinity="Fire", elementGrants=["Fire"],
                    prereq={"kind": "hasElement", "element": "Fire", "count": 2})},
         raw_defs={"I": {"InheritFrom": ["UnityTrait"]}},
     )
     assert any("affinity of its own" in f for f in fatal)
+
+
+def test_a_grant_naming_something_that_is_not_an_element_stops_the_run():
+    """The run's five counts are derived from what its boons grant, so a name
+    nothing recognises is a contribution that lands nowhere and reads as a
+    player being short of a threshold they have met."""
+    _, fatal = check({"B": boon(id="B", elementGrants=["Lightning"])})
+    assert any("not an element" in f for f in fatal)
+
+
+def test_an_affinity_the_record_does_not_grant_stops_the_run():
+    """The affinity is read off the inherit chain and the grants off the
+    record's own field. Nothing else holds the two derivations together."""
+    _, fatal = check({"B": boon(id="B", elementAffinity="Fire", elementGrants=["Water"])})
+    assert any("does not grant it" in f for f in fatal)
+
+
+def test_a_rarity_scaled_grant_on_a_boon_with_a_god_stops_the_run():
+    """`AddAllElements` adds its value to all five and takes that value from
+    the rarity multiplier, which a list of element names cannot say. The one
+    record carrying it has no god, so no run can hold it and leaving it
+    unmodelled costs nothing. This is the check that notices if that changes."""
+    _, fatal = check(
+        {"B": boon(id="B", god="Hera")},
+        raw_defs={"B": {"AddAllElements": {"BaseValue": 1}}},
+    )
+    assert any("elementGrants cannot carry" in f for f in fatal)
+
+
+def test_a_rarity_scaled_grant_on_a_boon_with_no_god_is_left_alone():
+    _, fatal = check(
+        {"B": boon(id="B", god=None)},
+        raw_defs={"B": {"AddAllElements": {"BaseValue": 1}}},
+    )
+    assert not any("elementGrants cannot carry" in f for f in fatal)
 
 
 # ---------------------------------------------------------------------------

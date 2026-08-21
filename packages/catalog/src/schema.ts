@@ -108,6 +108,21 @@ export interface TraitRecord {
   elementAffinity: Element | null;
 
   /**
+   * Hades II only. What holding this trait adds to the run's element counts —
+   * one of each element named, and rarity has nothing to do with it. That is
+   * the game's own rule and the whole of it; its accumulator increments by one
+   * per element per held trait.
+   *
+   * Not the same question as `elementAffinity` above, which is derived from
+   * the inherit chain and answers which symbol a node draws in its corner.
+   * Three records declare their elements on the record itself with no element
+   * base above them, so the chain finds nothing and the affinity is null while
+   * this is not: one of the three is a Legendary granting all five that a run
+   * can actually hold. The 194 records where both are set agree.
+   */
+  elementGrants: readonly Element[];
+
+  /**
    * The gate for being offered this trait. Null if there yk isn't any gate.
    *
    * This is the engine's own `Requirement`, not a pass-through of the game's

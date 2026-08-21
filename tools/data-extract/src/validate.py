@@ -124,6 +124,11 @@ def find_unresolved(node, _path=""):
             yield from find_unresolved(v, "%s[%d]" % (_path, i))
 
 
+# The five the game declares in `TraitElementData`. Spelled out rather than
+# derived because the check that reads it exists to catch a sixth appearing.
+ELEMENTS = {"Air", "Water", "Earth", "Fire", "Aether"}
+
+
 def inherit_chain(defs, trait_id, _visited=None, _depth=0):
     if _depth > 8 or trait_id in (_visited or set()):
         return []
@@ -607,6 +612,44 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
             if positions != list(range(len(mirror_rows))):
                 fatal.append("%s Mirror row positions are %r, not one per row from 0"
                              % (game_key, positions))
+
+    # 20. what a trait adds to the element counts. The run's five counts are
+    # derived from the boons it holds, so a grant naming an element nothing
+    # knows is a boon whose contribution silently lands nowhere.
+    grants_problems = []
+    for bid, b in sorted(boons.items()):
+        for element in b.get("elementGrants") or []:
+            if element not in ELEMENTS:
+                grants_problems.append({"id": bid, "problem": "grants %s, which is not an element" % element})
+        # The affinity is read off the inherit chain and the grants off the
+        # record's own field, so this is the one check that holds the two
+        # derivations against each other. Either drifting shows up here.
+        affinity = b.get("elementAffinity")
+        if affinity is not None and affinity not in (b.get("elementGrants") or []):
+            grants_problems.append({"id": bid, "problem": "has %s affinity and does not grant it" % affinity})
+    report["elementGrantProblems"] = grants_problems
+    for entry in grants_problems:
+        fatal.append("%s %s %s" % (game_key, entry["id"], entry["problem"]))
+
+    # 21. the rarity-scaled grant, which nothing models. `AddAllElements` adds
+    # its value to all five rather than one to a named few, and the value comes
+    # off the rarity multiplier -- so `elementGrants`, which is a list of
+    # element names, cannot say what it does. The one record carrying it has no
+    # god, so it reaches no god page and no run can hold it. That is what makes
+    # leaving it unmodelled safe, and this is the check that says so out loud
+    # if a patch ever moves it onto a boon a player can take.
+    if raw_defs is not None:
+        scaled = []
+        for bid, b in sorted(boons.items()):
+            if b.get("god") is None:
+                continue
+            chain = [bid] + inherit_chain(raw_defs, bid)
+            if any((raw_defs.get(c) or {}).get("AddAllElements") for c in chain):
+                scaled.append(bid)
+        report["boonsGrantingAllElementsByRarity"] = scaled
+        for bid in scaled:
+            fatal.append("%s %s adds to every element by rarity, which elementGrants cannot carry"
+                         % (game_key, bid))
 
     return report, fatal
 

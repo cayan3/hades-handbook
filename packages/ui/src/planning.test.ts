@@ -27,6 +27,7 @@ function record(id: TraitId, prereq: Requirement | null = null): TraitRecord {
     duoGods: null,
     exclusiveGroup: null,
     elementAffinity: null,
+    elementGrants: [],
     prereq,
     prereqSource: null,
     tier: null,

@@ -493,6 +493,23 @@ def get_element_affinities(trait_id):
     chain = [trait_id] + inherit_chain(trait_id)
     return [ELEMENT_BASE_TRAITS[c] for c in chain if c in ELEMENT_BASE_TRAITS]
 
+def get_element_grants(trait_id):
+    """What holding this trait adds to the run's element counts.
+
+    Read off the record's own `Elements` field rather than off the inherit
+    chain, which is what `get_element_affinities` above does. The two agree on
+    610 of the 612 shipped records; the ones they don't are the three that
+    declare `Elements` with no element base above them, and a chain walk finds
+    nothing on all three. One of those is Hera's Legendary, which grants all
+    five and a player can hold.
+
+    `AddAllElements` is a second, rarity-scaled way to grant one and is not
+    read here. It's on one record, that record carries no god, and validate
+    fails the run if a patch ever puts it on one that does.
+    """
+    elements, _ = resolve_field(trait_id, "Elements")
+    return sorted(e for e in elements if isinstance(e, str)) if isinstance(elements, list) else []
+
 def get_rarity(trait_id):
     rl, definer = resolve_field(trait_id, "RarityLevels")
     if isinstance(rl, dict):
@@ -648,6 +665,7 @@ for trait_id, data in ALL_DEFS.items():
         "blockedBy": None,
         "aspectConflicts": None,
         "elementAffinity": affinities[0] if affinities else None,
+        "elementGrants": get_element_grants(trait_id),
         "prereq": prereq,
         # Where the gate was written, which isn't where the trait was. Hades
         # II keeps most prerequisites in one central table and the rest inline

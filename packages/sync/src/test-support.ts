@@ -44,6 +44,7 @@ export function testTrait(id: TraitId, overrides: Partial<TraitRecord> = {}): Tr
     duoGods: null,
     exclusiveGroup: null,
     elementAffinity: null,
+    elementGrants: [],
     prereq: null,
     prereqSource: null,
     tier: null,

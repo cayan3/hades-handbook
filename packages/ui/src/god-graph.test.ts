@@ -35,6 +35,7 @@ function record(id: TraitId, over: Partial<TraitRecord> = {}): TraitRecord {
     duoGods: null,
     exclusiveGroup: null,
     elementAffinity: null,
+    elementGrants: [],
     prereq: null,
     prereqSource: null,
     tier: null,
