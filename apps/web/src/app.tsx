@@ -106,9 +106,31 @@ function nodeSourceFor(game: GameId): NodeSource {
 interface Curated {
   readonly added: ReadonlySet<string>;
   readonly removed: ReadonlySet<string>;
+  /**
+   * The bar as it stood the last time a god was added by hand, that god on the
+   * end. Only the hand-added half needs recording: everything else arrived by
+   * being met, and the pool is already in that order.
+   */
+  readonly order: readonly string[];
 }
 
-const NO_TABS: Curated = { added: new Set(), removed: new Set() };
+const NO_TABS: Curated = { added: new Set(), removed: new Set(), order: [] };
+
+/**
+ * The god tabs, in the order they arrived on the bar.
+ *
+ * `order` first, then whatever the run has met that is not in it — a `Set`
+ * iterates in insertion order, so `godPool` is already the order the gods were
+ * met in. Alphabetical was the old rule and it put a god the run had just met
+ * into the middle of the bar, where nothing pointed at the tab that changed.
+ */
+function barOrder(known: readonly string[], pool: ReadonlySet<string>, curated: Curated): string[] {
+  const real = new Set(known);
+  return [...new Set([...curated.order, ...pool, ...curated.added])].filter(
+    (name) =>
+      real.has(name) && (pool.has(name) || curated.added.has(name)) && !curated.removed.has(name),
+  );
+}
 
 /**
  * What the bar has selected, and it is a sum rather than a god id with a
@@ -297,11 +319,15 @@ function Run({
         added.add(name);
         removed.delete(name);
       }
-      onCurated({ added, removed });
+      // Rightmost, which is what "added" means here — and the bar it is appended
+      // to is the filtered one, so a god taken down earlier does not come back
+      // in the place they used to hold.
+      const order = [...new Set([...barOrder(tabs, facts.godPool, curated), ...names])];
+      onCurated({ added, removed, order });
       const only = names.length === 1 ? names[0] : undefined;
       if (only !== undefined) setSelected({ kind: "god", god: only });
     },
-    [curated, onCurated],
+    [curated, onCurated, tabs, facts.godPool],
   );
 
   /**
@@ -314,7 +340,10 @@ function Run({
     (name: string) => {
       const added = new Set(curated.added);
       added.delete(name);
-      onCurated({ added, removed: new Set(curated.removed).add(name) });
+      // `order` keeps the name, which costs nothing: the bar filters on the
+      // removed set, and the next hand-added god rebuilds `order` from what is
+      // actually up.
+      onCurated({ added, removed: new Set(curated.removed).add(name), order: curated.order });
       // The tab being read is held up by `showing`, so dropping it has to let
       // the selection fall back or it removes nothing. Hub rather than another
       // god: it is the one tab that is certainly still there.
@@ -331,8 +360,9 @@ function Run({
    * nobody shows the Hub alone rather than an arbitrary god who cannot be taken
    * down and is replaced by somebody else on the first mark.
    */
-  const offered = tabs.filter((name) => facts.godPool.has(name) || curated.added.has(name));
-  const shownTabs = offered.filter((name) => !curated.removed.has(name));
+  const shownTabs = barOrder(tabs, facts.godPool, curated);
+  // The picker's list is a different question — which gods you could add — and
+  // that one has no arrival order to be in, so it stays alphabetical.
   const unshown = tabs.filter((name) => !shownTabs.includes(name));
 
   /**

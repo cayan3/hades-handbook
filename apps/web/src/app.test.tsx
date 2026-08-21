@@ -1300,6 +1300,60 @@ describe("what the boon list shows", () => {
     expect(texts(".app__godtab")).not.toContain("Ares");
   });
 
+  /**
+   * The order gods arrived, not the alphabet. Ares is met first here and sorts
+   * after Aphrodite, so the two orders disagree and only one of them can be
+   * what the bar shows.
+   */
+  it("puts a newly met god at the right-hand end of the bar", async () => {
+    await mount();
+    tap(ARES_MELEE);
+    tap(APHRODITE_MELEE);
+
+    expect(texts(".app__godslot .app__godtab").map((t) => t.trim())).toEqual([
+      "Ares",
+      "Aphrodite",
+    ]);
+  });
+
+  /**
+   * A god added by hand goes on the end too, and a god met *after* that goes
+   * after them — which is the case a bar ordered by "pool first, then added"
+   * gets wrong, and the reason the arrangement is recorded rather than derived.
+   */
+  it("keeps a hand-added god ahead of a god met after them", async () => {
+    await mount();
+    tap(ARES_MELEE);
+    showGod("Hera");
+    tap(APHRODITE_MELEE);
+
+    expect(texts(".app__godslot .app__godtab").map((t) => t.trim())).toEqual([
+      "Ares",
+      "Hera",
+      "Aphrodite",
+    ]);
+  });
+
+  /** Taken down and asked for again is arriving again, so it goes on the end. */
+  it("puts a god taken down and re-added back at the end rather than in their old place", async () => {
+    await mount();
+    tap(ARES_MELEE);
+    showGod("Hera");
+    showGod("Zeus");
+
+    const drop = [...container.querySelectorAll<HTMLElement>(".app__godslot")]
+      .find((slot) => slot.textContent?.includes("Hera"))
+      ?.querySelector<HTMLElement>(".app__goddrop");
+    act(() => drop?.click());
+    showGod("Hera");
+
+    expect(texts(".app__godslot .app__godtab").map((t) => t.trim())).toEqual([
+      "Ares",
+      "Zeus",
+      "Hera",
+    ]);
+  });
+
   it("puts every god up at once when asked", async () => {
     await mount();
     const picker = container.querySelector<HTMLElement>(".godpicker");
