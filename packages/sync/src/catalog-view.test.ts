@@ -289,6 +289,20 @@ describe("the identifier sets a stored run is checked against", () => {
     // Hades II replaces the Mirror with Arcana and gates no boon on one.
     expect(shippedCatalog("hades2").mirrorRows).toEqual([]);
   });
+
+  /**
+   * In the Mirror's own order, which is not the order the rows arrive in: the
+   * extraction keys a row by its first member and writes its keys sorted, so
+   * reading them as they come gives the twelve alphabetically. Backstab opens
+   * the Mirror and Reroll closes it; alphabetically Ammo would open it.
+   */
+  it("keeps the rows in the order the game draws them", () => {
+    const ids = shippedCatalog("hades1").mirrorRows.map((row) => row.id);
+
+    expect(ids[0]).toBe("BackstabMetaUpgrade");
+    expect(ids.at(-1)).toBe("RerollMetaUpgrade");
+    expect(ids).not.toEqual([...ids].sort((a, b) => a.localeCompare(b)));
+  });
 });
 
 describe("a weapon form", () => {

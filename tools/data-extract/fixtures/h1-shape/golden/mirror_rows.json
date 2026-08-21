@@ -4,13 +4,15 @@
    "KindleMetaUpgrade",
    "SmotherMetaUpgrade"
   ],
-  "source": "Scripts/MetaUpgradeData.lua:52"
+  "order": 1,
+  "source": "Scripts/MetaUpgradeData.lua:54"
  },
  "TideMetaUpgrade": {
   "members": [
    "TideMetaUpgrade",
    "EbbMetaUpgrade"
   ],
-  "source": "Scripts/MetaUpgradeData.lua:52"
+  "order": 0,
+  "source": "Scripts/MetaUpgradeData.lua:54"
  }
 }

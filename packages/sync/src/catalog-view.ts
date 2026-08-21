@@ -160,12 +160,17 @@ function build(game: GameId): SyncCatalog {
    * The rows the game itself states, in its own order. Twelve in Hades I and
    * none in Hades II, which replaces the Mirror with Arcana.
    *
+   * Sorted on `order` rather than taken as they come: the extraction is keyed by
+   * first member and written sorted, so reading the keys gives the twelve rows
+   * alphabetically, which is not the order the Mirror is drawn in.
+   *
    * All twelve rather than the three that gate something: a player answering
    * the Mirror answers the whole Mirror, and a member left out of `talents`
    * below would have its answer quarantined on the next reload. Which rows a
    * surface is worth showing is that surface's question.
    */
   const mirrorRows: readonly MirrorRow[] = Object.entries(mirrorRowsFor(game))
+    .sort(([, a], [, b]) => a.order - b.order)
     .map(([id, row]) => ({ id, members: [row.members[0], row.members[1]] as [TalentId, TalentId] }))
     .filter((row) => row.members.every((member) => member !== undefined));
   for (const row of mirrorRows) for (const member of row.members) talents.add(member);

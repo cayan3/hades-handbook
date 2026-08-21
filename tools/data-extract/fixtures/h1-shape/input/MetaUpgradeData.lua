@@ -3,9 +3,11 @@
 -- record of their own, plus MetaUpgradeOrder, which is the only place the
 -- game states which two of them oppose each other.
 --
--- Two shapes here are the file's own and are the reason this fixture exists:
--- one entry is written with no space before its `=`, and the table carries a
--- row whose members gate nothing at all.
+-- Three shapes here are the file's own and are the reason this fixture exists:
+-- one entry is written with no space before its `=`, the table carries a row
+-- whose members gate nothing at all, and the rows are deliberately NOT in
+-- alphabetical order -- the emitted file is keyed by first member and sorted,
+-- so only the recorded position can carry the order the Mirror is drawn in.
 
 MetaUpgradeData =
 {
@@ -51,6 +53,6 @@ MetaUpgradeData =
 
 MetaUpgradeOrder =
 {
-	{ "KindleMetaUpgrade", "SmotherMetaUpgrade" },
 	{ "TideMetaUpgrade", "EbbMetaUpgrade" },
+	{ "KindleMetaUpgrade", "SmotherMetaUpgrade" },
 }

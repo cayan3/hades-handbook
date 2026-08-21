@@ -4,6 +4,7 @@
    "AmmoMetaUpgrade",
    "ReloadAmmoMetaUpgrade"
   ],
+  "order": 5,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "BackstabMetaUpgrade": {
@@ -11,6 +12,7 @@
    "BackstabMetaUpgrade",
    "FirstStrikeMetaUpgrade"
   ],
+  "order": 0,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "DoorHealMetaUpgrade": {
@@ -18,6 +20,7 @@
    "DoorHealMetaUpgrade",
    "DarknessHealMetaUpgrade"
   ],
+  "order": 1,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "EpicBoonDropMetaUpgrade": {
@@ -25,6 +28,7 @@
    "EpicBoonDropMetaUpgrade",
    "DuoRarityBoonDropMetaUpgrade"
   ],
+  "order": 10,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "ExtraChanceMetaUpgrade": {
@@ -32,6 +36,7 @@
    "ExtraChanceMetaUpgrade",
    "ExtraChanceReplenishMetaUpgrade"
   ],
+  "order": 2,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "HealthMetaUpgrade": {
@@ -39,6 +44,7 @@
    "HealthMetaUpgrade",
    "HighHealthDamageMetaUpgrade"
   ],
+  "order": 7,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "MoneyMetaUpgrade": {
@@ -46,6 +52,7 @@
    "MoneyMetaUpgrade",
    "InterestMetaUpgrade"
   ],
+  "order": 6,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "RareBoonDropMetaUpgrade": {
@@ -53,6 +60,7 @@
    "RareBoonDropMetaUpgrade",
    "RunProgressRewardMetaUpgrade"
   ],
+  "order": 9,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "RerollMetaUpgrade": {
@@ -60,6 +68,7 @@
    "RerollMetaUpgrade",
    "RerollPanelMetaUpgrade"
   ],
+  "order": 11,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "StaminaMetaUpgrade": {
@@ -67,6 +76,7 @@
    "StaminaMetaUpgrade",
    "PerfectDashMetaUpgrade"
   ],
+  "order": 3,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "StoredAmmoVulnerabilityMetaUpgrade": {
@@ -74,6 +84,7 @@
    "StoredAmmoVulnerabilityMetaUpgrade",
    "StoredAmmoSlowMetaUpgrade"
   ],
+  "order": 4,
   "source": "Scripts/MetaUpgradeData.lua:882"
  },
  "VulnerabilityEffectBonusMetaUpgrade": {
@@ -81,6 +92,7 @@
    "VulnerabilityEffectBonusMetaUpgrade",
    "GodEnhancementMetaUpgrade"
   ],
+  "order": 8,
   "source": "Scripts/MetaUpgradeData.lua:882"
  }
 }

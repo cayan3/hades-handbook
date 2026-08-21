@@ -178,6 +178,47 @@ def test_a_mirror_talent_is_not_expected_to_be_a_catalog_record():
     assert report["danglingPrereqReferenceCount"] == 0
 
 
+def talent(tid):
+    return {"id": tid, "name": tid, "icon": None, "source": None}
+
+
+def test_a_mirror_row_that_does_not_oppose_exactly_two_stops_the_run():
+    """The emitter used to drop these instead, so this check was reading the
+    output of the filter that enforced what it checks. A row losing a member
+    loses its talents from the catalog too, and an answer about one of those is
+    thrown away on the next reload."""
+    _, fatal = check(
+        {},
+        talents={t: talent(t) for t in ("A", "B", "C")},
+        mirror_rows={"A": {"members": ["A", "B", "C"], "order": 0}},
+    )
+    assert any("has 3 members" in message for message in fatal)
+
+
+def test_two_rows_opening_with_the_same_talent_are_caught_by_the_gap_they_leave():
+    """A row is keyed by its first member, so a duplicate collapses one row into
+    another silently. The positions are what make it visible from the emitted
+    file: twelve rows numbered 0-11 arrive as eleven with a hole in them."""
+    _, fatal = check(
+        {},
+        talents={t: talent(t) for t in ("A", "B", "C")},
+        mirror_rows={"A": {"members": ["A", "C"], "order": 2}},
+    )
+    assert any("Mirror row positions" in message for message in fatal)
+
+
+def test_rows_numbered_one_per_row_from_zero_are_clean():
+    _, fatal = check(
+        {},
+        talents={t: talent(t) for t in ("A", "B", "C", "D")},
+        mirror_rows={
+            "A": {"members": ["A", "B"], "order": 0},
+            "C": {"members": ["C", "D"], "order": 1},
+        },
+    )
+    assert fatal == []
+
+
 def test_a_gate_naming_a_keepsake_through_the_trait_atom_is_a_finding():
     """This assertion used to run the other way, and that is what the check was
     getting wrong. Resolving both atoms against both tables answers "does this

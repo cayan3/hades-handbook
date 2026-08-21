@@ -599,6 +599,14 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                     if member not in talents:
                         fatal.append("%s Mirror row %s names %s, which has no talent record"
                                      % (game_key, row_id, member))
+            # The rows carry their position in the game's own table, and a row
+            # is keyed by its first member, so two rows opening with the same
+            # talent would collapse into one with nothing else to notice. A gap
+            # in the positions is what that looks like from here.
+            positions = sorted(row.get("order") for row in mirror_rows.values())
+            if positions != list(range(len(mirror_rows))):
+                fatal.append("%s Mirror row positions are %r, not one per row from 0"
+                             % (game_key, positions))
 
     return report, fatal
 

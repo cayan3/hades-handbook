@@ -316,12 +316,19 @@ order_line = find_key_anywhere(SCRIPTS + "MetaUpgradeData.lua", "MetaUpgradeOrde
 
 talents = {}
 mirror_rows = {}
-for pair in MetaUpgradeOrder:
+for index, pair in enumerate(MetaUpgradeOrder):
     members = [m for m in pair if isinstance(m, str)]
-    if len(members) != 2:
-        continue
-    mirror_rows[members[0]] = {
+    # A row opposes exactly two, so a pair of any other length is a patch
+    # changing the Mirror. Emitted anyway rather than skipped: validate.py's
+    # arity check is the thing that says so, and it can only see what is
+    # written. The index keys a row with no member to key it by, which lives
+    # exactly as long as it takes that check to fail the run.
+    mirror_rows[members[0] if members else "MetaUpgradeOrder[%d]" % index] = {
         "members": members,
+        # The file's own order. `sort_keys` below sorts these keys alphabetically
+        # and the Mirror's rows are not in that order, so the position has to be
+        # carried as a field or it is lost on the way out.
+        "order": index,
         "source": ("%sMetaUpgradeData.lua:%d" % (REL_SCRIPTS, order_line) if order_line
                    else "%sMetaUpgradeData.lua" % REL_SCRIPTS),
     }

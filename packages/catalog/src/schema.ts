@@ -261,6 +261,12 @@ export interface TalentRecord {
  */
 export interface MirrorRowRecord {
   members: readonly TalentId[];
+  /**
+   * Where the row sits in the game's own table. Carried as a field because the
+   * extraction is keyed by first member and sorted by key, so the Mirror's order
+   * is not recoverable from the file otherwise.
+   */
+  order: number;
   source?: string;
 }
 

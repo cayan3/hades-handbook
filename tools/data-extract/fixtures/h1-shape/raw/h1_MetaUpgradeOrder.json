@@ -1,10 +1,10 @@
 [
  [
-  "KindleMetaUpgrade",
-  "SmotherMetaUpgrade"
- ],
- [
   "TideMetaUpgrade",
   "EbbMetaUpgrade"
+ ],
+ [
+  "KindleMetaUpgrade",
+  "SmotherMetaUpgrade"
  ]
 ]
