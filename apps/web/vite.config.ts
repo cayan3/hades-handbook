@@ -12,7 +12,7 @@ import { VitePWA } from "vite-plugin-pwa";
  * `connect-src` is 'none' because the whole product runs from a local store and
  * talks to nobody.
  */
-const POLICY = [
+export const POLICY = [
   "default-src 'none'",
   "script-src 'self'",
   "style-src 'self'",
@@ -26,6 +26,45 @@ const POLICY = [
 ].join("; ");
 
 /**
+ * The same policy again, as a real response header for whatever serves the site.
+ *
+ * A policy delivered in a meta tag cannot carry `frame-ancestors`: the level 3
+ * spec has the parser ignore that directive, along with `report-uri` and
+ * `sandbox`, when the policy did not arrive over HTTP. So the string in the page
+ * has always claimed a protection it did not have — a security review found
+ * this and correctly filed it as prose to correct rather than as a hole, there
+ * being nothing deployed for it to matter on.
+ *
+ * The whole policy moves rather than just the one directive. A browser enforces
+ * every policy it is given, so the two are intersected and an identical pair
+ * changes nothing about what is allowed — but a header that carried a single
+ * directive would split the deployment's protection across two files stating
+ * different subsets, and the meta tag left behind still reads as the whole
+ * story. Keeping it as a duplicate makes it a fallback instead: a host that
+ * loses this file degrades to exactly today's behaviour rather than to nothing.
+ *
+ * Generated from POLICY rather than written out, because two copies of a
+ * security control that can drift apart is worse than one copy in the weaker
+ * place. A stale header would be intersected with a newer meta tag and refuse
+ * something the app had started needing, which shows up only in production.
+ *
+ * The other two are not about framing and are not owed by anything; they are
+ * here because this is the file where a response header goes. `nosniff` because
+ * an asset served under a guessed type is the one same-origin case
+ * `default-src 'none'` does not cover, and `no-referrer` because the product
+ * talks to nobody and no destination needs to be told where a visitor came from.
+ */
+export function headersFile(policy: string): string {
+  return [
+    "/*",
+    `  Content-Security-Policy: ${policy}`,
+    "  X-Content-Type-Options: nosniff",
+    "  Referrer-Policy: no-referrer",
+    "",
+  ].join("\n");
+}
+
+/**
  * Injected into the built page and **only** the built page.
  *
  * Written as a literal in `index.html` it also reached the dev server, which is
@@ -37,6 +76,10 @@ const POLICY = [
  *
  * The policy that ships is unchanged, which is the point: this moves where it
  * is applied, not what it says.
+ *
+ * The same plugin writes `_headers` beside the page, which is where the policy
+ * becomes enforceable rather than merely stated. It is emitted rather than kept
+ * in `public/` so that both copies come from POLICY and cannot drift.
  */
 function contentSecurityPolicy(): Plugin {
   const meta = `<meta http-equiv="Content-Security-Policy" content="${POLICY}">`;
@@ -44,6 +87,12 @@ function contentSecurityPolicy(): Plugin {
   return {
     name: "handbook-csp",
     apply: "build",
+    generateBundle() {
+      // No extension, so none of the workbox globs claim it and the precache
+      // count is unchanged. The host reads it out of the deployed root and
+      // serves nothing at this path.
+      this.emitFile({ type: "asset", fileName: "_headers", source: headersFile(POLICY) });
+    },
     transformIndexHtml(html) {
       /**
        * Written into the markup rather than described as a tag, so the emitted
