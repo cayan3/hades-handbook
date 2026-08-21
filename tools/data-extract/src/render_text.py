@@ -14,7 +14,11 @@ from parse_text_bundle import resolve_display_name
 # What the engine would draw from the run's own numbers. Every value in the game
 # is rarity-dependent, so there is no single right number to bake in and this
 # marks the gap instead.
-VALUE = "\u2014"
+#
+# A question mark rather than a dash, because the mark lands in three positions
+# and has to read in all of them: after a `+`, before a `%`, and alone where the
+# value was itself a percentage. `+—` and `—%` read as typos in the first two.
+VALUE = "?"
 
 KEYWORD = re.compile(r"\{\$Keywords\.([A-Za-z0-9_]+)\}")
 ICON = re.compile(r"\{!Icons\.([A-Za-z0-9_]+)\}")

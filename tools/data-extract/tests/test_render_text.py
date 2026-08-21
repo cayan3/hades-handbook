@@ -91,6 +91,15 @@ def test_a_runtime_value_is_marked_rather_than_invented():
     assert rendered == "Deal %s damage." % VALUE
 
 
+def test_the_mark_reads_in_the_two_positions_that_chose_it():
+    """A signed bonus and a percentage are where the mark sits against another
+    glyph rather than against a space, and they are what ruled the dash out."""
+    signed = render_description("Gain +{$TooltipData.Armor} Armor.", KEYWORDS)
+    assert signed == "Gain +%s Armor." % VALUE
+    percent = render_description("Channel {$TooltipData.Speed} % faster.", KEYWORDS)
+    assert percent == "Channel %s%% faster." % VALUE
+
+
 def test_the_stat_table_after_the_first_break_is_dropped():
     raw = (
         "Your Ward is stronger. \\n "
