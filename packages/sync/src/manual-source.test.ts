@@ -482,9 +482,9 @@ describe("answering one talent on its own", () => {
   /**
    * The same question reaching the same map, differing only in which set the id
    * is checked against — and that is the whole point of it. The row form checks
-   * `mirrorRows`, which no shipped catalog populates, so it throws on every
-   * call; this checks `talents`, which carries every talent a requirement gates
-   * on. Nothing else about the answer changes.
+   * `mirrorRows` and throws where there is no such row; this checks `talents`,
+   * which carries every talent a requirement gates on. Nothing else about the
+   * answer changes.
    */
   it("writes the one key it was asked about, and no other", async () => {
     const source = await open();

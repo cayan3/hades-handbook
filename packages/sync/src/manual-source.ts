@@ -247,15 +247,13 @@ export interface ManualSource extends RunStateSource {
    *
    * The same question as `answerMirrorRow` reaching the same map, differing in
    * which set it checks the id against — and that is the whole of why it
-   * exists. The row form checks `catalog.mirrorRows`, which no shipped catalog
-   * populates, so it throws on every call; this checks `catalog.talents`, which
-   * carries every talent some requirement gates on. The two collect the same
-   * answer because the only row member outside that set is read by no
-   * requirement, so never writing its key is invisible to evaluation.
+   * exists. The row form checks `catalog.mirrorRows`; this checks
+   * `catalog.talents`, which carries every talent some requirement gates on.
    *
-   * Rows remain the better surface where they exist — they match the Mirror's
-   * own presentation and make "both members selected" unrepresentable — so this
-   * is the way to ask while they do not, not a replacement for asking properly.
+   * Hades I ships twelve rows now, so `answerMirrorRow` is answerable there and
+   * is the better surface: it matches the Mirror's own presentation and makes
+   * "both members selected" unrepresentable. This stays for a caller holding one
+   * talent id and no row to put it in — Hades II ships no rows at all.
    */
   answerTalent(talent: TalentId, selection: TalentSelection | null): void;
 
