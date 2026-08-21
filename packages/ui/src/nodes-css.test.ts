@@ -650,3 +650,29 @@ describe("the shortcut list", () => {
     expect(bodyOf('.saves[data-game="hades2"] .saves__slot')).toMatch(/--chrome-slice:/);
   });
 });
+
+describe("declarations a browser drops whole", () => {
+  /**
+   * A `border` whose colour is an unresolved `var()` is dropped **whole**,
+   * taking the style and the width with it, so the element gets no box rather
+   * than a box in the wrong colour — and a rule below setting `border-color`
+   * then paints an edge that does not exist.
+   *
+   * The app's stylesheet has carried this check since the Hub tab was found
+   * with no border at all. This one is the larger of the two and the one every
+   * new surface adds to, and it had no equivalent.
+   */
+  it("never puts a bare custom property in a border shorthand", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const bare: string[] = [];
+    for (const match of rules.matchAll(/(?:^|\n)\s*border\s*:\s*([^;]+);/g)) {
+      const declaration = match[1]!;
+      // The fallback is a second argument, so a comma inside the `var()` is
+      // exactly what makes one of these safe.
+      for (const use of declaration.matchAll(/var\(\s*--[\w-]+\s*\)/g)) {
+        bare.push(`border: ${declaration.trim()} — ${use[0]}`);
+      }
+    }
+    expect(bare).toEqual([]);
+  });
+});
