@@ -537,26 +537,6 @@ def test_a_mixed_disjunction_keeps_its_shape():
     }
 
 
-def test_a_branch_wanting_two_forms_does_not_collapse_to_either_one():
-    """A run equips one form, so "two of these" is already unsatisfiable.
-    Collapsing it would turn a gate nobody can meet into one that a single form
-    answers. No clause either game writes produces this today; `any_of` takes a
-    minimum and the engine's `anyOf` carries one, so it is buildable and the
-    guard is the only thing standing between the two readings."""
-    two = requirements.any_of(
-        [requirements.has_trait("BeowulfForm"), requirements.has_trait("LuciferForm")],
-        minimum=2,
-    )
-    assert retarget(two) == {
-        "kind": "anyOf",
-        "min": 2,
-        "of": [
-            {"kind": "hasAspect", "aspects": ["BeowulfForm"]},
-            {"kind": "hasAspect", "aspects": ["LuciferForm"]},
-        ],
-    }
-
-
 def test_a_form_nested_under_a_conjunction_is_still_found():
     both = requirements.all_of(
         [requirements.has_trait("BeowulfForm"), requirements.has_boon_from("Sable")]

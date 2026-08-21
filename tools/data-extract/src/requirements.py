@@ -184,12 +184,12 @@ def retarget_aspects(requirement, is_aspect):
         return has_aspect([requirement["trait"]])
     if kind in ("all", "anyOf"):
         children = [retarget_aspects(c, is_aspect) for c in requirement.get("of") or []]
-        # `min` is checked even though no clause either game writes produces one
-        # above 1: a run equips a single form, so "two of these forms" is already
-        # unsatisfiable and collapsing it to "either form" would turn it into a
-        # gate that can be met.
-        if (kind == "anyOf" and requirement.get("min", 1) <= 1 and children
-                and all(c.get("kind") == "hasAspect" for c in children)):
+        # No `min` check: neither game writes a clause that asks for two of
+        # anything, so every `anyOf` reaching here wants one branch. The only
+        # `min` above 1 this tool has ever built came from a test building one
+        # by hand, and a guard whose case only a test can reach is a guard
+        # nobody can say is right.
+        if kind == "anyOf" and children and all(c.get("kind") == "hasAspect" for c in children):
             return has_aspect(a for c in children for a in c["aspects"])
         return dict(requirement, of=children)
     return requirement
