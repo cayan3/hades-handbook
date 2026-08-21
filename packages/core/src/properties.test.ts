@@ -1,5 +1,5 @@
 import fc from "fast-check";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { evaluate } from "./evaluate.js";
 import type {
   CatalogLookups,
@@ -23,6 +23,27 @@ import {
   stubRules,
   zeroBaseline,
 } from "./test-support.js";
+
+/**
+ * A generous budget for every clause here, because 5 s is not one on a machine
+ * doing anything else.
+ *
+ * Measured on one commit: quiet, the whole file is under 4 s and the deepest
+ * clause alone is 2,510 ms. With a game running, that clause took 11,918 ms
+ * and failed 3 of 3 runs. In the 50-file parallel suite the failures move
+ * around -- one run took P4's two clauses and P9's, another took one of P4's
+ * and a component file in another package -- so this is the whole file rather
+ * than the two 6000-case clauses. The work is 2 s against a limit background
+ * load doubles twice over, and the failure looks like a red build that is
+ * green on the re-run, which teaches everyone to re-run rather than read.
+ *
+ * A budget rather than fewer runs. The runs are not what is slow, and cutting
+ * them costs P4's universal clause the independence of its witness and P9's
+ * first clause the only bound on `unsatisfiable` in the suite. Seeding
+ * fast-check would make it reproducible by stopping it exploring, which is
+ * most of what it is for.
+ */
+vi.setConfig({ testTimeout: 30_000 });
 
 /**
  * The invariants, over generated runs.
