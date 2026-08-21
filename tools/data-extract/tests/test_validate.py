@@ -449,6 +449,23 @@ def test_an_affinity_the_record_does_not_grant_stops_the_run():
     assert any("does not grant it" in f for f in fatal)
 
 
+def test_a_record_granting_one_element_and_claiming_no_affinity_stops_the_run():
+    """The other direction, and the likelier one. The affinity matches five
+    hardcoded base ids where the grant reads a field, so a base renamed in a
+    patch takes every affinity to null and leaves every grant right -- which
+    the check above cannot see, a null affinity being what it skips."""
+    _, fatal = check({"B": boon(id="B", elementGrants=["Fire"])})
+    assert any("claims no affinity" in f for f in fatal)
+
+
+def test_a_record_granting_several_elements_needs_no_affinity():
+    """Three records declare their elements directly and have no base above
+    them; the two a run can reach grant four and five. There is no one symbol
+    for a boon like that, so the marker's field is left null on purpose."""
+    _, fatal = check({"B": boon(id="B", elementGrants=["Air", "Fire"])})
+    assert not any("claims no affinity" in f for f in fatal)
+
+
 def test_a_rarity_scaled_grant_on_a_boon_with_a_god_stops_the_run():
     """`AddAllElements` adds its value to all five and takes that value from
     the rarity multiplier, which a list of element names cannot say. The one
@@ -456,6 +473,17 @@ def test_a_rarity_scaled_grant_on_a_boon_with_a_god_stops_the_run():
     unmodelled costs nothing. This is the check that notices if that changes."""
     _, fatal = check(
         {"B": boon(id="B", god="Hera")},
+        raw_defs={"B": {"AddAllElements": {"BaseValue": 1}}},
+    )
+    assert any("elementGrants cannot carry" in f for f in fatal)
+
+
+def test_a_rarity_scaled_grant_on_a_duo_stops_the_run():
+    """A Duo carries no god -- the pair is in `duoGods` -- and is drawn on both
+    of their pages, so a run can take one. Reading the god alone let all 37 of
+    them past the check, which is the population it most needed to see."""
+    _, fatal = check(
+        {"B": boon(id="B", god=None, duoGods=["Hera", "Zeus"])},
         raw_defs={"B": {"AddAllElements": {"BaseValue": 1}}},
     )
     assert any("elementGrants cannot carry" in f for f in fatal)

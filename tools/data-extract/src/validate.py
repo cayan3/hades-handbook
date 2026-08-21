@@ -623,10 +623,20 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                 grants_problems.append({"id": bid, "problem": "grants %s, which is not an element" % element})
         # The affinity is read off the inherit chain and the grants off the
         # record's own field, so this is the one check that holds the two
-        # derivations against each other. Either drifting shows up here.
+        # derivations against each other. Both directions are asked, because
+        # they fail differently and the second is the likelier one.
+        grants = b.get("elementGrants") or []
         affinity = b.get("elementAffinity")
-        if affinity is not None and affinity not in (b.get("elementGrants") or []):
+        if affinity is not None and affinity not in grants:
             grants_problems.append({"id": bid, "problem": "has %s affinity and does not grant it" % affinity})
+        # A missing affinity is what a stale base list looks like. The chain
+        # walk matches five hardcoded ids and the grants read a field, so a base
+        # renamed in a patch nulls ~190 affinities while every grant stays
+        # right, and the check above sees nothing at all. Asked of the records
+        # granting one element only: 194 of 194 name it today, and the two that
+        # grant several are the ones with no single symbol to draw.
+        if affinity is None and len(grants) == 1 and grants[0] in ELEMENTS:
+            grants_problems.append({"id": bid, "problem": "grants %s and claims no affinity" % grants[0]})
     report["elementGrantProblems"] = grants_problems
     for entry in grants_problems:
         fatal.append("%s %s %s" % (game_key, entry["id"], entry["problem"]))
@@ -638,10 +648,15 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     # god, so it reaches no god page and no run can hold it. That is what makes
     # leaving it unmodelled safe, and this is the check that says so out loud
     # if a patch ever moves it onto a boon a player can take.
+    #
+    # A Duo can be taken and carries no god: the pair is in `duoGods` and the
+    # page a Duo is drawn on is both of theirs. Skipping on the god alone
+    # skipped all 37 of them, which is the population this check most needed to
+    # see -- every Duo already grants an element.
     if raw_defs is not None:
         scaled = []
         for bid, b in sorted(boons.items()):
-            if b.get("god") is None:
+            if b.get("god") is None and not b.get("duoGods"):
                 continue
             chain = [bid] + inherit_chain(raw_defs, bid)
             if any((raw_defs.get(c) or {}).get("AddAllElements") for c in chain):
