@@ -23,5 +23,19 @@ export default defineConfig({
     // at all" case caught. Nothing else imports a stylesheet, so this costs the
     // one file that asked for it.
     css: true,
+    // 60 s rather than vitest's 5, and for every file rather than one.
+    //
+    // Quiet, the core property file runs all thirteen clauses in 3.4 s and its
+    // deepest in 2.4 s. Under the 50-file parallel run on a loaded machine that
+    // clause took 37-38 s, and the failure moves around -- one run took two
+    // component tests in apps/web at the default instead. So it is contention
+    // for the machine rather than a slow test, and a budget on the one file
+    // that showed it first left every other file exposed.
+    //
+    // A budget rather than fewer runs or a fixed seed: the runs are not what is
+    // slow, cutting them costs P4's universal clause the independence of its
+    // witness and P9's the only bound on `unsatisfiable` in the suite, and
+    // seeding stops fast-check exploring, which is most of what it is for.
+    testTimeout: 60_000,
   },
 });
