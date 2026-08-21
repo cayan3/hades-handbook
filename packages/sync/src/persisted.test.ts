@@ -55,6 +55,25 @@ describe("a run written to storage and read back", () => {
     expect(fromPersisted(stored).state.facts.elements.size).toBe(0);
   });
 
+  /**
+   * The other half of leaving `STORE_VERSION` alone, and the half no test
+   * could reach through `toPersisted` — every run written before the change
+   * still has its counts in the record, and this build has to open one. The
+   * key is read by nothing, so the run comes back whole and the stale counts
+   * go, which is what makes a bump buy nothing.
+   */
+  it("reads a record still carrying the counts an older build wrote", () => {
+    const stored = JSON.parse(
+      JSON.stringify(toPersisted({ state: populated(), quarantine: [] })),
+    ) as { facts: Record<string, unknown> };
+    stored.facts.elements = [["Fire", 2]];
+
+    const after = fromPersisted(stored).state;
+
+    expect(after.facts.held.get("HeraAttack")).toEqual({ rarity: "Epic", level: 3 });
+    expect(after.facts.elements.size).toBe(0);
+  });
+
   it("carries quarantined entries with it", () => {
     const state = emptyRun("hades1", "build-1");
     const quarantine = [
