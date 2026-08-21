@@ -19,11 +19,16 @@ KEYWORDS = {
     "Ember": {"displayName": "Ember"},
     "Mana": {"displayName": "{!Icons.Mana} Kindling"},
     "Ammo": {"displayName": "{!Icons.Ammo} Sparks"},
-    "ArmorTotal_NoTooltip": {"inheritFrom": "ArmorTotal"},
-    "ArmorTotal": {"inheritFrom": "Armor"},
+    # Only the stem is an entry, which is the games' own shape: neither
+    # `ArmorTotal_NoTooltip` nor `ArmorTotal` exists and the ladder is the only
+    # thing that reaches `Armor`.
     "Armor": {"displayName": "Warding"},
+    "Deep": {"inheritFrom": "Armor"},
     "Quoting": {"displayName": "{$Keywords.Ember} Ward"},
     "Bullet": {"description": "a list glyph with no name"},
+    # An element: the icon key has no entry under any stem of its own, and the
+    # word lives on a differently-named keyword entry.
+    "AirBoon": {"displayName": "{!Icons.CurseAir} Gust"},
 }
 
 
@@ -44,8 +49,33 @@ def test_an_inline_icon_becomes_the_noun_it_stands_for():
     assert render_description("Foes drop {!Icons.Ammo} faster.", KEYWORDS) == "Foes drop Sparks faster."
 
 
-def test_an_icon_variant_resolves_through_its_base_name():
+def test_an_icon_variant_resolves_by_stripping_one_suffix():
+    assert render_description("Gain {!Icons.Armor_NoTooltip}.", KEYWORDS) == "Gain Warding."
+
+
+def test_a_variant_spelled_with_two_suffixes_strips_both():
+    """`ArmorTotal_NoTooltip` is `Armor` two hops down, and neither hop is an
+    entry, so nothing but the ladder gets there."""
     assert render_description("Gain {!Icons.ArmorTotal_NoTooltip}.", KEYWORDS) == "Gain Warding."
+
+
+def test_stripping_stops_at_a_stem_the_bundle_does_not_name():
+    """A key whose stem is not an entry resolves to nothing rather than to
+    whatever the next strip happens to land on."""
+    assert render_description("Gain {!Icons.KindleTotal}.", KEYWORDS) == "Gain."
+
+
+def test_a_key_the_ladder_cannot_reach_is_aliased_rather_than_guessed():
+    """The elements are named on a `<Element>Boon` entry and nothing is named
+    `Air`, so stripping alone drops the noun the sentence is about."""
+    assert (
+        render_description("While you have {!Icons.AirNoTooltip}, you win.", KEYWORDS)
+        == "While you have Gust, you win."
+    )
+
+
+def test_an_inherited_name_is_followed_before_any_stripping():
+    assert render_description("Gain {!Icons.Deep}.", KEYWORDS) == "Gain Warding."
 
 
 def test_an_icon_the_bundle_does_not_name_is_dropped():

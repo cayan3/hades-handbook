@@ -43,6 +43,18 @@ ICON_SUFFIXES = (
     "Small",
 )
 
+# Icon keys the bundle names somewhere other than under their own stem, so the
+# suffix ladder cannot reach them. The five elements are the whole list: their
+# word is on the `<Element>Boon` keyword entry and nothing named `Air` exists,
+# which left *Tall Order* reading "at least -, -, - or - Elements".
+ICON_ALIASES = {
+    "EarthNoTooltip": "EarthBoon",
+    "WaterNoTooltip": "WaterBoon",
+    "AirNoTooltip": "AirBoon",
+    "FireNoTooltip": "FireBoon",
+    "AetherNoTooltip": "AetherBoon",
+}
+
 
 def _bare(name):
     """A resolved name with its decorative glyphs dropped.
@@ -71,7 +83,7 @@ def icon_word(keywords, key):
     stuck in them" -- so dropping it changes what the sentence claims. The word
     is the game's, not ours: the bundle has an entry under the icon's own key.
     """
-    candidate = key
+    candidate = ICON_ALIASES.get(key, key)
     seen = {candidate}
     while True:
         name = resolve_display_name(keywords, candidate)
