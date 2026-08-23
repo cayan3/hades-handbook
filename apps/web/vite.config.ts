@@ -26,27 +26,39 @@ export const POLICY = [
 ].join("; ");
 
 /**
- * The same policy again, as a real response header for whatever serves the site.
+ * The one directive the page's own policy cannot carry, as a real response header.
  *
- * A policy delivered in a meta tag cannot carry `frame-ancestors`: the level 3
- * spec has the parser ignore that directive, along with `report-uri` and
- * `sandbox`, when the policy did not arrive over HTTP. So the string in the page
- * has always claimed a protection it did not have — a security review found
- * this and correctly filed it as prose to correct rather than as a hole, there
- * being nothing deployed for it to matter on.
+ * CSP Level 3 has the parser ignore `frame-ancestors` — with `report-uri` and
+ * `sandbox` — when the policy arrives in a `<meta>` tag. So that directive has
+ * been in the string since `7b` and has never done anything. The `7b` security
+ * review found it and correctly declined to call it a vulnerability, there
+ * being no deployment for it to matter on. There is one now.
  *
- * The whole policy moves rather than just the one directive. A browser enforces
- * every policy it is given, so the two are intersected and an identical pair
- * changes nothing about what is allowed — but a header that carried a single
- * directive would split the deployment's protection across two files stating
- * different subsets, and the meta tag left behind still reads as the whole
- * story. Keeping it as a duplicate makes it a fallback instead: a host that
- * loses this file degrades to exactly today's behaviour rather than to nothing.
+ * Only that directive travels, and the reason is a measurement rather than a
+ * preference. Sending the whole policy as a blanket header was tried first, on
+ * the argument that one file stating the whole story beats two stating subsets.
+ * It broke the service worker. A worker runs under the policy of the response
+ * that delivered its script, a blanket rule covers `sw.js`, and the page's
+ * `connect-src 'none'` is then handed to the one script whose entire job is
+ * fetching: every precache entry goes through `fetch`, the install fetches
+ * nothing and fails, and `register` rejects — leaving no registration and no
+ * caches, which looks exactly like a worker nobody asked for. A meta tag never
+ * reached the worker, because it governs its own document and nothing else.
  *
- * Generated from POLICY rather than written out, because two copies of a
- * security control that can drift apart is worse than one copy in the weaker
- * place. A stale header would be intersected with a newer meta tag and refuse
- * something the app had started needing, which shows up only in production.
+ * Giving `sw.js` its own rule does not fix it: the host **combines** matching
+ * rules rather than letting the specific one win, so the worker was served two
+ * policies, and two policies are intersected — `connect-src 'none'` survives.
+ * Measured against the deployed origin, both times, rather than reasoned about.
+ *
+ * So the header carries what a meta tag cannot and nothing else, and the page's
+ * policy stays where it was verified in a browser. On `sw.js` this header is
+ * inert, which is the point: `frame-ancestors` does not govern a worker's
+ * fetches, and with no `default-src` beside it nothing else is restricted
+ * either.
+ *
+ * The directive is lifted out of POLICY rather than written again, so the two
+ * cannot drift, and its absence throws rather than quietly emitting a header
+ * with no directive in it.
  *
  * The other two are not about framing and are not owed by anything; they are
  * here because this is the file where a response header goes. `nosniff` because
@@ -55,9 +67,15 @@ export const POLICY = [
  * talks to nobody and no destination needs to be told where a visitor came from.
  */
 export function headersFile(policy: string): string {
+  const framing = policy
+    .split(";")
+    .map((directive) => directive.trim())
+    .find((directive) => directive.startsWith("frame-ancestors"));
+  if (framing === undefined) throw new Error("no frame-ancestors directive to serve");
+
   return [
     "/*",
-    `  Content-Security-Policy: ${policy}`,
+    `  Content-Security-Policy: ${framing}`,
     "  X-Content-Type-Options: nosniff",
     "  Referrer-Policy: no-referrer",
     "",
@@ -77,9 +95,10 @@ export function headersFile(policy: string): string {
  * The policy that ships is unchanged, which is the point: this moves where it
  * is applied, not what it says.
  *
- * The same plugin writes `_headers` beside the page, which is where the policy
- * becomes enforceable rather than merely stated. It is emitted rather than kept
- * in `public/` so that both copies come from POLICY and cannot drift.
+ * The same plugin writes `_headers` beside the page, which is where the one
+ * directive a meta tag cannot carry becomes enforceable. It is emitted rather
+ * than kept in `public/` so that the directive is lifted out of this policy
+ * rather than written a second time.
  */
 function contentSecurityPolicy(): Plugin {
   const meta = `<meta http-equiv="Content-Security-Policy" content="${POLICY}">`;
