@@ -30,7 +30,6 @@ export const POLICY = [
   "connect-src 'self'",
   "base-uri 'none'",
   "form-action 'none'",
-  "frame-ancestors 'none'",
 ].join("; ");
 
 /**
@@ -64,9 +63,12 @@ export const POLICY = [
  * fetches, and with no `default-src` beside it nothing else is restricted
  * either.
  *
- * The directive is lifted out of POLICY rather than written again, so the two
- * cannot drift, and its absence throws rather than quietly emitting a header
- * with no directive in it.
+ * It is **not** also left in the tag. Chrome logs "the directive 'frame-ancestors'
+ * is ignored when delivered via a <meta> element" for every visitor, which is
+ * the string saying out loud what this whole entry is about — and once the
+ * header carries it for real, keeping the inert copy buys a warning and nothing
+ * else. So FRAMING is declared once, next to POLICY and outside it, and a test
+ * holds the two apart in both directions.
  *
  * The other two are not about framing and are not owed by anything; they are
  * here because this is the file where a response header goes. `nosniff` because
@@ -74,20 +76,40 @@ export const POLICY = [
  * `default-src 'none'` does not cover, and `no-referrer` because the product
  * talks to nobody and no destination needs to be told where a visitor came from.
  */
-export function headersFile(policy: string): string {
-  const framing = policy
-    .split(";")
-    .map((directive) => directive.trim())
-    .find((directive) => directive.startsWith("frame-ancestors"));
-  if (framing === undefined) throw new Error("no frame-ancestors directive to serve");
+export const FRAMING = "frame-ancestors 'none'";
 
+export function headersFile(): string {
   return [
     "/*",
-    `  Content-Security-Policy: ${framing}`,
+    `  Content-Security-Policy: ${FRAMING}`,
     "  X-Content-Type-Options: nosniff",
     "  Referrer-Policy: no-referrer",
     "",
   ].join("\n");
+}
+
+/**
+ * The document's precache entry is `/`, not `index.html`.
+ *
+ * The host serves the app at `/` and at every path it has no file for, and
+ * **308s `/index.html` to `/`** — measured against the origin, where it was the
+ * one precache URL of fifty-nine that did not answer 200. A precache is
+ * all-or-nothing, so one entry the fetch cannot complete on its own terms takes
+ * the whole install down with it, and a failed install leaves whatever entries
+ * it had already written sitting in the cache: refresh, install again, a couple
+ * more entries, fail again. That is the shape the beta showed — a precache
+ * growing a little on every reload and never reaching sixty.
+ *
+ * Rewriting the URL rather than dropping the entry, because the document is the
+ * one thing an offline app cannot do without. The revision is carried through
+ * untouched, so replacing the page still busts the entry.
+ *
+ * `navigateFallback` has to move with it. The generated worker binds its
+ * navigation handler to a precached URL and throws on a miss, so leaving it
+ * pointed at `index.html` would trade an install failure for a runtime one.
+ */
+export function documentAtRoot<T extends { url: string }>(entries: T[]): T[] {
+  return entries.map((entry) => (entry.url === "index.html" ? { ...entry, url: "/" } : entry));
 }
 
 /**
@@ -118,7 +140,7 @@ function contentSecurityPolicy(): Plugin {
       // No extension, so none of the workbox globs claim it and the precache
       // count is unchanged. The host reads it out of the deployed root and
       // serves nothing at this path.
-      this.emitFile({ type: "asset", fileName: "_headers", source: headersFile(POLICY) });
+      this.emitFile({ type: "asset", fileName: "_headers", source: headersFile() });
     },
     transformIndexHtml(html) {
       /**
@@ -166,6 +188,13 @@ export default defineConfig({
       injectRegister: null,
       registerType: "autoUpdate",
       workbox: {
+        // The document is precached as `/` rather than `index.html`, which the
+        // host redirects; the navigation handler binds to a precached URL and
+        // has to name the same one.
+        navigateFallback: "/",
+        manifestTransforms: [
+          (entries) => ({ manifest: documentAtRoot(entries), warnings: [] }),
+        ],
         // The art caches two ways, split on how often a file is asked for.
         //
         // Precached: the 41 drawn on the first paint of any page — god symbols,
