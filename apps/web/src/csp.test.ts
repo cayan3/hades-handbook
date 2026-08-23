@@ -44,6 +44,19 @@ describe("the response-header file", () => {
     }
   });
 
+  /**
+   * The browser fetches the manifest's icons to decide whether the site is
+   * installable, and does it as a raw resource rather than an image — so
+   * `connect-src` governs them and `img-src` never sees them. Under 'none' both
+   * were refused on the deployed site. Off-origin stays refused, which is the
+   * half a local-first product actually promises.
+   */
+  it("lets the platform fetch same-origin, and nothing further", () => {
+    expect(POLICY).toContain("connect-src 'self'");
+    expect(POLICY).not.toContain("connect-src 'none'");
+    expect(POLICY).not.toMatch(/connect-src [^;]*https?:/);
+  });
+
   it("ends with a newline, so a host that appends a rule does not join it", () => {
     expect(file.endsWith("\n")).toBe(true);
   });

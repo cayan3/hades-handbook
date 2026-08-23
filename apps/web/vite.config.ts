@@ -9,8 +9,16 @@ import { VitePWA } from "vite-plugin-pwa";
  * an external stylesheet, the service worker registers from a module rather
  * than from an injected snippet, and the renderer sets styles through the
  * object model rather than through markup, which this does not govern.
- * `connect-src` is 'none' because the whole product runs from a local store and
- * talks to nobody.
+ * `connect-src` is 'self' rather than 'none', and the difference is one the
+ * product does not use but the platform does. Nothing the app runs makes a
+ * request — there is no server and no telemetry — but the browser fetches the
+ * manifest's icons while working out whether the site is installable, and it
+ * does that as a raw resource rather than as an image, so `connect-src` is the
+ * directive that governs it and `img-src` never sees it. Under 'none' both icons
+ * were refused on the deployed site, which is an installable app with no icon.
+ * 'self' still refuses every off-origin destination, which is the half that was
+ * ever load-bearing: a local-first product's promise is that nothing leaves the
+ * machine, and a same-origin request does not leave it.
  */
 export const POLICY = [
   "default-src 'none'",
@@ -19,7 +27,7 @@ export const POLICY = [
   "img-src 'self' data:",
   "font-src 'self'",
   "manifest-src 'self'",
-  "connect-src 'none'",
+  "connect-src 'self'",
   "base-uri 'none'",
   "form-action 'none'",
   "frame-ancestors 'none'",
