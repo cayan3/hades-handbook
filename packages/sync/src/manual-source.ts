@@ -13,6 +13,7 @@ import type {
   TalentId,
   TalentSelection,
   TraitId,
+  WeaponId,
 } from "@repo/core";
 import { type SyncCatalog, shippedCatalog } from "./catalog-view.js";
 import { migrate, scanOverrides } from "./migrate.js";
@@ -233,7 +234,7 @@ export interface ManualSource extends RunStateSource {
   /** Records a god as having given this run a reward, without naming a boon. */
   addGod(god: GodId): void;
 
-  equipWeapon(weapon: string | null): void;
+  equipWeapon(weapon: WeaponId | null): void;
   equipAspect(aspect: AspectId | null): void;
   equipKeepsake(keepsake: KeepsakeId | null): void;
 
@@ -999,8 +1000,19 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       commit({ ...state.facts, godPool: new Set(state.facts.godPool).add(god) });
     },
 
-    /** Unchecked: the catalog ships no weapon table to check against. */
-    equipWeapon(weapon: string | null): void {
+    /**
+     * The weapon the run is played with, and now checked against the six.
+     *
+     * This was the one writer with no guard, for the reason the comment here
+     * used to give: there was no weapon table to check against. There is one,
+     * so the same rule `addGod` follows applies — a name outside the space
+     * fails on the call rather than reaching storage and coming back out as a
+     * weapon the game has never had.
+     */
+    equipWeapon(weapon: WeaponId | null): void {
+      if (weapon !== null && !catalog.weapons.has(weapon)) {
+        throw new Error(`"${weapon}" is not a weapon in the ${catalog.game} catalog`);
+      }
       beginEdit("equipWeapon", weapon);
       const equipped = { ...state.facts.equipped };
       if (weapon === null) delete equipped.weapon;

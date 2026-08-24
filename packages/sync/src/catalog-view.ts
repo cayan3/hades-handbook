@@ -1,5 +1,14 @@
-import { type TraitRecord, dataFor, mirrorRowsFor, traitsFor } from "@repo/catalog";
-import type { GameId, GodId, KeepsakeId, Requirement, SlotId, TalentId, TraitId } from "@repo/core";
+import { type TraitRecord, dataFor, mirrorRowsFor, traitsFor, weaponsFor } from "@repo/catalog";
+import type {
+  GameId,
+  GodId,
+  KeepsakeId,
+  Requirement,
+  SlotId,
+  TalentId,
+  TraitId,
+  WeaponId,
+} from "@repo/core";
 
 /**
  * The catalog reads this package needs, taken as data instead of being imported.
@@ -64,6 +73,14 @@ export interface SyncCatalog {
    * Hades I, none in Hades II.
    */
   mirrorRows: readonly MirrorRow[];
+
+  /**
+   * Every weapon a run can be played with. Six per game and a closed set, which
+   * is what `equipWeapon` had no way to say: the field was written unchecked
+   * because there was no table to check it against, so a typo reached storage
+   * and came back out again as a weapon the game has never had.
+   */
+  weapons: ReadonlySet<WeaponId>;
 }
 
 /**
@@ -184,6 +201,7 @@ function build(game: GameId): SyncCatalog {
     slots,
     talents,
     mirrorRows,
+    weapons: new Set(weaponsFor(game).map((weapon) => weapon.id)),
   };
 }
 

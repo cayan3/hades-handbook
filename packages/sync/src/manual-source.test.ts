@@ -28,6 +28,7 @@ function world(): SyncCatalog {
     slots: new Set(["Melee", "Secondary", "Aspect"]),
     talents: new Set(["AmmoMetaUpgrade", "ReloadAmmoMetaUpgrade"]),
     mirrorRows: [testRow("Cast", "AmmoMetaUpgrade", "ReloadAmmoMetaUpgrade")],
+    weapons: new Set(["WeaponTorch"]),
   });
 }
 
@@ -524,6 +525,39 @@ describe("the equipped kit", () => {
 
     expect(source.getFacts().equipped.aspect).toBeUndefined();
     expect("aspect" in source.getFacts().equipped).toBe(false);
+  });
+
+  it("records the weapon the run is played with", async () => {
+    const source = await open();
+
+    source.equipWeapon("WeaponTorch");
+
+    expect(source.getFacts().equipped.weapon).toBe("WeaponTorch");
+  });
+
+  /**
+   * This field was the one writer with no guard, because until the catalog
+   * carried a weapon table there was nothing to check it against. Nothing
+   * downstream reads it, so a wrong one costs a readout rather than a verdict —
+   * which is exactly why it would have survived to storage and back out again
+   * with nothing reporting it.
+   */
+  it("refuses a weapon the catalog does not have", async () => {
+    const source = await open();
+
+    expect(() => {
+      source.equipWeapon("WeaponGlaive");
+    }).toThrow(/not a weapon/);
+    expect(source.getFacts().equipped.weapon).toBeUndefined();
+  });
+
+  it("clears the weapon without asking the table", async () => {
+    const source = await open();
+    source.equipWeapon("WeaponTorch");
+
+    source.equipWeapon(null);
+
+    expect("weapon" in source.getFacts().equipped).toBe(false);
   });
 
   it("refuses a keepsake the catalog does not have", async () => {

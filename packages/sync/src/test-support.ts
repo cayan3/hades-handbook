@@ -22,6 +22,7 @@ export function testCatalog(overrides: Partial<SyncCatalog> = {}): SyncCatalog {
     slots: new Set(),
     talents: new Set(),
     mirrorRows: [],
+    weapons: new Set(),
     ...overrides,
   };
 }
@@ -40,6 +41,7 @@ export function testTrait(id: TraitId, overrides: Partial<TraitRecord> = {}): Tr
     icon: null,
     boonCategory: "StandardOlympian",
     slot: null,
+    weapon: null,
     rarity: ["Common"],
     duoGods: null,
     exclusiveGroup: null,
