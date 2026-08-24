@@ -10,6 +10,7 @@ import type {
   TalentId,
   TalentSelection,
   TraitId,
+  WeaponId,
 } from "./ids.js";
 
 /**
@@ -59,7 +60,9 @@ export interface RunFacts {
    * every Mirror row nobody got around to asking abt.
    */
   equipped: {
-    weapon?: string;
+    // A `WeaponId` now that there is a weapon table to name one against; it was
+    // `string` for as long as nothing could check it (see `ManualSource`).
+    weapon?: WeaponId;
     aspect?: AspectId;
     keepsake?: KeepsakeId;
     talents?: Map<TalentId, TalentSelection>;
