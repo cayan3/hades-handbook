@@ -31,6 +31,7 @@ function record(id: TraitId, over: Partial<TraitRecord> = {}): TraitRecord {
     icon: null,
     boonCategory: "StandardOlympian",
     slot: null,
+    weapon: null,
     rarity: [],
     duoGods: null,
     exclusiveGroup: null,

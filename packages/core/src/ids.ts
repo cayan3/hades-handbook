@@ -16,6 +16,12 @@ export type SetId = string;
 export type KeepsakeId = string;
 export type AspectId = string;
 export type SlotId = string;
+/**
+ * One of the six weapons a run is played with. It names where a record with no
+ * god lives — a hammer upgrade or a weapon form — and it is never a `TraitId`:
+ * the games keep weapons in their own id space and no name is in both.
+ */
+export type WeaponId = string;
 /** A set of traits, at most one of which can be held at once. */
 export type GroupId = string;
 /**

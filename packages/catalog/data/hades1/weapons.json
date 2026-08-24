@@ -1,0 +1,68 @@
+{
+ "BowWeapon": {
+  "aspects": [
+   "BowBaseUpgradeTrait",
+   "BowMarkHomingTrait",
+   "BowLoadAmmoTrait",
+   "BowBondTrait"
+  ],
+  "id": "BowWeapon",
+  "name": "Heart-Seeking Bow",
+  "source": "Scripts/WeaponUpgradeData.lua:151"
+ },
+ "FistWeapon": {
+  "aspects": [
+   "FistBaseUpgradeTrait",
+   "FistVacuumTrait",
+   "FistWeaveTrait",
+   "FistDetonateTrait"
+  ],
+  "id": "FistWeapon",
+  "name": "Twin Fists",
+  "source": "Scripts/WeaponUpgradeData.lua:246"
+ },
+ "GunWeapon": {
+  "aspects": [
+   "GunBaseUpgradeTrait",
+   "GunGrenadeSelfEmpowerTrait",
+   "GunManualReloadTrait",
+   "GunLoadedGrenadeTrait"
+  ],
+  "id": "GunWeapon",
+  "name": "Adamant Rail",
+  "source": "Scripts/WeaponUpgradeData.lua:104"
+ },
+ "ShieldWeapon": {
+  "aspects": [
+   "ShieldBaseUpgradeTrait",
+   "ShieldRushBonusProjectileTrait",
+   "ShieldTwoShieldTrait",
+   "ShieldLoadAmmoTrait"
+  ],
+  "id": "ShieldWeapon",
+  "name": "Shield of Chaos",
+  "source": "Scripts/WeaponUpgradeData.lua:198"
+ },
+ "SpearWeapon": {
+  "aspects": [
+   "SpearBaseUpgradeTrait",
+   "SpearTeleportTrait",
+   "SpearWeaveTrait",
+   "SpearSpinTravel"
+  ],
+  "id": "SpearWeapon",
+  "name": "Eternal Spear",
+  "source": "Scripts/WeaponUpgradeData.lua:53"
+ },
+ "SwordWeapon": {
+  "aspects": [
+   "SwordBaseUpgradeTrait",
+   "SwordCriticalParryTrait",
+   "DislodgeAmmoTrait",
+   "SwordConsecrationTrait"
+  ],
+  "id": "SwordWeapon",
+  "name": "Stygian Blade",
+  "source": "Scripts/WeaponUpgradeData.lua:7"
+ }
+}

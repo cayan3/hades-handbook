@@ -1,8 +1,10 @@
 {
  "aspectsNamedAsHeldTraits": [],
+ "aspectsWithNoWeapon": [],
  "asymmetricExclusiveGroups": [],
  "blocksWithARemovableBlocker": [],
  "boonsGrantingAllElementsByRarity": [],
+ "boonsNamingAWeaponCount": 116,
  "boonsNotReferencedOutsideTraitData": [],
  "boonsNotReferencedOutsideTraitDataCount": 0,
  "boonsWhoseCategoryOutranksTheirGod": [],
@@ -769,5 +771,6 @@
  ],
  "unresolvedSentinelKnownNoLongerPresent": [],
  "unresolvedSentinelLeakCount": 0,
- "unresolvedSentinelLeaks": []
+ "unresolvedSentinelLeaks": [],
+ "weaponCount": 6
 }

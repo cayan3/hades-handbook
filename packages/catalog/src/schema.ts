@@ -9,6 +9,7 @@ import type {
   SlotId,
   TalentId,
   TraitId,
+  WeaponId,
 } from "@repo/core";
 
 /**
@@ -57,6 +58,18 @@ export interface TraitRecord {
 
   boonCategory: "StandardOlympian" | "NonStandard" | "NpcAlly";
   slot: SlotId | null;
+
+  /**
+   * Which weapon this record belongs to, for one that belongs to no god — a
+   * hammer upgrade or a weapon form. Null for everything a god offers, which
+   * is most of the catalog.
+   *
+   * Not a gate. The clause both games write it as describes when the game
+   * offers the record, and the weapon is chosen before the run starts, so it
+   * never reaches `prereq`. It answers where the record lives, the way `god`
+   * does for a boon.
+   */
+  weapon: WeaponId | null;
 
   /**
    * This is a list instead of a single value bc a boon can usually be offered
@@ -253,6 +266,22 @@ export interface KeepsakeRecord {
 export interface SetRecord {
   id: SetId;
   members: readonly TraitId[];
+  source?: string;
+}
+
+/**
+ * One of the six weapons a run is played with, which is what a record with no
+ * god answers to instead.
+ *
+ * `aspects` is in the game's own display order rather than sorted, which is
+ * the only thing this table carries that the trait records cannot: every form
+ * names its weapon on its own record, but nothing on a record says it comes
+ * first. The free one does, in both games.
+ */
+export interface WeaponRecord {
+  id: WeaponId;
+  name: string | null;
+  aspects: readonly TraitId[];
   source?: string;
 }
 

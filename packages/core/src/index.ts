@@ -30,6 +30,7 @@ export type {
   TalentId,
   TalentSelection,
   TraitId,
+  WeaponId,
 } from "./ids.js";
 export type { Requirement } from "./requirement.js";
 export type { HeldTrait, RunFacts, RunIntent, RunState } from "./run-state.js";

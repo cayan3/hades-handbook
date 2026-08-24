@@ -33,6 +33,7 @@ const ALWAYS_EMITTED: Record<RequiredKey<TraitRecord>, true> = {
   icon: true,
   boonCategory: true,
   slot: true,
+  weapon: true,
   rarity: true,
   duoGods: true,
   exclusiveGroup: true,
@@ -126,13 +127,22 @@ describe("the fields that stayed optional after the extractor caught up", () => 
      * same key as a boon-versus-boon exclusion. Routing them to
      * `aspectConflicts` left this field genuinely empty for that game, rather
      * than merely unpopulated.
+     *
+     * Hades I's 5 became 15 when hammers came into scope: the classifier used
+     * to drop 178 edges because one end was a hammer, and hammers block each
+     * other the way any two boons that replace the same move do.
      */
-    expect(records("hades1").filter((r) => r.blockedBy !== null).length).toBe(5);
+    expect(records("hades1").filter((r) => r.blockedBy !== null).length).toBe(15);
     expect(records("hades2").filter((r) => r.blockedBy !== null).length).toBe(0);
   });
 
   it("carries the aspect conflicts that used to be miscounted as blocks", () => {
-    expect(records("hades1").filter((r) => r.aspectConflicts !== null).length).toBe(16);
+    /**
+     * 16 of these before hammers came into scope. Most of the rest are a
+     * hammer that a weapon form replaces the move of, which is the same
+     * relationship the boons already had with the same forms.
+     */
+    expect(records("hades1").filter((r) => r.aspectConflicts !== null).length).toBe(55);
     expect(records("hades2").filter((r) => r.aspectConflicts !== null).length).toBe(2);
   });
 });

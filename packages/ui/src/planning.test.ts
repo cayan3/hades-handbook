@@ -23,6 +23,7 @@ function record(id: TraitId, prereq: Requirement | null = null): TraitRecord {
     icon: null,
     boonCategory: "StandardOlympian",
     slot: null,
+    weapon: null,
     rarity: [],
     duoGods: null,
     exclusiveGroup: null,

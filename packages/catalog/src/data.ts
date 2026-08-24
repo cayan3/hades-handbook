@@ -6,6 +6,7 @@ import hades1MirrorRows from "../data/hades1/mirror_rows.json" with { type: "jso
 import hades1NamedSets from "../data/hades1/named_sets.json" with { type: "json" };
 import hades1Talents from "../data/hades1/talents.json" with { type: "json" };
 import hades1Version from "../data/hades1/version.json" with { type: "json" };
+import hades1Weapons from "../data/hades1/weapons.json" with { type: "json" };
 import hades2Boons from "../data/hades2/boons.json" with { type: "json" };
 import hades2Descriptions from "../data/hades2/descriptions.json" with { type: "json" };
 import hades2Gods from "../data/hades2/gods.json" with { type: "json" };
@@ -14,6 +15,7 @@ import hades2MirrorRows from "../data/hades2/mirror_rows.json" with { type: "jso
 import hades2NamedSets from "../data/hades2/named_sets.json" with { type: "json" };
 import hades2Talents from "../data/hades2/talents.json" with { type: "json" };
 import hades2Version from "../data/hades2/version.json" with { type: "json" };
+import hades2Weapons from "../data/hades2/weapons.json" with { type: "json" };
 
 /**
  * The extracted snapshot (just loaded here, nothing else :salute: :salute:).
@@ -48,6 +50,8 @@ export interface GameData {
   /** Mirror talents and their rows. Hades I only; both empty in Hades II. */
   readonly talents: unknown;
   readonly mirrorRows: unknown;
+  /** The six weapons, and which forms each offers. Both games. */
+  readonly weapons: unknown;
   /** Which game build this snapshot came from; becomes `RunFacts.dataVersion`. */
   readonly version: unknown;
 }
@@ -61,6 +65,7 @@ export const gameData = {
     descriptions: hades1Descriptions,
     talents: hades1Talents,
     mirrorRows: hades1MirrorRows,
+    weapons: hades1Weapons,
     version: hades1Version,
   },
   hades2: {
@@ -71,6 +76,7 @@ export const gameData = {
     descriptions: hades2Descriptions,
     talents: hades2Talents,
     mirrorRows: hades2MirrorRows,
+    weapons: hades2Weapons,
     version: hades2Version,
   },
 } as const satisfies Record<string, GameData>;

@@ -43,6 +43,7 @@ function record(over: Partial<TraitRecord> & { id: TraitId }): TraitRecord {
     icon: null,
     boonCategory: "StandardOlympian",
     slot: null,
+    weapon: null,
     rarity: [],
     duoGods: null,
     exclusiveGroup: null,
@@ -253,9 +254,13 @@ describe("against the shipped Hades I catalog", () => {
         edges: carriers.reduce((n, r) => n + (pick(r) ?? []).length, 0),
       };
     };
-    expect(count((r) => r.aspectConflicts)).toEqual({ carriers: 16, edges: 17 });
-    expect(count((r) => r.blockedBy)).toEqual({ carriers: 5, edges: 12 });
-    expect(count((r) => r.exclusiveGroup)).toEqual({ carriers: 9, edges: 21 });
+    // All three grew when hammers came into scope. The 178 edges the
+    // classifier used to drop for touching one land here: 122 hammer against
+    // hammer, 54 hammer against a weapon form, and one symmetric pair reaching
+    // a god boon.
+    expect(count((r) => r.aspectConflicts)).toEqual({ carriers: 55, edges: 64 });
+    expect(count((r) => r.blockedBy)).toEqual({ carriers: 15, edges: 26 });
+    expect(count((r) => r.exclusiveGroup)).toEqual({ carriers: 67, edges: 189 });
   });
 
   it("reports every aspect conflict the game declares, once the form is equipped", () => {
@@ -265,7 +270,7 @@ describe("against the shipped Hades I catalog", () => {
         (r) => rules.isBlocked(r.id, facts({ equipped: { aspect: form } }))?.kind === "aspectConflict",
       ),
     );
-    expect(fired.length).toBe(17);
+    expect(fired.length).toBe(64);
   });
 
   it("names the trait as well as the form, which the requirement-side answer cannot", () => {

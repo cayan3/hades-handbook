@@ -24,7 +24,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Arachne.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "AirEssence": {
   "activation": null,
@@ -48,7 +49,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Essence.lua:35",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "AllCloseBoon": {
   "activation": null,
@@ -121,7 +123,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:175",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "AllElementalBoon": {
   "activation": null,
@@ -209,7 +212,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:2200",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "AloneDamageBoon": {
   "activation": null,
@@ -238,7 +242,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:1645",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AmplifyConeBoon": {
   "activation": null,
@@ -322,7 +327,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:2408",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "AntiArmorBoon": {
   "activation": null,
@@ -351,7 +357,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:1621",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AphroditeCastBoon": {
   "activation": null,
@@ -380,7 +387,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Aphrodite.lua:1308",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AphroditeManaBoon": {
   "activation": null,
@@ -409,7 +417,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Aphrodite.lua:1509",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AphroditeSpecialBoon": {
   "activation": null,
@@ -438,7 +447,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Aphrodite.lua:778",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AphroditeSprintBoon": {
   "activation": null,
@@ -467,7 +477,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Aphrodite.lua:1411",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AphroditeWeaponBoon": {
   "activation": null,
@@ -496,7 +507,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Aphrodite.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ApolloBlindBoon": {
   "activation": null,
@@ -546,7 +558,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2165",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "ApolloCastAreaBoon": {
   "activation": null,
@@ -575,7 +588,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2236",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ApolloCastBoon": {
   "activation": null,
@@ -604,7 +618,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Apollo.lua:1490",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ApolloExCastBoon": {
   "activation": null,
@@ -674,7 +689,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:1652",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ApolloManaBoon": {
   "activation": null,
@@ -703,7 +719,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Apollo.lua:1890",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ApolloRetaliateBoon": {
   "activation": null,
@@ -732,7 +749,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:1948",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ApolloSecondStageCastBoon": {
   "activation": null,
@@ -791,7 +809,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:523",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ApolloSpecialBoon": {
   "activation": null,
@@ -820,7 +839,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Apollo.lua:871",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ApolloSprintBoon": {
   "activation": null,
@@ -849,7 +869,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Apollo.lua:1771",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ApolloWeaponBoon": {
   "activation": null,
@@ -878,7 +899,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Apollo.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ArcanaRarityTrait": {
   "activation": null,
@@ -905,7 +927,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:252",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "AresCastBoon": {
   "activation": null,
@@ -934,7 +957,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Ares.lua:1462",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AresExCastBoon": {
   "activation": null,
@@ -1004,7 +1028,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:1612",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AresManaBoon": {
   "activation": null,
@@ -1033,7 +1058,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Ares.lua:1393",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AresSpecialBoon": {
   "activation": null,
@@ -1062,7 +1088,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Ares.lua:822",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AresSprintBoon": {
   "activation": null,
@@ -1091,7 +1118,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Ares.lua:1542",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AresStatusDoubleDamageBoon": {
   "activation": null,
@@ -1133,7 +1161,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:1766",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "AresWeaponBoon": {
   "activation": null,
@@ -1162,7 +1191,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Ares.lua:4",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ArmorBoon": {
   "activation": null,
@@ -1191,7 +1221,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:1743",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ArmorGainKeepsake": {
   "activation": null,
@@ -1218,7 +1249,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1204",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ArmorPenaltyCurse": {
   "activation": null,
@@ -1245,7 +1277,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:272",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "AthenaEncounterKeepsake": {
   "activation": null,
@@ -1272,7 +1305,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2168",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "AthenaProjectileBoon": {
   "activation": null,
@@ -1301,7 +1335,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Athena.lua:211",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AutoRevengeBoon": {
   "activation": null,
@@ -1392,7 +1427,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1365",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "AxeArmCastAspect": {
   "activation": null,
@@ -1421,7 +1457,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:3474",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeArmorTrait": {
   "activation": null,
@@ -1443,7 +1480,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:290",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeAttackRecoveryTrait": {
   "activation": null,
@@ -1468,7 +1506,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:666",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeBlockEmpowerTrait": {
   "activation": null,
@@ -1493,7 +1532,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:229",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeChargedSpecialTrait": {
   "activation": null,
@@ -1518,7 +1558,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:593",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeDashAttackTrait": {
   "activation": null,
@@ -1540,7 +1581,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:80",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeFreeSpinTrait": {
   "activation": null,
@@ -1562,7 +1604,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:315",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeHammerTrait": {
   "activation": null,
@@ -1584,7 +1627,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "AxeMassiveThirdStrikeTrait": {
   "activation": null,
@@ -1606,7 +1650,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:819",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxePerfectCriticalAspect": {
   "activation": null,
@@ -1635,7 +1680,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:3560",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeRallyAspect": {
   "activation": null,
@@ -1664,7 +1710,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:3752",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeRallyFirstStrikeTrait": {
   "activation": null,
@@ -1686,7 +1733,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:887",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeRallyFrenzyTrait": {
   "activation": null,
@@ -1708,7 +1756,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:924",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeRangedWhirlwindTrait": {
   "activation": null,
@@ -1733,7 +1782,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:459",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeRecoveryAspect": {
   "activation": null,
@@ -1762,7 +1812,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:3406",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeSecondStageTrait": {
   "activation": null,
@@ -1784,7 +1835,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:174",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeSpinSpeedTrait": {
   "activation": null,
@@ -1809,7 +1861,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:525",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeSturdyTrait": {
   "activation": null,
@@ -1834,7 +1887,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:8",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "AxeThirdStrikeTrait": {
   "activation": null,
@@ -1859,7 +1913,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Axe.lua:752",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponAxe"
  },
  "BankBoon": {
   "activation": null,
@@ -1888,7 +1943,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dionysus.lua:494",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "BaseBoonUpgradeKeepsake": {
   "activation": null,
@@ -1914,7 +1970,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:77",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BaseCirce": {
   "activation": null,
@@ -1941,7 +1998,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BaseCurse": {
   "activation": null,
@@ -1968,7 +2026,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BaseEcho": {
   "activation": null,
@@ -1995,7 +2054,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BaseIcarus": {
   "activation": null,
@@ -2022,7 +2082,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BaseStaffAspect": {
   "activation": null,
@@ -2051,7 +2112,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:4",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "BaseSuitAspect": {
   "activation": null,
@@ -2080,7 +2142,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:4607",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "BlindChanceBoon": {
   "activation": null,
@@ -2112,7 +2175,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2094",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "BlindClearBoon": {
   "activation": null,
@@ -2185,7 +2249,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:335",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BlockDeathKeepsake": {
   "activation": null,
@@ -2212,7 +2277,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:99",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BloodDropRevengeBoon": {
   "activation": null,
@@ -2241,7 +2307,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:1841",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "BloodManaBurstBoon": {
   "activation": null,
@@ -2314,7 +2381,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1603",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BloodRetentionBoon": {
   "activation": null,
@@ -2387,7 +2455,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1417",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BoltRetaliateBoon": {
   "activation": null,
@@ -2416,7 +2485,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:1624",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "BonusMoneyKeepsake": {
   "activation": null,
@@ -2443,7 +2513,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:683",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BoonDecayBoon": {
   "activation": null,
@@ -2472,7 +2543,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:1997",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "BoonGrowthBoon": {
   "activation": null,
@@ -2501,7 +2573,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:1894",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "BossMetaUpgradeKeepsake": {
   "activation": null,
@@ -2528,7 +2601,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:973",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BossPreDamageKeepsake": {
   "activation": null,
@@ -2555,7 +2629,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:770",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BossProgressionMetaUpgrade": {
   "activation": null,
@@ -2582,7 +2657,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:1213",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BossShieldMetaUpgrade": {
   "activation": null,
@@ -2609,7 +2685,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:407",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BreakExplosiveArmorBoon": {
   "activation": null,
@@ -2636,7 +2713,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:325",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BreakInvincibleArmorBoon": {
   "activation": null,
@@ -2663,7 +2741,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:395",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BurnArmorBoon": {
   "activation": null,
@@ -2709,7 +2788,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:2064",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "BurnConsumeBoon": {
   "activation": null,
@@ -2778,7 +2858,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:692",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BurnExplodeBoon": {
   "activation": null,
@@ -2807,7 +2888,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:1993",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "BurnRefreshBoon": {
   "activation": null,
@@ -2876,7 +2958,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:132",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "BurnSprintBoon": {
   "activation": null,
@@ -2960,7 +3043,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:2189",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "BurnStackBoon": {
   "activation": null,
@@ -3006,7 +3090,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:2132",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "CastAnywhereBoon": {
   "activation": null,
@@ -3082,7 +3167,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:1679",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CastAttachBoon": {
   "activation": null,
@@ -3152,7 +3238,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:2111",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CastDamageCostume": {
   "activation": null,
@@ -3179,7 +3266,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Arachne.lua:71",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CastDamageMetaUpgrade": {
   "activation": null,
@@ -3206,7 +3294,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:481",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CastHazardBoon": {
   "activation": null,
@@ -3233,7 +3322,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:250",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CastLobBoon": {
   "activation": null,
@@ -3268,7 +3358,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dionysus.lua:2",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CastNovaBoon": {
   "activation": null,
@@ -3297,7 +3388,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:1696",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CastProjectileBoon": {
   "activation": null,
@@ -3332,7 +3424,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:1759",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ChamberHealthMetaUpgrade": {
   "activation": null,
@@ -3359,7 +3452,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:615",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChannelSlowMetaUpgrade": {
   "activation": null,
@@ -3386,7 +3480,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:32",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosBlessing": {
   "activation": null,
@@ -3413,7 +3508,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:23",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosCastBlessing": {
   "activation": null,
@@ -3440,7 +3536,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:102",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosCastCurse": {
   "activation": null,
@@ -3462,7 +3559,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:1026",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosCommonCurse": {
   "activation": null,
@@ -3484,7 +3582,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:1007",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosCurse": {
   "activation": null,
@@ -3506,7 +3605,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:4",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosCurseRemainingEncounters": {
   "activation": null,
@@ -3528,7 +3628,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:11",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosDamageCurse": {
   "activation": null,
@@ -3550,7 +3651,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:819",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosDashCurse": {
   "activation": null,
@@ -3572,7 +3674,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:1058",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosDeathWeaponCurse": {
   "activation": null,
@@ -3594,7 +3697,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:913",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosDoorHealBlessing": {
   "activation": null,
@@ -3621,7 +3725,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:601",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosElementalBlessing": {
   "activation": null,
@@ -3648,7 +3753,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:445",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosExAttackCurse": {
   "activation": null,
@@ -3670,7 +3776,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:975",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosExSpeedBlessing": {
   "activation": null,
@@ -3697,7 +3804,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:383",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosHarvestBlessing": {
   "activation": null,
@@ -3724,7 +3832,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:635",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosHealthBlessing": {
   "activation": null,
@@ -3751,7 +3860,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:125",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosHealthCurse": {
   "activation": null,
@@ -3773,7 +3883,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:761",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosHiddenRoomRewardCurse": {
   "activation": null,
@@ -3795,7 +3906,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:797",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosLastStandBlessing": {
   "activation": null,
@@ -3830,7 +3942,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:261",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosLegacyTrait": {
   "activation": null,
@@ -3852,7 +3965,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:51",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosManaBlessing": {
   "activation": null,
@@ -3879,7 +3993,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:311",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosManaCostBlessing": {
   "activation": null,
@@ -3906,7 +4021,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:491",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosManaFocusCurse": {
   "activation": null,
@@ -3928,7 +4044,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:1085",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosManaOverTimeBlessing": {
   "activation": null,
@@ -3955,7 +4072,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:336",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosMetaUpgradeCurse": {
   "activation": null,
@@ -3988,7 +4106,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:1160",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosMoneyBlessing": {
   "activation": null,
@@ -4015,7 +4134,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:220",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosNoMoneyCurse": {
   "activation": null,
@@ -4037,7 +4157,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:755",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosOmegaDamageBlessing": {
   "activation": null,
@@ -4068,7 +4189,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:679",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosPrimaryAttackCurse": {
   "activation": null,
@@ -4092,7 +4214,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:846",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosRarityBlessing": {
   "activation": null,
@@ -4119,7 +4242,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:172",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosRestrictBoonCurse": {
   "activation": null,
@@ -4141,7 +4265,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:1096",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosSecondaryAttackCurse": {
   "activation": null,
@@ -4165,7 +4290,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:879",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosSpecialBlessing": {
   "activation": null,
@@ -4192,7 +4318,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:81",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosSpeedBlessing": {
   "activation": null,
@@ -4219,7 +4346,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:533",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosSpeedCurse": {
   "activation": null,
@@ -4241,7 +4369,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:923",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosStunCurse": {
   "activation": null,
@@ -4263,7 +4392,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:1111",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosTimeCurse": {
   "activation": null,
@@ -4285,7 +4415,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:1139",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChaosWeaponBlessing": {
   "activation": null,
@@ -4312,7 +4443,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Chaos.lua:61",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ChargeRegenTalent": {
   "activation": null,
@@ -4339,7 +4471,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:84",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CharmCrowdBoon": {
   "activation": null,
@@ -4412,7 +4545,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:101",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CirceEnlargeTrait": {
   "activation": null,
@@ -4439,7 +4573,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:290",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CirceShrinkTrait": {
   "activation": null,
@@ -4466,7 +4601,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:357",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CirceSorceryDamageBoon": {
   "activation": null,
@@ -4493,7 +4629,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:434",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ClearCastTalent": {
   "activation": null,
@@ -4521,7 +4658,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:246",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ClearRootBoon": {
   "activation": null,
@@ -4590,7 +4728,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:632",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CombatEncounterHealBoon": {
   "activation": null,
@@ -4619,7 +4758,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dionysus.lua:362",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CommonGlobalDamageBoon": {
   "activation": null,
@@ -4648,7 +4788,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:1775",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CooldownDamageTalent": {
   "activation": null,
@@ -4675,7 +4816,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:127",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CooldownDefenseTalent": {
   "activation": null,
@@ -4702,7 +4844,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:650",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CoverRegenerationBoon": {
   "activation": null,
@@ -4783,7 +4926,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:410",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CritBonusBoon": {
   "activation": null,
@@ -4812,7 +4956,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:166",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CurrencyUseTalent": {
   "activation": null,
@@ -4840,7 +4985,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:232",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DaggerAttackFinisherTrait": {
   "activation": null,
@@ -4865,7 +5011,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:448",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerBackstabAspect": {
   "activation": null,
@@ -4894,7 +5041,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:874",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerBackstabTrait": {
   "activation": null,
@@ -4919,7 +5067,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:689",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerBlinkAoETrait": {
   "activation": null,
@@ -4944,7 +5093,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:9",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerBlockAspect": {
   "activation": null,
@@ -4973,7 +5123,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:1020",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerChargeStageSkipTrait": {
   "activation": null,
@@ -4998,7 +5149,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:534",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerDashAttackTripleTrait": {
   "activation": null,
@@ -5020,7 +5172,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:76",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerFinalHitTrait": {
   "activation": null,
@@ -5045,7 +5198,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:592",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerHammerTrait": {
   "activation": null,
@@ -5067,7 +5221,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DaggerHomingThrowAspect": {
   "activation": null,
@@ -5096,7 +5251,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:937",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerRapidAttackTrait": {
   "activation": null,
@@ -5121,7 +5277,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:126",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerSpecialConsecutiveTrait": {
   "activation": null,
@@ -5143,7 +5300,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:318",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerSpecialFanTrait": {
   "activation": null,
@@ -5168,7 +5326,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:243",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerSpecialJumpTrait": {
   "activation": null,
@@ -5193,7 +5352,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:370",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerSpecialLineTrait": {
   "activation": null,
@@ -5218,7 +5378,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:167",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerSpecialReturnTrait": {
   "activation": null,
@@ -5243,7 +5404,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:633",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerTripleAspect": {
   "activation": null,
@@ -5272,7 +5434,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:1156",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerTripleBuffTrait": {
   "activation": null,
@@ -5297,7 +5460,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:729",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerTripleHomingSpecialTrait": {
   "activation": null,
@@ -5322,7 +5486,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:817",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DaggerTripleRepeatWomboTrait": {
   "activation": null,
@@ -5347,7 +5512,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dagger.lua:775",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponDagger"
  },
  "DamageBuffTalent": {
   "activation": null,
@@ -5375,7 +5541,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:384",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DamageSharePotencyBoon": {
   "activation": null,
@@ -5425,7 +5592,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:2139",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "DamageShareRetaliateBoon": {
   "activation": null,
@@ -5454,7 +5622,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:1854",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DamagedDamageBoostKeepsake": {
   "activation": null,
@@ -5481,7 +5650,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1493",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DashOmegaBuffBoon": {
   "activation": null,
@@ -5510,7 +5680,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:209",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DeathDefianceRefillBoon": {
   "activation": null,
@@ -5539,7 +5710,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Athena.lua:282",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DeathDefianceRetaliateCurse": {
   "activation": null,
@@ -5566,7 +5738,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:355",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DeathVengeanceKeepsake": {
   "activation": null,
@@ -5593,7 +5766,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:371",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DecayingBoostKeepsake": {
   "activation": null,
@@ -5620,7 +5794,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1388",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DemeterCastBoon": {
   "activation": null,
@@ -5649,7 +5824,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Demeter.lua:1377",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DemeterManaBoon": {
   "activation": null,
@@ -5678,7 +5854,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Demeter.lua:1627",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DemeterSpecialBoon": {
   "activation": null,
@@ -5707,7 +5884,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Demeter.lua:807",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DemeterSprintBoon": {
   "activation": null,
@@ -5736,7 +5914,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Demeter.lua:1515",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DemeterWeaponBoon": {
   "activation": null,
@@ -5765,7 +5944,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Demeter.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DiminishingDodgeBoon": {
   "activation": null,
@@ -5792,7 +5972,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:145",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DiminishingHealthAndManaBoon": {
   "activation": null,
@@ -5819,7 +6000,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:212",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DodgeBonusMetaUpgrade": {
   "activation": null,
@@ -5846,7 +6028,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:929",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DodgeChanceBoon": {
   "activation": null,
@@ -5875,7 +6058,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:216",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DoorHealMetaUpgrade": {
   "activation": null,
@@ -5902,7 +6086,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:129",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DoorHealReserveKeepsake": {
   "activation": null,
@@ -5929,7 +6114,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:282",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DoorHealToFullBoon": {
   "activation": null,
@@ -5961,7 +6147,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:1700",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "DoorRerollMetaUpgrade": {
   "activation": null,
@@ -5988,7 +6175,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:681",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DoubleBloodDropBoon": {
   "activation": null,
@@ -6072,7 +6260,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:2140",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "DoubleBoltBoon": {
   "activation": null,
@@ -6134,7 +6323,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:1926",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "DoubleExManaBoon": {
   "activation": null,
@@ -6218,7 +6408,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2408",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "DoubleFamiliarTrait": {
   "activation": null,
@@ -6245,7 +6436,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:133",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DoubleMassiveAttackBoon": {
   "activation": null,
@@ -6322,7 +6514,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:879",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DoubleRewardBoon": {
   "activation": null,
@@ -6351,7 +6544,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:2274",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DoubleSplashBoon": {
   "activation": null,
@@ -6424,7 +6618,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1494",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DoubleStrikeChanceBoon": {
   "activation": null,
@@ -6494,7 +6689,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2288",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DoubleSwordBoon": {
   "activation": null,
@@ -6575,7 +6771,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1520",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "DummyBloodDisplayBoon": {
   "activation": null,
@@ -6597,7 +6794,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:2182",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "DuoRarityBoostMetaUpgrade": {
   "activation": null,
@@ -6624,7 +6822,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:854",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EarthEssence": {
   "activation": null,
@@ -6648,7 +6847,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Essence.lua:49",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EchoBurnBoon": {
   "activation": null,
@@ -6713,7 +6913,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1119",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EchoDeathDefianceRefill": {
   "activation": null,
@@ -6740,7 +6941,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:81",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EchoDoubleLevelBoon": {
   "activation": null,
@@ -6767,7 +6969,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:72",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EchoDoubleShop": {
   "activation": null,
@@ -6794,7 +6997,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:288",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EchoExpirationBoon": {
   "activation": null,
@@ -6836,7 +7040,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:1975",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "EchoLastReward": {
   "activation": null,
@@ -6863,7 +7068,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:29",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EchoLastRunBoon": {
   "activation": null,
@@ -6890,7 +7096,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:51",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EchoRepeatKeepsakeBoon": {
   "activation": null,
@@ -6917,7 +7124,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Echo.lua:296",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EffectVulnerabilityMetaUpgrade": {
   "activation": null,
@@ -6944,7 +7152,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:1050",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalBaseDamageBoon": {
   "_godInferredFromComment": true,
@@ -6973,7 +7182,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:281",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalDamageBoon": {
   "_godInferredFromComment": true,
@@ -7002,7 +7212,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:151",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalDamageCapBoon": {
   "_godInferredFromComment": true,
@@ -7037,7 +7248,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:511",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalDamageFloorBoon": {
   "_godInferredFromComment": true,
@@ -7072,7 +7284,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:405",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalDodgeBoon": {
   "_godInferredFromComment": true,
@@ -7101,7 +7314,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:448",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalEssence": {
   "activation": null,
@@ -7128,7 +7342,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Essence.lua:30",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalHealthBoon": {
   "_godInferredFromComment": true,
@@ -7157,7 +7372,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:563",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalOlympianDamageBoon": {
   "_godInferredFromComment": true,
@@ -7192,7 +7408,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:227",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalRallyBoon": {
   "_godInferredFromComment": true,
@@ -7227,7 +7444,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:349",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalRarityUpgradeBoon": {
   "_godInferredFromComment": true,
@@ -7302,7 +7520,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:64",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ElementalUnifiedBoon": {
   "_godInferredFromComment": true,
@@ -7379,7 +7598,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:5",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EncounterStartDefenseBuffBoon": {
   "activation": null,
@@ -7408,7 +7628,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:1823",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "EncounterStartOffenseBuffBoon": {
   "activation": null,
@@ -7437,7 +7658,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:1992",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "EpicRarityBoostMetaUpgrade": {
   "activation": null,
@@ -7464,7 +7686,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:891",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EscalatingCostume": {
   "activation": null,
@@ -7491,7 +7714,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Arachne.lua:437",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "EscalatingKeepsake": {
   "activation": null,
@@ -7518,7 +7742,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1597",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ExPolymorphBoon": {
   "activation": null,
@@ -7545,7 +7770,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:485",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ExtendedShopTrait": {
   "activation": null,
@@ -7567,7 +7793,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:15",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "FireEssence": {
   "activation": null,
@@ -7591,7 +7818,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Essence.lua:42",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "FireballManaSpecialBoon": {
   "activation": null,
@@ -7620,7 +7848,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:1913",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FireballRendBoon": {
   "activation": null,
@@ -7693,7 +7922,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1544",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "FirstHangoverBoon": {
   "activation": null,
@@ -7722,7 +7952,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dionysus.lua:217",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FirstHitHealTrait": {
   "activation": null,
@@ -7744,7 +7975,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:398",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "FocusAttackDamageTrait": {
   "activation": null,
@@ -7771,7 +8003,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:29",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "FocusCritBoon": {
   "activation": null,
@@ -7800,7 +8033,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:410",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FocusDamageShaveBoon": {
   "activation": null,
@@ -7829,7 +8063,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:2188",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FocusLastStandBoon": {
   "activation": null,
@@ -7858,7 +8093,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Athena.lua:144",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FocusLightningBoon": {
   "activation": null,
@@ -7887,7 +8123,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:1828",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FocusRawDamageBoon": {
   "activation": null,
@@ -7916,7 +8153,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:1978",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FocusSpecialDamageTrait": {
   "activation": null,
@@ -7943,7 +8181,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:90",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "FogDamageBonusBoon": {
   "activation": null,
@@ -7972,7 +8211,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dionysus.lua:419",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ForceAphroditeBoonKeepsake": {
   "activation": null,
@@ -7998,7 +8238,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2852",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ForceApolloBoonKeepsake": {
   "activation": null,
@@ -8024,7 +8265,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:3025",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ForceAresBoonKeepsake": {
   "activation": null,
@@ -8050,7 +8292,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:3197",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ForceDemeterBoonKeepsake": {
   "activation": null,
@@ -8076,7 +8319,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2766",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ForceHephaestusBoonKeepsake": {
   "activation": null,
@@ -8102,7 +8346,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2593",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ForceHeraBoonKeepsake": {
   "activation": null,
@@ -8128,7 +8373,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:3283",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ForceHestiaBoonKeepsake": {
   "activation": null,
@@ -8154,7 +8400,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:3111",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ForcePoseidonBoonKeepsake": {
   "activation": null,
@@ -8180,7 +8427,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2939",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ForceZeusBoonKeepsake": {
   "activation": null,
@@ -8206,7 +8454,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2679",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "FountainRarityKeepsake": {
   "activation": null,
@@ -8232,7 +8481,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1059",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "GiftTrait": {
   "activation": null,
@@ -8259,7 +8509,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:20",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "GoldifyKeepsake": {
   "activation": null,
@@ -8286,7 +8537,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2512",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "GoodStuffBoon": {
   "activation": null,
@@ -8393,7 +8645,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:753",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HadesAndPersephoneKeepsake": {
   "activation": null,
@@ -8420,7 +8673,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2409",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HadesCastProjectileBoon": {
   "activation": null,
@@ -8453,7 +8707,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hades.lua:48",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HadesChronosDebuffBoon": {
   "activation": null,
@@ -8480,7 +8735,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hades.lua:235",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HadesDashSweepBoon": {
   "activation": null,
@@ -8507,7 +8763,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hades.lua:292",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HadesDeathDefianceDamageBoon": {
   "activation": null,
@@ -8534,7 +8791,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hades.lua:468",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HadesInvisibilityRetaliateBoon": {
   "activation": null,
@@ -8558,7 +8816,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hades.lua:377",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HadesLifestealBoon": {
   "activation": null,
@@ -8585,7 +8844,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hades.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HadesManaUrnBoon": {
   "activation": null,
@@ -8612,7 +8872,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hades.lua:523",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HadesPreDamageBoon": {
   "activation": null,
@@ -8639,7 +8900,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hades.lua:185",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HealAmountTalent": {
   "activation": null,
@@ -8667,7 +8929,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:598",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HealAmplifyTrait": {
   "activation": null,
@@ -8694,7 +8957,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:197",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HealLastTalent": {
   "activation": null,
@@ -8722,7 +8986,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:354",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HealRetaliateTalent": {
   "activation": null,
@@ -8750,7 +9015,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:320",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HealingOnDeathCurse": {
   "activation": null,
@@ -8777,7 +9043,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:28",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HealthManaBonusMetaUpgrade": {
   "activation": null,
@@ -8804,7 +9071,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:988",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HealthRewardBonusBoon": {
   "activation": null,
@@ -8833,7 +9101,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:1660",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HeavyArmorBoon": {
   "activation": null,
@@ -8862,7 +9131,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:1672",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HephaestusCastBoon": {
   "activation": null,
@@ -8891,7 +9161,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Hephaestus.lua:1379",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HephaestusManaBoon": {
   "activation": null,
@@ -8920,7 +9191,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Hephaestus.lua:1571",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HephaestusSpecialBoon": {
   "activation": null,
@@ -8949,7 +9221,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Hephaestus.lua:824",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HephaestusSprintBoon": {
   "activation": null,
@@ -8978,7 +9251,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Hephaestus.lua:1481",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HephaestusWeaponBoon": {
   "activation": null,
@@ -9007,7 +9281,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Hephaestus.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HeraCastBoon": {
   "activation": null,
@@ -9036,7 +9311,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Hera.lua:1386",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HeraManaBoon": {
   "activation": null,
@@ -9065,7 +9341,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Hera.lua:1708",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HeraSpecialBoon": {
   "activation": null,
@@ -9094,7 +9371,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Hera.lua:813",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HeraSprintBoon": {
   "activation": null,
@@ -9123,7 +9401,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Hera.lua:1589",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HeraWeaponBoon": {
   "activation": null,
@@ -9152,7 +9431,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Hera.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HermesCastDiscountBoon": {
   "activation": null,
@@ -9181,7 +9461,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:279",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HermesSpecialBoon": {
   "activation": null,
@@ -9210,7 +9491,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:57",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HermesWeaponBoon": {
   "activation": null,
@@ -9239,7 +9521,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HestiaCastBoon": {
   "activation": null,
@@ -9268,7 +9551,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Hestia.lua:1364",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HestiaManaBoon": {
   "activation": null,
@@ -9297,7 +9581,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Hestia.lua:1575",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HestiaSpecialBoon": {
   "activation": null,
@@ -9326,7 +9611,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Hestia.lua:795",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HestiaSprintBoon": {
   "activation": null,
@@ -9355,7 +9641,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Hestia.lua:1475",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HestiaWeaponBoon": {
   "activation": null,
@@ -9384,7 +9671,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Hestia.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HiddenMaxHealthBoon": {
   "activation": null,
@@ -9413,7 +9701,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dionysus.lua:153",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HighArmorCostume": {
   "activation": null,
@@ -9440,7 +9729,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Arachne.lua:259",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "HighHealthCritBoon": {
   "activation": null,
@@ -9469,7 +9759,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:114",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "HighHealthOffenseBoon": {
   "activation": null,
@@ -9498,7 +9789,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:1587",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "IncomeCostume": {
   "activation": null,
@@ -9525,7 +9817,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Arachne.lua:325",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "InsideCastBuffMetaUpgrade": {
   "activation": null,
@@ -9552,7 +9845,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:177",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "InsideCastCritBoon": {
   "activation": null,
@@ -9581,7 +9875,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "InstantRootKill": {
   "activation": null,
@@ -9665,7 +9960,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:2276",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "InvulnerabilityCastBoon": {
   "activation": null,
@@ -9694,7 +9990,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Athena.lua:343",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "InvulnerabilityDashBoon": {
   "activation": null,
@@ -9723,7 +10020,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Athena.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "KeepsakeLevelBoon": {
   "activation": null,
@@ -9808,7 +10106,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:672",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserAoETalent": {
   "activation": null,
@@ -9836,7 +10135,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1080",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserApolloTalent": {
   "activation": null,
@@ -9886,7 +10186,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1265",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserCrystalTalent": {
   "activation": null,
@@ -9914,7 +10215,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:995",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserDamageTalent": {
   "activation": null,
@@ -9941,7 +10243,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1188",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserDefenseTalent": {
   "activation": null,
@@ -9969,7 +10272,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1232",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserDurationTalent": {
   "activation": null,
@@ -9996,7 +10300,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1156",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserFirstHitDamageTalent": {
   "activation": null,
@@ -10024,7 +10329,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1133",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserPenetrationTalent": {
   "activation": null,
@@ -10052,7 +10358,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1251",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserStartAoETalent": {
   "activation": null,
@@ -10080,7 +10387,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1108",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LaserTripleTalent": {
   "activation": null,
@@ -10108,7 +10416,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1044",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LastStandSlowTimeMetaUpgrade": {
   "activation": null,
@@ -10135,7 +10444,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:441",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapAoETalent": {
   "activation": null,
@@ -10163,7 +10473,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2563",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapArmorDamageTalent": {
   "activation": null,
@@ -10191,7 +10502,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2544",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapCooldownSpeedTalent": {
   "activation": null,
@@ -10219,7 +10531,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2507",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapCritTalent": {
   "activation": null,
@@ -10247,7 +10560,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2634",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapDamageTalent": {
   "activation": null,
@@ -10275,7 +10589,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2523",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapHephaestusTalent": {
   "activation": null,
@@ -10325,7 +10640,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2719",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapLaunchAoETalent": {
   "activation": null,
@@ -10353,7 +10669,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2587",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapShieldTalent": {
   "activation": null,
@@ -10381,7 +10698,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2594",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapSprintTalent": {
   "activation": null,
@@ -10409,7 +10727,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2690",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LeapTwiceTalent": {
   "activation": null,
@@ -10437,7 +10756,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2661",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LegendaryTalent": {
   "activation": null,
@@ -10461,7 +10781,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LightningDebuffGeneratorBoon": {
   "activation": null,
@@ -10493,7 +10814,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:2045",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "LightningVulnerabilityBoon": {
   "activation": null,
@@ -10570,7 +10892,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1173",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LimitedSwapBonusTrait": {
   "activation": null,
@@ -10592,7 +10915,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:489",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LinkedDeathDamageBoon": {
   "activation": null,
@@ -10642,7 +10966,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:1922",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "LobAmmoBoostAspect": {
   "activation": null,
@@ -10671,7 +10996,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:1646",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobAmmoMagnetismTrait": {
   "activation": null,
@@ -10699,7 +11025,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:50",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobAmmoTrait": {
   "activation": null,
@@ -10724,7 +11051,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:9",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobCloseAttackAspect": {
   "activation": null,
@@ -10753,7 +11081,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:1716",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobGrowthTrait": {
   "activation": null,
@@ -10778,7 +11107,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:481",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobGunAspect": {
   "activation": null,
@@ -10807,7 +11137,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:2097",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobGunAttackDoublerTrait": {
   "activation": null,
@@ -10829,7 +11160,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:894",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobGunAttackRangeTrait": {
   "activation": null,
@@ -10854,7 +11186,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:823",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobGunBounceTrait": {
   "activation": null,
@@ -10879,7 +11212,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:666",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobGunOverheatTrait": {
   "activation": null,
@@ -10904,7 +11238,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:614",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobGunSpecialBounceTrait": {
   "activation": null,
@@ -10929,7 +11264,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:729",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobHammerTrait": {
   "activation": null,
@@ -10951,7 +11287,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LobImpulseAspect": {
   "activation": null,
@@ -10980,7 +11317,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:1920",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobInOutSpecialExTrait": {
   "activation": null,
@@ -11002,7 +11340,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:355",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobOneSideTrait": {
   "activation": null,
@@ -11027,7 +11366,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:152",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobPulseAmmoCollectTrait": {
   "activation": null,
@@ -11052,7 +11392,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:377",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobPulseAmmoTrait": {
   "activation": null,
@@ -11080,7 +11421,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:424",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobRushArmorTrait": {
   "activation": null,
@@ -11102,7 +11444,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:93",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobSpecialSpeedTrait": {
   "activation": null,
@@ -11127,7 +11470,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:301",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobSpreadShotTrait": {
   "activation": null,
@@ -11149,7 +11493,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:119",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobStraightShotTrait": {
   "activation": null,
@@ -11174,7 +11519,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:553",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LobSturdySpecialTrait": {
   "activation": null,
@@ -11199,7 +11545,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Lob.lua:238",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponLob"
  },
  "LowHealthBuffMetaUpgrade": {
   "activation": null,
@@ -11226,7 +11573,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:1137",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LowHealthCritKeepsake": {
   "activation": null,
@@ -11253,7 +11601,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:474",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LowHealthLifestealBoon": {
   "activation": null,
@@ -11282,7 +11631,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:1989",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "LowManaDamageMetaupgrade": {
   "activation": null,
@@ -11309,7 +11659,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:216",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "LuckyBoon": {
   "activation": null,
@@ -11431,7 +11782,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:621",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "MagicCritMetaUpgrade": {
   "activation": null,
@@ -11458,7 +11810,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:534",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaBurstBoon": {
   "activation": null,
@@ -11487,7 +11840,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:1900",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ManaBurstCountBoon": {
   "activation": null,
@@ -11550,7 +11904,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaCostume": {
   "activation": null,
@@ -11577,7 +11932,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Arachne.lua:133",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaOverTimeCurse": {
   "activation": null,
@@ -11604,7 +11960,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:158",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaOverTimeMetaUpgrade": {
   "activation": null,
@@ -11631,7 +11988,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:86",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaOverTimeRefundKeepsake": {
   "activation": null,
@@ -11658,7 +12016,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:875",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaOverTimeRefundTrait": {
   "activation": null,
@@ -11680,7 +12039,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:442",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaRestoreDamageBoon": {
   "activation": null,
@@ -11761,7 +12121,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1233",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaShieldBoon": {
   "activation": null,
@@ -11854,7 +12215,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:846",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ManaSpearBoon": {
   "activation": null,
@@ -11883,7 +12245,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Athena.lua:407",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ManaToHealthBoon": {
   "activation": null,
@@ -11912,7 +12275,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:1892",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "MassiveCastBoon": {
   "activation": null,
@@ -11989,7 +12353,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:898",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MassiveDamageBoon": {
   "activation": null,
@@ -12035,7 +12400,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:1930",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "MassiveKnockupBoon": {
   "activation": null,
@@ -12081,7 +12447,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:1992",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "MaxHealthDamageBoon": {
   "activation": null,
@@ -12166,7 +12533,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:29",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MetaToRunMetaUpgrade": {
   "activation": null,
@@ -12193,7 +12561,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:1200",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MetaUpgradeTrait": {
   "activation": null,
@@ -12220,7 +12589,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:5",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorChargeTalent": {
   "activation": null,
@@ -12248,7 +12618,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2353",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorDamageTalent": {
   "activation": null,
@@ -12276,7 +12647,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2194",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorDoubleTalent": {
   "activation": null,
@@ -12304,7 +12676,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2375",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorExCastTalent": {
   "activation": null,
@@ -12332,7 +12705,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2421",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorHestiaTalent": {
   "activation": null,
@@ -12382,7 +12756,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2449",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorInvulnerableChargeTalent": {
   "activation": null,
@@ -12410,7 +12785,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2215",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorShowerTalent": {
   "activation": null,
@@ -12438,7 +12814,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2307",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorSizeTalent": {
   "activation": null,
@@ -12466,7 +12843,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2169",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorSlowDecalTalent": {
   "activation": null,
@@ -12494,7 +12872,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2281",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MeteorVulnerabilityDecalTalent": {
   "activation": null,
@@ -12522,7 +12901,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2257",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MinorArmorBoon": {
   "activation": null,
@@ -12549,7 +12929,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Essence.lua:4",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MissingHealthCritBoon": {
   "activation": null,
@@ -12578,7 +12959,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:1923",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "MoneyDamageBoon": {
   "activation": null,
@@ -12669,7 +13051,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:940",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoneyMultiplierBoon": {
   "activation": null,
@@ -12698,7 +13081,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:154",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "MoneyOnDeathCurse": {
   "activation": null,
@@ -12725,7 +13109,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:98",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamAresTalent": {
   "activation": null,
@@ -12775,7 +13160,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3285",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamConsecutiveDamageTalent": {
   "activation": null,
@@ -12803,7 +13189,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3232",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamCountTalent": {
   "activation": null,
@@ -12831,7 +13218,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3154",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamDamageTalent": {
   "activation": null,
@@ -12859,7 +13247,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3132",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamDefenseTalent": {
   "activation": null,
@@ -12887,7 +13276,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3167",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamExBeamBonusTalent": {
   "activation": null,
@@ -12915,7 +13305,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3256",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamPrimaryTalent": {
   "activation": null,
@@ -12943,7 +13334,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3214",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamTalentTrait": {
   "activation": null,
@@ -12965,7 +13357,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3092",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamTargetTalent": {
   "activation": null,
@@ -12993,7 +13386,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3186",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "MoonBeamVulnerabilityTalent": {
   "activation": null,
@@ -13021,7 +13415,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3101",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusA": {
   "activation": null,
@@ -13048,7 +13443,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusB": {
   "activation": null,
@@ -13075,7 +13471,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:104",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusC": {
   "activation": null,
@@ -13102,7 +13499,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:206",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusD": {
   "activation": null,
@@ -13129,7 +13527,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:278",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusE": {
   "activation": null,
@@ -13156,7 +13555,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:370",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusF": {
   "activation": null,
@@ -13183,7 +13583,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:462",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusG": {
   "activation": null,
@@ -13210,7 +13611,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:537",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusH": {
   "activation": null,
@@ -13237,7 +13639,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:623",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NarcissusI": {
   "activation": null,
@@ -13264,7 +13667,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Narcissus.lua:709",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "NewStatusDamage": {
   "activation": null,
@@ -13291,7 +13695,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:416",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "OlympianSpellCountBoon": {
   "activation": null,
@@ -13361,7 +13766,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Athena.lua:480",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "OlympianSpellCountTalent": {
   "activation": null,
@@ -13388,7 +13794,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:16",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "OmegaCastVolleyBoon": {
   "activation": null,
@@ -13417,7 +13824,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:46",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "OmegaDelayedDamageBoon": {
   "activation": null,
@@ -13446,7 +13854,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:2053",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "OmegaExplodeBoon": {
   "activation": null,
@@ -13473,7 +13882,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:152",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "OmegaHeraProjectileBoon": {
   "activation": null,
@@ -13502,7 +13912,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:2060",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "OmegaPoseidonProjectileBoon": {
   "activation": null,
@@ -13531,7 +13942,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:1708",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "OmegaZeroBurnBoon": {
   "activation": null,
@@ -13577,7 +13989,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hestia.lua:1703",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "PanelRerollMetaUpgrade": {
   "activation": null,
@@ -13604,7 +14017,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:715",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PerfectDamageBonusBoon": {
   "activation": null,
@@ -13633,7 +14047,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Apollo.lua:2024",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PersistentDionysusSkipKeepsake": {
   "activation": null,
@@ -13660,7 +14075,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Keepsake.lua:2124",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PlantHealthBoon": {
   "activation": null,
@@ -13689,7 +14105,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:1810",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PolymorphBossDamageTalent": {
   "activation": null,
@@ -13716,7 +14133,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1342",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphCurseTalent": {
   "activation": null,
@@ -13744,7 +14162,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1629",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphDamageTalent": {
   "activation": null,
@@ -13771,7 +14190,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1442",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphDeathExplodeTalent": {
   "activation": null,
@@ -13798,7 +14218,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1502",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphDurationTalent": {
   "activation": null,
@@ -13825,7 +14246,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1782",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphHealthCrushTalent": {
   "activation": null,
@@ -13853,7 +14275,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1407",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphSandwichTalent": {
   "activation": null,
@@ -13881,7 +14304,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1563",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphTauntTalent": {
   "activation": null,
@@ -13908,7 +14332,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1719",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphTeleportCastTalent": {
   "activation": null,
@@ -13936,7 +14361,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1379",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PolymorphZeusTalent": {
   "activation": null,
@@ -13982,7 +14408,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1834",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PoseidonCastBoon": {
   "activation": null,
@@ -14011,7 +14438,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Poseidon.lua:1468",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PoseidonExCastBoon": {
   "activation": null,
@@ -14081,7 +14509,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:1586",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PoseidonManaBoon": {
   "activation": null,
@@ -14110,7 +14539,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Poseidon.lua:1888",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PoseidonSpecialBoon": {
   "activation": null,
@@ -14139,7 +14569,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Poseidon.lua:866",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PoseidonSplashSprintBoon": {
   "activation": null,
@@ -14238,7 +14669,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:464",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PoseidonSprintBoon": {
   "activation": null,
@@ -14267,7 +14699,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Poseidon.lua:1788",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PoseidonStatusBoon": {
   "activation": null,
@@ -14309,7 +14742,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:2324",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "PoseidonWeaponBoon": {
   "activation": null,
@@ -14338,7 +14772,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Poseidon.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PotionExCastTalent": {
   "activation": null,
@@ -14366,7 +14801,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:448",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PotionManaRestoreTalent": {
   "activation": null,
@@ -14394,7 +14830,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:169",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PotionPoseidonTalent": {
   "activation": null,
@@ -14440,7 +14877,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:529",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PotionUsesTalent": {
   "activation": null,
@@ -14468,7 +14906,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:182",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "PowerDrinkBoon": {
   "activation": null,
@@ -14497,7 +14936,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dionysus.lua:281",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "PreChargeTalent": {
   "activation": null,
@@ -14524,7 +14964,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:49",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RaiseDeadBoon": {
   "activation": null,
@@ -14593,7 +15034,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:380",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RandomArcanaTrait": {
   "activation": null,
@@ -14620,7 +15062,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:29",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RandomBaseDamageBoon": {
   "activation": null,
@@ -14649,7 +15092,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Dionysus.lua:548",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "RandomBlessingKeepsake": {
   "activation": null,
@@ -14676,7 +15120,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1916",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RandomStatusBoon": {
   "activation": null,
@@ -14760,7 +15205,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:2049",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "RapidSwordBoon": {
   "activation": null,
@@ -14841,7 +15287,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1447",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RarifyKeepsake": {
   "activation": null,
@@ -14868,7 +15315,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2311",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RarityBoostMetaUpgrade": {
   "activation": null,
@@ -14895,7 +15343,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:810",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ReboundingSparkBoon": {
   "activation": null,
@@ -14958,7 +15407,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:916",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ReincarnationKeepsake": {
   "activation": null,
@@ -14985,7 +15435,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:193",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RemoveShrineTrait": {
   "activation": null,
@@ -15012,7 +15463,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Circe.lua:81",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RendBloodDropBoon": {
   "activation": null,
@@ -15054,7 +15506,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Ares.lua:1694",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "RerollTradeOffMetaUpgrade": {
   "activation": null,
@@ -15081,7 +15534,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:748",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ReserveManaHitShieldBoon": {
   "activation": null,
@@ -15110,7 +15564,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:1952",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "RestockBoon": {
   "activation": null,
@@ -15139,7 +15594,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:581",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "RetaliateInvulnerabilityBoon": {
   "activation": null,
@@ -15168,7 +15624,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Athena.lua:83",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "RolloverUsesTalent": {
   "activation": null,
@@ -15196,7 +15653,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:225",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "RoomRewardBonusBoon": {
   "activation": null,
@@ -15225,7 +15683,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Poseidon.lua:2058",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "RootDurationBoon": {
   "activation": null,
@@ -15271,7 +15730,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:2211",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "RootStrikeBoon": {
   "activation": null,
@@ -15348,7 +15808,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:793",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SelfCastBoon": {
   "activation": null,
@@ -15431,7 +15892,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1294",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ShieldTalent": {
   "activation": null,
@@ -15458,7 +15920,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:478",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ShopTrait": {
   "activation": null,
@@ -15480,7 +15943,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SkipEncounterKeepsake": {
   "activation": null,
@@ -15507,7 +15971,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:2026",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SlamManaBurstBoon": {
   "activation": null,
@@ -15584,7 +16049,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:54",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SlowExAttackBoon": {
   "activation": null,
@@ -15654,7 +16120,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Demeter.lua:2017",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SlowProjectileBoon": {
   "activation": null,
@@ -15683,7 +16150,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:114",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SlowProjectileCurse": {
   "activation": null,
@@ -15710,7 +16178,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:320",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SorceryCritBoon": {
   "activation": null,
@@ -15772,7 +16241,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:478",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SorceryRegenMetaUpgrade": {
   "activation": null,
@@ -15799,7 +16269,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:1094",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SorcerySpeedBoon": {
   "activation": null,
@@ -15828,7 +16299,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:370",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SpawnCastDamageBoon": {
   "activation": null,
@@ -15898,7 +16370,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hera.lua:1491",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SpawnDamageCurse": {
   "activation": null,
@@ -15925,7 +16398,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Medea.lua:202",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpawnKillBoon": {
   "activation": null,
@@ -16021,7 +16495,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:2119",
-  "tier": 3
+  "tier": 3,
+  "weapon": null
  },
  "SpellCostume": {
   "activation": null,
@@ -16048,7 +16523,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Arachne.lua:377",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellLaserTrait": {
   "activation": null,
@@ -16070,7 +16546,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:171",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellLeapTrait": {
   "activation": null,
@@ -16092,7 +16569,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:555",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellMeteorTrait": {
   "activation": null,
@@ -16114,7 +16592,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:260",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellMoonBeamTrait": {
   "activation": null,
@@ -16141,7 +16620,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:616",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellPolymorphTrait": {
   "activation": null,
@@ -16163,7 +16643,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:77",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellPotionTrait": {
   "activation": null,
@@ -16185,7 +16666,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:478",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellSummonTrait": {
   "activation": null,
@@ -16207,7 +16689,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:343",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellTalentKeepsake": {
   "activation": null,
@@ -16234,7 +16717,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:574",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellTimeSlowTrait": {
   "activation": null,
@@ -16256,7 +16740,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:413",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellTrait": {
   "activation": null,
@@ -16278,7 +16763,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:4",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SpellTransformTrait": {
   "activation": null,
@@ -16300,7 +16786,8 @@
   "rarity": [],
   "slot": "Spell",
   "source": "Scripts/TraitData_Spell.lua:12",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SprintEchoBoon": {
   "activation": null,
@@ -16373,7 +16860,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:198",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SprintShieldBoon": {
   "activation": null,
@@ -16402,7 +16890,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:491",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SprintShieldMetaUpgrade": {
   "activation": null,
@@ -16429,7 +16918,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:309",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "StaffAttackRecoveryTrait": {
   "activation": null,
@@ -16454,7 +16944,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:442",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffClearCastAspect": {
   "activation": null,
@@ -16483,7 +16974,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:71",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffDashAttackTrait": {
   "activation": null,
@@ -16505,7 +16997,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:335",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffDoubleAttackTrait": {
   "activation": null,
@@ -16530,7 +17023,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:133",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffExAoETrait": {
   "activation": null,
@@ -16555,7 +17049,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:492",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffExHealTrait": {
   "activation": null,
@@ -16580,7 +17075,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:86",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffFastSpecialTrait": {
   "activation": null,
@@ -16605,7 +17101,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:384",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffHammerTrait": {
   "activation": null,
@@ -16627,7 +17124,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "StaffJumpSpecialTrait": {
   "activation": null,
@@ -16652,7 +17150,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:744",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffLoneShadeRallyTrait": {
   "activation": null,
@@ -16677,7 +17176,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:1083",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffLoneShadeRespawnTrait": {
   "activation": null,
@@ -16702,7 +17202,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:1026",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffLongAttackTrait": {
   "activation": null,
@@ -16727,7 +17228,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:237",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffOneWayAttackTrait": {
   "activation": null,
@@ -16749,7 +17251,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:607",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffPowershotTrait": {
   "activation": null,
@@ -16774,7 +17277,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:179",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffRaiseDeadAspect": {
   "activation": null,
@@ -16803,7 +17307,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:269",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffRaiseDeadBigTrait": {
   "activation": null,
@@ -16828,7 +17333,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:926",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffRaiseDeadDoubleTrait": {
   "activation": null,
@@ -16850,7 +17356,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:992",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffSecondStageTrait": {
   "activation": null,
@@ -16875,7 +17382,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:9",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffSelfHitAspect": {
   "activation": null,
@@ -16904,7 +17412,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:162",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StaffTripleShotTrait": {
   "activation": null,
@@ -16926,7 +17435,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Staff.lua:833",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponStaffSwing"
  },
  "StartingGoldMetaUpgrade": {
   "activation": null,
@@ -16953,7 +17463,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_MetaUpgrade.lua:273",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SteamBoon": {
   "activation": null,
@@ -17030,7 +17541,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:1039",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "StormSpawnBoon": {
   "activation": null,
@@ -17103,7 +17615,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:245",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SuitArmorTrait": {
   "activation": null,
@@ -17125,7 +17638,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:9",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitAttackRangeTrait": {
   "activation": null,
@@ -17150,7 +17664,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:150",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitAttackSizeTrait": {
   "activation": null,
@@ -17175,7 +17690,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:88",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitAttackSpeedTrait": {
   "activation": null,
@@ -17200,7 +17716,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:36",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitComboAspect": {
   "activation": null,
@@ -17229,7 +17746,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:4989",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitComboBlockBuffTrait": {
   "activation": null,
@@ -17254,7 +17772,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:741",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitComboDashAttackTrait": {
   "activation": null,
@@ -17279,7 +17798,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:851",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitComboDoubleSpecialTrait": {
   "activation": null,
@@ -17304,7 +17824,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:810",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitComboForwardRocketTrait": {
   "activation": null,
@@ -17329,7 +17850,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:635",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitDashAttackTrait": {
   "activation": null,
@@ -17351,7 +17873,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:269",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitFullChargeTrait": {
   "activation": null,
@@ -17376,7 +17899,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:230",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitHammerTrait": {
   "activation": null,
@@ -17398,7 +17922,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SuitHexAspect": {
   "activation": null,
@@ -17427,7 +17952,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:4894",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitMarkCritAspect": {
   "activation": null,
@@ -17456,7 +17982,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:4702",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitPowershotTrait": {
   "activation": null,
@@ -17481,7 +18008,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:915",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitSpecialAutoTrait": {
   "activation": null,
@@ -17506,7 +18034,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:435",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitSpecialBlockTrait": {
   "activation": null,
@@ -17528,7 +18057,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:483",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitSpecialConsecutiveHitTrait": {
   "activation": null,
@@ -17553,7 +18083,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:573",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitSpecialDiscountTrait": {
   "activation": null,
@@ -17578,7 +18109,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:527",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitSpecialJumpTrait": {
   "activation": null,
@@ -17603,7 +18135,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:309",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SuitSpecialStartUpTrait": {
   "activation": null,
@@ -17625,7 +18158,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Suit.lua:372",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponSuit"
  },
  "SummonDamageSplitTalent": {
   "activation": null,
@@ -17653,7 +18187,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2003",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SummonDamageTalent": {
   "activation": null,
@@ -17680,7 +18215,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1925",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SummonExplodeTalent": {
   "activation": null,
@@ -17708,7 +18244,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2061",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SummonHeraTalent": {
   "activation": null,
@@ -17754,7 +18291,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2110",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SummonPermanenceTalent": {
   "activation": null,
@@ -17782,7 +18320,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2051",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SummonRetaliateTalent": {
   "activation": null,
@@ -17810,7 +18349,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1998",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SummonSpeedTalent": {
   "activation": null,
@@ -17838,7 +18378,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1968",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SummonTeleportTalent": {
   "activation": null,
@@ -17866,7 +18407,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:1987",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SuperSacrificeBoonHera": {
   "activation": null,
@@ -17951,7 +18493,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:959",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SuperSacrificeBoonZeus": {
   "activation": null,
@@ -18036,7 +18579,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:999",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SupplyDropBoon": {
   "activation": null,
@@ -18063,7 +18607,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:462",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SupportingFireBoon": {
   "activation": null,
@@ -18092,7 +18637,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:269",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "TempHammerKeepsake": {
   "activation": null,
@@ -18119,7 +18665,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1309",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryBoonRarityTrait": {
   "activation": null,
@@ -18141,7 +18688,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:282",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryDiscountTrait": {
   "activation": null,
@@ -18163,7 +18711,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:323",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryDoorHealTrait": {
   "activation": null,
@@ -18185,7 +18734,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:44",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryEmptySlotDamageTrait": {
   "activation": null,
@@ -18207,7 +18757,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:202",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryForcedSecretDoorTrait": {
   "activation": null,
@@ -18229,7 +18780,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:301",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryHealExpirationTrait": {
   "activation": null,
@@ -18251,7 +18803,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:357",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryImprovedCastTrait": {
   "activation": null,
@@ -18273,7 +18826,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:170",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryImprovedDefenseTrait": {
   "activation": null,
@@ -18295,7 +18849,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:137",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryImprovedExTrait": {
   "activation": null,
@@ -18317,7 +18872,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:108",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryImprovedSecondaryTrait": {
   "activation": null,
@@ -18339,7 +18895,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:78",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TemporaryMoveSpeedTrait": {
   "activation": null,
@@ -18361,7 +18918,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Store.lua:249",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeSlowAmountTalent": {
   "activation": null,
@@ -18389,7 +18947,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:694",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeSlowCritTalent": {
   "activation": null,
@@ -18417,7 +18976,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:780",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeSlowCumulativeBuffTalent": {
   "activation": null,
@@ -18445,7 +19005,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:861",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeSlowDemeterTalent": {
   "activation": null,
@@ -18491,7 +19052,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:919",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeSlowDestroyProjectilesTalent": {
   "activation": null,
@@ -18519,7 +19081,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:822",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeSlowFreezeTimeTalent": {
   "activation": null,
@@ -18547,7 +19110,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:831",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeSlowLastStandRechargeTalent": {
   "activation": null,
@@ -18575,7 +19139,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:900",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeSlowSpeedTalent": {
   "activation": null,
@@ -18603,7 +19168,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:743",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimeStopLastStandBoon": {
   "activation": null,
@@ -18678,7 +19244,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:717",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "TimedBuffKeepsake": {
   "activation": null,
@@ -18705,7 +19272,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1706",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TimedCritVulnerabilityBoon": {
   "activation": null,
@@ -18734,7 +19302,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Artemis.lua:336",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "TimedKillBuffBoon": {
   "activation": null,
@@ -18763,7 +19332,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hermes.lua:420",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "TorchAttackSpeedTrait": {
   "activation": null,
@@ -18788,7 +19358,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:711",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchAutofireAspect": {
   "activation": null,
@@ -18817,7 +19388,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:2907",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchAutofireSprintTrait": {
   "activation": null,
@@ -18842,7 +19414,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:784",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchDetonateAspect": {
   "activation": null,
@@ -18871,7 +19444,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:2745",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchDiscountExAttackTrait": {
   "activation": null,
@@ -18893,7 +19467,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:342",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchEnhancedAttackTrait": {
   "activation": null,
@@ -18915,7 +19490,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:157",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchExSpecialCountTrait": {
   "activation": null,
@@ -18937,7 +19513,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:55",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchHammerTrait": {
   "activation": null,
@@ -18959,7 +19536,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:3",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TorchLongevityTrait": {
   "activation": null,
@@ -18984,7 +19562,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:386",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchMoveSpeedTrait": {
   "activation": null,
@@ -19009,7 +19588,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:640",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchOrbitPointTrait": {
   "activation": null,
@@ -19034,7 +19614,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:568",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchSpecialDurationAspect": {
   "activation": null,
@@ -19063,7 +19644,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:2396",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchSpecialImpactTrait": {
   "activation": null,
@@ -19088,7 +19670,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:9",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchSpecialLineTrait": {
   "activation": null,
@@ -19110,7 +19693,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:613",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchSpecialSpeedTrait": {
   "activation": null,
@@ -19132,7 +19716,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:116",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchSpinAttackTrait": {
   "activation": null,
@@ -19157,7 +19742,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:517",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchSplitAttackTrait": {
   "activation": null,
@@ -19179,7 +19765,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Torch.lua:446",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TorchSprintRecallAspect": {
   "activation": null,
@@ -19208,7 +19795,8 @@
   ],
   "slot": "Aspect",
   "source": "Scripts/TraitData_Aspect.lua:2454",
-  "tier": null
+  "tier": null,
+  "weapon": "WeaponTorch"
  },
  "TransformAphroditeTalent": {
   "activation": null,
@@ -19254,7 +19842,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:3025",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformAttackSpeedTalent": {
   "activation": null,
@@ -19282,7 +19871,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2874",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformCastDamageTalent": {
   "activation": null,
@@ -19310,7 +19900,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2816",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformCooldownDodgeTalent": {
   "activation": null,
@@ -19338,7 +19929,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2801",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformDamageTalent": {
   "activation": null,
@@ -19366,7 +19958,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2778",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformDurationTalent": {
   "activation": null,
@@ -19394,7 +19987,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2764",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformExCastTalent": {
   "activation": null,
@@ -19422,7 +20016,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2990",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformLastStandRechargeTalent": {
   "activation": null,
@@ -19450,7 +20045,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2899",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformPrimaryTalent": {
   "activation": null,
@@ -19478,7 +20074,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2917",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformSpecialCritTalent": {
   "activation": null,
@@ -19506,7 +20103,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2838",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "TransformSpecialTalent": {
   "activation": null,
@@ -19534,7 +20132,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Talent.lua:2960",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "UnpickedBoonKeepsake": {
   "activation": null,
@@ -19561,7 +20160,8 @@
   ],
   "slot": "Keepsake",
   "source": "Scripts/TraitData_Keepsake.lua:1810",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "UpgradeHammerBoon": {
   "activation": null,
@@ -19588,7 +20188,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Icarus.lua:539",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "VitalityCostume": {
   "activation": null,
@@ -19615,7 +20216,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Arachne.lua:199",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "WaterEssence": {
   "activation": null,
@@ -19639,7 +20241,8 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData_Essence.lua:56",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "WeakPotencyBoon": {
   "activation": null,
@@ -19685,7 +20288,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:1764",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "WeakVulnerabilityBoon": {
   "activation": null,
@@ -19731,7 +20335,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Aphrodite.lua:1831",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "WeaponUpgradeBoon": {
   "activation": null,
@@ -19815,7 +20420,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Hephaestus.lua:2059",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "ZeusCastBoon": {
   "activation": null,
@@ -19844,7 +20450,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Zeus.lua:1322",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ZeusManaBoltBoon": {
   "activation": null,
@@ -19873,7 +20480,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Zeus.lua:1552",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ZeusManaBoon": {
   "activation": null,
@@ -19902,7 +20510,8 @@
   ],
   "slot": "Mana",
   "source": "Scripts/TraitData_Zeus.lua:1486",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ZeusSpecialBoon": {
   "activation": null,
@@ -19931,7 +20540,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Zeus.lua:791",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ZeusSprintBoon": {
   "activation": null,
@@ -19960,7 +20570,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Zeus.lua:1413",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ZeusWeaponBoon": {
   "activation": null,
@@ -19989,6 +20600,7 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Zeus.lua:3",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  }
 }

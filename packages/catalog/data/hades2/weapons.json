@@ -1,0 +1,68 @@
+{
+ "WeaponAxe": {
+  "aspects": [
+   "AxeRecoveryAspect",
+   "AxeArmCastAspect",
+   "AxePerfectCriticalAspect",
+   "AxeRallyAspect"
+  ],
+  "id": "WeaponAxe",
+  "name": "Moonstone Axe",
+  "source": "Scripts/WeaponUpgradeData.lua:75"
+ },
+ "WeaponDagger": {
+  "aspects": [
+   "DaggerBackstabAspect",
+   "DaggerBlockAspect",
+   "DaggerHomingThrowAspect",
+   "DaggerTripleAspect"
+  ],
+  "id": "WeaponDagger",
+  "name": "Sister Blades",
+  "source": "Scripts/WeaponUpgradeData.lua:61"
+ },
+ "WeaponLob": {
+  "aspects": [
+   "LobAmmoBoostAspect",
+   "LobCloseAttackAspect",
+   "LobImpulseAspect",
+   "LobGunAspect"
+  ],
+  "id": "WeaponLob",
+  "name": "Argent Skull",
+  "source": "Scripts/WeaponUpgradeData.lua:82"
+ },
+ "WeaponStaffSwing": {
+  "aspects": [
+   "BaseStaffAspect",
+   "StaffClearCastAspect",
+   "StaffSelfHitAspect",
+   "StaffRaiseDeadAspect"
+  ],
+  "id": "WeaponStaffSwing",
+  "name": "Witch's Staff",
+  "source": "Scripts/WeaponUpgradeData.lua:54"
+ },
+ "WeaponSuit": {
+  "aspects": [
+   "BaseSuitAspect",
+   "SuitHexAspect",
+   "SuitMarkCritAspect",
+   "SuitComboAspect"
+  ],
+  "id": "WeaponSuit",
+  "name": "Black Coat",
+  "source": "Scripts/WeaponUpgradeData.lua:89"
+ },
+ "WeaponTorch": {
+  "aspects": [
+   "TorchSpecialDurationAspect",
+   "TorchDetonateAspect",
+   "TorchSprintRecallAspect",
+   "TorchAutofireAspect"
+  ],
+  "id": "WeaponTorch",
+  "name": "Umbral Flames",
+  "source": "Scripts/WeaponUpgradeData.lua:68"
+ }
+}

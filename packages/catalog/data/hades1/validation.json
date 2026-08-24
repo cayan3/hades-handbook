@@ -1,8 +1,12 @@
 {
  "aspectsNamedAsHeldTraits": [],
+ "aspectsWithNoWeapon": [
+  "SwordAmmoWaveTrait"
+ ],
  "asymmetricExclusiveGroups": [],
  "blocksWithARemovableBlocker": [],
  "boonsGrantingAllElementsByRarity": [],
+ "boonsNamingAWeaponCount": 154,
  "boonsNotReferencedOutsideTraitData": [
   "ChaosBlessingHealTrait",
   "CollisionTouchTrait",
@@ -618,5 +622,6 @@
  "unresolvedSentinelKnown": [],
  "unresolvedSentinelKnownNoLongerPresent": [],
  "unresolvedSentinelLeakCount": 0,
- "unresolvedSentinelLeaks": []
+ "unresolvedSentinelLeaks": [],
+ "weaponCount": 6
 }
