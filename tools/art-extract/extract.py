@@ -187,14 +187,12 @@ def wanted(game, scope):
             if record.get("icon"):
                 keys.setdefault(record["icon"], []).append("talent:" + talent_id)
     if scope in ("all", "weapons"):
-        # The hammer upgrades and the weapon forms, which answer to a weapon
-        # rather than to a god and share a page for that reason. Selected by the
-        # field that says so instead of by a name pattern: 245 records across
-        # the two games, and every one of their icon keys resolves.
-        #
-        # Nameless records are left out for the page's own reason -- 22 Hades I
-        # hammers and 3 of its forms are templates and cut content with no entry
-        # in the text bundle, so nothing draws them.
+        # Hammers and weapon forms. They belong to a weapon rather than a god,
+        # which is why they share a page and why they were out of scope until
+        # that page existed. Picked by the field that says so instead of by a
+        # name pattern: 245 records, every icon key resolving. Nameless ones are
+        # left out because nothing draws them -- 25 Hades I records are
+        # templates and cut content with no entry in the text bundle.
         for trait_id, record in boons.items():
             if record.get("weapon") and record.get("name") and record.get("icon"):
                 keys.setdefault(record["icon"], []).append(trait_id)

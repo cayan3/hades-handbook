@@ -123,14 +123,12 @@ describe("the fields that stayed optional after the extractor caught up", () => 
 
   it("leaves blockedBy to Hades I alone, now that aspects are not in it", () => {
     /**
-     * Hades II's two block edges were both aspect incompatibilities wearing the
-     * same key as a boon-versus-boon exclusion. Routing them to
-     * `aspectConflicts` left this field genuinely empty for that game, rather
-     * than merely unpopulated.
+     * Hades II's two block edges were both aspect conflicts written with the
+     * key a boon-versus-boon exclusion uses. Sending them to `aspectConflicts`
+     * left this field genuinely empty there rather than just unfilled.
      *
-     * Hades I's 5 became 15 when hammers came into scope: the classifier used
-     * to drop 178 edges because one end was a hammer, and hammers block each
-     * other the way any two boons that replace the same move do.
+     * Hades I went from 5 to 15 when hammers came into scope; 178 edges used
+     * to be thrown away for having a hammer at one end.
      */
     expect(records("hades1").filter((r) => r.blockedBy !== null).length).toBe(15);
     expect(records("hades2").filter((r) => r.blockedBy !== null).length).toBe(0);

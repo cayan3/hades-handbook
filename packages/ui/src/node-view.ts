@@ -250,15 +250,12 @@ export type NodeKind = "duo" | "hex" | "infusion" | "legendary";
  * and 10 in Hades II, against 28 and 37 Duos, 9 Hexes and 10 Infusions.
  */
 /**
- * Whether a player is ever offered a choice of rarity for this record.
+ * Whether the player ever gets a choice of rarity for this record.
  *
- * A kinded boon is not — a Duo, a Godsent Hex, an Infusion and a Legendary all
- * say their kind where a rarity would go. Nor is anything belonging to a
- * weapon: the games force a hammer to Common (`HeroData.WeaponData.ForceCommon`
- * in Hades II, and Hades I declares no rarity on one at all), and a form is
- * equipped rather than picked up. 65 Hades II hammers ship a Legendary
- * multiplier that no run can ever be offered, which is what asking the record
- * alone gets you.
+ * A boon with a kind does not: it shows the kind where the rarity would go.
+ * Nor does anything belonging to a weapon — the games force hammers to Common,
+ * and you equip a form rather than picking it up. 65 Hades II hammers carry a
+ * Legendary multiplier nobody can ever be offered.
  */
 function offersRarity(record: TraitRecord | undefined): boolean {
   return kindOf(record) === null && (record?.weapon ?? null) === null;
@@ -350,13 +347,11 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
   const record = records[trait];
   const prereq = record?.prereq ?? NO_GATE;
   /**
-   * A weapon form is equipped rather than held, so `boonState` — which asks
-   * about `held` — leaves the one the run is actually using looking Available.
-   * Obtained is what the run has, and the run has this one.
+   * You equip a form, you do not hold one, so `boonState` leaves the form the
+   * run is actually using looking Available. Obtained is what the run has.
    *
-   * A display rule, in the same sense as the kind rule below: what the run
-   * stores is untouched, the form still living in `equipped.aspect` where the
-   * feasibility checks read it.
+   * Only a display rule, like the kind rule below. The form still lives in
+   * `equipped.aspect`, which is where the feasibility checks look for it.
    */
   const state =
     record?.slot === "Aspect" && facts.equipped.aspect === trait

@@ -23,9 +23,9 @@ export function editSentence(edit: UndoableEdit, naming: Naming): string {
 }
 
 /**
- * What a writer that clears its field says instead. The ordinary verb reads as
- * a half-sentence there — "Equipped" with nothing after it — and the field's
- * old value is gone by the time this is written, so there is nothing to name.
+ * What to say when a writer emptied its field instead of setting one. The
+ * ordinary verb is half a sentence there — "Equipped" with nothing after it —
+ * and the old value has already gone, so there is nothing left to name.
  */
 const CLEARED: Partial<Record<EditAction, string>> = {
   equipWeapon: "Cleared the weapon",

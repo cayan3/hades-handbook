@@ -91,14 +91,12 @@ const CORE_SLOTS: Readonly<Record<GameId, readonly string[]>> = {
 };
 
 /**
- * The Loadout's own column, which is the list above plus the equipped form
- * where the game draws one there.
+ * The Loadout's column, which is the list above plus the equipped form.
  *
- * Hades II puts the weapon at the top of its tray, so `Aspect` leads its core
- * column; Hades I draws it as the first tile of the expanded panel instead,
- * which it gets by leading the entry list rather than by being a slot. Kept
- * apart from `CORE_SLOTS` because that list is also the God View's rank order,
- * where a slot no boon on the page carries would rank nothing.
+ * Hades II draws the weapon at the top of its tray, so `Aspect` leads there.
+ * Hades I puts it first in the expanded panel instead, which it gets by leading
+ * the entry list rather than by being a slot. Separate from `CORE_SLOTS`
+ * because that list also ranks boons on a god page, where no boon has this slot.
  */
 const LOADOUT_SLOTS: Readonly<Record<GameId, readonly string[]>> = {
   hades1: CORE_SLOTS.hades1,
@@ -480,13 +478,10 @@ function Run({
   const markOrOpen = useCallback(
     (trait: TraitId) => {
       /**
-       * A weapon form is equipped, not held, so a tap on one means something
-       * different from a tap on a boon. Marking it throws — the source refuses
-       * a form outright — which is what a player met when the weapon page first
-       * drew its forms as ordinary nodes.
-       *
-       * Tapping the equipped one again takes it off, since a run has one form
-       * and the only other thing a second tap could mean is nothing.
+       * A weapon form is equipped, not held, so marking one throws — which is
+       * what a player met when this page first drew its forms as ordinary
+       * nodes. An equipped form then reads as Obtained, so the next tap opens
+       * its sheet like any other, and taking it off is a control there.
        */
       if (source.records[trait]?.slot === "Aspect") {
         const already = facts.equipped.aspect === trait;
@@ -788,10 +783,10 @@ function Run({
                   }
                   onClick={() => setSelected({ kind: "weapon", weapon: weapon.id })}
                 >
-                  {/* The weapon drawn as its own default form, which is the
-                      only picture of a weapon either game keeps. Same as a god
-                      tab: the shape is the control and the name is what it is
-                      called, not what it draws. */}
+                  {/* The weapon drawn as its default form — the only picture
+                      of a weapon either game keeps. Same as a god tab: the
+                      shape is the control, and the name is what it is called
+                      rather than what it draws. */}
                   <WeaponArt game={game} weapon={weapon.id} className="app__godart" />
                   <span className="visually-hidden">{weapon.name ?? weapon.id}</span>
                 </button>

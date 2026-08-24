@@ -60,14 +60,12 @@ export interface TraitRecord {
   slot: SlotId | null;
 
   /**
-   * Which weapon this record belongs to, for one that belongs to no god — a
-   * hammer upgrade or a weapon form. Null for everything a god offers, which
-   * is most of the catalog.
+   * Which weapon a hammer or a weapon form belongs to. Null for anything a god
+   * offers, which is most of the catalog.
    *
-   * Not a gate. The clause both games write it as describes when the game
-   * offers the record, and the weapon is chosen before the run starts, so it
-   * never reaches `prereq`. It answers where the record lives, the way `god`
-   * does for a boon.
+   * Not a gate. You pick your weapon before the run starts, so the clause both
+   * games write this as never reaches `prereq`; it says where the record lives,
+   * the way `god` does for a boon.
    */
   weapon: WeaponId | null;
 
@@ -270,13 +268,11 @@ export interface SetRecord {
 }
 
 /**
- * One of the six weapons a run is played with, which is what a record with no
- * god answers to instead.
+ * One of the six weapons a run is played with.
  *
- * `aspects` is in the game's own display order rather than sorted, which is
- * the only thing this table carries that the trait records cannot: every form
- * names its weapon on its own record, but nothing on a record says it comes
- * first. The free one does, in both games.
+ * `aspects` is in the game's own order, which is the one thing here the trait
+ * records cannot tell us: every form says which weapon it belongs to, and none
+ * says it comes first. In both games the free one does.
  */
 export interface WeaponRecord {
   id: WeaponId;
@@ -290,8 +286,8 @@ export interface WeaponRecord {
    */
   order: number;
   /**
-   * The asset key for this weapon's free form, which is the weapon drawn
-   * plainly. Only a key — resolved by `weaponIconFor`, like every other.
+   * The asset key for this weapon's free form, which is just the weapon drawn.
+   * Only a key; `weaponIconFor` resolves it, like every other.
    */
   icon: string | null;
   source?: string;

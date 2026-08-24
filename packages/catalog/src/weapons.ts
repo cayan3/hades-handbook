@@ -3,15 +3,12 @@ import { type GameKey, dataFor } from "./data.js";
 import type { WeaponRecord } from "./schema.js";
 
 /**
- * The six weapons of a game, in the order the game itself presents them.
+ * The six weapons of a game, in the order the game shows them.
  *
- * Built once per game and handed back by identity, like the god sets and the
- * merged records beside them: a snapshot fixes this table, and a caller asking
- * for it is a surface rendering a tab bar on every keystroke.
- *
- * No overlay layer. Both games declare the set and its membership outright, so
- * there is nothing here for a hand-maintained correction to say — unlike
- * `traitsFor`, which exists because two Hades I records name the wrong god.
+ * Built once and handed back by identity, like the god sets beside it: the
+ * table cannot change while a snapshot is loaded, and the caller is a tab bar
+ * that re-renders constantly. No overlay layer, since both games state the set
+ * outright and there is nothing to correct.
  */
 function build(game: GameKey): readonly WeaponRecord[] {
   const table = dataFor(game).weapons as Record<WeaponId, WeaponRecord>;
@@ -32,11 +29,9 @@ export function weaponsFor(game: GameKey): readonly WeaponRecord[] {
 }
 
 /**
- * One weapon, or undefined for a name that is not one.
- *
- * Undefined rather than a throw because the caller is usually a route or a
- * stored selection, and a weapon that has gone away between snapshots is a
- * stale bookmark rather than a defect.
+ * One weapon, or undefined for a name that is not one. Undefined rather than a
+ * throw: the caller is a route or a stored selection, and a weapon that went
+ * away between snapshots is a stale bookmark rather than a defect.
  */
 export function weaponFor(game: GameKey, weapon: WeaponId): WeaponRecord | undefined {
   return WEAPONS[game].find((record) => record.id === weapon);

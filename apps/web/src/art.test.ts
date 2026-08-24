@@ -6,27 +6,20 @@ import { describe, expect, it } from "vitest";
 /**
  * Does a file exist for every icon a page asks the resolver for?
  *
- * Nothing asked before this, and the cost of nobody asking was 245 records —
- * every hammer and every weapon form in both games — resolving to a key with no
- * file behind it. The resolver answers a path either way and the page draws the
- * missing-art placeholder, so a whole surface of grey boxes renders, passes
- * every test there is, and looks like a design decision.
- *
- * Written over what a page actually draws rather than over the whole catalog:
- * roughly a fifth of each game's records are templates and cut content that no
- * surface reaches, and art for those is not missing, it is not wanted.
+ * Nobody asked until now, and the cost was 245 records — every hammer and
+ * weapon form — resolving to a key with no file behind it. The resolver answers
+ * a path regardless, so a page of placeholders renders and passes every other
+ * test there is. Over what a page draws rather than the whole catalog.
  */
 
 const GAMES: readonly GameId[] = ["hades1", "hades2"];
 
 /**
- * Every art file that ships, by the path the resolver names it with.
+ * Every art file that ships, keyed the way the resolver names it.
  *
- * `import.meta.glob` rather than a directory read: this half of the workspace
- * compiles with no node types on purpose, so that a component cannot reach a
- * filesystem or a global the import cruiser would not see. The bundler's own
- * glob is typed by `vite/client`, which this project already has, and it reads
- * the same tree the site serves.
+ * A glob rather than reading the directory: this half of the workspace has no
+ * node types on purpose, so a component cannot reach a filesystem. Vite's own
+ * glob is already typed here and reads the same tree the site serves.
  */
 const SHIPPED = new Set(
   Object.keys(import.meta.glob("../public/art/official/**/*.webp")).map((path) =>
@@ -48,14 +41,11 @@ describe.each(GAMES)("%s art", (game) => {
   const records = Object.values(dataFor(game).boons as Record<string, TraitRecord>);
   const keepsakes = keepsakesFor(game);
   /**
-   * What a page draws, which is narrower than "has a name": the two page
-   * populations are a god's records and a weapon's, and between them they miss
-   * NPC allies, Chaos, the store and the Bouldy blessings — 70 named records in
-   * Hades I whose art was never in scope and still is not.
-   *
-   * Keepsakes come out for the god page's own reason: they carry a name and a
-   * record, they are equipped rather than collected, and their art arrives
-   * through the keepsake half of the resolver.
+   * What a page draws, which is narrower than "has a name". The two page
+   * populations are a god's records and a weapon's; between them they miss NPC
+   * allies, Chaos, the store and the Bouldy blessings — 70 named Hades I
+   * records whose art was never in scope. Keepsakes come out for the god page's
+   * reason: their art arrives through the resolver's keepsake arm.
    */
   const drawn = records.filter(
     (record) =>

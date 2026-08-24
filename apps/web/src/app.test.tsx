@@ -2126,8 +2126,8 @@ describe("the weapon tabs", () => {
   /**
    * The two pages read the same records off one table, so a record on both
    * would be one the run could reach two ways. The extractor makes that
-   * impossible by construction — no record has a god and a weapon — and this
-   * is the surface saying the same thing.
+   * impossible — no record has both a god and a weapon — and this is the
+   * surface saying the same thing.
    */
   it("draws nothing a god page draws", async () => {
     await mount();

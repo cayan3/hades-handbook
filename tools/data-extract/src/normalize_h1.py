@@ -502,14 +502,14 @@ def weapon_for_h1(trait_id):
     return from_table or from_record
 
 
-# The order the game presents its weapons in, which is the order a player knows
-# them by and is not the order either table here happens to be written in.
-# `HeroPhysicalWeapons` is the game's own list and matches `HeroMeleeWeapons`
-# exactly, so this is read rather than typed out.
+# The order the game shows its weapons in, which is how a player knows them and
+# is not the order either table here is written in. `HeroPhysicalWeapons` is
+# the game's own list and matches `HeroMeleeWeapons` exactly, so we read it
+# instead of typing the six names out.
 WEAPON_ORDER = [w for w in (WeaponSets.get("HeroPhysicalWeapons") or []) if w in WEAPON_IDS]
 
 def weapon_icon_h1(weapon):
-    """The icon of this weapon's free form, which is the weapon drawn plainly."""
+    """The icon of this weapon's free form, which is just the weapon drawn."""
     free = weapon_aspects_h1(weapon)
     icon = resolve_field_h1(free[0], "Icon") if free else None
     return icon if isinstance(icon, str) and not is_unresolved(icon) else None
@@ -539,12 +539,11 @@ for _weapon in WEAPON_IDS:
         # Carried as a field because this file is written with its keys sorted,
         # so the game's order is lost on the way out otherwise.
         "order": WEAPON_ORDER.index(_weapon) if _weapon in WEAPON_ORDER else len(WEAPON_IDS),
-        # The weapon drawn as its own default form, which is the only picture
-        # of a weapon either game keeps. Resolved like a trait's, since that is
-        # what it is.
+        # The weapon drawn as its own default form. That is the only picture
+        # of a weapon either game keeps, and it resolves like any trait's.
         "icon": weapon_icon_h1(_weapon),
-        # The table's own order, which is the order the game's own screen draws
-        # them in and the order the base form comes first in.
+        # The table's own order, which is the order the game's screen draws
+        # them in, base form first.
         "aspects": weapon_aspects_h1(_weapon),
         "source": ("%sWeaponUpgradeData.lua:%d" % (REL_SCRIPTS, _line) if _line
                    else "%sWeaponUpgradeData.lua" % REL_SCRIPTS),

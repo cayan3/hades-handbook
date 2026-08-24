@@ -1001,13 +1001,11 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     },
 
     /**
-     * The weapon the run is played with, and now checked against the six.
+     * The weapon the run is played with, checked against the six.
      *
-     * This was the one writer with no guard, for the reason the comment here
-     * used to give: there was no weapon table to check against. There is one,
-     * so the same rule `addGod` follows applies — a name outside the space
-     * fails on the call rather than reaching storage and coming back out as a
-     * weapon the game has never had.
+     * This was the one writer with no guard, there being no weapon table to
+     * check against. There is one now, so `addGod`'s rule applies: a name
+     * outside the space fails on the call rather than reaching storage.
      */
     equipWeapon(weapon: WeaponId | null): void {
       if (weapon !== null && !catalog.weapons.has(weapon)) {
@@ -1048,10 +1046,9 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
         delete equipped.aspect;
       } else {
         equipped.aspect = aspect;
-        // A form belongs to one weapon, so picking one says which weapon the
-        // run uses. Writing it here is what stops the two fields disagreeing —
-        // which is the mistake the guards on either side exist to catch, and
-        // neither of them can see it, each checking only its own field.
+        // A form belongs to one weapon, so picking one tells us which weapon
+        // the run is using. Writing both here is what stops them disagreeing:
+        // the guard on each field only ever sees its own.
         const weapon = record(aspect).weapon;
         if (weapon !== null) equipped.weapon = weapon;
       }

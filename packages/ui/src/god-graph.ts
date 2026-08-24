@@ -159,17 +159,12 @@ export function graphTraits(graph: GodGraph): TraitId[] {
 }
 
 /**
- * Every record a weapon's page draws: its forms and its hammer upgrades.
+ * Every record a weapon's page draws: its forms and its hammers.
  *
- * The mirror of `pageTraits`, and the two are disjoint by construction — the
- * extractor never gives a record both a god and a weapon, and a page keyed on
- * either field therefore cannot draw the same node twice. Forms are kept here
- * where the god page drops them: a form belongs to a weapon and to nothing
- * else, so this is the only page that can show one.
- *
- * Nameless records are left out for the god page's reason. 22 Hades I hammers
- * and 3 of its forms have no entry in the text bundle at all — templates and
- * cut content — and a node with no name is one nobody can act on.
+ * The mirror of `pageTraits`, and the two never overlap — no record has both a
+ * god and a weapon. Forms are kept here where the god page drops them, since
+ * this is the only page that can show one. Nameless records are left out for
+ * the god page's reason: 25 Hades I ones are templates and cut content.
  */
 export function weaponTraits(source: NodeSource, weapon: WeaponId): TraitId[] {
   const found: TraitId[] = [];
@@ -181,18 +176,12 @@ export function weaponTraits(source: NodeSource, weapon: WeaponId): TraitId[] {
 }
 
 /**
- * A weapon's page, drawn with the god page's own machinery.
+ * A weapon's page, drawn with the god page's own code. It is the same question
+ * about a different set of records, and two ways of drawing that would be two
+ * things to learn. No colour, since a weapon is not a god.
  *
- * The node, edge and state language is deliberately unchanged: this is the same
- * question about a different population, and a second vocabulary for it would
- * be two ways to read one drawing. What differs is the population and the
- * absence of a hue — a weapon is not a god and an invented colour would read as
- * one.
- *
- * Most of these pages draw few connectors and some draw none: 11 Hades I
- * hammers carry a prerequisite and no Hades II hammer does. That is the data
- * being what it is rather than the page failing to find something, and the
- * layout already handles a band with no edges into it.
+ * Some of these pages draw no connectors at all: 11 Hades I hammers have a
+ * prerequisite and no Hades II hammer does.
  */
 export function weaponGraph(
   source: NodeSource,
@@ -222,14 +211,12 @@ export function weaponGraph(
 }
 
 /**
- * The forms of a weapon in the order that weapon offers them, which is the one
- * thing the weapon table says that the records cannot.
+ * The forms in the order their weapon offers them — the one thing the weapon
+ * table knows that the records do not.
  *
- * The band arithmetic puts a node with no prerequisite above it at the end in
- * name order, and no form has one — so left alone the four sort alphabetically
- * and the free one, which the game draws first, lands wherever its name falls.
- * Every other band keeps the layout's own order, that being an answer about
- * prerequisites rather than about a menu.
+ * No form has a prerequisite, so the usual layout sorts all four by name and
+ * the free one ends up wherever its name falls. Other bands keep the layout's
+ * order, which is about prerequisites rather than about a menu.
  */
 function inWeaponOrder(source: NodeSource, weapon: WeaponId, band: GraphBand): GraphBand {
   if (band.kind !== "aspect") return band;
