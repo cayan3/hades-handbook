@@ -6,8 +6,10 @@
    "BowLoadAmmoTrait",
    "BowBondTrait"
   ],
+  "icon": "WeaponEnchantment_Bow01",
   "id": "BowWeapon",
   "name": "Heart-Seeking Bow",
+  "order": 3,
   "source": "Scripts/WeaponUpgradeData.lua:151"
  },
  "FistWeapon": {
@@ -17,8 +19,10 @@
    "FistWeaveTrait",
    "FistDetonateTrait"
   ],
+  "icon": "WeaponEnchantment_Fist01",
   "id": "FistWeapon",
   "name": "Twin Fists",
+  "order": 4,
   "source": "Scripts/WeaponUpgradeData.lua:246"
  },
  "GunWeapon": {
@@ -28,8 +32,10 @@
    "GunManualReloadTrait",
    "GunLoadedGrenadeTrait"
   ],
+  "icon": "WeaponEnchantment_Gun01",
   "id": "GunWeapon",
   "name": "Adamant Rail",
+  "order": 5,
   "source": "Scripts/WeaponUpgradeData.lua:104"
  },
  "ShieldWeapon": {
@@ -39,8 +45,10 @@
    "ShieldTwoShieldTrait",
    "ShieldLoadAmmoTrait"
   ],
+  "icon": "WeaponEnchantment_Shield01",
   "id": "ShieldWeapon",
   "name": "Shield of Chaos",
+  "order": 2,
   "source": "Scripts/WeaponUpgradeData.lua:198"
  },
  "SpearWeapon": {
@@ -50,8 +58,10 @@
    "SpearWeaveTrait",
    "SpearSpinTravel"
   ],
+  "icon": "WeaponEnchantment_Spear01",
   "id": "SpearWeapon",
   "name": "Eternal Spear",
+  "order": 1,
   "source": "Scripts/WeaponUpgradeData.lua:53"
  },
  "SwordWeapon": {
@@ -61,8 +71,10 @@
    "DislodgeAmmoTrait",
    "SwordConsecrationTrait"
   ],
+  "icon": "WeaponEnchantment_Sword01",
   "id": "SwordWeapon",
   "name": "Stygian Blade",
+  "order": 0,
   "source": "Scripts/WeaponUpgradeData.lua:7"
  }
 }

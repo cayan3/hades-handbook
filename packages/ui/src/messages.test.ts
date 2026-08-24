@@ -48,8 +48,21 @@ describe("the undo offer", () => {
     expect(editSentence(edit({ action: "acceptMigration", subject: null }), naming)).toBe(
       "Dismissed the update notice",
     );
+  });
+
+  /**
+   * A field that was cleared has no value left to name, and the setting verb
+   * reads as half a sentence on its own — "Equipped" with nothing after it.
+   */
+  it("says what was cleared where a writer emptied its field", () => {
     expect(editSentence(edit({ action: "equipKeepsake", subject: null }), naming)).toBe(
-      "Changed keepsake",
+      "Removed the keepsake",
+    );
+    expect(editSentence(edit({ action: "equipAspect", subject: null }), naming)).toBe(
+      "Removed the aspect",
+    );
+    expect(editSentence(edit({ action: "equipWeapon", subject: null }), naming)).toBe(
+      "Cleared the weapon",
     );
   });
 });

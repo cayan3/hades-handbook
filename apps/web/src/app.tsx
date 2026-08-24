@@ -1,4 +1,4 @@
-import { createLookups, traitsFor, weaponsFor } from "@repo/catalog";
+import { createLookups, traitsFor, weaponFor, weaponsFor } from "@repo/catalog";
 import type { GameId, Rarity, RunFacts, TraitId } from "@repo/core";
 import { createRules as hades1Rules } from "@repo/rules-hades1";
 import { createRules as hades2Rules } from "@repo/rules-hades2";
@@ -15,7 +15,6 @@ import {
   HubGlyph,
   Loadout,
   type LoadoutEntry,
-  MARKING_HINT,
   NodePresentation,
   SaveScreen,
   NoticeBar,
@@ -27,6 +26,7 @@ import {
   UNREADABLE_RUN_BODY,
   UNREADABLE_RUN_TITLE,
   UndoToast,
+  WeaponArt,
   bestNextPick,
   createNodeCache,
   createNodeSource,
@@ -88,6 +88,21 @@ const RULES = {
 const CORE_SLOTS: Readonly<Record<GameId, readonly string[]>> = {
   hades1: ["Melee", "Secondary", "Ranged", "Rush", "Shout"],
   hades2: ["Melee", "Secondary", "Ranged", "Rush", "Mana", "Spell"],
+};
+
+/**
+ * The Loadout's own column, which is the list above plus the equipped form
+ * where the game draws one there.
+ *
+ * Hades II puts the weapon at the top of its tray, so `Aspect` leads its core
+ * column; Hades I draws it as the first tile of the expanded panel instead,
+ * which it gets by leading the entry list rather than by being a slot. Kept
+ * apart from `CORE_SLOTS` because that list is also the God View's rank order,
+ * where a slot no boon on the page carries would rank nothing.
+ */
+const LOADOUT_SLOTS: Readonly<Record<GameId, readonly string[]>> = {
+  hades1: CORE_SLOTS.hades1,
+  hades2: ["Aspect", ...CORE_SLOTS.hades2],
 };
 
 /** Built once per game: the records and lookups are fixed for a snapshot. */
@@ -438,13 +453,19 @@ function Run({
       mark: (trait: TraitId, rarity: Rarity | null) =>
         write(() => session.source.mark(trait, rarity === null ? {} : { rarity })),
       remove: (trait: TraitId, options?: { readonly fromPool?: boolean }) =>
-        write(() => session.source.remove(trait, options)),
+        write(() =>
+          // A form is taken off rather than removed: it never entered `held`,
+          // so `remove` would look for it there and find nothing.
+          source.records[trait]?.slot === "Aspect"
+            ? session.source.equipAspect(null)
+            : session.source.remove(trait, options),
+        ),
       purge: (trait: TraitId) => write(() => session.source.purge(trait)),
       pin: (trait: TraitId) => write(() => session.source.pin(trait)),
       unpin: (trait: TraitId) => write(() => session.source.unpin(trait)),
       clearOverride: (trait: TraitId) => write(() => session.layer.clearOverride("held", trait)),
     }),
-    [session, write],
+    [session, write, source],
   );
 
   /**
@@ -458,6 +479,21 @@ function Run({
    */
   const markOrOpen = useCallback(
     (trait: TraitId) => {
+      /**
+       * A weapon form is equipped, not held, so a tap on one means something
+       * different from a tap on a boon. Marking it throws — the source refuses
+       * a form outright — which is what a player met when the weapon page first
+       * drew its forms as ordinary nodes.
+       *
+       * Tapping the equipped one again takes it off, since a run has one form
+       * and the only other thing a second tap could mean is nothing.
+       */
+      if (source.records[trait]?.slot === "Aspect") {
+        const already = facts.equipped.aspect === trait;
+        setCost([]);
+        write(() => session.source.equipAspect(already ? null : trait));
+        return;
+      }
       /**
        * What the mark is about to cost, worked out before it happens because
        * afterwards the slot holds something else.
@@ -475,6 +511,12 @@ function Run({
     },
     [session, write, source, view, facts, intent],
   );
+  /** The subset a weapon form is offered; see the sheet below. */
+  const formActions: BoonActions = useMemo(
+    () => ({ ...(actions.remove === undefined ? {} : { remove: actions.remove }) }),
+    [actions],
+  );
+
   const toggleGoal = useCallback(
     (trait: TraitId) =>
       write(() =>
@@ -578,6 +620,17 @@ function Run({
     slot: source.records[trait]?.slot ?? null,
     overridden: session.layer.isOverridden("held", trait),
   }));
+
+  /**
+   * The equipped form leads the list, which is where both games draw it: at the
+   * top of Hades II's core column, and as the first tile of Hades I's expanded
+   * panel. It is a trait record like any other, so it needs no special tile —
+   * only a position.
+   */
+  const form = facts.equipped.aspect;
+  if (form !== undefined && source.records[form] !== undefined) {
+    entries.unshift({ view: view(form), slot: "Aspect", overridden: false });
+  }
 
   const openedView = opened === null ? null : view(opened);
 
@@ -735,10 +788,12 @@ function Run({
                   }
                   onClick={() => setSelected({ kind: "weapon", weapon: weapon.id })}
                 >
-                  {/* The name rather than a symbol: the art pipeline's scope was
-                      the god boons, so no weapon has an icon to draw yet and a
-                      placeholder glyph would say less than the word does. */}
-                  <span className="app__weaponname">{weapon.name ?? weapon.id}</span>
+                  {/* The weapon drawn as its own default form, which is the
+                      only picture of a weapon either game keeps. Same as a god
+                      tab: the shape is the control and the name is what it is
+                      called, not what it draws. */}
+                  <WeaponArt game={game} weapon={weapon.id} className="app__godart" />
+                  <span className="visually-hidden">{weapon.name ?? weapon.id}</span>
                 </button>
               ))}
               {unshown.length === 0 ? null : (
@@ -790,8 +845,8 @@ function Run({
               one is derived here, where the catalog and the engine are. */}
           <Loadout
             entries={entries}
-            coreSlots={CORE_SLOTS[game]}
-            equipped={equippedItems(facts)}
+            coreSlots={LOADOUT_SLOTS[game]}
+            equipped={equippedItems(facts, game, source)}
             // A total over the panel: which element a boon counts toward is on
             // the node in the God View, and how many the run has is this.
             elements={facts.elements}
@@ -829,11 +884,6 @@ function Run({
                 onOpen={setOpened}
                 onGoal={toggleGoal}
               />
-              {/* Under the thing it is about, not above it: it is a first-visit
-                  explanation and it stops being read long before it stops being
-                  on the page. Help says the same three gestures, so the sentence
-                  is one constant. */}
-              <p className="app__hint">{MARKING_HINT}</p>
             </section>
           )}
         </main>
@@ -920,7 +970,12 @@ function Run({
             pinned={intent.pins.has(opened)}
             overridden={session.layer.isOverridden("held", opened)}
             onClose={() => setOpened(null)}
-            actions={actions}
+            /**
+             * A weapon form is offered taking it off and nothing else. It
+             * cannot be lost in game — a run keeps the form it started with —
+             * and a goal is a boon to collect, which a form is not.
+             */
+            actions={source.records[opened]?.slot === "Aspect" ? formActions : actions}
           />
         )}
       </div>
@@ -1065,11 +1120,19 @@ function Notices({
 }
 
 /** The equipped kit, which is not the Loadout and sits beside it. */
-function equippedItems(facts: RunFacts): { label: string; value: string }[] {
+function equippedItems(
+  facts: RunFacts,
+  game: GameId,
+  source: NodeSource,
+): { label: string; value: string }[] {
   const items: { label: string; value: string }[] = [];
   const { weapon, aspect, keepsake } = facts.equipped;
-  if (weapon !== undefined) items.push({ label: "Weapon", value: weapon });
-  if (aspect !== undefined) items.push({ label: "Aspect", value: aspect });
+  // Names rather than ids. Nothing wrote these fields until the weapon page
+  // did, so the raw id had never been in front of anyone.
+  if (weapon !== undefined) {
+    items.push({ label: "Weapon", value: weaponFor(game, weapon)?.name ?? weapon });
+  }
+  if (aspect !== undefined) items.push({ label: "Aspect", value: source.naming.trait(aspect) });
   if (keepsake !== undefined) items.push({ label: "Keepsake", value: keepsake });
   return items;
 }

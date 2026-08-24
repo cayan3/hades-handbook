@@ -633,6 +633,14 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                 elif boons[aspect].get("weapon") != weapon_id:
                     fatal.append("%s weapon %s lists %s, which is filed under %s"
                                  % (game_key, weapon_id, aspect, boons[aspect].get("weapon")))
+        # The order the game presents its weapons in. Same shape as the Mirror
+        # row check: a gap in the positions is what two weapons sharing one
+        # looks like from the emitted file, and the ids alone cannot show it.
+        positions = sorted(weapon.get("order") for weapon in weapons.values())
+        if positions != list(range(len(weapons))):
+            fatal.append("%s weapon positions are %r, not one per weapon from 0"
+                         % (game_key, positions))
+
         # A form is equipped rather than picked up, so one nobody can place is
         # a form no weapon offers. Advisory: Hades I has one, a cut aspect
         # whose entry in the weapon table is commented out.

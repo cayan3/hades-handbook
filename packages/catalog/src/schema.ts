@@ -282,6 +282,18 @@ export interface WeaponRecord {
   id: WeaponId;
   name: string | null;
   aspects: readonly TraitId[];
+  /**
+   * Where this weapon sits in the order the game presents them — the order a
+   * player knows them by, and not the order either game's table happens to be
+   * written in. Carried as a field because the extraction is keyed by id and
+   * written sorted, so the order is lost on the way out otherwise.
+   */
+  order: number;
+  /**
+   * The asset key for this weapon's free form, which is the weapon drawn
+   * plainly. Only a key — resolved by `weaponIconFor`, like every other.
+   */
+  icon: string | null;
   source?: string;
 }
 

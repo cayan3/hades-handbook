@@ -670,25 +670,12 @@ h1,
 }
 
 /*
- * A weapon tab carries its name rather than a symbol: the art scope was the god
- * boons, so no weapon has an icon yet and a placeholder glyph would say less
- * than the word does. Wider than a god's square for that reason and auto-width
- * so "Heart-Seeking Bow" and "Axe" both fit, with the neutral outline the Hub
- * takes — a weapon is not a god, and an invented hue would read as identity.
+ * A weapon tab is a god tab over a different id space: same square, same symbol
+ * treatment, and the neutral outline the Hub takes — a weapon is not a god, and
+ * an invented hue would read as identity.
  */
 .app__weapontab {
-  width: auto;
-  min-width: 3.25rem;
-  padding: 0.4rem 0.6rem;
   border-color: rgb(255 255 255 / 35%);
-}
-
-.app__weaponname {
-  /* The chrome's floor, which a smaller size here failed: nothing the page
-     writes goes below 0.85rem. */
-  font-size: 0.85rem;
-  line-height: 1.15;
-  text-align: center;
 }
 
 /*
@@ -882,17 +869,20 @@ h1,
 }
 
 /*
- * Hub has no god colour to light up with, so hovering it takes the neutral
- * outline to white — the same channel every other tab uses, on the one tab that
- * has no hue to put there. The god tabs are left alone: their outline is already
- * the god and their glow already means the run has met them.
+ * Hub and the weapon tabs have no god colour to light up with, so hovering one
+ * takes its neutral outline to white — the same channel every other tab uses,
+ * on the tabs that have no hue to put there. The god tabs are left alone: their
+ * outline is already the god and their glow already means the run has met them.
  */
-.app__hubtab {
+.app__hubtab,
+.app__weapontab {
   transition: border-color 120ms ease;
 }
 
 .app__hubtab:hover,
-.app__hubtab:focus-visible {
+.app__hubtab:focus-visible,
+.app__weapontab:hover,
+.app__weapontab:focus-visible {
   border-color: #fff;
 }
 

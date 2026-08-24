@@ -7,8 +7,9 @@ import {
   godIconFor,
   markerIconFor,
   slotIconFor,
+  weaponIconFor,
 } from "@repo/catalog";
-import type { Element, GodId, SlotId } from "@repo/core";
+import type { Element, GodId, SlotId, WeaponId } from "@repo/core";
 import { useEffect, useState } from "react";
 
 /**
@@ -94,6 +95,36 @@ export function GodArt({
   readonly className?: string;
 }) {
   const url = artUrl(godIconFor(game, god));
+  const [src, setSrc] = useState(url);
+
+  useEffect(() => setSrc(url), [url]);
+
+  return (
+    <img
+      className={className}
+      src={src}
+      alt=""
+      draggable={false}
+      onError={() => setSrc(MISSING_ART)}
+    />
+  );
+}
+
+/**
+ * A weapon, drawn as its own default form. The same shape as `GodArt` beside
+ * it, since a weapon tab and a god tab are the same control over a different
+ * id space.
+ */
+export function WeaponArt({
+  game,
+  weapon,
+  className = "weapon-art",
+}: {
+  readonly game: GameKey;
+  readonly weapon: WeaponId;
+  readonly className?: string;
+}) {
+  const url = artUrl(weaponIconFor(game, weapon));
   const [src, setSrc] = useState(url);
 
   useEffect(() => setSrc(url), [url]);

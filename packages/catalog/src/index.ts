@@ -39,6 +39,7 @@ export {
   talentIconFor,
   talentNameFor,
   textFor,
+  weaponIconFor,
 } from "./assets.js";
 export type { ChromePart, MarkerKind } from "./assets.js";
 export { overlayFor } from "./overlay.js";

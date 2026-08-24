@@ -249,6 +249,21 @@ export type NodeKind = "duo" | "hex" | "infusion" | "legendary";
  * the bottom of. Measured over what reaches a page: 11 Legendaries in Hades I
  * and 10 in Hades II, against 28 and 37 Duos, 9 Hexes and 10 Infusions.
  */
+/**
+ * Whether a player is ever offered a choice of rarity for this record.
+ *
+ * A kinded boon is not — a Duo, a Godsent Hex, an Infusion and a Legendary all
+ * say their kind where a rarity would go. Nor is anything belonging to a
+ * weapon: the games force a hammer to Common (`HeroData.WeaponData.ForceCommon`
+ * in Hades II, and Hades I declares no rarity on one at all), and a form is
+ * equipped rather than picked up. 65 Hades II hammers ship a Legendary
+ * multiplier that no run can ever be offered, which is what asking the record
+ * alone gets you.
+ */
+function offersRarity(record: TraitRecord | undefined): boolean {
+  return kindOf(record) === null && (record?.weapon ?? null) === null;
+}
+
 export function kindOf(record: TraitRecord | undefined): NodeKind | null {
   if (record?.duoGods != null) return "duo";
 
@@ -334,7 +349,19 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
   const { game, rules, lookups, naming, records } = source;
   const record = records[trait];
   const prereq = record?.prereq ?? NO_GATE;
-  const state = boonState(trait, prereq, facts, rules, lookups);
+  /**
+   * A weapon form is equipped rather than held, so `boonState` — which asks
+   * about `held` — leaves the one the run is actually using looking Available.
+   * Obtained is what the run has, and the run has this one.
+   *
+   * A display rule, in the same sense as the kind rule below: what the run
+   * stores is untouched, the form still living in `equipped.aspect` where the
+   * feasibility checks read it.
+   */
+  const state =
+    record?.slot === "Aspect" && facts.equipped.aspect === trait
+      ? "Obtained"
+      : boonState(trait, prereq, facts, rules, lookups);
 
   const god = record?.god ?? null;
   const tier = record?.tier ?? null;
@@ -360,8 +387,8 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
     tier,
     iconKey: iconFor(game, trait),
     kind,
-    rarity: kind === null ? declaredRarity(state, facts, trait, record?.rarity ?? []) : null,
-    rarities: kind === null ? (record?.rarity ?? []) : [],
+    rarity: offersRarity(record) ? declaredRarity(state, facts, trait, record?.rarity ?? []) : null,
+    rarities: offersRarity(record) ? (record?.rarity ?? []) : [],
     element: record?.elementAffinity ?? null,
     notice:
       state === "Impossible"

@@ -4,8 +4,10 @@
    "GlaiveBaseAspect",
    "GlaiveTwinAspect"
   ],
+  "icon": "WeaponEnchantment_Glaive_00",
   "id": "WeaponGlaive",
   "name": null,
+  "order": 0,
   "source": "Scripts/WeaponUpgradeData.lua:20"
  }
 }

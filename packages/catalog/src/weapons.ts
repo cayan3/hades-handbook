@@ -3,7 +3,7 @@ import { type GameKey, dataFor } from "./data.js";
 import type { WeaponRecord } from "./schema.js";
 
 /**
- * The six weapons of a game, in the order the extraction sorted them.
+ * The six weapons of a game, in the order the game itself presents them.
  *
  * Built once per game and handed back by identity, like the god sets and the
  * merged records beside them: a snapshot fixes this table, and a caller asking
@@ -15,9 +15,9 @@ import type { WeaponRecord } from "./schema.js";
  */
 function build(game: GameKey): readonly WeaponRecord[] {
   const table = dataFor(game).weapons as Record<WeaponId, WeaponRecord>;
-  const records = Object.values(table).map((record) =>
-    Object.freeze({ ...record, aspects: Object.freeze([...record.aspects]) }),
-  );
+  const records = Object.values(table)
+    .map((record) => Object.freeze({ ...record, aspects: Object.freeze([...record.aspects]) }))
+    .sort((a, b) => a.order - b.order);
   return Object.freeze(records);
 }
 

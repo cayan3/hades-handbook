@@ -1044,8 +1044,17 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       }
       beginEdit("equipAspect", aspect);
       const equipped = { ...state.facts.equipped };
-      if (aspect === null) delete equipped.aspect;
-      else equipped.aspect = aspect;
+      if (aspect === null) {
+        delete equipped.aspect;
+      } else {
+        equipped.aspect = aspect;
+        // A form belongs to one weapon, so picking one says which weapon the
+        // run uses. Writing it here is what stops the two fields disagreeing —
+        // which is the mistake the guards on either side exist to catch, and
+        // neither of them can see it, each checking only its own field.
+        const weapon = record(aspect).weapon;
+        if (weapon !== null) equipped.weapon = weapon;
+      }
       commit({ ...state.facts, equipped });
     },
 

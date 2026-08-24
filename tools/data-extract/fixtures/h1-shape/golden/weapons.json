@@ -4,8 +4,10 @@
    "GlaiveBaseUpgradeTrait",
    "GlaiveTwinTrait"
   ],
+  "icon": "WeaponEnchantment_Glaive_00",
   "id": "GlaiveWeapon",
   "name": null,
+  "order": 1,
   "source": "Scripts/WeaponUpgradeData.lua:13"
  }
 }

@@ -652,13 +652,38 @@ def weapon_for_h2(trait_id, chain):
     return next(iter(named), None)
 
 
+def weapon_icon_h2(weapon):
+    """The icon of this weapon's free form, which is the weapon drawn plainly."""
+    free = (WeaponAspects.get("FreeUnlocks") or {}).get(weapon)
+    listed = (WeaponAspects.get("DisplayOrder") or {}).get(weapon) or []
+    if free is not None and listed and free != listed[0]:
+        sys.exit("normalize_h2: %s unlocks %s free but lists %s first"
+                 % (weapon, free, listed[0]))
+    icon, _ = resolve_field(free or (listed[0] if listed else None), "Icon")
+    return icon if isinstance(icon, str) and not is_unresolved(icon) else None
+
+
 weapon_line = index_keys_at_depth(SCRIPTS + "WeaponUpgradeData.lua", 2)
+
+# The order the aspect screen lists them in, which is the order the game
+# presents its weapons in. Read off where each key sits in the file, the table
+# itself being unordered once Lua has loaded it.
+WEAPON_ORDER = sorted(WEAPON_IDS, key=lambda w: weapon_line.get(w, 0))
+
 weapons = {}
 for _weapon in WEAPON_IDS:
     _line = weapon_line.get(_weapon)
     weapons[_weapon] = {
         "id": _weapon,
         "name": render_name(resolve_display_name(text_bundle_raw, _weapon), text_bundle_raw),
+        # Carried as a field because this file is written with its keys sorted,
+        # so the game's order is lost on the way out otherwise.
+        "order": WEAPON_ORDER.index(_weapon),
+        # The weapon drawn as its own default form, which is the only picture
+        # of a weapon either game keeps. `FreeUnlocks` names that form; the
+        # display order opens with it too, and the two are checked against each
+        # other below.
+        "icon": weapon_icon_h2(_weapon),
         "aspects": list(WeaponAspects["DisplayOrder"][_weapon]),
         "source": ("%sWeaponUpgradeData.lua:%d" % (REL_SCRIPTS, _line) if _line
                    else "%sWeaponUpgradeData.lua" % REL_SCRIPTS),

@@ -1,4 +1,11 @@
-import { type GameKey, keepsakeNameFor, nameFor, talentNameFor } from "@repo/catalog";
+import {
+  type GameKey,
+  keepsakeNameFor,
+  nameFor,
+  talentNameFor,
+  traitsFor,
+  weaponFor,
+} from "@repo/catalog";
 import type { AspectId, GodId, KeepsakeId, TalentId, TraitId } from "@repo/core";
 
 /**
@@ -40,7 +47,11 @@ export function catalogNaming(game: GameKey): Naming {
     god: (id) => id,
     keepsake: (id) => keepsakeNameFor(game, id),
     talent: (id) => talentNameFor(game, id),
-    aspect: (id) => nameFor(game, id),
+    aspect: (id) => {
+      const weapon = traitsFor(game)[id]?.weapon ?? null;
+      const of = weapon === null ? null : (weaponFor(game, weapon)?.name ?? null);
+      return of === null ? nameFor(game, id) : `${nameFor(game, id)} (${of})`;
+    },
     slot: (id) => SLOTS[game][id] ?? null,
   };
 }

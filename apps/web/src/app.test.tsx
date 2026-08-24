@@ -2081,19 +2081,25 @@ describe("an empty bar", () => {
  * was already in scope with nowhere to live.
  */
 describe("the weapon tabs", () => {
+  // The tab draws the weapon and names it in hidden text, the way a god tab
+  // draws a symbol.
   const weaponTabs = () =>
-    texts(".app__weapontab").map((t) => t.trim());
+    [...container.querySelectorAll<HTMLElement>(".app__weapontab")].map((tab) =>
+      (tab.getAttribute("title") ?? "").trim(),
+    );
 
-  it("carries all six, and none of them is removable", async () => {
+  it("carries all six, in the order the game presents them", async () => {
     await mount();
 
+    // The aspect screen's own order, not the alphabetical one the extraction's
+    // sorted keys would give.
     expect(weaponTabs()).toEqual([
-      "Moonstone Axe",
-      "Sister Blades",
-      "Argent Skull",
       "Witch's Staff",
-      "Black Coat",
+      "Sister Blades",
       "Umbral Flames",
+      "Moonstone Axe",
+      "Argent Skull",
+      "Black Coat",
     ]);
     // The × belongs to a tab a player put up, and nobody put these up.
     expect(container.querySelectorAll(".app__weapontab .app__goddrop")).toHaveLength(0);
@@ -2133,6 +2139,80 @@ describe("the weapon tabs", () => {
 
     expect(onWeapon.length).toBeGreaterThan(0);
     expect(onWeapon.filter((name) => onGod.has(name))).toEqual([]);
+  });
+
+  /**
+   * A form is equipped, never held, so the source refuses to mark one. The page
+   * drew forms as ordinary nodes before this, and a tap on one met an error
+   * notice — the gesture was missing rather than wrong, nothing in the app
+   * having written `equipped` at all until the weapon page existed.
+   */
+  it("equips a weapon form rather than marking it", async () => {
+    await mount();
+    click("Umbral Flames");
+    const form = () =>
+      container.querySelector<HTMLElement>(".godpage__band[data-kind='aspect'] .node");
+    expect(form()?.dataset.state).toBe("Available");
+
+    act(() => form()?.querySelector<HTMLElement>(".node__control")?.click());
+
+    expect(container.querySelector(".notice")).toBeNull();
+    expect(form()?.dataset.state).toBe("Obtained");
+    // The form says which weapon the run uses, so both fields are written and
+    // the tab glows for it.
+    const equipped = texts(".loadout__equipped").join(" ");
+    expect(equipped).toContain("Umbral Flames");
+    expect(equipped).toContain("Aspect of Melinoë");
+    // And it takes the top of the tray, which is where the game draws it.
+    const first = container.querySelector(".loadout__core .loadout__entry");
+    expect(first?.getAttribute("data-trait")).toBe("TorchSpecialDurationAspect");
+    // The toast names the weapon too, six forms in each game sharing a name.
+    expect(container.querySelector(".toast__what")?.textContent).toContain(
+      "Equipped Aspect of Melinoë (Umbral Flames)",
+    );
+  });
+
+  /**
+   * An equipped form reads as Obtained, so a second tap opens its sheet rather
+   * than toggling — which is what every other obtained node does. Taking it off
+   * is the sheet's own control, and it goes through `equipAspect` because a
+   * form never entered `held` for `remove` to find.
+   */
+  it("takes the form back off from its sheet", async () => {
+    await mount();
+    click("Umbral Flames");
+    const form = () =>
+      container.querySelector<HTMLElement>(".godpage__band[data-kind='aspect'] .node");
+    act(() => form()?.querySelector<HTMLElement>(".node__control")?.click());
+    expect(form()?.dataset.state).toBe("Obtained");
+
+    act(() => form()?.querySelector<HTMLElement>(".node__control")?.click());
+    // The only control the sheet offers a form: it cannot be lost in game, and
+    // a goal is a boon to collect.
+    expect(texts(".sheet button").map((t) => t.trim())).toEqual(["Close", "I mis-tapped"]);
+    click("I mis-tapped");
+
+    expect(container.querySelector(".notice")).toBeNull();
+    expect(form()?.dataset.state).toBe("Available");
+    expect(texts(".loadout__equipped").join(" ")).not.toContain("Aspect of Melinoë");
+  });
+
+  /**
+   * 65 Hades II hammers declare a Legendary multiplier, and no run is ever
+   * offered one: `HeroData.WeaponData.ForceCommon` is true and
+   * `IsRarityForcedCommon` returns true for a weapon upgrade unconditionally.
+   * Asking the record alone put a rarity menu on a choice that does not exist.
+   */
+  it("offers no rarity on a hammer, the game forcing them Common", async () => {
+    await mount();
+    click("Umbral Flames");
+    const hammer = container.querySelector<HTMLElement>(
+      ".godpage__band[data-kind='tier'] .node",
+    );
+
+    act(() => hammer?.querySelector<HTMLElement>(".node__control")?.click());
+
+    expect(container.querySelector(".sheet__rarities")).toBeNull();
   });
 
   it("marks a hammer the way a boon is marked", async () => {

@@ -18,10 +18,20 @@ import type { Naming } from "./naming.js";
  * unequipping or accepting a notice, the verb carries it alone.
  */
 export function editSentence(edit: UndoableEdit, naming: Naming): string {
-  const verb = VERBS[edit.action];
-  if (edit.subject === null) return verb;
-  return `${verb} ${subjectName(edit, naming)}`;
+  if (edit.subject === null) return CLEARED[edit.action] ?? VERBS[edit.action];
+  return `${VERBS[edit.action]} ${subjectName(edit, naming)}`;
 }
+
+/**
+ * What a writer that clears its field says instead. The ordinary verb reads as
+ * a half-sentence there — "Equipped" with nothing after it — and the field's
+ * old value is gone by the time this is written, so there is nothing to name.
+ */
+const CLEARED: Partial<Record<EditAction, string>> = {
+  equipWeapon: "Cleared the weapon",
+  equipAspect: "Removed the aspect",
+  equipKeepsake: "Removed the keepsake",
+};
 
 /**
  * Named after the writer, so that the vocabulary here and the vocabulary in the
@@ -34,7 +44,7 @@ const VERBS: Readonly<Record<EditAction, string>> = {
   purge: "Purged",
   addGod: "Added",
   equipWeapon: "Changed weapon",
-  equipAspect: "Changed aspect",
+  equipAspect: "Equipped",
   equipKeepsake: "Changed keepsake",
   answerMirrorRow: "Answered the Mirror row",
   answerTalent: "Answered",
@@ -63,8 +73,11 @@ function subjectName(edit: UndoableEdit, naming: Naming): string {
     case "plan":
     case "unplan":
     case "setNote":
-    case "equipAspect":
       return naming.trait(subject);
+    // Its own resolver because six forms in each game share one display name:
+    // every weapon's free one is Aspect of Zagreus or Aspect of Melinoe.
+    case "equipAspect":
+      return naming.aspect(subject);
     case "addGod":
       return naming.god(subject);
     case "equipKeepsake":
@@ -156,9 +169,9 @@ export const OVERRIDDEN_LABEL = "Held by hand";
 export const OVERRIDDEN_HINT = "You set this yourself. It won't be updated for you.";
 
 /**
- * The three gestures a boon carries, said once. Home explains them to somebody
- * who has not started and the god page repeats them under the graph, and two
- * copies of a sentence is one of them going out of date.
+ * The three gestures a boon carries. Help says it; the pages used to repeat it
+ * under the graph and no longer do — it is a first-visit explanation, and it
+ * stopped being read long before it would have stopped being on the page.
  */
 export const MARKING_HINT =
   "Tap a boon to mark it as taken. Long-press, or right-click, to set it as a " +

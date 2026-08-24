@@ -1,9 +1,10 @@
-import type { Element, GodId, KeepsakeId, SlotId, TalentId, TraitId } from "@repo/core";
+import type { Element, GodId, KeepsakeId, SlotId, TalentId, TraitId, WeaponId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
 import { keepsakesFor } from "./keepsakes.js";
 import type { GodRecord, TraitRecord } from "./schema.js";
 import { talentsFor } from "./talents.js";
 import { traitsFor } from "./traits.js";
+import { weaponFor } from "./weapons.js";
 
 /**
  * Where art and text come from.
@@ -102,6 +103,17 @@ function godIconKey(game: GameKey, god: GodId): string | null {
  */
 export function talentIconFor(game: GameKey, talent: TalentId): string {
   const key = talentsFor(game)[talent]?.icon;
+  if (key === undefined || key === null) return `${ART_SET}/_missing`;
+  return `${ART_SET}/${game}/${key}`;
+}
+
+/**
+ * A weapon's own picture, which is that weapon drawn in its default form — the
+ * only picture of a weapon either game keeps. Its own function because a weapon
+ * is its own id space, the rule every arm here follows.
+ */
+export function weaponIconFor(game: GameKey, weapon: WeaponId): string {
+  const key = weaponFor(game, weapon)?.icon;
   if (key === undefined || key === null) return `${ART_SET}/_missing`;
   return `${ART_SET}/${game}/${key}`;
 }

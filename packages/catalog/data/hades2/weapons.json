@@ -6,8 +6,10 @@
    "AxePerfectCriticalAspect",
    "AxeRallyAspect"
   ],
+  "icon": "Hammer_Axe_40",
   "id": "WeaponAxe",
   "name": "Moonstone Axe",
+  "order": 3,
   "source": "Scripts/WeaponUpgradeData.lua:75"
  },
  "WeaponDagger": {
@@ -17,8 +19,10 @@
    "DaggerHomingThrowAspect",
    "DaggerTripleAspect"
   ],
+  "icon": "Hammer_Daggers_38",
   "id": "WeaponDagger",
   "name": "Sister Blades",
+  "order": 1,
   "source": "Scripts/WeaponUpgradeData.lua:61"
  },
  "WeaponLob": {
@@ -28,8 +32,10 @@
    "LobImpulseAspect",
    "LobGunAspect"
   ],
+  "icon": "Hammer_Lob_13",
   "id": "WeaponLob",
   "name": "Argent Skull",
+  "order": 4,
   "source": "Scripts/WeaponUpgradeData.lua:82"
  },
  "WeaponStaffSwing": {
@@ -39,8 +45,10 @@
    "StaffSelfHitAspect",
    "StaffRaiseDeadAspect"
   ],
+  "icon": "Hammer_Staff_39",
   "id": "WeaponStaffSwing",
   "name": "Witch's Staff",
+  "order": 0,
   "source": "Scripts/WeaponUpgradeData.lua:54"
  },
  "WeaponSuit": {
@@ -50,8 +58,10 @@
    "SuitMarkCritAspect",
    "SuitComboAspect"
   ],
+  "icon": "Hammer_Suit_01",
   "id": "WeaponSuit",
   "name": "Black Coat",
+  "order": 5,
   "source": "Scripts/WeaponUpgradeData.lua:89"
  },
  "WeaponTorch": {
@@ -61,8 +71,10 @@
    "TorchSprintRecallAspect",
    "TorchAutofireAspect"
   ],
+  "icon": "Hammer_Torch_39",
   "id": "WeaponTorch",
   "name": "Umbral Flames",
+  "order": 2,
   "source": "Scripts/WeaponUpgradeData.lua:68"
  }
 }

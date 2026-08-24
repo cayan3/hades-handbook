@@ -1,4 +1,4 @@
-import { dataFor, iconFor, keepsakesFor, weaponsFor } from "@repo/catalog";
+import { dataFor, iconFor, keepsakesFor, weaponIconFor, weaponsFor } from "@repo/catalog";
 import type { GameId } from "@repo/core";
 import type { TraitRecord } from "@repo/catalog";
 import { describe, expect, it } from "vitest";
@@ -82,6 +82,8 @@ describe.each(GAMES)("%s art", (game) => {
     expect(filed.filter((record) => !ships(game, record.id))).toEqual([]);
     for (const weapon of weaponsFor(game)) {
       for (const aspect of weapon.aspects) expect(ships(game, aspect)).toBe(true);
+      // The tab's own picture, which is that weapon's free form drawn plainly.
+      expect(SHIPPED.has(weaponIconFor(game, weapon.id))).toBe(true);
     }
   });
 

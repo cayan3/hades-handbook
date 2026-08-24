@@ -809,8 +809,9 @@ def test_the_duo_count_is_skipped_where_no_population_is_expected():
 # Weapons, which are the container for a record with no god
 # ---------------------------------------------------------------------------
 
-def weapon(**fields):
-    record = {"id": "W", "name": "W", "aspects": [], "source": "Scripts/WeaponUpgradeData.lua:1"}
+def weapon(order=0, **fields):
+    record = {"id": "W", "name": "W", "aspects": [], "order": order,
+              "source": "Scripts/WeaponUpgradeData.lua:1"}
     record.update(fields)
     return record
 
@@ -845,7 +846,7 @@ def test_a_weapon_listing_an_aspect_filed_elsewhere_stops_the_run():
         {"GlaiveTwinTrait": boon(id="GlaiveTwinTrait", weapon="CoilWeapon", slot="Aspect")},
         weapons={
             "GlaiveWeapon": weapon(id="GlaiveWeapon", aspects=["GlaiveTwinTrait"]),
-            "CoilWeapon": weapon(id="CoilWeapon"),
+            "CoilWeapon": weapon(order=1, id="CoilWeapon"),
         },
     )
     assert any("is filed under CoilWeapon" in f for f in fatal)

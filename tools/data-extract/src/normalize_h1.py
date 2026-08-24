@@ -502,6 +502,33 @@ def weapon_for_h1(trait_id):
     return from_table or from_record
 
 
+# The order the game presents its weapons in, which is the order a player knows
+# them by and is not the order either table here happens to be written in.
+# `HeroPhysicalWeapons` is the game's own list and matches `HeroMeleeWeapons`
+# exactly, so this is read rather than typed out.
+WEAPON_ORDER = [w for w in (WeaponSets.get("HeroPhysicalWeapons") or []) if w in WEAPON_IDS]
+
+def weapon_icon_h1(weapon):
+    """The icon of this weapon's free form, which is the weapon drawn plainly."""
+    free = weapon_aspects_h1(weapon)
+    icon = resolve_field_h1(free[0], "Icon") if free else None
+    return icon if isinstance(icon, str) and not is_unresolved(icon) else None
+
+
+def weapon_aspects_h1(weapon):
+    """This weapon's forms, in the order its own table lists them."""
+    names = []
+    for entry in WeaponUpgradeData[weapon]:
+        if not isinstance(entry, dict):
+            continue
+        # The base form is named as the investment the weapon needs rather than
+        # as an upgrade of it, so both keys are read.
+        name = entry.get("TraitName") or entry.get("RequiredInvestmentTraitName")
+        if isinstance(name, str):
+            names.append(name)
+    return names
+
+
 weapon_line = index_keys_at_depth(SCRIPTS + "WeaponUpgradeData.lua", 1)
 weapons = {}
 for _weapon in WEAPON_IDS:
@@ -509,14 +536,16 @@ for _weapon in WEAPON_IDS:
     weapons[_weapon] = {
         "id": _weapon,
         "name": resolve_display_name(text_bundle_raw, _weapon),
+        # Carried as a field because this file is written with its keys sorted,
+        # so the game's order is lost on the way out otherwise.
+        "order": WEAPON_ORDER.index(_weapon) if _weapon in WEAPON_ORDER else len(WEAPON_IDS),
+        # The weapon drawn as its own default form, which is the only picture
+        # of a weapon either game keeps. Resolved like a trait's, since that is
+        # what it is.
+        "icon": weapon_icon_h1(_weapon),
         # The table's own order, which is the order the game's own screen draws
         # them in and the order the base form comes first in.
-        "aspects": [
-            n for n in (
-                (e.get("TraitName") or e.get("RequiredInvestmentTraitName"))
-                for e in WeaponUpgradeData[_weapon] if isinstance(e, dict)
-            ) if isinstance(n, str)
-        ],
+        "aspects": weapon_aspects_h1(_weapon),
         "source": ("%sWeaponUpgradeData.lua:%d" % (REL_SCRIPTS, _line) if _line
                    else "%sWeaponUpgradeData.lua" % REL_SCRIPTS),
     }
