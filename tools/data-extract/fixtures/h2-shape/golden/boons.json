@@ -25,7 +25,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:123",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraArcCastBoon": {
   "activation": null,
@@ -56,7 +57,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:46",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraDebugOnlyBoon": {
   "activation": null,
@@ -85,7 +87,8 @@
   ],
   "slot": "Rush",
   "source": "Scripts/TraitData_Cindra.lua:132",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraEchoCastBoon": {
   "activation": null,
@@ -116,7 +119,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:70",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraEmberBoon": {
   "activation": null,
@@ -153,7 +157,7 @@
     }
    ]
   },
-  "prereqSource": "Scripts/TraitData.lua:128",
+  "prereqSource": "Scripts/TraitData.lua:140",
   "rarity": [
    "Common",
    "Epic",
@@ -162,7 +166,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:30",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "CindraFlareBoon": {
   "activation": null,
@@ -191,7 +196,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Cindra.lua:15",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraLobCastBoon": {
   "activation": null,
@@ -222,7 +228,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:58",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraMalformedBoon": {
   "activation": null,
@@ -267,7 +274,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:105",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraPyreBoon": {
   "activation": null,
@@ -337,13 +345,14 @@
     }
    ]
   },
-  "prereqSource": "Scripts/TraitData.lua:137",
+  "prereqSource": "Scripts/TraitData.lua:149",
   "rarity": [
    "Legendary"
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:38",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "CindraReclaimBoon": {
   "activation": null,
@@ -372,7 +381,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Cindra.lua:87",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraStrikeBoon": {
   "activation": null,
@@ -401,7 +411,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Cindra.lua:9",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "CindraVerdanBloomBoon": {
   "activation": null,
@@ -464,13 +475,14 @@
     }
    ]
   },
-  "prereqSource": "Scripts/TraitData.lua:149",
+  "prereqSource": "Scripts/TraitData.lua:161",
   "rarity": [
    "Duo"
   ],
   "slot": null,
   "source": "Scripts/TraitData_Duo.lua:8",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "CindraWardenBoon": {
   "activation": null,
@@ -499,7 +511,123 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Cindra.lua:21",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
+ },
+ "GlaiveBaseAspect": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "WeaponEnchantment_Glaive_00",
+  "id": "GlaiveBaseAspect",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData_Aspect.lua:8",
+  "tier": null,
+  "weapon": "WeaponGlaive"
+ },
+ "GlaiveHammerTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": "Glaive",
+  "godKind": "NonPoolSlot",
+  "icon": null,
+  "id": "GlaiveHammerTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData_Glaive.lua:9",
+  "tier": 1,
+  "weapon": null
+ },
+ "GlaiveReachTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": "Glaive",
+  "godKind": "NonPoolSlot",
+  "icon": "Weapon_Glaive_01",
+  "id": "GlaiveReachTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData_Glaive.lua:14",
+  "tier": 1,
+  "weapon": "WeaponGlaive"
+ },
+ "GlaiveTwinAspect": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "WeaponEnchantment_Glaive_01",
+  "id": "GlaiveTwinAspect",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData_Aspect.lua:15",
+  "tier": null,
+  "weapon": "WeaponGlaive"
+ },
+ "GlaiveVolleyTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": "Glaive",
+  "godKind": "NonPoolSlot",
+  "icon": "Weapon_Glaive_02",
+  "id": "GlaiveVolleyTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData_Glaive.lua:27",
+  "tier": 1,
+  "weapon": "WeaponGlaive"
  },
  "InfusionRadianceBoon": {
   "_godInferredFromComment": true,
@@ -534,7 +662,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Elementals.lua:10",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "OrithiaBlessBoon": {
   "activation": null,
@@ -558,7 +687,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Orithia.lua:12",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "VerdanBarkBoon": {
   "activation": null,
@@ -587,7 +717,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData_Verdan.lua:17",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "VerdanBriarBoon": {
   "activation": null,
@@ -620,7 +751,7 @@
     }
    ]
   },
-  "prereqSource": "Scripts/TraitData.lua:160",
+  "prereqSource": "Scripts/TraitData.lua:172",
   "rarity": [
    "Common",
    "Epic",
@@ -629,7 +760,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData_Verdan.lua:33",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "VerdanGroveBoon": {
   "activation": null,
@@ -658,7 +790,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData_Verdan.lua:23",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "VerdanRootBoon": {
   "activation": null,
@@ -687,6 +820,7 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData_Verdan.lua:11",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  }
 }

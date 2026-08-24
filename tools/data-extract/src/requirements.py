@@ -770,7 +770,7 @@ def compute_tiers(prereqs, god_of, ladder_ids):
 UNCLASSIFIED_MARKER = "UNCLASSIFIED_NEGATION"
 
 
-def resolve_negations(declared, removable, is_out_of_scope, is_aspect):
+def resolve_negations(declared, removable, is_aspect):
     """Split every declared negation into the four things it can be.
 
     Takes `declared` as {holder: [blocker, ...]} and answers (exclusive_groups,
@@ -820,14 +820,6 @@ def resolve_negations(declared, removable, is_out_of_scope, is_aspect):
     # member kept its group after the removability test moved ahead of it.
     live = set()
     for holder, blocker in sorted(edges):
-        # Scope is tested before symmetry, not after. An edge on content the
-        # release doesn't model isn't a constraint whichever direction it runs
-        # in, and testing symmetry first would let the same content back
-        # in through the exclusive-group half.
-        if is_out_of_scope(holder) or is_out_of_scope(blocker):
-            dropped.append({"holder": holder, "blocker": blocker,
-                            "reason": "an edge on content this release does not model"})
-            continue
         # Anything touching a weapon form is settled here, before symmetry. An
         # aspect is equipped rather than picked up, so neither of the two fields
         # below can carry it: both mean "the run holds this", and a run never

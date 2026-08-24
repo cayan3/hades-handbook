@@ -9,7 +9,7 @@
  },
  {
   "id": "CameoBoonBase",
-  "source": "Scripts/TraitData.lua:105"
+  "source": "Scripts/TraitData.lua:117"
  },
  {
   "id": "CindraCoreTemplate",
@@ -38,5 +38,13 @@
  {
   "id": "VerdanCoreTemplate",
   "source": "Scripts/TraitData.lua:48"
+ },
+ {
+  "id": "WeaponEnchantmentTrait",
+  "source": "Scripts/TraitData.lua:112"
+ },
+ {
+  "id": "WeaponTrait",
+  "source": "Scripts/TraitData.lua:107"
  }
 ]

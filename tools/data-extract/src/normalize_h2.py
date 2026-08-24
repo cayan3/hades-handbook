@@ -34,6 +34,9 @@ Color = load("h2_Color.json")
 LinkedTraitData = load("h2_LinkedTraitData.json")
 TraitRequirements = load("h2_TraitRequirements.json")
 GiftData = load("h2_GiftData.json")
+# Absent from a dump taken before that screen was loaded, so an older raw tree
+# still normalizes -- it just emits no weapons and no weapon on any record.
+WeaponAspects = load("h2_WeaponAspects.json") if os.path.exists(RAW + "h2_WeaponAspects.json") else {}
 
 REL_SCRIPTS = "Scripts/"  # cited paths are relative to the game's Scripts dir, per prior convention
 
@@ -564,6 +567,107 @@ for _tid, _data in ALL_DEFS.items():
 def is_aspect(trait_id):
     return trait_id in ASPECT_DEFS
 
+
+# ---------------------------------------------------------------------------
+# Weapons
+# ---------------------------------------------------------------------------
+# The container for a record with no god. Hades II states this twice for a
+# hammer and not at all on an aspect's own record, so the two populations are
+# read from different places and only one of them can be cross-checked.
+
+# The aspect screen's display order. It is not the only thing that places a
+# form -- every one of the twenty-four names its weapon on its own record --
+# but it is the only thing that says which order a weapon offers them in, the
+# free one first, and having both is what lets the two be held together.
+WEAPON_IDS = sorted(WeaponAspects.get("DisplayOrder") or {})
+weapon_of_aspect = {}
+for _weapon in WEAPON_IDS:
+    for _name in WeaponAspects["DisplayOrder"][_weapon]:
+        if isinstance(_name, str):
+            weapon_of_aspect[_name] = _weapon
+
+def weapons_asked_for(trait_id):
+    """The weapons a record's own `Weapons` clause asks the run to hold."""
+    asked = set()
+    for clause in (ALL_DEFS_WITH_ASPECTS.get(trait_id) or {}).get("GameStateRequirements") or []:
+        if isinstance(clause, dict) and clause.get("Path") == ["CurrentRun", "Hero", "Weapons"]:
+            asked |= {w for w in (clause.get("HasAll") or []) if w in WEAPON_IDS}
+    return asked
+
+
+# A hammer inherits a base of its weapon's own beside `WeaponTrait`, and
+# separately asks that weapon be held. Which base belongs to which weapon is
+# learned from the records that carry both rather than built out of the id --
+# the Staff's weapon is `WeaponStaffSwing` and its base is `StaffHammerTrait`,
+# so a rule made of string surgery would be one game's spelling written down as
+# a fact. Learned, a seventh weapon arrives by re-running this.
+hammer_base_weapon = {}
+for _tid in sorted(ALL_DEFS_WITH_ASPECTS):
+    _asked = weapons_asked_for(_tid)
+    if len(_asked) != 1:
+        continue
+    _weapon = next(iter(_asked))
+    for _base in inherit_chain(_tid):
+        if not _base.endswith("HammerTrait"):
+            continue
+        _known = hammer_base_weapon.setdefault(_base, _weapon)
+        if _known != _weapon:
+            sys.exit("normalize_h2: %s is inherited by hammers of both %s and %s"
+                     % (_base, _known, _weapon))
+
+
+def weapon_for_h2(trait_id, chain):
+    """Which weapon this record belongs to, or None if it belongs to none.
+
+    Every record here says it twice and the two are held against each other,
+    which is what notices either signal going stale: a hammer through an
+    inherited base and a `Weapons` clause, a form through its own
+    `RequiredWeapon` and the screen table's order.
+    """
+    from_table = weapon_of_aspect.get(trait_id)
+    declared = (ALL_DEFS_WITH_ASPECTS.get(trait_id) or {}).get("RequiredWeapon")
+    if declared is None:
+        declared = (ALL_DEFS_WITH_ASPECTS.get(trait_id) or {}).get("RequiredWeapons")
+    from_field = {w for w in ([declared] if isinstance(declared, str) else declared or [])
+                  if w in WEAPON_IDS}
+    if len(from_field) > 1:
+        sys.exit("normalize_h2: %s names %d weapons; a record belongs to one"
+                 % (trait_id, len(from_field)))
+    # The chain's head is the record itself, and a hammer base inherits from
+    # nothing -- reading it would file each of the six templates under the
+    # weapon it is the template for.
+    from_base = {hammer_base_weapon[b] for b in chain[1:] if b in hammer_base_weapon}
+    if len(from_base) > 1:
+        sys.exit("normalize_h2: %s inherits %d weapons' hammer bases"
+                 % (trait_id, len(from_base)))
+    from_clause = weapons_asked_for(trait_id)
+    if len(from_clause) > 1:
+        sys.exit("normalize_h2: %s asks for %d weapons at once" % (trait_id, len(from_clause)))
+    named = {w for w in (from_table, next(iter(from_base), None),
+                         next(iter(from_clause), None), next(iter(from_field), None))
+             if w is not None}
+    if len(named) > 1:
+        sys.exit("normalize_h2: %s is attributed to %s by different signals"
+                 % (trait_id, ", ".join(sorted(named))))
+    return next(iter(named), None)
+
+
+weapon_line = index_keys_at_depth(SCRIPTS + "WeaponUpgradeData.lua", 2)
+weapons = {}
+for _weapon in WEAPON_IDS:
+    _line = weapon_line.get(_weapon)
+    weapons[_weapon] = {
+        "id": _weapon,
+        "name": render_name(resolve_display_name(text_bundle_raw, _weapon), text_bundle_raw),
+        "aspects": list(WeaponAspects["DisplayOrder"][_weapon]),
+        "source": ("%sWeaponUpgradeData.lua:%d" % (REL_SCRIPTS, _line) if _line
+                   else "%sWeaponUpgradeData.lua" % REL_SCRIPTS),
+    }
+
+with open(OUT + "weapons.json", "w") as f:
+    json.dump(weapons, f, indent=1, sort_keys=True)
+    f.write("\n")
+
 declared_negations = {}   # trait id map to ids it declares itself incompatible with
 classified = {}           # trait id map to what its clauses came to
 
@@ -659,6 +763,11 @@ for trait_id, data in ALL_DEFS.items():
         "boonCategory": classify_category(trait_id, god, fname, data, chain),
         "godKind": ("PoolSlot" if god in pool_god_names else "NonPoolSlot") if god else None,
         "slot": get_slot(trait_id),
+        # Which weapon it belongs to, for a record that belongs to one instead
+        # of to a god. The clause naming it stays discarded from `prereq`: the
+        # weapon is chosen before the run, so it gates nothing during one --
+        # it says where the record lives, which is a different question.
+        "weapon": weapon_for_h2(trait_id, chain),
         "tier": None,
         "rarity": get_rarity(trait_id),
         "exclusiveGroup": None,
@@ -742,7 +851,6 @@ exclusive_groups, blocked_by, aspect_conflicts, dropped_edges, no_duplicate_gate
     # group. Both of its members are out of scope themselves (so nothing renders
     # wrongly yay) and the filter is left unwritten until something depends on
     # it instead of like just idk guessing it rn ig o_0.
-    is_out_of_scope=lambda tid: False,
     is_aspect=is_aspect,
 )
 for trait_id, group in exclusive_groups.items():

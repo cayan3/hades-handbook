@@ -316,7 +316,6 @@ def resolve(declared, **kw):
     return requirements.resolve_negations(
         declared,
         removable=kw.get("removable", set()),
-        is_out_of_scope=kw.get("is_out_of_scope", lambda t: False),
         is_aspect=kw.get("is_aspect", lambda t: False),
     )
 
@@ -347,15 +346,6 @@ def test_a_blocker_the_run_can_shed_is_dropped():
     groups, blocked, _, dropped, _ = resolve({"A": ["B"]}, removable={"B"})
     assert blocked == {}
     assert dropped and dropped[0]["blocker"] == "B"
-
-
-def test_out_of_scope_content_is_dropped_whichever_way_the_edge_runs():
-    """Testing symmetry first would let the same content back in through the
-    exclusive-group half."""
-    groups, blocked, _, dropped, _ = resolve(
-        {"A": ["B"], "B": ["A"]}, is_out_of_scope=lambda t: t == "B")
-    assert dropped
-    assert groups == {} and blocked == {}
 
 
 def test_a_removable_member_stops_a_pair_becoming_a_mutual_exclusion():

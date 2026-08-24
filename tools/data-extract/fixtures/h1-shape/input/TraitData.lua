@@ -214,4 +214,67 @@ TraitData =
 		Icon = "Boon_Fennick_02",
 		RequiredOneOfTraits = { "FennickSwiftTrait", "FennickPlumeTrait" },
 	},
+
+	-- The base every hammer upgrade inherits, and the base every weapon form
+	-- inherits. Neither is offerable itself.
+	WeaponTrait =
+	{
+		Icon = "Weapon_Base",
+	},
+
+	WeaponEnchantmentTrait =
+	{
+		Icon = "WeaponEnchantment_Base",
+	},
+
+	-- Coverage #17: a hammer naming its weapon outright. This is how all 127
+	-- real Hades I hammers say it, and it is the whole of the derivation for
+	-- them.
+	GlaiveReachTrait =
+	{
+		InheritFrom = { "WeaponTrait" },
+		RequiredWeapon = "GlaiveWeapon",
+		Icon = "Weapon_Glaive_01",
+	},
+
+	-- Coverage #18: a hammer naming the weapon a set grants alongside its
+	-- base rather than the base itself. Two real hammers do this, and folding
+	-- it through the weapon's own set is the only thing that files them under
+	-- a weapon that exists.
+	GlaiveVolleyTrait =
+	{
+		InheritFrom = { "WeaponTrait" },
+		RequiredWeapon = "GlaiveThrow",
+		Icon = "Weapon_Glaive_02",
+	},
+
+	-- Coverage #19: a hammer whose weapon list names something outside the
+	-- weapon sets beside its own weapon. Two real forms do this, adding a
+	-- ranged mode; the name folds to nothing and the record still belongs to
+	-- exactly one weapon.
+	GlaiveHurlTrait =
+	{
+		InheritFrom = { "WeaponTrait" },
+		RequiredWeapons = { "GlaiveWeapon", "ThrownWeapon" },
+		Icon = "Weapon_Glaive_03",
+	},
+
+	-- Coverage #20: a weapon form listed by the weapon table AND naming its
+	-- own weapon. The two signals are held against each other for 21 of the
+	-- 24 real forms, and this is that case.
+	GlaiveTwinTrait =
+	{
+		InheritFrom = { "WeaponEnchantmentTrait" },
+		RequiredWeapon = "GlaiveWeapon",
+		Icon = "WeaponEnchantment_Glaive_01",
+	},
+
+	-- Coverage #21: the base form, which names no weapon at all. All six real
+	-- ones share a single display name across six weapons, so the weapon
+	-- table is the only thing that can place them.
+	GlaiveBaseUpgradeTrait =
+	{
+		InheritFrom = { "WeaponEnchantmentTrait" },
+		Icon = "WeaponEnchantment_Glaive_00",
+	},
 }

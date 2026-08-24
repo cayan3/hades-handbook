@@ -84,6 +84,18 @@ ok, err = pcall(dofile_stripbom, SCRIPTS .. "MetaUpgradeData.lua")
 if not ok then print("ERROR loading MetaUpgradeData.lua: " .. tostring(err)) end
 print("MetaUpgradeData loaded")
 
+-- The weapons, which is where a hammer or an aspect belongs. `WeaponSets` maps
+-- each base weapon to the linked weapons equipping it also grants, which is
+-- what folds a `RequiredWeapon` naming a secondary back onto its weapon;
+-- `WeaponUpgradeData` is keyed by weapon and names that weapon's four aspects.
+ok, err = pcall(dofile_stripbom, SCRIPTS .. "WeaponSets.lua")
+if not ok then print("ERROR loading WeaponSets.lua: " .. tostring(err)) end
+print("WeaponSets loaded")
+
+ok, err = pcall(dofile_stripbom, SCRIPTS .. "WeaponUpgradeData.lua")
+if not ok then print("ERROR loading WeaponUpgradeData.lua: " .. tostring(err)) end
+print("WeaponUpgradeData loaded")
+
 print("== Dumping ==")
 writeFile("h1_TraitData.json", json_encode_object(TraitData))
 writeFile("h1_LootData.json", json_encode_object(LootData or {}))
@@ -92,6 +104,8 @@ writeFile("h1_GiftData.json", json_encode_object(GiftData or {}))
 writeFile("h1_GiftOrdering.json", json_encode(GiftOrdering or {}))
 writeFile("h1_MetaUpgradeData.json", json_encode_object(MetaUpgradeData or {}))
 writeFile("h1_MetaUpgradeOrder.json", json_encode(MetaUpgradeOrder or {}))
+writeFile("h1_WeaponSets.json", json_encode_object(WeaponSets or {}))
+writeFile("h1_WeaponUpgradeData.json", json_encode_object(WeaponUpgradeData or {}))
 -- Which build this data came from. Carries no timestamp and no paths: a
 -- timestamp would make two dumps of the same build differ, which would cost the
 -- drift check its byte comparison over this file, and a path would put somebody's

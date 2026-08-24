@@ -121,6 +121,13 @@ end
 local ok, err = pcall(dofile_stripbom, SCRIPTS .. "KeepsakeData.lua")
 if not ok then print("ERROR loading KeepsakeData.lua: " .. tostring(err)) end
 
+-- 6. WeaponUpgradeData.lua, for the aspects. Nothing on a Hades II aspect
+-- record names its weapon -- no clause, no inherited base, only an id prefix
+-- that two records do not follow -- so this screen's own display order is the
+-- one place the pairing is written down.
+ok, err = pcall(dofile_stripbom, SCRIPTS .. "WeaponUpgradeData.lua")
+if not ok then print("ERROR loading WeaponUpgradeData.lua: " .. tostring(err)) end
+
 print("== Dumping ==")
 writeFile("h2_TraitData.json", json_encode_object(TraitData))
 writeFile("h2_TraitSetData.json", json_encode_object(TraitSetData or {}))
@@ -129,6 +136,13 @@ writeFile("h2_Color.json", json_encode_object(Color or {}))
 writeFile("h2_LinkedTraitData.json", json_encode_object(LinkedTraitData or {}))
 writeFile("h2_TraitRequirements.json", json_encode_object(TraitRequirements or {}))
 writeFile("h2_GiftData.json", json_encode_object(GiftData or {}))
+-- The two fields of that screen that say anything about the game rather than
+-- about its presentation. Dumping the whole screen would carry a few hundred
+-- keys of layout and a proxy for every sibling screen it borrows text from.
+writeFile("h2_WeaponAspects.json", json_encode_object({
+	DisplayOrder = (ScreenData.WeaponUpgradeScreen or {}).DisplayOrder or {},
+	FreeUnlocks = (ScreenData.WeaponUpgradeScreen or {}).FreeUnlocks or {},
+}))
 -- Which build this data came from. Carries no timestamp and no paths: a
 -- timestamp would make two dumps of the same build differ, which would cost the
 -- drift check its byte comparison over this file, and a path would put somebody's

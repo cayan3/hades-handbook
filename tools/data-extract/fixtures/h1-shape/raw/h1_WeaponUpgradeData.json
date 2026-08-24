@@ -1,0 +1,1 @@
+{"DefaultGameStateRequirement":{"RequiredTrueFlags":["FormsUnlocked"]},"GlaiveWeapon":[{"Costs":[1,1,1],"Image":"Codex_Portrait_Glaive","RequiredInvestmentTraitName":"GlaiveBaseUpgradeTrait"},{"Costs":[1,2,3],"Image":"Codex_Portrait_GlaiveAlt01","TraitName":"GlaiveTwinTrait"}]}

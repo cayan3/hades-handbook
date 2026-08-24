@@ -1,0 +1,11 @@
+{
+ "GlaiveWeapon": {
+  "aspects": [
+   "GlaiveBaseUpgradeTrait",
+   "GlaiveTwinTrait"
+  ],
+  "id": "GlaiveWeapon",
+  "name": null,
+  "source": "Scripts/WeaponUpgradeData.lua:13"
+ }
+}

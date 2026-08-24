@@ -97,6 +97,17 @@ TraitData = {}
 TraitSetData = {}
 LootSetData = {}
 
+-- Hades II hangs its weapon-aspect list off ScreenData, a namespace we do not
+-- otherwise load. A bare proxy will not do: the file assigns into it, and every
+-- read of a proxy field builds a fresh proxy, so the assignment would be lost
+-- and the table would dump as an unresolved reference. Reads of what we have
+-- not loaded still yield a proxy, which is what the same file's references to
+-- its sibling screens need.
+ScreenData = setmetatable({}, {
+	__index = function(t, k) return makeProxy("G.ScreenData." .. tostring(k)) end,
+	__newindex = rawset,
+})
+
 setmetatable(_G, {
 	__index = function(t, k)
 		return makeProxy("G." .. tostring(k))

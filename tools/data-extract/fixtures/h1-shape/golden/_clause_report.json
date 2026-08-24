@@ -4,6 +4,20 @@
  "buildFailureCount": 0,
  "buildFailures": [],
  "discardedClausesByReason": {
+  "the weapon this trait belongs to": {
+   "count": 3,
+   "ids": [
+    "GlaiveReachTrait",
+    "GlaiveTwinTrait",
+    "GlaiveVolleyTrait"
+   ]
+  },
+  "the weapons this trait belongs to": {
+   "count": 1,
+   "ids": [
+    "GlaiveHurlTrait"
+   ]
+  },
   "what the room is currently offering": {
    "count": 1,
    "ids": [

@@ -102,6 +102,18 @@ TraitData =
 	-- narrative-cameo base (mirrors Hades II's InPersonOlympianTrait):
 	-- anything inheriting this is a one-off story boon, not a rotating pool
 	-- god. Coverage #14.
+	-- The base every hammer upgrade inherits, and the base every weapon form
+	-- inherits. Neither is offerable itself.
+	WeaponTrait =
+	{
+		DebugOnly = true,
+	},
+
+	WeaponEnchantmentTrait =
+	{
+		DebugOnly = true,
+	},
+
 	CameoBoonBase =
 	{
 		DebugOnly = true,

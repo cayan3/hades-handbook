@@ -31,6 +31,10 @@ TraitData = load("h1_TraitData.json")
 LootData = load("h1_LootData.json")
 Color = load("h1_Color.json")
 GiftData = load("h1_GiftData.json")
+# Absent from a dump taken before these files were loaded, so an older raw tree
+# still normalizes -- it just emits no weapons and no weapon on any record.
+WeaponSets = load("h1_WeaponSets.json") if os.path.exists(RAW + "h1_WeaponSets.json") else {}
+WeaponUpgradeData = load("h1_WeaponUpgradeData.json") if os.path.exists(RAW + "h1_WeaponUpgradeData.json") else {}
 
 REL_SCRIPTS = "Scripts/"
 
@@ -420,18 +424,106 @@ def inherit_chain_h1(trait_id, _visited=None, _depth=0):
         chain.extend(inherit_chain_h1(p, _visited, _depth + 1))
     return chain
 
-# A Daedalus hammer upgrade. Its pool is derived from the weapon itself instead
-# of listed in any loot table & hammers aren't actually modelled in v1, so a
-# negation edge that touches one isn't actually a constraint this catalog
-# carries (at least rn).
-def is_hammer(trait_id):
-    return "WeaponTrait" in inherit_chain_h1(trait_id)
-
 # A weapon aspect. Two aspects of the same weapon already exclude each other
 # since a run uses exactly one weapon/aspect, so an edge between them wouldn't
 # record anything the model doesn't already know.
 def is_aspect(trait_id):
     return "WeaponEnchantmentTrait" in inherit_chain_h1(trait_id)
+
+# ---------------------------------------------------------------------------
+# Weapons
+# ---------------------------------------------------------------------------
+# The container for a record with no god. `WeaponUpgradeData` is keyed by the
+# six base weapons and lists each one's four aspects, so it names both the
+# weapons and half of what belongs to them; a hammer names its own weapon on
+# its record instead.
+
+# Equipping a weapon also grants the linked weapons of its set -- the Bow's
+# BowSplitShot, the Spear's SpearWeaponThrow -- and a hammer for one of those
+# names the linked weapon rather than the base. `HeroWeaponSets` is the game's
+# own mapping and folds them back. Names outside it (`RangedWeapon`, which two
+# aspects add a mode of) fold to nothing and are dropped by the caller.
+WEAPON_IDS = [k for k in sorted(WeaponUpgradeData) if isinstance(WeaponUpgradeData[k], list)]
+weapon_of_linked = {w: w for w in WEAPON_IDS}
+for _base, _linked in (WeaponSets.get("HeroWeaponSets") or {}).items():
+    if _base in weapon_of_linked and isinstance(_linked, list):
+        for _name in _linked:
+            weapon_of_linked.setdefault(_name, _base)
+
+
+def declared_weapon_h1(trait_id):
+    """The weapon a record names, folded onto a base weapon, or None.
+
+    Answers a set rather than a name so the caller can tell "says nothing"
+    from "says two things"; the second would be a patch giving one trait to
+    two weapons, which nothing downstream is shaped for.
+    """
+    data = TraitData.get(trait_id)
+    if not isinstance(data, dict):
+        return set()
+    declared = data.get("RequiredWeapon") or data.get("RequiredWeapons")
+    if declared is None:
+        return set()
+    names = [declared] if isinstance(declared, str) else declared
+    return {weapon_of_linked[n] for n in names if n in weapon_of_linked}
+
+
+# Aspect -> its weapon, from the table. This is the only signal for the six
+# base forms, which share one display name across all six weapons and carry no
+# weapon clause at all.
+weapon_of_aspect = {}
+for _weapon in WEAPON_IDS:
+    for _entry in WeaponUpgradeData[_weapon]:
+        if not isinstance(_entry, dict):
+            continue
+        # The base form is named as the investment the weapon needs rather than
+        # as an upgrade of it, so both keys are read.
+        _name = _entry.get("TraitName") or _entry.get("RequiredInvestmentTraitName")
+        if isinstance(_name, str):
+            weapon_of_aspect[_name] = _weapon
+
+
+def weapon_for_h1(trait_id):
+    """Which weapon this record belongs to, or None if it belongs to none.
+
+    The two signals are held against each other wherever both speak, which is
+    21 of the 24 aspects. A disagreement is a patch moving a form between
+    weapons and stops the run rather than picking a winner.
+    """
+    from_table = weapon_of_aspect.get(trait_id)
+    declared = declared_weapon_h1(trait_id)
+    if len(declared) > 1:
+        sys.exit("normalize_h1: %s names %d weapons; a record belongs to one"
+                 % (trait_id, len(declared)))
+    from_record = next(iter(declared), None)
+    if from_table and from_record and from_table != from_record:
+        sys.exit("normalize_h1: %s is listed under %s and names %s"
+                 % (trait_id, from_table, from_record))
+    return from_table or from_record
+
+
+weapon_line = index_keys_at_depth(SCRIPTS + "WeaponUpgradeData.lua", 1)
+weapons = {}
+for _weapon in WEAPON_IDS:
+    _line = weapon_line.get(_weapon)
+    weapons[_weapon] = {
+        "id": _weapon,
+        "name": resolve_display_name(text_bundle_raw, _weapon),
+        # The table's own order, which is the order the game's own screen draws
+        # them in and the order the base form comes first in.
+        "aspects": [
+            n for n in (
+                (e.get("TraitName") or e.get("RequiredInvestmentTraitName"))
+                for e in WeaponUpgradeData[_weapon] if isinstance(e, dict)
+            ) if isinstance(n, str)
+        ],
+        "source": ("%sWeaponUpgradeData.lua:%d" % (REL_SCRIPTS, _line) if _line
+                   else "%sWeaponUpgradeData.lua" % REL_SCRIPTS),
+    }
+
+with open(OUT + "weapons.json", "w") as f:
+    json.dump(weapons, f, indent=1, sort_keys=True)
+    f.write("\n")
 
 # What can be held in each slot (for the clause that asks if a slot is filled
 # instead of just naming a trait). This is built from the data itself yay (even
@@ -577,6 +669,11 @@ for tid, data in TraitData.items():
         # among the boons a run holds. Hades II already marks its own; this is
         # what lets a picker find one and a mark refuse it.
         "slot": "Aspect" if is_aspect(tid) else get_slot_h1(tid),
+        # Which weapon it belongs to, for a record that belongs to one instead
+        # of to a god. The clause naming it stays discarded from `prereq`: the
+        # weapon is chosen before the run, so it gates nothing during one --
+        # it says where the record lives, which is a different question.
+        "weapon": weapon_for_h1(tid),
         "tier": None,
         "rarity": get_rarity_h1(tid),
         "exclusiveGroup": None,
@@ -600,7 +697,6 @@ for tid, data in TraitData.items():
 exclusive_groups, blocked_by, aspect_conflicts, dropped_edges, no_duplicate_gates = requirements.resolve_negations(
     declared_negations,
     removable=REMOVABLE_BLOCKERS,
-    is_out_of_scope=is_hammer,
     is_aspect=is_aspect,
 )
 for tid, group in exclusive_groups.items():
@@ -660,4 +756,5 @@ with open(OUT + "descriptions.json", "w") as f:
     f.write("\n")
 
 print("H1 boon records:", len(boons), "excluded (keepsakes, emitted separately):", len(skipped_keepsakes_in_main_catalog))
+print("H1 weapons:", len(weapons), "records naming one:", sum(1 for r in boons.values() if r["weapon"]))
 print("H1 descriptions:", len(descriptions))

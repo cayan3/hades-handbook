@@ -186,10 +186,10 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                   raw_defs=None, loot_membership=None, external_references=None,
                   aspect_ids=None, godsent_hexes_expected=None,
                   duo_boons_expected=None, descriptions=None, talents=None,
-                  mirror_rows=None):
+                  mirror_rows=None, weapons=None):
     """Check one game's emitted catalog. Returns (report, fatal messages).
 
-    The nine trailing arguments are the inputs a check needs that the emitted
+    The ten trailing arguments are the inputs a check needs that the emitted
     catalog does not carry. Each is optional, and the checks that need one are
     skipped when it is absent: the fixtures do not have a whole game's scripts
     to scan, and a check that could not run is a different thing from one that
@@ -613,6 +613,33 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
                 fatal.append("%s Mirror row positions are %r, not one per row from 0"
                              % (game_key, positions))
 
+    # 19a. Weapons, which are the container for a record with no god. Both
+    # halves of the pairing are checked: a record filed under a weapon nothing
+    # emitted would draw on no page, and a weapon listing an aspect with no
+    # record would draw an empty tile. Neither is visible from one side.
+    if weapons is not None:
+        report["weaponCount"] = len(weapons)
+        filed = sorted(bid for bid, b in boons.items() if b.get("weapon"))
+        report["boonsNamingAWeaponCount"] = len(filed)
+        for bid in filed:
+            if boons[bid]["weapon"] not in weapons:
+                fatal.append("%s %s is filed under the weapon %s, which has no record"
+                             % (game_key, bid, boons[bid]["weapon"]))
+        for weapon_id, weapon in sorted(weapons.items()):
+            for aspect in weapon.get("aspects") or []:
+                if aspect not in boons:
+                    fatal.append("%s weapon %s lists the aspect %s, which has no record"
+                                 % (game_key, weapon_id, aspect))
+                elif boons[aspect].get("weapon") != weapon_id:
+                    fatal.append("%s weapon %s lists %s, which is filed under %s"
+                                 % (game_key, weapon_id, aspect, boons[aspect].get("weapon")))
+        # A form is equipped rather than picked up, so one nobody can place is
+        # a form no weapon offers. Advisory: Hades I has one, a cut aspect
+        # whose entry in the weapon table is commented out.
+        report["aspectsWithNoWeapon"] = sorted(
+            bid for bid, b in boons.items() if b.get("slot") == "Aspect" and not b.get("weapon")
+        )
+
     # 20. what a trait adds to the element counts. The run's five counts are
     # derived from the boons it holds, so a grant naming an element nothing
     # knows is a boon whose contribution silently lands nowhere.
@@ -829,6 +856,7 @@ def main():
         descriptions=_load_optional(OUT + "hades2/descriptions.json"),
         talents=_load_optional(OUT + "hades2/talents.json"),
         mirror_rows=_load_optional(OUT + "hades2/mirror_rows.json"),
+        weapons=_load_optional(OUT + "hades2/weapons.json"),
     )
     h2_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h2_defs)
 
@@ -910,6 +938,7 @@ def main():
         descriptions=_load_optional(OUT + "hades1/descriptions.json"),
         talents=_load_optional(OUT + "hades1/talents.json"),
         mirror_rows=_load_optional(OUT + "hades1/mirror_rows.json"),
+        weapons=_load_optional(OUT + "hades1/weapons.json"),
     )
     h1_report["unconsumedClauseKeys"] = unconsumed_clause_keys(h1_defs, (h1_loot,))
 

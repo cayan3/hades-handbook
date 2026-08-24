@@ -24,7 +24,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData.lua:126",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AuricGroveTrait": {
   "activation": null,
@@ -51,7 +52,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData.lua:136",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "AuricRootTrait": {
   "activation": null,
@@ -78,7 +80,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData.lua:119",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FennickHasteTrait": {
   "activation": null,
@@ -118,7 +121,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:210",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "FennickSwiftTrait": {
   "activation": null,
@@ -145,7 +149,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:149",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "GiftTrait": {
   "activation": null,
@@ -167,7 +172,123 @@
   "rarity": [],
   "slot": null,
   "source": "Scripts/TraitData.lua:190",
-  "tier": null
+  "tier": null,
+  "weapon": null
+ },
+ "GlaiveBaseUpgradeTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "WeaponEnchantment_Glaive_00",
+  "id": "GlaiveBaseUpgradeTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": "Aspect",
+  "source": "Scripts/TraitData.lua:275",
+  "tier": null,
+  "weapon": "GlaiveWeapon"
+ },
+ "GlaiveHurlTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Weapon_Glaive_03",
+  "id": "GlaiveHurlTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:255",
+  "tier": null,
+  "weapon": "GlaiveWeapon"
+ },
+ "GlaiveReachTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Weapon_Glaive_01",
+  "id": "GlaiveReachTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:233",
+  "tier": null,
+  "weapon": "GlaiveWeapon"
+ },
+ "GlaiveTwinTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "WeaponEnchantment_Glaive_01",
+  "id": "GlaiveTwinTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": "Aspect",
+  "source": "Scripts/TraitData.lua:265",
+  "tier": null,
+  "weapon": "GlaiveWeapon"
+ },
+ "GlaiveVolleyTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Weapon_Glaive_02",
+  "id": "GlaiveVolleyTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:244",
+  "tier": null,
+  "weapon": "GlaiveWeapon"
  },
  "SableAuricBloomTrait": {
   "activation": null,
@@ -191,7 +312,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:113",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SableDebugTrait": {
   "activation": null,
@@ -218,7 +340,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:158",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SableEmberComboTrait": {
   "activation": null,
@@ -260,7 +383,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:91",
-  "tier": 2
+  "tier": 2,
+  "weapon": null
  },
  "SableEmberTrait": {
   "activation": null,
@@ -287,7 +411,8 @@
   ],
   "slot": "Melee",
   "source": "Scripts/TraitData.lua:50",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SableFlareTrait": {
   "activation": null,
@@ -314,7 +439,8 @@
   ],
   "slot": "Secondary",
   "source": "Scripts/TraitData.lua:57",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SableMirageTrait": {
   "activation": null,
@@ -354,7 +480,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:169",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SablePyreTrait": {
   "activation": null,
@@ -421,7 +548,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:80",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SableTideTrait": {
   "activation": null,
@@ -448,7 +576,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:181",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "SableWardenTrait": {
   "activation": null,
@@ -478,7 +607,8 @@
   ],
   "slot": "Ranged",
   "source": "Scripts/TraitData.lua:67",
-  "tier": 1
+  "tier": 1,
+  "weapon": null
  },
  "ShopTier1Trait": {
   "activation": null,
@@ -505,7 +635,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:11",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "ShopTier3Trait": {
   "activation": null,
@@ -529,7 +660,8 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:23",
-  "tier": null
+  "tier": null,
+  "weapon": null
  },
  "SynergyTraitTemplate": {
   "activation": null,
@@ -553,6 +685,53 @@
   ],
   "slot": null,
   "source": "Scripts/TraitData.lua:36",
-  "tier": null
+  "tier": null,
+  "weapon": null
+ },
+ "WeaponEnchantmentTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "WeaponEnchantment_Base",
+  "id": "WeaponEnchantmentTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:225",
+  "tier": null,
+  "weapon": null
+ },
+ "WeaponTrait": {
+  "activation": null,
+  "aspectConflicts": null,
+  "blockedBy": null,
+  "boonCategory": "NonStandard",
+  "descriptionRef": null,
+  "duoGods": null,
+  "elementAffinity": null,
+  "elementGrants": [],
+  "exclusiveGroup": null,
+  "god": null,
+  "godKind": null,
+  "icon": "Weapon_Base",
+  "id": "WeaponTrait",
+  "name": null,
+  "prereq": null,
+  "prereqSource": null,
+  "rarity": [],
+  "slot": null,
+  "source": "Scripts/TraitData.lua:220",
+  "tier": null,
+  "weapon": null
  }
 }

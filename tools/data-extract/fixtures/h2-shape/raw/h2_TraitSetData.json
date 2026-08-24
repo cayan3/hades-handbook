@@ -1,1 +1,1 @@
-{}
+{"Aspects":{"GlaiveBaseAspect":{"Icon":"WeaponEnchantment_Glaive_00","InheritFrom":["WeaponEnchantmentTrait"],"RequiredWeapon":"WeaponGlaive"},"GlaiveTwinAspect":{"Icon":"WeaponEnchantment_Glaive_01","InheritFrom":["WeaponEnchantmentTrait"],"RequiredWeapon":"WeaponGlaive"}}}

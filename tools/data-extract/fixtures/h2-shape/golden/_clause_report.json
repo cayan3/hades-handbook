@@ -19,7 +19,15 @@
    "stage": "prereq"
   }
  ],
- "discardedClausesByReason": {},
+ "discardedClausesByReason": {
+  "the weapon this trait belongs to": {
+   "count": 2,
+   "ids": [
+    "GlaiveReachTrait",
+    "GlaiveVolleyTrait"
+   ]
+  }
+ },
  "exclusiveGroupCount": 3,
  "negationEdgesDropped": [],
  "noDuplicateGates": []

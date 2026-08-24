@@ -803,3 +803,68 @@ def test_the_duo_count_is_skipped_where_no_population_is_expected():
     report, fatal = check_duos(a_catalog_of_duos(3))
     assert "duoBoonCount" not in report
     assert fatal == []
+
+
+# ---------------------------------------------------------------------------
+# Weapons, which are the container for a record with no god
+# ---------------------------------------------------------------------------
+
+def weapon(**fields):
+    record = {"id": "W", "name": "W", "aspects": [], "source": "Scripts/WeaponUpgradeData.lua:1"}
+    record.update(fields)
+    return record
+
+
+def test_a_record_filed_under_a_weapon_nobody_emitted_stops_the_run():
+    """It would draw on no page at all. A god that goes missing is loud —
+    every view is keyed by one — but a weapon is read only by the tab that
+    lists it, and a record no tab lists simply stops appearing."""
+    report, fatal = check(
+        {"Hammer": boon(id="Hammer", weapon="GlaiveWeapon")},
+        weapons={"CoilWeapon": weapon(id="CoilWeapon")},
+    )
+    assert report["boonsNamingAWeaponCount"] == 1
+    assert any("no record" in f and "GlaiveWeapon" in f for f in fatal)
+
+
+def test_a_weapon_listing_an_aspect_nobody_emitted_stops_the_run():
+    """The other direction, which the check above cannot see: the weapon's
+    list is what a page draws, so a name with nothing behind it is a tile with
+    no boon in it rather than a boon with no tile."""
+    report, fatal = check(
+        {}, weapons={"GlaiveWeapon": weapon(id="GlaiveWeapon", aspects=["GlaiveTwinTrait"])},
+    )
+    assert any("GlaiveTwinTrait" in f and "no record" in f for f in fatal)
+
+
+def test_a_weapon_listing_an_aspect_filed_elsewhere_stops_the_run():
+    """Both halves exist and disagree, which is the shape a patch moving a
+    form between weapons makes. Hades II states an aspect's weapon twice and
+    this is the only thing holding the two together."""
+    report, fatal = check(
+        {"GlaiveTwinTrait": boon(id="GlaiveTwinTrait", weapon="CoilWeapon", slot="Aspect")},
+        weapons={
+            "GlaiveWeapon": weapon(id="GlaiveWeapon", aspects=["GlaiveTwinTrait"]),
+            "CoilWeapon": weapon(id="CoilWeapon"),
+        },
+    )
+    assert any("is filed under CoilWeapon" in f for f in fatal)
+
+
+def test_a_form_no_weapon_offers_is_reported_and_does_not_stop_the_run():
+    """Advisory: Hades I has one, a cut form whose entry in the weapon table
+    is commented out, so the record exists and nothing offers it."""
+    report, fatal = check(
+        {"Cut": boon(id="Cut", slot="Aspect", weapon=None)},
+        weapons={"GlaiveWeapon": weapon(id="GlaiveWeapon")},
+    )
+    assert report["aspectsWithNoWeapon"] == ["Cut"]
+    assert fatal == []
+
+
+def test_the_weapon_checks_are_skipped_where_no_table_was_emitted():
+    """A check that could not run is a different thing from one that passed,
+    and a raw tree dumped before the weapon files were read has no table."""
+    report, fatal = check({"Hammer": boon(id="Hammer", weapon="GlaiveWeapon")})
+    assert "weaponCount" not in report
+    assert fatal == []
