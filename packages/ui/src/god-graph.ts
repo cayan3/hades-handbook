@@ -1,5 +1,5 @@
-import { keepsakesFor } from "@repo/catalog";
-import type { GodId, Requirement, RunFacts, Status, TraitId } from "@repo/core";
+import { keepsakesFor, weaponFor } from "@repo/catalog";
+import type { GodId, Requirement, RunFacts, Status, TraitId, WeaponId } from "@repo/core";
 import { evaluate } from "@repo/core";
 import { type Step, stepIndex } from "./keys.js";
 import { hexOf, kindOf, type NodeKind, type NodeSource } from "./node-view.js";
@@ -16,7 +16,12 @@ import { hexOf, kindOf, type NodeKind, type NodeSource } from "./node-view.js";
  * lookups. The node views are the expensive part and have their own cache.
  */
 export interface GodGraph {
-  readonly god: GodId;
+  /**
+   * Null on a weapon's page, which carries records belonging to no god. The
+   * palette already answers a neutral for that case, an invented hue reading as
+   * identity and a shared one as a relationship.
+   */
+  readonly god: GodId | null;
   readonly bands: readonly GraphBand[];
   /** Every connector on the page, drawn or not — see `neighbourhood`. */
   readonly edges: readonly GraphEdge[];
@@ -27,7 +32,7 @@ export interface GodGraph {
  * layer is this page's own arithmetic and the game never shows a player a rank.
  * The other three name categories the game does.
  */
-export type BandKind = "tier" | "legendary" | "infusion" | "duo";
+export type BandKind = "tier" | "legendary" | "infusion" | "duo" | "aspect";
 
 export interface GraphBand {
   /** Stable across renders; never drawn. */
@@ -151,6 +156,93 @@ export function pageTraits(source: NodeSource, god: GodId): TraitId[] {
 /** Every trait the graph draws, so a caller derives exactly the views it needs. */
 export function graphTraits(graph: GodGraph): TraitId[] {
   return graph.bands.flatMap((band) => band.members.map((member) => member.trait));
+}
+
+/**
+ * Every record a weapon's page draws: its forms and its hammer upgrades.
+ *
+ * The mirror of `pageTraits`, and the two are disjoint by construction — the
+ * extractor never gives a record both a god and a weapon, and a page keyed on
+ * either field therefore cannot draw the same node twice. Forms are kept here
+ * where the god page drops them: a form belongs to a weapon and to nothing
+ * else, so this is the only page that can show one.
+ *
+ * Nameless records are left out for the god page's reason. 22 Hades I hammers
+ * and 3 of its forms have no entry in the text bundle at all — templates and
+ * cut content — and a node with no name is one nobody can act on.
+ */
+export function weaponTraits(source: NodeSource, weapon: WeaponId): TraitId[] {
+  const found: TraitId[] = [];
+  for (const [id, record] of Object.entries(source.records)) {
+    if (record.weapon !== weapon || record.name === null) continue;
+    found.push(id);
+  }
+  return found;
+}
+
+/**
+ * A weapon's page, drawn with the god page's own machinery.
+ *
+ * The node, edge and state language is deliberately unchanged: this is the same
+ * question about a different population, and a second vocabulary for it would
+ * be two ways to read one drawing. What differs is the population and the
+ * absence of a hue — a weapon is not a god and an invented colour would read as
+ * one.
+ *
+ * Most of these pages draw few connectors and some draw none: 11 Hades I
+ * hammers carry a prerequisite and no Hades II hammer does. That is the data
+ * being what it is rather than the page failing to find something, and the
+ * layout already handles a band with no edges into it.
+ */
+export function weaponGraph(
+  source: NodeSource,
+  weapon: WeaponId,
+  facts: RunFacts,
+  coreSlots: readonly string[] = [],
+): GodGraph {
+  const traits = weaponTraits(source, weapon);
+  const onPage = new Set(traits);
+
+  const junctions: GraphJunction[] = [];
+  const edges: GraphEdge[] = [];
+  const seen = new Set<string>();
+
+  for (const trait of traits) {
+    const prereq = source.records[trait]?.prereq;
+    if (prereq == null) continue;
+    for (const edge of walk(source, facts, onPage, trait, prereq, junctions)) {
+      if (seen.has(edge.id)) continue;
+      seen.add(edge.id);
+      edges.push(edge);
+    }
+  }
+
+  const bands = layOut(source, null, traits, junctions, edges, coreSlots);
+  return { god: null, bands: bands.map((band) => inWeaponOrder(source, weapon, band)), edges };
+}
+
+/**
+ * The forms of a weapon in the order that weapon offers them, which is the one
+ * thing the weapon table says that the records cannot.
+ *
+ * The band arithmetic puts a node with no prerequisite above it at the end in
+ * name order, and no form has one — so left alone the four sort alphabetically
+ * and the free one, which the game draws first, lands wherever its name falls.
+ * Every other band keeps the layout's own order, that being an answer about
+ * prerequisites rather than about a menu.
+ */
+function inWeaponOrder(source: NodeSource, weapon: WeaponId, band: GraphBand): GraphBand {
+  if (band.kind !== "aspect") return band;
+  const order = weaponOrder(source, weapon);
+  const members = [...band.members].sort(
+    (a, b) => (order.get(a.trait) ?? order.size) - (order.get(b.trait) ?? order.size),
+  );
+  return { ...band, members };
+}
+
+function weaponOrder(source: NodeSource, weapon: WeaponId): ReadonlyMap<TraitId, number> {
+  const record = weaponFor(source.game, weapon);
+  return new Map((record?.aspects ?? []).map((aspect, at) => [aspect, at]));
 }
 
 /**
@@ -309,6 +401,9 @@ function otherwise(source: NodeSource, req: Requirement, shown: TraitId): string
  * catches only the first. Hades II carries 11 and Hades I none.
  */
 function bandOf(source: NodeSource, trait: TraitId): BandKind {
+  // Asked before the rarity question below, which every Hades I form answers
+  // `Perfect` to and would otherwise sort among the ordinary offers.
+  if (source.records[trait]?.slot === "Aspect") return "aspect";
   const kind = kindOf(source.records[trait]);
   // A Godsent Hex rides the rim beside the Duos: it answers to a god and to
   // Selene both, so it is the same kind of thing as a Duo — a boon reached from
@@ -376,9 +471,13 @@ const LABELS: Readonly<Record<BandKind, string | null>> = {
   legendary: "Legendaries",
   infusion: "Infusions",
   duo: "Duos and Godsent Hexes",
+  aspect: "Aspects",
 };
 
 const ORDER: Readonly<Record<BandKind, number>> = {
+  // A form is chosen before the run and every hammer offered after it depends
+  // on which one, so it leads the page rather than riding a rim at the bottom.
+  aspect: -1,
   tier: 0,
   legendary: 1,
   infusion: 2,
@@ -392,7 +491,7 @@ const ORDER: Readonly<Record<BandKind, number>> = {
  */
 function layOut(
   source: NodeSource,
-  god: GodId,
+  god: GodId | null,
   traits: readonly TraitId[],
   junctions: readonly GraphJunction[],
   edges: readonly GraphEdge[],
@@ -494,9 +593,9 @@ function barycentre(positions: readonly number[] | undefined): number {
 }
 
 /** The other god of a Duo. Null for everything else, which is every other band. */
-function partnerOf(source: NodeSource, god: GodId, trait: TraitId): GodId | null {
+function partnerOf(source: NodeSource, god: GodId | null, trait: TraitId): GodId | null {
   const pair = source.records[trait]?.duoGods;
-  if (pair == null) return null;
+  if (pair == null || god === null) return null;
   return pair.find((other) => other !== god) ?? null;
 }
 

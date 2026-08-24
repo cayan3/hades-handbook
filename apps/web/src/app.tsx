@@ -1,4 +1,4 @@
-import { createLookups, traitsFor } from "@repo/catalog";
+import { createLookups, traitsFor, weaponsFor } from "@repo/catalog";
 import type { GameId, Rarity, RunFacts, TraitId } from "@repo/core";
 import { createRules as hades1Rules } from "@repo/rules-hades1";
 import { createRules as hades2Rules } from "@repo/rules-hades2";
@@ -37,6 +37,7 @@ import {
   godGraph,
   godStep,
   graphTraits,
+  weaponGraph,
   migrationMessage,
   useHoverDisclosure,
 } from "@repo/ui";
@@ -138,12 +139,18 @@ function barOrder(known: readonly string[], pool: ReadonlySet<string>, curated: 
  * and every pool question are all keyed by a god's name, and a pseudo-god would
  * reach all three.
  */
-type Selection = { readonly kind: "hub" } | { readonly kind: "god"; readonly god: string };
+type Selection =
+  | { readonly kind: "hub" }
+  | { readonly kind: "god"; readonly god: string }
+  | { readonly kind: "weapon"; readonly weapon: string };
 
 const HUB: Selection = { kind: "hub" };
 
 function sameTab(a: Selection, b: Selection): boolean {
-  return a.kind === "god" ? b.kind === "god" && b.god === a.god : b.kind === "hub";
+  if (a.kind !== b.kind) return false;
+  if (a.kind === "god") return b.kind === "god" && b.god === a.god;
+  if (a.kind === "weapon") return b.kind === "weapon" && b.weapon === a.weapon;
+  return true;
 }
 
 export interface AppProps {
@@ -370,9 +377,18 @@ function Run({
    * the run is what makes "the bar is never empty" structural, and it is what
    * the brackets step onto.
    */
+  /**
+   * The weapons, which need no curating: six per game and every run is played
+   * with one, so the whole set is on the bar and there is nothing for a picker
+   * to hold. They come after the gods rather than before because the gods are
+   * what a run collects and this is what it was started with.
+   */
+  const weapons = weaponsFor(game);
+
   const bar: readonly Selection[] = [
     HUB,
     ...shownTabs.map((god) => ({ kind: "god", god }) as const),
+    ...weapons.map((weapon) => ({ kind: "weapon", weapon: weapon.id }) as const),
   ];
 
   /**
@@ -383,6 +399,7 @@ function Run({
    */
   const showing = bar.find((tab) => sameTab(tab, selected)) ?? HUB;
   const showingGod = showing.kind === "god" ? showing.god : null;
+  const showingWeapon = showing.kind === "weapon" ? showing.weapon : null;
   // One cache for the whole page. What makes keying it on facts identity sound
   // is a property of the layer below, and is written down there.
   const cache = useMemo(() => createNodeCache(source), [source]);
@@ -391,13 +408,18 @@ function Run({
   // connectors carry path status and that is a fact about the run. Null is
   // exactly Hub, which draws no graph — keyed on the god's name rather than on
   // the selection, an object being a fresh one every render.
-  const page = useMemo(
-    () =>
-      showingGod === null
-        ? null
-        : { god: showingGod, graph: godGraph(source, showingGod, facts, CORE_SLOTS[game]) },
-    [source, showingGod, facts, game],
-  );
+  const page = useMemo(() => {
+    if (showingGod !== null) {
+      return { god: showingGod, graph: godGraph(source, showingGod, facts, CORE_SLOTS[game]) };
+    }
+    if (showingWeapon !== null) {
+      return {
+        god: null,
+        graph: weaponGraph(source, showingWeapon, facts, CORE_SLOTS[game]),
+      };
+    }
+    return null;
+  }, [source, showingGod, showingWeapon, facts, game]);
   const boonViews = useMemo(
     () =>
       new Map((page === null ? [] : graphTraits(page.graph)).map((trait) => [trait, view(trait)])),
@@ -690,6 +712,35 @@ function Run({
                 </button>
               </span>
               ))}
+              {/* One per weapon, after the gods and never removable: the set is
+                  closed and every run is played with one of them, so there is
+                  nothing here for a player to curate and no picker to hold what
+                  is left over. No hue — a weapon is not a god, and an invented
+                  colour would read as identity. */}
+              {weapons.map((weapon) => (
+                <button
+                  key={weapon.id}
+                  type="button"
+                  className="app__godtab app__weapontab"
+                  aria-current={weapon.id === showingWeapon ? "page" : undefined}
+                  data-equipped={facts.equipped.weapon === weapon.id}
+                  title={weapon.name ?? weapon.id}
+                  // Which weapon the run is played with is a fact about the run
+                  // and shows on the tab the way the pool does on a god's, so
+                  // it goes in the name for a reader who gets no styling.
+                  aria-label={
+                    facts.equipped.weapon === weapon.id
+                      ? `${weapon.name ?? weapon.id} — your weapon`
+                      : undefined
+                  }
+                  onClick={() => setSelected({ kind: "weapon", weapon: weapon.id })}
+                >
+                  {/* The name rather than a symbol: the art pipeline's scope was
+                      the god boons, so no weapon has an icon to draw yet and a
+                      placeholder glyph would say less than the word does. */}
+                  <span className="app__weaponname">{weapon.name ?? weapon.id}</span>
+                </button>
+              ))}
               {unshown.length === 0 ? null : (
                 /**
                  * Every god at once is seventeen tabs wrapping over three rows,
@@ -766,7 +817,9 @@ function Run({
             </section>
           ) : (
             <section className="app__ladder">
-              <h2>Boons</h2>
+              {/* A weapon page carries no boon: what is on it is the forms the
+                  weapon can take and the hammer upgrades it is offered. */}
+              <h2>{page.god === null ? "Aspects and hammers" : "Boons"}</h2>
               <GodPage
                 graph={page.graph}
                 views={boonViews}

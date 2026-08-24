@@ -82,6 +82,8 @@ export {
   neighbourhood,
   pageTraits,
   stepThrough,
+  weaponGraph,
+  weaponTraits,
 } from "./god-graph.js";
 export {
   DETAILS_KEY,

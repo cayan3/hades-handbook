@@ -100,6 +100,14 @@ function texts(selector: string): string[] {
   return [...container.querySelectorAll(selector)].map((el) => el.textContent ?? "");
 }
 
+/**
+ * The bar minus its weapon tabs, which is what every assertion about "the tabs
+ * a run has" means. The six weapons are fixed furniture — a closed set, one per
+ * game, none of them removable and none of them curated — so counting them
+ * would make each of these read a constant it is not about.
+ */
+const GOD_TABS = ".app__godtab:not(.app__weapontab)";
+
 /** The first control whose text is exactly this. */
 function control(label: string): HTMLElement {
   const found = [...container.querySelectorAll<HTMLElement>("button")].find(
@@ -1237,7 +1245,7 @@ describe("what the boon list shows", () => {
    */
   it("shows the gods a run has met, and keeps a tab once it is there", async () => {
     await mount();
-    const shown = () => texts(".app__gods button");
+    const shown = () => texts(".app__gods button:not(.app__weapontab)");
     expect(shown()).not.toContain("Ares");
 
     // Added for planning, without having met them. The tab that was showing
@@ -1369,7 +1377,7 @@ describe("what the boon list shows", () => {
     for (const drop of [...container.querySelectorAll<HTMLElement>(".app__goddrop")]) {
       act(() => drop.click());
     }
-    expect(texts(".app__godtab").map((t) => t.trim())).toEqual(["Hub"]);
+    expect(texts(GOD_TABS).map((t) => t.trim())).toEqual(["Hub"]);
     expect(container.querySelector(".app__goddrop")).toBeNull();
   });
 
@@ -1520,20 +1528,29 @@ describe("the page-wide keys", () => {
   const current = () =>
     container.querySelector('.app__godtab[aria-current="page"]')?.textContent?.trim() ?? null;
 
-  it("steps the god bar on the brackets, clamped at both ends", async () => {
+  /**
+   * The whole bar, weapon tabs included: they are tabs, so stepping walks onto
+   * them the way it walks onto the Hub. Driven to each end rather than counting
+   * presses, since the bar's length is the run's business and not this test's.
+   */
+  it("steps the whole bar on the brackets, clamped at both ends", async () => {
     await mount();
     showGod("Athena");
     showGod("Ares");
-    const bar = texts(".app__godtab");
+    const bar = texts(".app__godtab").map((t) => t.trim());
     expect(bar.length).toBeGreaterThan(1);
 
     press("[");
     expect(current()).toBe(bar[bar.indexOf("Ares") - 1]);
     press("]");
     expect(current()).toBe("Ares");
-    // Clamped: pressing past the last tab is not a way round to the first.
-    press("]");
+
+    // Clamped at the far end: pressing past the last tab is not a way round to
+    // the first. One press more than there are tabs, so arriving is certain.
+    for (let step = 0; step <= bar.length; step += 1) press("]");
     expect(current()).toBe(bar[bar.length - 1]);
+    for (let step = 0; step <= bar.length; step += 1) press("[");
+    expect(current()).toBe(bar[0]);
   });
 
   it("opens the shortcut list on its key and closes it on Escape", async () => {
@@ -2030,7 +2047,7 @@ describe("a run that will not open", () => {
  * makes it structural, and this is that promise finally kept.
  */
 describe("an empty bar", () => {
-  const bar = () => texts(".app__godtab").map((t) => t.trim());
+  const bar = () => texts(GOD_TABS).map((t) => t.trim());
 
   it("shows the Hub alone before a run has met anyone", async () => {
     await mount();
@@ -2055,5 +2072,82 @@ describe("an empty bar", () => {
     expect(container.querySelector('.app__godtab[aria-current="page"]')?.textContent?.trim()).toBe(
       "Hub",
     );
+  });
+});
+
+/**
+ * The weapon tabs, which are the container for every record that belongs to no
+ * god. Hammers are the population this exists for and forms are the half that
+ * was already in scope with nowhere to live.
+ */
+describe("the weapon tabs", () => {
+  const weaponTabs = () =>
+    texts(".app__weapontab").map((t) => t.trim());
+
+  it("carries all six, and none of them is removable", async () => {
+    await mount();
+
+    expect(weaponTabs()).toEqual([
+      "Moonstone Axe",
+      "Sister Blades",
+      "Argent Skull",
+      "Witch's Staff",
+      "Black Coat",
+      "Umbral Flames",
+    ]);
+    // The × belongs to a tab a player put up, and nobody put these up.
+    expect(container.querySelectorAll(".app__weapontab .app__goddrop")).toHaveLength(0);
+  });
+
+  it("opens a page of that weapon's forms and hammers", async () => {
+    await mount();
+
+    click("Umbral Flames");
+
+    // Its heading says so: there is no boon on this page.
+    expect(container.querySelector(".app__ladder h2")?.textContent).toBe("Aspects and hammers");
+    // The four forms lead the page, in the game's own order with the free one
+    // first, and they are named where the god page never draws one at all.
+    expect(texts(".godpage__band[data-kind='aspect'] .node__name").map((t) => t.trim())).toEqual([
+      "Aspect of Melinoë",
+      "Aspect of Moros",
+      "Aspect of Eos",
+      "Aspect of Supay",
+    ]);
+    expect(container.querySelectorAll(".godpage__band[data-kind='tier'] .node").length).toBeGreaterThan(5);
+  });
+
+  /**
+   * The two pages read the same records off one table, so a record on both
+   * would be one the run could reach two ways. The extractor makes that
+   * impossible by construction — no record has a god and a weapon — and this
+   * is the surface saying the same thing.
+   */
+  it("draws nothing a god page draws", async () => {
+    await mount();
+    showGod("Aphrodite");
+    const onGod = new Set(texts(".node__name").map((t) => t.trim()));
+
+    click("Black Coat");
+    const onWeapon = texts(".node__name").map((t) => t.trim());
+
+    expect(onWeapon.length).toBeGreaterThan(0);
+    expect(onWeapon.filter((name) => onGod.has(name))).toEqual([]);
+  });
+
+  it("marks a hammer the way a boon is marked", async () => {
+    await mount();
+    click("Umbral Flames");
+    const node = () =>
+      container.querySelector<HTMLElement>(".godpage__band[data-kind='tier'] .node");
+    const hammer = node();
+    if (hammer === null) throw new Error("no hammer on the page to mark");
+    expect(hammer.dataset.state).toBe("Available");
+
+    act(() => hammer.querySelector<HTMLElement>(".node__control")?.click());
+
+    // Straight into the run on one tap, the gesture a boon takes: a hammer
+    // declares no rarity to choose between, so nothing opens first.
+    expect(node()?.dataset.state).toBe("Obtained");
   });
 });
