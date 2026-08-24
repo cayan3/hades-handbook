@@ -150,9 +150,10 @@ def tighten(im, np):
 def wanted(game, scope):
     """Icon keys to extract, and what asks for each.
 
-    A record's god is what separates a boon from the rest of the trait table --
-    hammers, costumes, NPC offerings and weapon traits are attributed to nobody
-    and are out of scope, along with Chaos.
+    A record's god is what separates a boon from the rest of the trait table.
+    Costumes, NPC offerings and Chaos are attributed to nobody and stay out of
+    scope; the weapon-owned half -- hammers and forms -- has its own scope
+    below, now that it has a page to be drawn on.
     """
     boons = json.load(open(os.path.join(CATALOG, game, "boons.json")))
     gods = json.load(open(os.path.join(CATALOG, game, "gods.json")))
@@ -185,6 +186,18 @@ def wanted(game, scope):
         for talent_id, record in talents.items():
             if record.get("icon"):
                 keys.setdefault(record["icon"], []).append("talent:" + talent_id)
+    if scope in ("all", "weapons"):
+        # The hammer upgrades and the weapon forms, which answer to a weapon
+        # rather than to a god and share a page for that reason. Selected by the
+        # field that says so instead of by a name pattern: 245 records across
+        # the two games, and every one of their icon keys resolves.
+        #
+        # Nameless records are left out for the page's own reason -- 22 Hades I
+        # hammers and 3 of its forms are templates and cut content with no entry
+        # in the text bundle, so nothing draws them.
+        for trait_id, record in boons.items():
+            if record.get("weapon") and record.get("name") and record.get("icon"):
+                keys.setdefault(record["icon"], []).append(trait_id)
     if scope in ("all", "marker") and game == "hades2":
         # A goal's own banner, unmet and met. Hades II's alone -- the first game
         # has no such resource and never will.
@@ -261,7 +274,7 @@ def main():
         "--scope",
         choices=(
             "all", "boons", "gods", "keepsakes", "elements", "slots", "chrome",
-            "talents", "marker",
+            "talents", "marker", "weapons",
         ),
         default="all",
     )
