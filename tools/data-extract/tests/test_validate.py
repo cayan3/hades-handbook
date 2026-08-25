@@ -385,14 +385,30 @@ def test_a_named_record_no_source_file_offers_is_listed():
     assert fatal == [], "advisory: the answer is a judgement, not a defect"
 
 
-def test_a_hammer_is_excluded_before_that_test_is_applied():
-    """Their pool is derived from the weapon rather than listed anywhere, so
-    the test says nothing about them."""
+def test_a_hammer_is_counted_on_its_own_line_rather_than_skipped():
+    """It used to be skipped, on the grounds that a hammer's pool is derived
+    from the weapon rather than listed. That left the 24 Hades I hammers the
+    game stopped offering to be found by hand — and the signal turns out to be
+    good: all 82 still offered are referenced outside these files.
+
+    Separate from the list above because the two want reading differently, and
+    because that list is a pinned five."""
+    report, _ = check(
+        {"H": boon(id="H", name="Hammer"), "B": boon(id="B", name="Boon")},
+        raw_defs={"H": {"InheritFrom": ["WeaponTrait"]}, "B": {}},
+        external_references=set(),
+    )
+    assert report["hammersNotReferencedOutsideTraitData"] == ["H"]
+    assert report["boonsNotReferencedOutsideTraitData"] == ["B"]
+
+
+def test_a_hammer_something_hands_out_is_in_neither_list():
     report, _ = check(
         {"H": boon(id="H", name="Hammer")},
         raw_defs={"H": {"InheritFrom": ["WeaponTrait"]}},
-        external_references=set(),
+        external_references={"H"},
     )
+    assert report["hammersNotReferencedOutsideTraitData"] == []
     assert report["boonsNotReferencedOutsideTraitData"] == []
 
 
@@ -410,6 +426,7 @@ def test_a_check_that_could_not_run_is_absent_rather_than_empty():
     must not read as one that passed."""
     report, _ = check({"A": boon(id="A", name="A")})
     assert "boonsNotReferencedOutsideTraitData" not in report
+    assert "hammersNotReferencedOutsideTraitData" not in report
 
 
 # ---------------------------------------------------------------------------

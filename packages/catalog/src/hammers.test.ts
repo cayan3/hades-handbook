@@ -4,6 +4,22 @@ import { type GameKey, dataFor } from "./data.js";
 import { cutHammers, hammersFor } from "./hammers.js";
 import type { TraitRecord } from "./schema.js";
 import { weaponsFor } from "./weapons.js";
+import h1Validation from "../data/hades1/validation.json" with { type: "json" };
+
+/**
+ * Cut hammers the games still name somewhere outside the trait definitions.
+ * Each is read by a condition — a room rule asking what you are carrying, or
+ * `HeroHasTrait` in a power — rather than handed out by anything, so the
+ * extractor sees a reference and a player never sees the hammer. One nameless
+ * record is left out of the extractor's list for having no name at all.
+ */
+const STILL_NAMED = new Set([
+  "BowRandomExplosionTrait",
+  "GunDashAmmoTrait",
+  "GunSniperTrait",
+  "ShieldThrowSingleTargetTrait",
+  "SwordRandomExplosionTrait",
+]);
 
 /**
  * The hammer table is hand-authored, so nothing about it is recomputed when the
@@ -84,6 +100,23 @@ describe("the hammer populations", () => {
     const cut = GAMES.reduce((n, game) => n + cutHammers(game).size, 0);
     expect(categorised).toBe(174);
     expect(cut).toBe(24);
+  });
+
+  /**
+   * The cut list is hand-authored and the extractor answers the same question
+   * from the games' own files: a hammer nothing outside the trait definitions
+   * mentions is one nothing hands out. It separates them cleanly — all 82
+   * hammers with a category are referenced and 19 of the 24 cut ones are not —
+   * so this holds one against the other rather than trusting the list.
+   */
+  it("cuts only hammers the games stopped handing out", () => {
+    const named = new Set(h1Validation.hammersNotReferencedOutsideTraitData);
+    const unaccounted = [...cutHammers("hades1")].filter(
+      (id) => !named.has(id) && !STILL_NAMED.has(id),
+    );
+    expect(unaccounted).toEqual([]);
+    // And the other way: nothing the extractor calls unreachable is missing.
+    expect([...named].filter((id) => !cutHammers("hades1").has(id))).toEqual([]);
   });
 
   it("uses the Omega symbol the game draws, not a word for it", () => {

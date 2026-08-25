@@ -447,21 +447,28 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     # named record nobody references is cut content that kept its text and a
     # view iterating the catalog would render it as yk a real boon lol.
     #
-    # Daedalus hammers are excluded first (and on purpose) since their pool is
-    # derived from the weapon instead of listed anywhere, so the test says
-    # nothing about them. Advisory here bc the answer is a judgement. The list
-    # is short enough to read, and every entry in it so far has been real yay.
+    # Advisory here bc the answer is a judgement. The list is short enough to
+    # read, and every entry in it so far has been real yay.
+    #
+    # Hammers are counted separately rather than skipped, which is what they
+    # used to be -- their pool is derived from the weapon rather than listed.
+    # It separates them anyway: all 82 Hades I hammers still offered are
+    # referenced outside these files, and 19 of the 24 cut ones land here. Of
+    # the rest, four are read by a condition rather than handed out by
+    # anything and one has no name to be listed under.
     if external_references is not None:
         unreferenced = []
+        cut_hammers = []
         for bid, b in sorted(boons.items()):
             if not b.get("name"):
                 continue
-            if raw_defs is not None and "WeaponTrait" in inherit_chain(raw_defs, bid):
+            if bid in external_references:
                 continue
-            if bid not in external_references:
-                unreferenced.append(bid)
+            hammer = raw_defs is not None and "WeaponTrait" in inherit_chain(raw_defs, bid)
+            (cut_hammers if hammer else unreferenced).append(bid)
         report["boonsNotReferencedOutsideTraitData"] = unreferenced
         report["boonsNotReferencedOutsideTraitDataCount"] = len(unreferenced)
+        report["hammersNotReferencedOutsideTraitData"] = cut_hammers
 
     # 14. the Godsent Hexes, counted. Their god and their Hex are the two things
     # the game doesn't state outright, so both are derived and the derivation
