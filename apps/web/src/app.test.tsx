@@ -1028,6 +1028,8 @@ describe("throwing a run away", () => {
    */
   it("hides the skip until the end control is asked for it", async () => {
     await mount();
+    // Both verbs are off on an empty run, so there has to be a run first.
+    tap(APHRODITE_MELEE);
     expect(skip()).toBeNull();
 
     act(() => endControl().dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
@@ -1036,6 +1038,34 @@ describe("throwing a run away", () => {
 
     act(() => endControl().dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
     expect(skip()).toBeNull();
+  });
+
+  /**
+   * Ending an empty run files it as the last one, on top of the run a player
+   * actually played. There is nothing to end anyway, so the only way to reach
+   * it is by mistake — and after finishing a run the fresh one that replaces it
+   * is empty, which is exactly when the mistake is easiest to make.
+   */
+  it("will not end a run with nothing in it", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    expect((control("End run") as HTMLButtonElement).disabled).toBe(true);
+
+    tap(APHRODITE_MELEE);
+    expect((control("End run") as HTMLButtonElement).disabled).toBe(false);
+    await act(async () => {
+      control("End run").click();
+    });
+    const filed = await store.load("hades2", "last");
+    expect(filed).not.toBeNull();
+
+    // The run that replaced it is fresh, so the control is off again and the
+    // record it would have overwritten survives.
+    expect((control("End run") as HTMLButtonElement).disabled).toBe(true);
+    await act(async () => {
+      control("End run").click();
+    });
+    expect(await store.load("hades2", "last")).toEqual(filed);
   });
 
   /**
@@ -1062,6 +1092,7 @@ describe("throwing a run away", () => {
   /** Reachable without a pointer, which is the whole cost of hiding it. */
   it("opens on focus and closes on Escape", async () => {
     await mount();
+    tap(APHRODITE_MELEE);
     act(() => control("End run").focus());
     expect(skip()).not.toBeNull();
 

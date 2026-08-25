@@ -630,13 +630,18 @@ function Run({
   const openedView = opened === null ? null : view(opened);
 
   /**
-   * What the save screen's first slot holds, or null where there is nothing to
-   * resume. A run with a pin and no boons still counts: somebody put it there.
+   * Whether there is a run here at all. A pin and no boons still counts:
+   * somebody put it there.
+   *
+   * Two controls ask. The save screen's first slot shows what there is to
+   * resume, and ending a run files it as the last one — which must not happen
+   * for an empty run, since it would sit in front of the run it is meant to
+   * remember.
    */
-  const stored =
-    facts.held.size === 0 && intent.pins.size === 0
-      ? null
-      : { held: facts.held.size, gods: facts.godPool.size, goals: intent.pins.size };
+  const started = facts.held.size > 0 || intent.pins.size > 0;
+  const stored = !started
+    ? null
+    : { held: facts.held.size, gods: facts.godPool.size, goals: intent.pins.size };
 
   /*
    * The art ships, so the real-art ladder is what the product is.
@@ -666,6 +671,7 @@ function Run({
             Goals{goals.length === 0 ? "" : ` (${goals.length})`}
           </button>
           <EndRun
+            started={started}
             onFinish={() => session.finishRun()}
             onClear={() => session.clearRun()}
             onFault={setFault}
@@ -937,11 +943,9 @@ function Run({
             run={stored}
             onResume={onChosen}
             onNew={() => {
-              // Filed rather than discarded: a run somebody is leaving behind is
-              // still the run they played, and it is what `last` is for. Nothing
-              // to file where the slot was empty, and filing an empty run would
-              // put one in front of the run it is meant to remember.
-              if (stored !== null) {
+              // Filed rather than discarded: a run somebody is leaving behind
+              // is still the run they played, and that is what `last` is for.
+              if (started) {
                 void session.finishRun().catch((cause: unknown) => {
                   setFault(cause instanceof Error ? cause : new Error(String(cause)));
                 });
@@ -987,10 +991,13 @@ function Run({
  * standing beside it.
  */
 function EndRun({
+  started,
   onFinish,
   onClear,
   onFault,
 }: {
+  /** False before the run holds anything; see below. */
+  readonly started: boolean;
   readonly onFinish: () => Promise<void>;
   readonly onClear: () => Promise<void>;
   readonly onFault: (cause: Error) => void;
@@ -1007,12 +1014,27 @@ function EndRun({
     });
   };
 
+  /**
+   * Both verbs are off until the run holds something.
+   *
+   * Ending an empty run files it as the last one, which overwrites the run a
+   * player actually played — and the only way to reach that is by mistake,
+   * since there is nothing to end. Skipping the summary goes with it: the menu
+   * is not rendered, so hovering the wrapper cannot open it either.
+   */
   return (
     <div className="app__end" {...wrapper}>
-      <button type="button" ref={opener} className="app__finish" onClick={() => run(onFinish)}>
+      <button
+        type="button"
+        ref={opener}
+        className="app__finish"
+        disabled={!started}
+        title={started ? undefined : "Nothing to end yet — mark a boon first."}
+        onClick={() => run(onFinish)}
+      >
         End run
       </button>
-      {!open ? null : (
+      {!open || !started ? null : (
         <ul className="app__endmenu">
           <li>
             {/* Files nothing, so the run is in no record afterwards and the undo

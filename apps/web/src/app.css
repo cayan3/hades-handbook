@@ -857,10 +857,20 @@ h1,
   transition: opacity 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
 }
 
+/*
+ * Off until the run holds something. Ending an empty run would file it over the
+ * run a player actually played, and there is nothing to end anyway — so the
+ * control says so rather than accepting a press that costs them something.
+ */
+.app__finish:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
 .app__goalstoggle:hover,
 .app__goalstoggle:focus-visible,
-.app__finish:hover,
-.app__finish:focus-visible,
+.app__finish:enabled:hover,
+.app__finish:enabled:focus-visible,
 .app__help:hover,
 .app__help:focus-visible {
   opacity: 1;
