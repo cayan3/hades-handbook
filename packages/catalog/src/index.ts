@@ -26,6 +26,8 @@ export type { GameData, GameKey } from "./data.js";
 export { createLookups } from "./lookups.js";
 export { forcingKeepsakes, keepsakesFor } from "./keepsakes.js";
 export { poolGods } from "./gods.js";
+export { cutHammers, hammersFor } from "./hammers.js";
+export type { CutHammers, HammerCategory, HammerEntry } from "./hammers.js";
 export { isWeapon, weaponFor, weaponsFor } from "./weapons.js";
 export {
   chromeFor,

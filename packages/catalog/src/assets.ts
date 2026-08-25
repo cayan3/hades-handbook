@@ -1,5 +1,6 @@
 import type { Element, GodId, KeepsakeId, SlotId, TalentId, TraitId, WeaponId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
+import { hammersFor } from "./hammers.js";
 import { keepsakesFor } from "./keepsakes.js";
 import type { GodRecord, TraitRecord } from "./schema.js";
 import { talentsFor } from "./talents.js";
@@ -236,6 +237,11 @@ const SLOT_ICONS: Readonly<Record<GameKey, Readonly<Record<string, string>>>> = 
  * flat bundle would hand one game the other's sentence.
  */
 export function textFor(game: GameKey, ref: string): string | null {
+  // A hammer's own prose wins: the extraction resolves its numbers at runtime
+  // and writes `?` where they go, and a hammer's do not vary, so these are the
+  // values written out. The ref is the trait id for every record that has one.
+  const hammer = hammersFor(game)[ref];
+  if (hammer !== undefined) return hammer.description;
   const bundle = dataFor(game).descriptions as Record<string, string>;
   return bundle[ref] ?? null;
 }
