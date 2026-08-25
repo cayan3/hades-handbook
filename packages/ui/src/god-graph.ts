@@ -1,4 +1,4 @@
-import { keepsakesFor, weaponFor } from "@repo/catalog";
+import { cutHammers, keepsakesFor, weaponFor } from "@repo/catalog";
 import type { GodId, Requirement, RunFacts, Status, TraitId, WeaponId } from "@repo/core";
 import { evaluate } from "@repo/core";
 import { type Step, stepIndex } from "./keys.js";
@@ -165,11 +165,16 @@ export function graphTraits(graph: GodGraph): TraitId[] {
  * god and a weapon. Forms are kept here where the god page drops them, since
  * this is the only page that can show one. Nameless records are left out for
  * the god page's reason: 25 Hades I ones are templates and cut content.
+ *
+ * The hammers the games kept a record for but stopped offering come out too.
+ * They still have names and prose, so nothing else on the page tells them
+ * apart — the Hades I Shield drew two called Minotaur Rush.
  */
 export function weaponTraits(source: NodeSource, weapon: WeaponId): TraitId[] {
+  const cut = cutHammers(source.game);
   const found: TraitId[] = [];
   for (const [id, record] of Object.entries(source.records)) {
-    if (record.weapon !== weapon || record.name === null) continue;
+    if (record.weapon !== weapon || record.name === null || cut.has(id)) continue;
     found.push(id);
   }
   return found;

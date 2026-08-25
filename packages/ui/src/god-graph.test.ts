@@ -1,4 +1,4 @@
-import { type TraitRecord, traitsFor } from "@repo/catalog";
+import { type TraitRecord, cutHammers, hammersFor, traitsFor, weaponsFor } from "@repo/catalog";
 import type { GodId, Requirement, TraitId } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import {
@@ -8,6 +8,7 @@ import {
   neighbourhood,
   pageTraits,
   stepThrough,
+  weaponTraits,
 } from "./god-graph.js";
 import { createNodeSource } from "./node-view.js";
 import { held, makeFacts, stubLookups, stubNaming, stubRules } from "./test-support.js";
@@ -659,5 +660,40 @@ describe("stepping through the bands", () => {
     // something that is not on the page.
     expect(stepThrough(bands, "elsewhere" as TraitId, "down")).toBeNull();
     expect(stepThrough([], "a", "up")).toBeNull();
+  });
+});
+
+describe("what a weapon's page carries", () => {
+  it("leaves out a hammer the game stopped offering", () => {
+    // A real cut id, since the filter reads the catalog's own list. The record
+    // is still there with its name and its prose — that is the whole problem.
+    const source = world(
+      record("SwordSecondaryBlinkTrait", { weapon: "SwordWeapon", name: "Instant Nova" }),
+      record("SwordBashTrait", { weapon: "SwordWeapon" }),
+    );
+
+    expect(weaponTraits(source, "SwordWeapon")).toEqual(["SwordBashTrait"]);
+  });
+
+  it("draws no two records under one name, in either catalog", () => {
+    for (const game of ["hades1", "hades2"] as const) {
+      const source = createNodeSource(game, stubRules(), stubLookups(), traitsFor(game));
+      for (const weapon of weaponsFor(game)) {
+        const names = weaponTraits(source, weapon.id).map((t) => source.records[t]?.name);
+        // The Shield used to draw two called Minotaur Rush: the cut copy and
+        // the one it was cut in favour of.
+        expect(names.filter((n, at) => names.indexOf(n) !== at)).toEqual([]);
+        expect(names.length).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("keeps every hammer the table gives a category to", () => {
+    for (const game of ["hades1", "hades2"] as const) {
+      const source = createNodeSource(game, stubRules(), stubLookups(), traitsFor(game));
+      const drawn = new Set(weaponsFor(game).flatMap((w) => weaponTraits(source, w.id)));
+      for (const id of Object.keys(hammersFor(game))) expect(drawn.has(id)).toBe(true);
+      for (const id of cutHammers(game)) expect(drawn.has(id)).toBe(false);
+    }
   });
 });

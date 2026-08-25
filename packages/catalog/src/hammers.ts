@@ -253,8 +253,9 @@ export function hammersFor(game: GameKey): Readonly<Record<TraitId, HammerEntry>
 }
 
 /**
- * Hammers the games no longer offer. Drawn nowhere — they are listed so that a
- * re-extraction putting one back is something we notice.
+ * Hammers the games no longer offer. A weapon page skips these, which is what
+ * the list is for: the records still carry names and prose, so nothing on the
+ * page can tell them from a hammer you can actually be offered.
  */
 export function cutHammers(game: GameKey): CutHammers {
   return CUT[game];
