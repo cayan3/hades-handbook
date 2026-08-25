@@ -82,6 +82,8 @@ function view(name: string): NodeView {
     name,
     state: "Pending",
     god: "Poseidon",
+    weapon: null,
+    aspect: false,
     tier: null,
     iconKey: "official/hades2/Poseidon_01",
     kind: null,

@@ -18,6 +18,7 @@ import type {
   Requirement,
   RunFacts,
   TraitId,
+  WeaponId,
 } from "@repo/core";
 import { boonState, evaluate } from "@repo/core";
 import {
@@ -49,6 +50,16 @@ export interface NodeView {
   readonly name: string;
   readonly state: BoonState;
   readonly god: GodId | null;
+  /**
+   * The weapon this record belongs to, and null for anything a god offers.
+   *
+   * Here because it changes what a surface may offer, not because anything
+   * draws it: with no god there is no pool, so the two removals that differ
+   * only in the pool question are one removal.
+   */
+  readonly weapon: WeaponId | null;
+  /** A weapon form, which is equipped rather than collected. */
+  readonly aspect: boolean;
   readonly tier: number | null;
   /** What the icon resolver returned. Not a URL — the art component makes one. */
   readonly iconKey: string;
@@ -379,6 +390,8 @@ export function deriveNodeView(source: NodeSource, trait: TraitId, facts: RunFac
     name,
     state,
     god,
+    weapon: record?.weapon ?? null,
+    aspect: record?.slot === "Aspect",
     tier,
     iconKey: iconFor(game, trait),
     kind,

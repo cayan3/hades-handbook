@@ -2225,7 +2225,90 @@ describe("the weapon tabs", () => {
 
     expect(container.querySelector(".notice")).toBeNull();
     expect(form()?.dataset.state).toBe("Available");
-    expect(texts(".loadout__equipped").join(" ")).not.toContain("Aspect of Melinoë");
+    // The weapon goes with it. Equipping the form is the only thing that ever
+    // set it, so leaving it behind would keep a choice nobody made.
+    const kit = texts(".loadout__equipped").join(" ");
+    expect(kit).not.toContain("Aspect of Melinoë");
+    expect(kit).not.toContain("Umbral Flames");
+    expect(container.querySelector(".app__weapontab[data-equipped='true']")).toBeNull();
+  });
+
+  /**
+   * The Loadout is a second surface onto the same record, and it had the whole
+   * action set where the sheet had a narrowed one. Its Remove ran `purge`,
+   * which looks in `held` — where a form has never been — so the control was
+   * drawn, pressed, and did nothing.
+   */
+  it("takes the form off from the Loadout too", async () => {
+    await mount();
+    click("Umbral Flames");
+    const form = () =>
+      container.querySelector<HTMLElement>(".godpage__band[data-kind='aspect'] .node");
+    act(() => form()?.querySelector<HTMLElement>(".node__control")?.click());
+
+    // A card only opens while the rest of the panel is showing.
+    click("Expand");
+    act(() =>
+      container
+        .querySelector<HTMLElement>(".loadout__core .loadout__entry .loadout__tile button")
+        ?.click(),
+    );
+    const card = container.querySelector(".loadout__card");
+    // One removal, not two: with no god there is no pool, so the pair that
+    // differs only in the pool question is a single control.
+    expect([...(card?.querySelectorAll("button") ?? [])].map((b) => b.textContent?.trim())).toEqual(
+      ["×", "Remove"],
+    );
+
+    act(() => card?.querySelector<HTMLElement>(".loadout__cardremove")?.click());
+
+    expect(form()?.dataset.state).toBe("Available");
+    expect(texts(".loadout__equipped").join(" ")).not.toContain("Umbral Flames");
+  });
+
+  /**
+   * A goal is a boon to collect and you start the run with the form you chose.
+   * The sheet said so already; the long press reached past it.
+   */
+  it("sets no goal on a form, however you ask", async () => {
+    await mount();
+    click("Umbral Flames");
+    const control0 = () =>
+      container.querySelector<HTMLElement>(
+        ".godpage__band[data-kind='aspect'] .node .node__control",
+      );
+
+    // The count in the toggle is the whole tell: "Goals" bare means none.
+    const goals = () => container.querySelector(".app__goalstoggle")?.textContent?.trim();
+
+    act(() => {
+      control0()?.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+    });
+    expect(goals()).toBe("Goals");
+
+    // And the keyboard's way to the same thing.
+    act(() => {
+      control0()?.dispatchEvent(new KeyboardEvent("keydown", { key: "g", bubbles: true }));
+    });
+    expect(goals()).toBe("Goals");
+  });
+
+  /**
+   * A hammer is held like a boon, so both removals were offered — and they do
+   * the same thing, the only difference between them being whether the god
+   * leaves the pool.
+   */
+  it("offers a hammer one removal rather than two", async () => {
+    await mount();
+    click("Umbral Flames");
+    const hammer = () =>
+      container.querySelector<HTMLElement>(".godpage__band[data-kind='tier'] .node");
+    act(() => hammer()?.querySelector<HTMLElement>(".node__control")?.click());
+    act(() => hammer()?.querySelector<HTMLElement>(".node__control")?.click());
+
+    expect(texts(".sheet__removals button").map((t) => t.trim())).toEqual(["I mis-tapped"]);
+    // Nor is it a goal question any more than a boon's is — that one stays.
+    expect(texts(".sheet button").map((t) => t.trim())).toContain("Set as goal");
   });
 
   /**

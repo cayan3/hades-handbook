@@ -576,7 +576,14 @@ function CardActions({
   // The pool question only differs on the last boon a god has left, and there
   // it is a second choice under Remove rather than a second button beside it.
   const pooled = alone && remove !== undefined;
-  if (rarities.length === 0 && !pooled && purge === undefined) return null;
+  /**
+   * What the plain Remove does. A record filed under a weapon has no god, so
+   * `purge` — which exists to leave one in the pool — is the wrong half of the
+   * pair for it, and for a form it does nothing at all: a form is equipped
+   * rather than held, so there is nothing in `held` for it to drop.
+   */
+  const takeOff = view.weapon !== null ? remove : purge;
+  if (rarities.length === 0 && !pooled && takeOff === undefined) return null;
 
   return (
     <div className="loadout__cardactions">
@@ -604,11 +611,11 @@ function CardActions({
       )}
 
       {!pooled ? (
-        purge === undefined ? null : (
+        takeOff === undefined ? null : (
           <button
             type="button"
             className="loadout__cardremove"
-            onClick={() => purge(view.trait)}
+            onClick={() => takeOff(view.trait)}
           >
             Remove
           </button>

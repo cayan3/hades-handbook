@@ -44,6 +44,8 @@ function view(over: Partial<NodeView> = {}): NodeView {
     name: "Storm Lightning",
     state: "Available",
     god: "Zeus",
+    weapon: null,
+    aspect: false,
     tier: 2,
     iconKey: "official/Zeus_01",
     kind: null,

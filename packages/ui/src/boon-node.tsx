@@ -179,6 +179,10 @@ export function BoonNode({
    * control that was dead for every goal the run had not reached yet.
    */
   const primary = held ? onOpen : (onMark ?? onOpen);
+  // A form is not a goal — you start the run with the one you chose, so there
+  // is nothing to go and collect. The sheet says the same, and this is the
+  // gesture that reaches past it.
+  const goal = view.aspect ? undefined : onGoal;
 
   // The kind where the boon has one and the rarity otherwise, which the view
   // has already settled between, and nothing at all where the surface has
@@ -234,12 +238,12 @@ export function BoonNode({
         aria-current={pinned ? "true" : undefined}
         onClick={primary === undefined ? undefined : () => primary(view.trait)}
         onContextMenu={
-          onGoal === undefined
+          goal === undefined
             ? undefined
             : (event) => {
                 // The platform's menu would cover the thing it was opened on.
                 event.preventDefault();
-                onGoal(view.trait);
+                goal(view.trait);
               }
         }
         /**
@@ -252,9 +256,9 @@ export function BoonNode({
          * written three times.
          */
         onKeyDown={(event) => {
-          if (onGoal !== undefined && isGoalKey(event)) {
+          if (goal !== undefined && isGoalKey(event)) {
             event.preventDefault();
-            onGoal(view.trait);
+            goal(view.trait);
             return;
           }
           // Enter opens the details of a boon the run holds and marks one it

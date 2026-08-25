@@ -48,6 +48,8 @@ function view(trait: TraitId, over: Partial<NodeView> = {}): NodeView {
     name: trait,
     state: "Available",
     god: "Zeus",
+    weapon: null,
+    aspect: false,
     tier: 1,
     iconKey: "official/Zeus_01",
     kind: null,

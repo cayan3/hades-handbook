@@ -46,6 +46,8 @@ function view(trait: TraitId): NodeView {
     name: trait,
     state: "Obtained",
     god: "Zeus",
+    weapon: null,
+    aspect: false,
     tier: 1,
     iconKey: "official/Zeus_01",
     kind: null,

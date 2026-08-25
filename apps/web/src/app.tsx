@@ -506,12 +506,6 @@ function Run({
     },
     [session, write, source, view, facts, intent],
   );
-  /** The subset a weapon form is offered; see the sheet below. */
-  const formActions: BoonActions = useMemo(
-    () => ({ ...(actions.remove === undefined ? {} : { remove: actions.remove }) }),
-    [actions],
-  );
-
   const toggleGoal = useCallback(
     (trait: TraitId) =>
       write(() =>
@@ -969,12 +963,7 @@ function Run({
             pinned={intent.pins.has(opened)}
             overridden={session.layer.isOverridden("held", opened)}
             onClose={() => setOpened(null)}
-            /**
-             * A weapon form is offered taking it off and nothing else. It
-             * cannot be lost in game — a run keeps the form it started with —
-             * and a goal is a boon to collect, which a form is not.
-             */
-            actions={source.records[opened]?.slot === "Aspect" ? formActions : actions}
+            actions={actions}
           />
         )}
       </div>

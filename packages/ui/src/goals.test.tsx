@@ -49,6 +49,8 @@ function view(over: Partial<NodeView> = {}): NodeView {
     name: "Island Getaway",
     state: "Pending",
     god: "Poseidon",
+    weapon: null,
+    aspect: false,
     tier: 3,
     iconKey: "official/hades2/Poseidon_01",
     kind: "duo",

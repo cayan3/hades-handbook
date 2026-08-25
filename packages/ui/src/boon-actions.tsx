@@ -77,7 +77,9 @@ export function BoonActionBar({
   const marking = !held && mark !== undefined;
   const rerarity = held && mark !== undefined && view.rarities.length > 0;
   const removing = held && (remove !== undefined || purge !== undefined);
-  const pinning = pinned ? unpin !== undefined : pin !== undefined;
+  // A form is not a goal: a goal is something to go and collect, and you start
+  // the run with the form you chose.
+  const pinning = !view.aspect && (pinned ? unpin !== undefined : pin !== undefined);
   if (!marking && !rerarity && !removing && !pinning) return null;
 
   return (
@@ -133,7 +135,10 @@ export function BoonActionBar({
               {REMOVE_LABEL}
             </button>
           )}
-          {purge === undefined ? null : (
+          {/* The pair is a question about the god pool, so a record filed under
+              a weapon gets the first control alone: there is no god to keep or
+              let go, and the two would do the same thing under two names. */}
+          {purge === undefined || view.weapon !== null ? null : (
             <button type="button" title={PURGE_HINT} onClick={() => purge(view.trait)}>
               {PURGE_LABEL}
             </button>
