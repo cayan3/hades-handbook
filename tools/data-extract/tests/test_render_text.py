@@ -29,6 +29,11 @@ KEYWORDS = {
     # An element: the icon key has no entry under any stem of its own, and the
     # word lives on a differently-named keyword entry.
     "AirBoon": {"displayName": "{!Icons.CurseAir} Gust"},
+    # The exception to the rule above: the glyph is the difference between two
+    # moves, so a title carrying one keeps it. Written as the game writes it,
+    # with the variant suffix the ladder has to strip.
+    "AttackEX": {"displayName": "{!Icons.Omega_NoTooltip} Attack"},
+    "Omega": {"displayName": "{!Icons.Omega} Moves"},
 }
 
 
@@ -41,6 +46,19 @@ def test_a_keywords_own_glyph_is_dropped_rather_than_named():
     rather than standing for it, so substituting it would put the icon's own
     title where the word belongs."""
     assert render_description("Spend {$Keywords.Mana} now.", KEYWORDS) == "Spend Kindling now."
+
+
+def test_a_glyph_that_names_the_move_survives_the_title():
+    """Attack and Omega Attack are two different moves, so this glyph is not
+    decoration on a word — it is half of which move the sentence is about. 66
+    Hades II descriptions named the wrong one while it was being dropped."""
+    assert render_description("Your {$Keywords.AttackEX} hits.", KEYWORDS) == "Your \u03a9 Attack hits."
+
+
+def test_the_same_glyph_inline_is_the_character_and_not_its_title():
+    """`Omega`'s own entry is "{!Icons.Omega} Moves", so reading it the way an
+    ordinary icon is read would put a whole phrase where a symbol belongs."""
+    assert render_description("Hold for {!Icons.Omega}.", KEYWORDS) == "Hold for \u03a9."
 
 
 def test_an_inline_icon_becomes_the_noun_it_stands_for():

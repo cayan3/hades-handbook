@@ -60,13 +60,41 @@ ICON_ALIASES = {
 }
 
 
+# Icons that are the word rather than decoration around one. Hades II's Omega
+# marks a different move: Attack and Omega Attack are two things a boon can be
+# about, and dropping the mark turns a sentence about one into a sentence about
+# the other. 52 of the 334 records a page draws said the wrong move.
+GLYPHS = {"Omega": "\u03a9"}
+
+
+def _glyph(key):
+    """The character an icon stands for, or nothing where it stands for none.
+
+    Same suffix ladder `icon_word` walks, since the variants are spelled the
+    same way here -- the Omega arrives as `Omega_NoTooltip` from a keyword
+    title and as `Omega` on its own.
+    """
+    candidate = ICON_ALIASES.get(key, key)
+    while True:
+        if candidate in GLYPHS:
+            return GLYPHS[candidate]
+        for suffix in ICON_SUFFIXES:
+            if candidate.endswith(suffix) and len(candidate) > len(suffix):
+                candidate = candidate[: -len(suffix)]
+                break
+        else:
+            return None
+
+
 def _bare(name):
     """A resolved name with its decorative glyphs dropped.
 
     A tooltip title is written `{!Icons.Mana} Magick`: the glyph prefixes the
     word rather than standing for it, so substituting it would give the icon's
-    own title back where the word belongs.
+    own title back where the word belongs. A glyph in `GLYPHS` is the exception
+    and stays, being part of the name rather than an ornament on it.
     """
+    name = ICON.sub(lambda m: _glyph(m.group(1)) or "", name)
     return re.sub(r"\s+", " ", ANY_ICON.sub("", name)).strip()
 
 
@@ -87,6 +115,9 @@ def icon_word(keywords, key):
     stuck in them" -- so dropping it changes what the sentence claims. The word
     is the game's, not ours: the bundle has an entry under the icon's own key.
     """
+    glyph = _glyph(key)
+    if glyph is not None:
+        return glyph
     candidate = ICON_ALIASES.get(key, key)
     seen = {candidate}
     while True:
