@@ -21,7 +21,7 @@ function world(): SyncCatalog {
       testTrait("HeraSpecial", { god: "Hera", slot: "Secondary" }),
       testTrait("HermesDash", { god: "Hermes", godKind: "NonPoolSlot" }),
       testTrait("Unattributed"),
-      testTrait("TorchAutofireAspect", { slot: "Aspect" }),
+      testTrait("TorchAutofireAspect", { slot: "Aspect", weapon: "WeaponTorch" }),
     ),
     gods: new Set(["Hera", "Zeus", "Hermes"]),
     keepsakes: new Set(["ForceHeraBoonKeepsake"]),
@@ -517,14 +517,19 @@ describe("the equipped kit", () => {
     expect(source.getFacts().held.has("TorchAutofireAspect")).toBe(false);
   });
 
-  it("clears the form when the run has none", async () => {
+  /**
+   * Both fields, since equipping the form is what set both. A run that keeps
+   * the weapon after the form goes is holding a choice nobody made on its own.
+   */
+  it("clears the form and the weapon with it", async () => {
     const source = await open();
     source.equipAspect("TorchAutofireAspect");
+    expect(source.getFacts().equipped.weapon).toBe("WeaponTorch");
 
     source.equipAspect(null);
 
-    expect(source.getFacts().equipped.aspect).toBeUndefined();
     expect("aspect" in source.getFacts().equipped).toBe(false);
+    expect("weapon" in source.getFacts().equipped).toBe(false);
   });
 
   it("records the weapon the run is played with", async () => {
@@ -585,11 +590,10 @@ describe("the equipped kit", () => {
   });
 
   /**
-   * And is silent where the data is. Hades I marks none of its forms, so the
-   * check is written against the marker rather than a list of ids: it declines
-   * to judge a catalog that never says which records are forms, and starts
-   * working the moment one does. Same partiality `mark` has, for the same
-   * reason, and it closes itself the same way.
+   * And is silent where the data is. The check is written against the marker
+   * rather than a list of ids, so it declines to judge a catalog that never
+   * says which records are forms and starts working the moment one does. Both
+   * shipped catalogs mark theirs; this is about a catalog that does not.
    */
   it("says nothing about a catalog that marks no forms at all", async () => {
     const unmarked = testCatalog({

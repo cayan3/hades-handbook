@@ -870,9 +870,8 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
        * A weapon form is equipped, never held. Recording one as a held trait is
        * the mistake that leaves every aspect conflict in the run inert, and it
        * is invisible when made — the run looks right and quietly stops
-       * answering one of the two questions aspects exist for. Only Hades II
-       * marks its forms, so this catches that game's half today and the other
-       * game's as soon as the extraction marks them too.
+       * answering one of the two questions aspects exist for. Both games mark
+       * their forms now, so this catches both.
        */
       if (found.slot === "Aspect") {
         throw new Error(`"${trait}" is a weapon form; equip it with equipAspect`);
@@ -1043,7 +1042,11 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       beginEdit("equipAspect", aspect);
       const equipped = { ...state.facts.equipped };
       if (aspect === null) {
+        // Both go, because this is the only thing that ever set either. Leaving
+        // the weapon behind would keep a fact the player never chose on its
+        // own — they picked a form, and taking it back off unpicks the lot.
         delete equipped.aspect;
+        delete equipped.weapon;
       } else {
         equipped.aspect = aspect;
         // A form belongs to one weapon, so picking one tells us which weapon
