@@ -2623,8 +2623,17 @@ kbd {
   letter-spacing: 0.06em;
 }
 
-/* Centred under the row, where both games put the arrow out. */
-.saves__back {
+/* Centred under the row, where both games put the arrow out. The second way out
+   only exists once a run has been filed, so the row centres whatever is in it
+   rather than reserving a place for something that is usually not there. */
+.saves__ways {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.saves__back,
+.saves__review {
   display: block;
   margin: 0 auto;
   padding: 0.4rem 1.2rem;
@@ -2634,6 +2643,210 @@ kbd {
   color: inherit;
   font: inherit;
   cursor: pointer;
+}
+
+/*
+ * The run that was filed last, laid out after the games' own results screens:
+ * a title, the counts, the kit, then the boons under the god who gave them.
+ *
+ * Scrolls inside itself rather than growing the scrim, a full run being twenty
+ * or more boons across half a dozen groups. Its accent follows the game, the
+ * same one line the save screen beside it uses.
+ */
+.overview {
+  width: min(56rem, 100%);
+  max-height: 90vh;
+  padding: 1.6rem;
+  overflow-y: auto;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 0.8rem;
+  background: var(--surface, #1b1815);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 55%);
+}
+
+.overview[data-game="hades1"] {
+  --game: var(--hades1, #b70d12);
+}
+
+.overview[data-game="hades2"] {
+  --game: var(--hades2, #119f4c);
+}
+
+.overview__title {
+  margin: 0 0 1.2rem;
+  font-family: var(--face-display, inherit);
+  font-size: 1.15rem;
+  letter-spacing: 0.22em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* The three counts on one row, each a label above its value — the arrangement
+   the filled save slot already uses, because they are the same three numbers. */
+.overview__stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin: 0 0 1.4rem;
+}
+
+.overview__stat dt {
+  color: var(--game);
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.overview__stat dd {
+  margin: 0;
+  font-family: var(--face-mono, monospace);
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.overview__kit h3,
+.overview__elements h3,
+.overview__groupname {
+  margin: 0 0 0.6rem;
+  font-family: var(--face-display, inherit);
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.overview__kit,
+.overview__elements,
+.overview__group {
+  margin-bottom: 1.4rem;
+}
+
+.overview__weapon {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
+}
+
+.overview__wpnart {
+  width: 2.2rem;
+  height: 2.2rem;
+  object-fit: contain;
+}
+
+.overview__elements ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.overview__elements li {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.overview__elmart {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+}
+
+/* The god's own colour, on the heading's rule rather than on the boons under
+   it: the tiles already carry it on their outlines, and a second surface in the
+   same hue reads as a highlight nobody meant. */
+.overview__groupname {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--god, rgb(255 255 255 / 20%));
+  color: var(--god, inherit);
+}
+
+.overview__groupart {
+  width: 1.7rem;
+  height: 1.7rem;
+  object-fit: contain;
+}
+
+/* Wraps rather than scrolls sideways: this view is read top to bottom and is
+   the one surface a player might export as a picture. */
+.overview__boons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.overview__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: center;
+  width: 5.5rem;
+}
+
+/* Two sizes for the same reason the god page and the Loadout each declare two:
+   a rounded square shows 1.77x the ink a diamond does at the same box, so one
+   size for both games draws Hades II heavier than Hades I. The ratio is the
+   Loadout's 4.5/3.9, taken down together to fit a wrapping grid of them. */
+.overview__tileicon {
+  --node-size: 3.4rem;
+  flex: none;
+}
+
+.overview__tileicon[data-game="hades2"] {
+  --node-size: 2.95rem;
+}
+
+/* The one size in this file allowed under the floor is the node's own name, and
+   this is that name in another place, so it reads at the floor instead. */
+.overview__tilename {
+  font-size: 0.85rem;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.overview__nothing {
+  margin: 0 0 1.4rem;
+  font-size: 0.95rem;
+  opacity: 0.75;
+}
+
+.overview__actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.overview__close {
+  padding: 0.4rem 1.2rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Small and last, the way a disclaimer is drawn everywhere else, but inside the
+   view rather than under it — an exported picture carries what the view drew. */
+.overview__unaffiliated {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-align: center;
+  opacity: 0.6;
 }
 
 /*

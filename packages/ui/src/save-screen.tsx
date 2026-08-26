@@ -25,9 +25,26 @@ export interface SaveScreenProps {
   readonly onNew: () => void;
   /** Back out of the game entirely, which is what the games' own arrow does. */
   readonly onLeave: () => void;
+  /**
+   * Opens the **Run Overview** on the run filed last, or null where nothing has
+   * been filed.
+   *
+   * The door is where it belongs: this is the screen where a player decides
+   * what to do with a game, and the run they finished is one of the things
+   * there is to do with it. Without a way back, the second record would be
+   * written, shown once and unreachable after a reload — which is the whole of
+   * what it exists to survive.
+   */
+  readonly onReviewLast?: (() => void) | null;
 }
 
-export function SaveScreen({ run, onResume, onNew, onLeave }: SaveScreenProps) {
+export function SaveScreen({
+  run,
+  onResume,
+  onNew,
+  onLeave,
+  onReviewLast = null,
+}: SaveScreenProps) {
   const game = useGame();
   const { ref, onKeyDown } = useDialog(onLeave);
   const titleId = useId();
@@ -87,9 +104,16 @@ export function SaveScreen({ run, onResume, onNew, onLeave }: SaveScreenProps) {
           ) : null}
         </ul>
 
-        <button type="button" className="saves__back" onClick={onLeave}>
-          Back
-        </button>
+        <div className="saves__ways">
+          <button type="button" className="saves__back" onClick={onLeave}>
+            Back
+          </button>
+          {onReviewLast === null ? null : (
+            <button type="button" className="saves__review" onClick={onReviewLast}>
+              Your last run
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

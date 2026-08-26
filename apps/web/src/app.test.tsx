@@ -1008,6 +1008,150 @@ describe("ending a run", () => {
   });
 });
 
+/**
+ * The Run Overview, and the whole of what this row proved: the second record
+ * was written by `finishRun` for two tiers and opened by nothing. What is drawn
+ * here is read back out of that record rather than kept from the run that was
+ * in memory a moment ago.
+ */
+describe("the run overview", () => {
+  const overview = () => container.querySelector(".overview");
+
+  it("opens on the run that was just filed", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+
+    await act(async () => {
+      control("End run").click();
+    });
+
+    expect(overview()).not.toBeNull();
+    expect(texts(".overview__stat dd")[0]).toBe("1");
+    expect(texts(".overview__tilename")).toContain(H2[APHRODITE_MELEE]?.name ?? "");
+    // Grouped under the god who gave it, which is what a results screen is.
+    expect(texts(".overview__groupname")).toEqual(["Aphrodite"]);
+  });
+
+  /* This view is what an image export carries off the site, which is what
+     makes the disclaimer part of the picture rather than furniture around it. */
+  it("carries the unaffiliated line", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    await act(async () => {
+      control("End run").click();
+    });
+
+    expect(container.querySelector(".overview__unaffiliated")?.textContent).toContain(
+      "unofficial",
+    );
+  });
+
+  it("closes back onto the fresh run", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    await act(async () => {
+      control("End run").click();
+    });
+
+    click("Close");
+
+    expect(overview()).toBeNull();
+    expect(container.querySelector(".loadout__empty")).not.toBeNull();
+  });
+
+  /**
+   * Skipping the summary files nothing, so there is nothing to summarise — the
+   * name of that control and what it does have to agree.
+   */
+  it("does not open when the summary was skipped", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+
+    act(() =>
+      container
+        .querySelector<HTMLElement>(".app__end")
+        ?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })),
+    );
+    await act(async () => {
+      container.querySelector<HTMLElement>(".app__skip")?.click();
+    });
+
+    expect(overview()).toBeNull();
+  });
+
+  /**
+   * The way back, and why the record is worth keeping at all: shown once and
+   * then unreachable, it would not need to survive a reload.
+   */
+  it("is reachable from the save screen once a run has been filed", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    expect(container.querySelector(".saves__review")).toBeNull();
+
+    tap(APHRODITE_MELEE);
+    await act(async () => {
+      control("End run").click();
+    });
+    click("Close");
+
+    await follow("#/");
+    await follow(GAME_HASH.hades2);
+    expect(container.querySelector(".saves__review")).not.toBeNull();
+
+    await act(async () => {
+      container.querySelector<HTMLElement>(".saves__review")?.click();
+    });
+    // Instead of the door rather than over it, so closing goes back to it.
+    expect(overview()).not.toBeNull();
+    expect(container.querySelector(".saves")).toBeNull();
+
+    click("Close");
+    expect(container.querySelector(".saves")).not.toBeNull();
+  });
+
+  /** Survives the tab closing, which is the only reason it is a record. */
+  it("is still there after a reload", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    tap(APHRODITE_MELEE);
+    await act(async () => {
+      control("End run").click();
+    });
+
+    act(() => root.unmount());
+    container.remove();
+    container = document.createElement("div");
+    document.body.appendChild(container);
+    root = createRoot(container);
+    await mount(store);
+
+    await follow("#/");
+    await follow(GAME_HASH.hades2);
+    await act(async () => {
+      container.querySelector<HTMLElement>(".saves__review")?.click();
+    });
+    expect(texts(".overview__tilename")).toContain(H2[APHRODITE_MELEE]?.name ?? "");
+  });
+
+  /**
+   * A record this build cannot read is said out loud rather than read as "no
+   * run was ever filed" — the run is gone either way, and the difference is
+   * between a defect and a mystery.
+   */
+  it("reports a filed run it cannot decode", async () => {
+    const store = createMemoryStore();
+    await store.save("hades2", "last", {
+      storeVersion: STORE_VERSION + 9,
+      facts: {},
+      intent: {},
+    } as never);
+    await mount(store);
+
+    expect(texts(".notice__body").join(" ")).toContain("store version");
+    expect(container.querySelector(".saves__review")).toBeNull();
+  });
+});
+
 describe("throwing a run away", () => {
   /** The end control, and the variant it hides until somebody looks for it. */
   function endControl(): HTMLElement {

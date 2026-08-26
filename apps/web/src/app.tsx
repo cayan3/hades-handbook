@@ -1,5 +1,5 @@
 import { createLookups, traitsFor, weaponFor, weaponsFor } from "@repo/catalog";
-import type { GameId, Rarity, RunFacts, TraitId } from "@repo/core";
+import type { GameId, Rarity, RunFacts, RunState, TraitId } from "@repo/core";
 import { createRules as hades1Rules } from "@repo/rules-hades1";
 import { createRules as hades2Rules } from "@repo/rules-hades2";
 import type { RunSession, RunStore, TabPresence } from "@repo/sync";
@@ -16,6 +16,7 @@ import {
   Loadout,
   type LoadoutEntry,
   NodePresentation,
+  RunOverview,
   SaveScreen,
   NoticeBar,
   type NodeSource,
@@ -33,6 +34,7 @@ import {
   deriveNodeDetail,
   displacementLines,
   editSentence,
+  finishedRun,
   godColour,
   godGraph,
   godStep,
@@ -323,9 +325,49 @@ function Run({
    * every time the panel was put away would be a click undone by looking away.
    */
   const [heldGoals, setHeldGoals] = useState<ReadonlySet<TraitId>>(new Set());
+  /**
+   * The run filed last, and whether its summary is open over the page.
+   *
+   * Read off the record rather than kept from the run that was just ended: the
+   * record is what survives a reload, and reading it back is the only thing
+   * that says it is any good. `filed` is bumped by the run boundary so the load
+   * runs again — one effect for both the first read and every later one.
+   */
+  const [lastRun, setLastRun] = useState<RunState | null>(null);
+  const [filed, setFiled] = useState(0);
+  const [reviewing, setReviewing] = useState(false);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
+
+  /*
+   * A record that will not decode is reported rather than swallowed: the run
+   * that was played is gone either way, and saying so is the difference between
+   * a defect and a mystery. `live` guards the switch a player can make while
+   * this is in flight.
+   */
+  useEffect(() => {
+    let live = true;
+    session.source.lastRun().then(
+      (run) => {
+        if (live) setLastRun(run);
+      },
+      (cause: unknown) => {
+        if (!live) return;
+        setLastRun(null);
+        setFault(cause instanceof Error ? cause : new Error(String(cause)));
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [session, filed]);
+
+  /** The finished run as the overview draws it, worked out once per record. */
+  const lastOverview = useMemo(
+    () => (lastRun === null ? null : finishedRun(source, lastRun, CORE_SLOTS[game])),
+    [source, lastRun, game],
+  );
 
   /**
    * Adding a god puts the tab up and goes there, and takes them off the removed
@@ -666,7 +708,14 @@ function Run({
           </button>
           <EndRun
             started={started}
-            onFinish={() => session.finishRun()}
+            // The summary opens on the record, not on the run that was just in
+            // memory — so what a player is shown is what was actually filed.
+            onFinish={() =>
+              session.finishRun().then(() => {
+                setFiled((at) => at + 1);
+                setReviewing(true);
+              })
+            }
             onClear={() => session.clearRun()}
             onFault={setFault}
           />
@@ -930,9 +979,17 @@ function Run({
           />
         )}
 
+        {/* Instead of the door rather than over it: reviewing the last run is
+            reached from the save screen, and closing goes back to it. Two
+            shades stacked would be one dialog behind another with no way of
+            reading which is which. */}
+        {!reviewing || lastOverview === null ? null : (
+          <RunOverview run={lastOverview} onClose={() => setReviewing(false)} />
+        )}
+
         {/* The door, over the page rather than in front of it: dismissing it
             is the same as continuing, which is what makes Escape safe here. */}
-        {!choosing ? null : (
+        {!choosing || reviewing ? null : (
           <SaveScreen
             run={stored}
             onResume={onChosen}
@@ -953,6 +1010,7 @@ function Run({
             onLeave={() => {
               window.location.hash = HOME_HASH;
             }}
+            onReviewLast={lastOverview === null ? null : () => setReviewing(true)}
           />
         )}
 

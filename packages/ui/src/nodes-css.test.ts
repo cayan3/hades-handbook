@@ -153,6 +153,8 @@ describe("the node stylesheet", () => {
       '.godpage .node[data-game="hades2"]',
       ".loadout__tile, .loadout__tile .node, .loadout__emptyslot, .loadout__card .boonrow__icon",
       '.loadout__tile[data-game="hades2"], .loadout__tile[data-game="hades2"] .node, .loadout__emptyslot[data-game="hades2"], .loadout__card .boonrow__icon[data-game="hades2"]',
+      ".overview__tileicon",
+      '.overview__tileicon[data-game="hades2"]',
     ]);
   });
 
