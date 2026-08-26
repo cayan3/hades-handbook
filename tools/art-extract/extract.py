@@ -56,6 +56,20 @@ ELEMENTS = ("Aether", "Air", "Earth", "Fire", "Water")
 # no glyph in either tray.
 SLOT_ICONS = ("Attack", "Secondary", "Ranged", "Dash", "Wrath")
 
+# The results screen has no part here, and where its art is is worth writing
+# down so nobody looks again. Hades I ships one static panel for it,
+# `GUI\Screens\Box_RunHistory` at 1843x1067 -- and it is a fixed composition
+# rather than a frame: the corner ornament runs 22% of the width and 28% of the
+# height and overhangs the frame body by 139px, so a nine-slice big enough to
+# hold it is a border a quarter of the dialog wide and any smaller slice cuts a
+# pomegranate in half. Two more panels are painted into its interior, so
+# stretching it as a background draws them behind whatever the page put there.
+# Hades II ships nothing static at all: its run-history screen is grounded on a
+# video texture (`RunHistoryInChaos` and its three siblings), and the only
+# stills under `GUI\Screens\RunHistory` are thirteen ~70px biome marks, the
+# sidebar hover and select, and the success/failure ribbons -- which name an
+# outcome this product does not record.
+#
 # The parts of the games' own interface this product borrows, each named for
 # what it is rather than for the sprite it came from, and each laid left to right
 # from however many pieces the game ships. The Loadout's tray is the one part
