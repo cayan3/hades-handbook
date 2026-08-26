@@ -1060,6 +1060,103 @@ describe("persistence", () => {
   });
 });
 
+/**
+ * Reading the second record back, which nothing did for two tiers — the run
+ * boundary wrote it and no caller ever opened it.
+ */
+describe("the run filed last", () => {
+  it("is nothing until a run has been filed", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    expect(await source.lastRun()).toBeNull();
+  });
+
+  it("carries what the run held, its pool and its pins", async () => {
+    const source = await open();
+    source.mark("HeraAttack", { rarity: "Rare" });
+    source.equipAspect("TorchAutofireAspect");
+    source.pin("HeraSpecial");
+    await source.finishRun();
+
+    const last = await source.lastRun();
+
+    expect(last?.facts.held.get("HeraAttack")).toEqual({ rarity: "Rare", level: 1 });
+    expect([...(last?.facts.godPool ?? [])]).toEqual(["Hera"]);
+    expect(last?.facts.equipped.aspect).toBe("TorchAutofireAspect");
+    expect(last?.facts.equipped.weapon).toBe("WeaponTorch");
+    expect([...(last?.intent.pins ?? [])]).toEqual(["HeraSpecial"]);
+  });
+
+  /**
+   * The counts are derived from `held` rather than stored, so a record read
+   * back out of storage has to run the same derivation a load does — otherwise
+   * the run that ended with three Fire boons reads as having none.
+   */
+  it("counts the elements the run held", async () => {
+    const catalog = testCatalog({
+      game: "hades2",
+      dataVersion: "build-1",
+      traits: traitTable(
+        testTrait("HestiaAttack", { god: "Hestia", slot: "Melee", elementGrants: ["Fire"] }),
+        testTrait("HestiaSpecial", { god: "Hestia", slot: "Secondary", elementGrants: ["Fire"] }),
+      ),
+      gods: new Set(["Hestia"]),
+      slots: new Set(["Melee", "Secondary"]),
+    });
+    const source = await openManualSource({ game: "hades2", catalog, store: createMemoryStore() });
+    source.mark("HestiaAttack");
+    source.mark("HestiaSpecial");
+    await source.finishRun();
+
+    const last = await source.lastRun();
+
+    expect(last?.facts.elements.get("Fire")).toBe(2);
+  });
+
+  /** Survives the source that wrote it, which is the whole point of a record. */
+  it("is there after a reload", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.finishRun();
+
+    const reopened = await open(store);
+
+    expect([...((await reopened.lastRun())?.facts.held.keys() ?? [])]).toEqual(["HeraAttack"]);
+  });
+
+  /**
+   * Contained where the active run's version of the same failure is not: the
+   * caller reports it and the rest of the page carries on, so there is nothing
+   * to gain from repairing or hiding it.
+   */
+  it("refuses a record it cannot decode", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    await store.save("hades2", "last", {
+      storeVersion: STORE_VERSION + 1,
+    } as unknown as ReturnType<typeof toPersisted>);
+
+    await expect(source.lastRun()).rejects.toThrow(/store version/);
+  });
+
+  /**
+   * The run as it really was. `finishRun` hands the overlay back before the
+   * record is written, so a hand-held field is not part of what was filed.
+   */
+  it("does not carry the overrides that were laid over the run", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    source.putOverrides([{ path: "godPool", god: "Zeus", present: true }]);
+    await source.finishRun();
+
+    const last = await source.lastRun();
+
+    expect([...(last?.facts.godPool ?? [])]).toEqual(["Hera"]);
+  });
+});
+
 describe("throwing a run away", () => {
   /**
    * The other run boundary, and the difference is the whole of it: an abandoned

@@ -280,6 +280,20 @@ export interface ManualSource extends RunStateSource {
   clearRun(): Promise<void>;
 
   /**
+   * The run this game filed last, or null where nothing has been filed yet.
+   *
+   * Read back out of the record rather than remembered, because surviving a
+   * reload is the whole of what the second record is for — a copy held in
+   * memory would be right until the one moment it has to be.
+   *
+   * Throws where the record will not decode, which is contained in a way the
+   * active run's version of the same failure is not: nothing else on the page
+   * depends on it, so the caller can report it and carry on rather than having
+   * to set the record aside and start over.
+   */
+  lastRun(): Promise<RunState | null>;
+
+  /**
    * The last storage failure, or null. A view showing this is the difference
    * between a run that is not being saved and a run that looks fine.
    */
@@ -1259,6 +1273,18 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       // the fresh run's pins are as empty as its held boons.
       for (const listener of listeners) listener(state.facts);
       for (const listener of intentListeners) listener(state.intent);
+    },
+
+    async lastRun(): Promise<RunState | null> {
+      const record = await store.load(catalog.game, "last");
+      if (record === null) return null;
+      const { state } = fromPersisted(record);
+      // Derived on the way out, the record deliberately not carrying a count it
+      // could hold a stale copy of. Same call the seed and every commit make.
+      return {
+        ...state,
+        facts: { ...state.facts, elements: elementsFrom(state.facts.held, catalog) },
+      };
     },
 
     /**
