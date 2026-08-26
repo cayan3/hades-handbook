@@ -22,6 +22,7 @@
  */
 
 export { dataFor, isLoaded, loadGame } from "./data.js";
+export { perGame } from "./per-game.js";
 export type { GameData, GameKey } from "./game-data.js";
 export { createLookups } from "./lookups.js";
 export { forcingKeepsakes, keepsakesFor } from "./keepsakes.js";

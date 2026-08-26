@@ -2171,6 +2171,7 @@ describe("the save screen", () => {
     expect(container.querySelector(".app__gods")).not.toBeNull();
   });
 
+
   it("goes back to the front page rather than into the game", async () => {
     window.location.hash = GAME_HASH.hades2;
     await act(async () => {

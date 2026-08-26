@@ -236,8 +236,13 @@ function GameApp({
 
   /* Both of these wear the header, or a run that will not open is a page with
      no way off it — which it was until the header became something every page
-     has. */
-  if (state.kind === "opening") {
+     has.
+
+     `state.game !== game` is the switch: the prop moves a render before the
+     hook does, so this is the frame where the open session still belongs to the
+     game being left. Rendering through it hands one game's session to the
+     other's surfaces, whose catalog has not loaded. */
+  if (state.kind === "opening" || (state.kind === "open" && state.game !== game)) {
     return (
       <div className="app">
         <SiteHeader game={game} />

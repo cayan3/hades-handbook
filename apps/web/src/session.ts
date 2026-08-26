@@ -69,6 +69,18 @@ export type SessionState =
   | { readonly kind: "opening" }
   | {
       readonly kind: "open";
+      /**
+       * Which game this session is for, and it is on the state rather than
+       * inferred because the caller cannot infer it.
+       *
+       * Switching games changes the prop before the effect below has run, so
+       * for one render the hook still holds the *previous* game's open session
+       * — and a caller reading only `kind` hands that session to a surface
+       * built for the new game. That used to cost a frame of the wrong run;
+       * since the catalog loads per game it is a throw, because the new game's
+       * data is exactly what has not arrived yet.
+       */
+      readonly game: GameId;
       readonly session: RunSession;
       /** False when the store refused and this run lives in memory only. */
       readonly persistent: boolean;
@@ -134,7 +146,7 @@ export function useRunSession(game: GameId, store: RunStore): SessionState {
             return;
           }
           opened = session;
-          setState({ kind: "open", session, persistent });
+          setState({ kind: "open", game, session, persistent });
         },
         (cause: unknown) => {
           if (!current) return;

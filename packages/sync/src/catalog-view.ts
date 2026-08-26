@@ -1,4 +1,4 @@
-import { type TraitRecord, dataFor, mirrorRowsFor, traitsFor, weaponsFor } from "@repo/catalog";
+import { type TraitRecord, dataFor, mirrorRowsFor, perGame, traitsFor, weaponsFor } from "@repo/catalog";
 import type {
   GameId,
   GodId,
@@ -205,10 +205,13 @@ function build(game: GameId): SyncCatalog {
   };
 }
 
-const SHIPPED: Readonly<Record<GameId, SyncCatalog>> = Object.freeze({
-  hades1: build("hades1"),
-  hades2: build("hades2"),
-});
+/*
+ * Built on the first ask rather than as this module loads. Eager, it read a
+ * snapshot before anything had fetched one, which is a throw on the first line
+ * of the app and a blank page — and no test could see it, every test file
+ * having both games loaded before it starts.
+ */
+const shipped = perGame(build);
 
 /**
  * The shipped catalog for one game, built once and handed back by identity.
@@ -218,5 +221,5 @@ const SHIPPED: Readonly<Record<GameId, SyncCatalog>> = Object.freeze({
  * efficiency moment 0_o).
  */
 export function shippedCatalog(game: GameId): SyncCatalog {
-  return SHIPPED[game];
+  return shipped(game);
 }
