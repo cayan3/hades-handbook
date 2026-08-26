@@ -15,6 +15,10 @@ export default defineConfig({
       "apps/*/src/**/*.test.tsx",
     ],
     exclude: ["**/node_modules/**", "**/dist/**", "tools/**"],
+    // Both games' catalogs, fetched before any file runs. The app awaits one at
+    // its route; a test has no route, and the alternative is an await in every
+    // file that reaches the shipped data. See the setup file.
+    setupFiles: ["./test-setup.ts"],
     // The runner stubs stylesheets with an empty module by default, to save work
     // no assertion was going to look at. One assertion does: the node ladder's
     // rule is that state is structural and never a colour, kept by a test that

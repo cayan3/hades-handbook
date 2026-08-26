@@ -1,5 +1,6 @@
 import type { GodId, KeepsakeId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
+import { perGame } from "./per-game.js";
 import { pooledByLootId } from "./gods.js";
 import type { KeepsakeRecord } from "./schema.js";
 
@@ -53,10 +54,7 @@ function build(game: GameKey): ReadonlyMap<KeepsakeId, GodId> {
   return forcing;
 }
 
-const FORCING: Readonly<Record<GameKey, ReadonlyMap<KeepsakeId, GodId>>> = Object.freeze({
-  hades1: build("hades1"),
-  hades2: build("hades2"),
-});
+const forcingFor = perGame(build);
 
 /**
  * The forcing keepsakes, each mapped to the god it forces.
@@ -66,7 +64,7 @@ const FORCING: Readonly<Record<GameKey, ReadonlyMap<KeepsakeId, GodId>>> = Objec
  * only reads.
  */
 export function forcingKeepsakes(game: GameKey): ReadonlyMap<KeepsakeId, GodId> {
-  return FORCING[game];
+  return forcingFor(game);
 }
 
 /**

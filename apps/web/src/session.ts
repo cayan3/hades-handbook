@@ -1,3 +1,4 @@
+import { loadGame } from "@repo/catalog";
 import type { GameId, RunFacts, RunIntent } from "@repo/core";
 import {
   type RunSession,
@@ -94,6 +95,13 @@ export function useRunSession(game: GameId, store: RunStore): SessionState {
     let opened: RunSession | null = null;
     setState({ kind: "opening" });
 
+    /*
+     * The game's catalog comes first, and everything after it is synchronous.
+     * `openRunSession` builds a catalog view out of the snapshot, and every
+     * surface under this route reads the same tables mid-render — so the one
+     * await is here, where the app was already waiting.
+     */
+
     /**
      * A store that refuses gets a run in memory rather than a dead page.
      *
@@ -105,11 +113,20 @@ export function useRunSession(game: GameId, store: RunStore): SessionState {
      * the quarantine makes one level down. It is loud rather than silent,
      * because the caller shows a notice for exactly this.
      */
-    void openRunSession({ game, store })
-      .then((session) => ({ session, persistent: true }))
-      .catch(() => openRunSession({ game, store: createMemoryStore() }).then(
-        (session) => ({ session, persistent: false }),
-      ))
+    void loadGame(game)
+      .then(() =>
+        openRunSession({ game, store })
+          .then((session) => ({ session, persistent: true }))
+          // Scoped to the store attempt, not to the catalog fetch above it: a
+          // snapshot that will not load is not a storage refusal, and retrying
+          // it against memory would report the wrong one of the two.
+          .catch(() =>
+            openRunSession({ game, store: createMemoryStore() }).then((session) => ({
+              session,
+              persistent: false,
+            })),
+          ),
+      )
       .then(
         ({ session, persistent }) => {
           if (!current) {

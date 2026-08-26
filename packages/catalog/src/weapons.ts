@@ -1,5 +1,6 @@
 import type { WeaponId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
+import { perGame } from "./per-game.js";
 import type { WeaponRecord } from "./schema.js";
 
 /**
@@ -18,14 +19,11 @@ function build(game: GameKey): readonly WeaponRecord[] {
   return Object.freeze(records);
 }
 
-const WEAPONS: Readonly<Record<GameKey, readonly WeaponRecord[]>> = Object.freeze({
-  hades1: build("hades1"),
-  hades2: build("hades2"),
-});
+const weapons = perGame(build);
 
 /** Every weapon of a game, for the bar that draws one tab each. */
 export function weaponsFor(game: GameKey): readonly WeaponRecord[] {
-  return WEAPONS[game];
+  return weapons(game);
 }
 
 /**
@@ -34,7 +32,7 @@ export function weaponsFor(game: GameKey): readonly WeaponRecord[] {
  * away between snapshots is a stale bookmark rather than a defect.
  */
 export function weaponFor(game: GameKey, weapon: WeaponId): WeaponRecord | undefined {
-  return WEAPONS[game].find((record) => record.id === weapon);
+  return weapons(game).find((record) => record.id === weapon);
 }
 
 /**
@@ -42,5 +40,5 @@ export function weaponFor(game: GameKey, weapon: WeaponId): WeaponRecord | undef
  * asks. `equipped.weapon` had no table to check against and so had no guard.
  */
 export function isWeapon(game: GameKey, weapon: string): boolean {
-  return WEAPONS[game].some((record) => record.id === weapon);
+  return weapons(game).some((record) => record.id === weapon);
 }

@@ -1,5 +1,6 @@
 import type { GodId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
+import { perGame } from "./per-game.js";
 import type { GodRecord } from "./schema.js";
 
 /**
@@ -35,10 +36,7 @@ function build(game: GameKey): { gods: ReadonlySet<GodId>; byLootId: ReadonlyMap
   return { gods, byLootId };
 }
 
-const POOLED: Readonly<Record<GameKey, ReturnType<typeof build>>> = Object.freeze({
-  hades1: build("hades1"),
-  hades2: build("hades2"),
-});
+const pooled = perGame(build);
 
 /**
  * The pool-slot gods, keyed by the name a requirement and a run's god pool both
@@ -48,10 +46,10 @@ const POOLED: Readonly<Record<GameKey, ReturnType<typeof build>>> = Object.freez
  * membership, and none of them needs an order.
  */
 export function poolGods(game: GameKey): ReadonlySet<GodId> {
-  return POOLED[game].gods;
+  return pooled(game).gods;
 }
 
 /** The same gods keyed by loot table id, which is the space keepsakes name. */
 export function pooledByLootId(game: GameKey): ReadonlyMap<string, GodId> {
-  return POOLED[game].byLootId;
+  return pooled(game).byLootId;
 }

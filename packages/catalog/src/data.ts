@@ -1,24 +1,20 @@
-import hades1Boons from "../data/hades1/boons.json" with { type: "json" };
-import hades1Descriptions from "../data/hades1/descriptions.json" with { type: "json" };
-import hades1Gods from "../data/hades1/gods.json" with { type: "json" };
-import hades1Keepsakes from "../data/hades1/keepsakes.json" with { type: "json" };
-import hades1MirrorRows from "../data/hades1/mirror_rows.json" with { type: "json" };
-import hades1NamedSets from "../data/hades1/named_sets.json" with { type: "json" };
-import hades1Talents from "../data/hades1/talents.json" with { type: "json" };
-import hades1Version from "../data/hades1/version.json" with { type: "json" };
-import hades1Weapons from "../data/hades1/weapons.json" with { type: "json" };
-import hades2Boons from "../data/hades2/boons.json" with { type: "json" };
-import hades2Descriptions from "../data/hades2/descriptions.json" with { type: "json" };
-import hades2Gods from "../data/hades2/gods.json" with { type: "json" };
-import hades2Keepsakes from "../data/hades2/keepsakes.json" with { type: "json" };
-import hades2MirrorRows from "../data/hades2/mirror_rows.json" with { type: "json" };
-import hades2NamedSets from "../data/hades2/named_sets.json" with { type: "json" };
-import hades2Talents from "../data/hades2/talents.json" with { type: "json" };
-import hades2Version from "../data/hades2/version.json" with { type: "json" };
-import hades2Weapons from "../data/hades2/weapons.json" with { type: "json" };
+import type { GameData, GameKey } from "./game-data.js";
 
 /**
- * The extracted snapshot (just loaded here, nothing else :salute: :salute:).
+ * The registry over the extracted snapshots, and the one place a game's data
+ * is fetched.
+ *
+ * The files themselves live in a module per game, imported dynamically by
+ * `loadGame` and by nothing else. That is the whole of the code split: a run
+ * reads one game, so bundling both put the other game's ~34 or ~46 kB gzip in
+ * front of every visitor, and the front page — the page a stranger lands on —
+ * paid for both and read neither.
+ *
+ * **Everything downstream stays synchronous.** `traitsFor`, `godsFor`, the
+ * asset resolver, both rules packages and the sync catalog view all call
+ * `dataFor` in the middle of a render or an evaluation, so making that async
+ * would have made the whole stack async to defer two files. The await happens
+ * once, at the route, where the app is already waiting on a run to open.
  *
  * Purposefully untyped beyond `unknown` bc these files are the extractor's own
  * output shape, which isn't (yet) the shape we want for the app itself. There
@@ -27,62 +23,70 @@ import hades2Weapons from "../data/hades2/weapons.json" with { type: "json" };
  * Big-picture-wise, the "loading" is what was literally missing, while the
  * "validating" of everything actually being correct is owned by the schema.
  *
- * Using static imports instead of file reads here bc this package doesn't have
- * any build steps and directly ships its sources (so something like a
- * `readFileSync` would work under Node but break if same module is bundled for
- * a browser, which is where this project is actually yk trying to do rip).
- * This means consumers can resolve any imports themselves, and that any missing
- * or malformed data files give typecheck failures instead of runtime ones.
- *
  * The Codex descriptions are here now, and they arrive by the route that was
  * always the condition for shipping them: `textFor` exists, so withdrawing the
  * games' own prose is one function body rather than a sweep. Only the entries a
  * record points at are carried, and the markup is resolved at extraction time,
  * so what ships is prose rather than the whole help file.
  */
-export interface GameData {
-  readonly boons: unknown;
-  readonly gods: unknown;
-  readonly keepsakes: unknown;
-  readonly namedSets: unknown;
-  /** Codex prose, keyed by the `descriptionRef` a trait record names. */
-  readonly descriptions: unknown;
-  /** Mirror talents and their rows. Hades I only; both empty in Hades II. */
-  readonly talents: unknown;
-  readonly mirrorRows: unknown;
-  /** The six weapons, and which forms each offers. Both games. */
-  readonly weapons: unknown;
-  /** Which game build this snapshot came from; becomes `RunFacts.dataVersion`. */
-  readonly version: unknown;
+
+export type { GameData, GameKey } from "./game-data.js";
+
+const loaded = new Map<GameKey, GameData>();
+/** Kept so that two callers asking at once share one fetch rather than racing. */
+const loading = new Map<GameKey, Promise<void>>();
+
+/**
+ * Fetches one game's snapshot, and is idempotent.
+ *
+ * A switch rather than a template literal in the import, which would have a
+ * bundler match every sibling module by pattern and quietly widen the chunk
+ * back out to whatever else the directory holds.
+ */
+export async function loadGame(game: GameKey): Promise<void> {
+  if (loaded.has(game)) return;
+  const already = loading.get(game);
+  if (already !== undefined) return already;
+
+  const fetching = (async () => {
+    switch (game) {
+      case "hades1": {
+        const module = await import("./data-hades1.js");
+        loaded.set(game, module.data);
+        return;
+      }
+      case "hades2": {
+        const module = await import("./data-hades2.js");
+        loaded.set(game, module.data);
+        return;
+      }
+    }
+  })().finally(() => {
+    loading.delete(game);
+  });
+
+  loading.set(game, fetching);
+  return fetching;
 }
 
-export const gameData = {
-  hades1: {
-    boons: hades1Boons,
-    gods: hades1Gods,
-    keepsakes: hades1Keepsakes,
-    namedSets: hades1NamedSets,
-    descriptions: hades1Descriptions,
-    talents: hades1Talents,
-    mirrorRows: hades1MirrorRows,
-    weapons: hades1Weapons,
-    version: hades1Version,
-  },
-  hades2: {
-    boons: hades2Boons,
-    gods: hades2Gods,
-    keepsakes: hades2Keepsakes,
-    namedSets: hades2NamedSets,
-    descriptions: hades2Descriptions,
-    talents: hades2Talents,
-    mirrorRows: hades2MirrorRows,
-    weapons: hades2Weapons,
-    version: hades2Version,
-  },
-} as const satisfies Record<string, GameData>;
+/** Whether a game's snapshot is here, which is what a caller awaits on. */
+export function isLoaded(game: GameKey): boolean {
+  return loaded.has(game);
+}
 
-export type GameKey = keyof typeof gameData;
-
+/**
+ * One game's snapshot, or a throw.
+ *
+ * Throwing is the point. A code split's one failure that still looks like it
+ * works is the half-load: hand back an empty table and every god has no boons,
+ * every page draws nothing, and nothing anywhere reports a problem. So the
+ * absence is loud, and it is a programming error rather than a thing a user can
+ * cause — `loadGame` is awaited before any surface that reads this renders.
+ */
 export function dataFor(game: GameKey): GameData {
-  return gameData[game];
+  const data = loaded.get(game);
+  if (data === undefined) {
+    throw new Error(`${game} data has not been loaded; await loadGame("${game}") first`);
+  }
+  return data;
 }

@@ -21,8 +21,8 @@
  * names a trait that exists).
  */
 
-export { dataFor, gameData } from "./data.js";
-export type { GameData, GameKey } from "./data.js";
+export { dataFor, isLoaded, loadGame } from "./data.js";
+export type { GameData, GameKey } from "./game-data.js";
 export { createLookups } from "./lookups.js";
 export { forcingKeepsakes, keepsakesFor } from "./keepsakes.js";
 export { poolGods } from "./gods.js";

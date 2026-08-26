@@ -7,6 +7,11 @@
     "The two projects together cover the whole workspace."
   ],
   "extends": "./tsconfig.base.json",
-  "include": ["packages/*/src/**/*.ts", "apps/*/src/**/*.ts", "vitest.config.ts"],
+  "include": [
+    "packages/*/src/**/*.ts",
+    "apps/*/src/**/*.ts",
+    "vitest.config.ts",
+    "test-setup.ts"
+  ],
   "exclude": ["node_modules", "**/dist", "tools", "packages/ui", "apps/web"]
 }

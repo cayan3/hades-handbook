@@ -1,5 +1,6 @@
 import { type GameKey, dataFor } from "./data.js";
 import { overlayFor } from "./overlay.js";
+import { perGame } from "./per-game.js";
 import { type TraitRecord, isRequirementNode } from "./schema.js";
 
 /**
@@ -81,13 +82,10 @@ function merge(game: GameKey): {
   return { records: Object.freeze(merged), refused: Object.freeze(refused.sort()) };
 }
 
-const MERGED: Readonly<Record<GameKey, ReturnType<typeof merge>>> = Object.freeze({
-  hades1: merge("hades1"),
-  hades2: merge("hades2"),
-});
+const merged = perGame(merge);
 
 export function traitsFor(game: GameKey): Readonly<Record<string, TraitRecord>> {
-  return MERGED[game].records;
+  return merged(game).records;
 }
 
 /**
@@ -96,5 +94,5 @@ export function traitsFor(game: GameKey): Readonly<Record<string, TraitRecord>> 
  * app with nothing naming it gets rediscovered as a bug two sessions later.
  */
 export function refusedTraits(game: GameKey): readonly string[] {
-  return MERGED[game].refused;
+  return merged(game).refused;
 }
