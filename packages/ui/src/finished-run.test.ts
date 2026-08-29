@@ -90,7 +90,7 @@ describe("the run an overview draws", () => {
     );
 
     expect(run.groups.map((group) => group.label)).toEqual(["god:Zeus", "god:Ares"]);
-    expect(run.groups[0]?.boons.map((view) => view.trait)).toEqual(["ZeusAttack"]);
+    expect(run.groups[0]?.boons.map((boon) => boon.view.trait)).toEqual(["ZeusAttack"]);
   });
 
   /* The two names are deliberately in the opposite order alphabetically, or
@@ -102,7 +102,7 @@ describe("the run an overview draws", () => {
       SLOTS,
     );
 
-    expect(run.groups[0]?.boons.map((view) => view.trait)).toEqual(["ZeusAttack", "AegisOfZeus"]);
+    expect(run.groups[0]?.boons.map((boon) => boon.view.trait)).toEqual(["ZeusAttack", "AegisOfZeus"]);
   });
 
   /**
@@ -114,7 +114,7 @@ describe("the run an overview draws", () => {
 
     const group = run.groups.find((entry) => entry.weapon !== null);
     expect(group?.weapon).toBe("WeaponSword");
-    expect(group?.boons.map((view) => view.trait)).toEqual(["SwordHammer"]);
+    expect(group?.boons.map((boon) => boon.view.trait)).toEqual(["SwordHammer"]);
     expect(run.held).toBe(1);
   });
 
@@ -122,20 +122,68 @@ describe("the run an overview draws", () => {
     const run = finishedRun(world(), state({ held: held("Nowhere") }), SLOTS);
 
     expect(run.groups.map((group) => group.key)).toEqual(["other"]);
-    expect(run.groups[0]?.boons.map((view) => view.trait)).toEqual(["Nowhere"]);
+    expect(run.groups[0]?.boons.map((boon) => boon.view.trait)).toEqual(["Nowhere"]);
   });
 
-  /** Once, or the groups stop adding up to the count above them. */
-  it("draws a Duo under one of its two gods", () => {
+  /**
+   * Under both, which is what the member lists do and what every other surface
+   * here does. So the groups total more than `held`, and that is right: the
+   * count is boons the run held and the groups are where to find each one.
+   */
+  it("draws a Duo under both of its gods", () => {
     const run = finishedRun(
       world(),
       state({ held: held("Curse"), godPool: new Set(["Zeus", "Ares"]) }),
       SLOTS,
     );
 
-    const drawn = run.groups.flatMap((group) => group.boons.map((view) => view.trait));
-    expect(drawn).toEqual(["Curse"]);
+    expect(run.groups.map((group) => group.label)).toEqual(["god:Zeus", "god:Ares"]);
+    for (const group of run.groups) {
+      expect(group.boons.map((boon) => boon.view.trait)).toEqual(["Curse"]);
+    }
     expect(run.held).toBe(1);
+  });
+
+  /**
+   * The level is the run's, not the catalog's, so it has to come off `held`
+   * rather than off the view — nothing else carries it.
+   */
+  it("carries how far each boon was levelled", () => {
+    const run = finishedRun(
+      world(),
+      state({
+        held: new Map([
+          ["ZeusAttack", { rarity: "Common", level: 3 }],
+          ["AresAttack", { rarity: "Common", level: 1 }],
+        ]),
+        godPool: new Set(["Zeus", "Ares"]),
+      }),
+      SLOTS,
+    );
+
+    const levels = Object.fromEntries(
+      run.groups.flatMap((group) => group.boons.map((boon) => [boon.view.trait, boon.level])),
+    );
+    expect(levels).toEqual({ ZeusAttack: 3, AresAttack: 1 });
+  });
+
+  /**
+   * Two goals fed by the same boon are two goals, each asked about itself. The
+   * count is over pins rather than over contributing boons, so nothing can be
+   * counted twice — and nothing shared can make one goal answer for the other.
+   */
+  it("counts goals one per pin, however much they overlap", () => {
+    const run = finishedRun(
+      world(),
+      state(
+        { held: held("ZeusAttack"), godPool: new Set(["Zeus"]) },
+        { pins: new Set<TraitId>(["ZeusAttack", "AegisOfZeus"]) },
+      ),
+      SLOTS,
+    );
+
+    expect(run.goals).toBe(2);
+    expect(run.goalsMet).toBe(1);
   });
 
   /** A boon whose god left the pool is still a boon the run held. */
@@ -153,7 +201,7 @@ describe("the run an overview draws", () => {
     );
 
     expect(run.weapon?.weapon).toBe("WeaponSword");
-    expect(run.weapon?.form?.trait).toBe("SwordAspect");
+    expect(run.weapon?.form?.view.trait).toBe("SwordAspect");
     // Equipped, so it is not one of the boons and is not counted as one.
     expect(run.held).toBe(0);
     expect(run.groups).toEqual([]);

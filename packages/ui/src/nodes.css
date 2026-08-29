@@ -2506,7 +2506,7 @@ kbd {
 
 .saves__slots {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--saveslots, 2), minmax(0, 1fr));
   gap: 1rem;
   margin: 0 0 1.2rem;
   padding: 0;
@@ -2623,17 +2623,20 @@ kbd {
   letter-spacing: 0.06em;
 }
 
-/* Centred under the row, where both games put the arrow out. The second way out
-   only exists once a run has been filed, so the row centres whatever is in it
-   rather than reserving a place for something that is usually not there. */
-.saves__ways {
-  display: flex;
-  gap: 0.8rem;
-  justify-content: center;
+@media (max-width: 48rem) {
+  .saves__slots {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
-.saves__back,
-.saves__review {
+/* The filed run is a slot like the others and reads as the quieter one: it is
+   the run behind you, and the two live choices are beside it. */
+.saves__slot[data-filed="true"] {
+  opacity: 0.85;
+}
+
+/* Centred under the row, where both games put the arrow out. */
+.saves__back {
   display: block;
   margin: 0 auto;
   padding: 0.4rem 1.2rem;
@@ -2672,6 +2675,17 @@ kbd {
   --game: var(--hades2, #119f4c);
 }
 
+/*
+ * The two games' results screens differ in character rather than in content, and
+ * this is that difference in our own neutrals — the same bargain the save screen
+ * makes, and the reason no game art is fetched for this surface: Hades II ships
+ * none for its results screen at all, and Hades I's is a fixed composition that
+ * cannot be a frame.
+ *
+ * Hades I rules its heading off in the game's own gold and centres everything
+ * under it; Hades II leads with a heavier, wider-tracked title and no rule,
+ * which is how its own screen opens.
+ */
 .overview__title {
   margin: 0 0 1.2rem;
   font-family: var(--face-display, inherit);
@@ -2679,6 +2693,24 @@ kbd {
   letter-spacing: 0.22em;
   text-align: center;
   text-transform: uppercase;
+}
+
+.overview[data-game="hades1"] .overview__title {
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--game) 45%, transparent);
+}
+
+.overview[data-game="hades2"] .overview__title {
+  font-size: 1.3rem;
+  letter-spacing: 0.3em;
+}
+
+/* Hades II slabs its panels and Hades I rules them, which is the same split the
+   Codex row already draws for the two games. */
+.overview[data-game="hades2"] .overview__group {
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 3%);
 }
 
 /* The three counts on one row, each a label above its value — the arrangement
@@ -2786,12 +2818,43 @@ kbd {
   list-style: none;
 }
 
+/* A control rather than a label: a finished run is read to look things up in,
+   and the row it opens is what somebody came back for. */
 .overview__tile {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   align-items: center;
   width: 5.5rem;
+  padding: 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.overview__tile:hover,
+.overview__tile:focus-visible {
+  background: rgb(255 255 255 / 6%);
+}
+
+.overview__tile[data-open="true"] {
+  border-color: var(--god, rgb(255 255 255 / 30%));
+  background: rgb(255 255 255 / 8%);
+}
+
+/* Under the whole row rather than beside the tile, so opening one does not
+   reflow the grid it sits in. */
+.overview__detail {
+  margin-top: 0.9rem;
+}
+
+.overview__activation {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
 }
 
 /* Two sizes for the same reason the god page and the Loadout each declare two:
@@ -2824,11 +2887,13 @@ kbd {
 
 .overview__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.8rem;
   justify-content: center;
   margin-bottom: 1rem;
 }
 
+.overview__reopen,
 .overview__close {
   padding: 0.4rem 1.2rem;
   border: 1px solid rgb(255 255 255 / 25%);

@@ -8,7 +8,7 @@ import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TraitId } from "@repo/core";
-import type { FinishedRun } from "./finished-run.js";
+import type { FinishedBoon, FinishedRun } from "./finished-run.js";
 import type { NodeView } from "./node-view.js";
 import { NodePresentation } from "./presentation.js";
 import { RunOverview } from "./run-overview.js";
@@ -63,6 +63,22 @@ function view(name: string): NodeView {
   };
 }
 
+/** A boon as the derivation hands one over: the view, its detail and its level. */
+function boon(name: string, over: Partial<FinishedBoon> = {}): FinishedBoon {
+  return {
+    view: view(name),
+    detail: {
+      description: `What ${name} does.`,
+      needed: [],
+      rows: [],
+      activation: [],
+      displaces: null,
+    },
+    level: 1,
+    ...over,
+  };
+}
+
 function run(over: Partial<FinishedRun> = {}): FinishedRun {
   return {
     held: 0,
@@ -92,7 +108,7 @@ describe("Run Overview", () => {
    */
   it("passes no verdict on the run", () => {
     render(
-      overview({ held: 3, gods: 2, groups: [{ key: "god:Poseidon", label: "Poseidon", god: "Poseidon", weapon: null, boons: [view("Tidal Dash")] }] }),
+      overview({ held: 3, gods: 2, groups: [{ key: "god:Poseidon", label: "Poseidon", god: "Poseidon", weapon: null, boons: [boon("Tidal Dash")] }] }),
     );
 
     for (const word of ["Escaped", "Died", "Victory", "Defeat", "Cleared"]) {
@@ -123,14 +139,14 @@ describe("Run Overview", () => {
             label: "Poseidon",
             god: "Poseidon",
             weapon: null,
-            boons: [view("Tidal Dash"), view("Wave Pulse")],
+            boons: [boon("Tidal Dash"), boon("Wave Pulse")],
           },
           {
             key: "weapon:WeaponSword",
             label: "Stygian Blade",
             god: null,
             weapon: "WeaponSword",
-            boons: [view("Breaching Slash")],
+            boons: [boon("Breaching Slash")],
           },
         ],
       }),
@@ -146,7 +162,10 @@ describe("Run Overview", () => {
 
   it("names the elements the run gathered, and draws no row without them", () => {
     render(overview({ elements: [{ element: "Water", count: 3 }] }));
-    expect(texts(".overview__elements li")).toEqual(["Water 3"]);
+    // The mark and the number are what is drawn; the word is carried for a
+    // reader who gets no mark.
+    expect(texts(".overview__elements li")).toEqual(["3Water: 3"]);
+    expect(container.querySelector(".overview__elements li span")?.textContent).toBe("3");
 
     render(overview({}));
     expect(container.querySelector(".overview__elements")).toBeNull();
@@ -155,7 +174,7 @@ describe("Run Overview", () => {
   it("draws the weapon and the form it was carrying", () => {
     render(
       overview({
-        weapon: { weapon: "WeaponSword", name: "Stygian Blade", form: view("Aspect of Nemesis") },
+        weapon: { weapon: "WeaponSword", name: "Stygian Blade", form: boon("Aspect of Nemesis") },
       }),
     );
 
@@ -185,6 +204,109 @@ describe("Run Overview", () => {
     expect(container.querySelector(".overview__unaffiliated")?.textContent).toContain(
       "no connection to them",
     );
+  });
+
+  /**
+   * A Duo answers to two gods, so inside one god's group it used to fall to the
+   * unassigned neutral — which reads as a boon whose god the app could not work
+   * out. On a surface with no page god the games' own Duo colour is the answer.
+   */
+  it("gives a Duo the Duo colour rather than a god's or the neutral", () => {
+    const duo = boon("Zeus & Hera", { view: { ...view("Zeus & Hera"), god: null, kind: "duo" } });
+    render(
+      overview({
+        groups: [
+          {
+            key: "god:Hera",
+            label: "Hera",
+            god: "Hera",
+            weapon: null,
+            boons: [duo, boon("Sworn Strike", { view: { ...view("Sworn Strike"), god: "Hera" } })],
+          },
+        ],
+      }),
+    );
+
+    const icons = [...container.querySelectorAll<HTMLElement>(".overview__tileicon")];
+    expect(icons[0]?.style.getPropertyValue("--god")).toBe("#D2FF61");
+    // And an ordinary boon of the group's god is untouched by the rule.
+    expect(icons[1]?.style.getPropertyValue("--god")).toBe("#2080FF");
+  });
+
+  /** The pointer answers without opening anything, which is most of the asking. */
+  it("says what a boon is on the pointer, and its level only past the first", () => {
+    render(
+      overview({
+        groups: [
+          {
+            key: "god:Poseidon",
+            label: "Poseidon",
+            god: "Poseidon",
+            weapon: null,
+            boons: [
+              boon("Tidal Dash", { level: 3 }),
+              boon("Wave Pulse"),
+            ],
+          },
+        ],
+      }),
+    );
+
+    const tiles = [...container.querySelectorAll<HTMLElement>(".overview__tile")];
+    expect(tiles[0]?.title).toBe("Tidal Dash — Common — Level 3");
+    // Every boon is level 1, so saying so on all of them is noise.
+    expect(tiles[1]?.title).toBe("Wave Pulse — Common");
+  });
+
+  /**
+   * The detail belongs to this view rather than to something it opens: a
+   * finished run is read to look things up in.
+   */
+  it("opens a boon's Codex row in place, one at a time", () => {
+    render(
+      overview({
+        groups: [
+          {
+            key: "god:Poseidon",
+            label: "Poseidon",
+            god: "Poseidon",
+            weapon: null,
+            boons: [boon("Tidal Dash"), boon("Wave Pulse")],
+          },
+        ],
+      }),
+    );
+    expect(container.querySelector(".overview__detail")).toBeNull();
+
+    const tiles = [...container.querySelectorAll<HTMLElement>(".overview__tile")];
+    act(() => tiles[0]!.click());
+    expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Tidal Dash does.");
+    expect(tiles[0]?.getAttribute("aria-expanded")).toBe("true");
+
+    act(() => tiles[1]!.click());
+    expect(container.querySelectorAll(".overview__detail")).toHaveLength(1);
+    expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Wave Pulse does.");
+
+    // The control that opened it closes it.
+    act(() => tiles[1]!.click());
+    expect(container.querySelector(".overview__detail")).toBeNull();
+  });
+
+  /** Offered only where the caller says there is something to pick back up. */
+  it("offers to pick the run back up only when handed a way to", () => {
+    render(overview({ held: 1 }));
+    expect(container.querySelector(".overview__reopen")).toBeNull();
+
+    const onReopen = vi.fn();
+    act(() =>
+      root.render(
+        <NodePresentation ladder="real-art" game="hades2">
+          <RunOverview run={run({ held: 1 })} onClose={() => {}} onReopen={onReopen} />
+        </NodePresentation>,
+      ),
+    );
+    act(() => container.querySelector<HTMLButtonElement>(".overview__reopen")?.click());
+    expect(onReopen).toHaveBeenCalledTimes(1);
   });
 
   it("closes on the control and on Escape", () => {
