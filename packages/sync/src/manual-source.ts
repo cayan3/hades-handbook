@@ -298,15 +298,13 @@ export interface ManualSource extends RunStateSource {
    * record empty.
    *
    * **Refuses where the current run has started**, which is the one way this
-   * could lose a run: there is only ever one active slot, so adopting the filed
-   * run over a run somebody is playing would overwrite it with no record left
-   * anywhere. The caller offers this on a fresh run, which is where a player
-   * wants it — right after ending one.
+   * could lose a run: there is one active slot, so adopting over a run somebody
+   * is playing overwrites it with no record left anywhere.
    *
    * **`last` is cleared rather than left.** A run cannot be both the one in
-   * progress and the one before it; left in place, the save screen would offer
-   * the same run twice and ending it would file it over itself. Ending it again
-   * files it again, so nothing is lost by this that the player cannot redo.
+   * progress and the one before it; left in place the save screen would offer
+   * the same run twice. Ending it again re-files it, so nothing is lost that
+   * cannot be redone.
    */
   resumeLastRun(): Promise<void>;
 

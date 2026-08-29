@@ -84,19 +84,15 @@ export function godIconFor(game: GameKey, god: GodId): string {
  * Gods one game grants boons for while naming no symbol for them, and the game
  * whose symbol they borrow.
  *
- * **Written out rather than looked up, and that is the point.** This used to ask
- * the *other* game's table for the key — which was free while both games' data
- * was always in memory and is a throw now that a game's catalog arrives at its
- * own route: drawing a Hades II page reached for Hades I's tables and found
- * nothing loaded. The key is `BoonSymbol` plus the god's name in every case, so
- * the lookup was buying a string it could construct.
+ * Written out rather than looked up: this asked the *other* game's table for the
+ * key, which is a throw now that a game's catalog arrives at its own route. The
+ * key is `BoonSymbol` plus the god's name in every case, so the lookup was
+ * buying a string it could construct.
  *
- * Three of the four are Hades II's cameo gods — Artemis, Athena and Dionysus
- * grant boons there without appearing in its loot table, which is what leaves
- * them without a symbol of their own. Measured over every god a run can meet in
- * either game, these four are the whole of it, and a test holds this table
- * against the two tables so a patch that gives one of them its own symbol shows
- * up as a failure rather than as a file nobody notices is unused.
+ * Three of the four are Hades II's cameo gods, who grant boons without
+ * appearing in its loot table and so have no symbol of their own. Measured over
+ * every god a run can meet, these four are the whole of it, and a test holds
+ * this table against the two it copies from.
  */
 const BORROWED_SYMBOLS: Readonly<Record<GameKey, Readonly<Record<string, GameKey>>>> = {
   hades1: { Selene: "hades2" },

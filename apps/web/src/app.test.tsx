@@ -109,10 +109,13 @@ function texts(selector: string): string[] {
 const GOD_TABS = ".app__godtab:not(.app__weapontab)";
 
 /** The first control whose text is exactly this. */
-function control(label: string): HTMLElement {
+function control(label: string, optional: true): HTMLElement | null;
+function control(label: string): HTMLElement;
+function control(label: string, optional = false): HTMLElement | null {
   const found = [...container.querySelectorAll<HTMLElement>("button")].find(
     (button) => button.textContent?.trim() === label,
   );
+  if (optional) return found ?? null;
   if (found === undefined) {
     throw new Error(
       `no control "${label}"; there is ${texts("button").map((t) => `"${t.trim()}"`).join(", ")}`,
@@ -1096,7 +1099,8 @@ describe("the run overview", () => {
 
     await follow("#/");
     await follow(GAME_HASH.hades2);
-    expect(container.querySelector(".saves__review")).not.toBeNull();
+    // A slot of its own, which is how a save screen offers anything.
+    expect(container.querySelector(".saves__slot[data-filed] .saves__review")).not.toBeNull();
 
     await act(async () => {
       container.querySelector<HTMLElement>(".saves__review")?.click();
@@ -1133,6 +1137,92 @@ describe("the run overview", () => {
     expect(texts(".overview__tilename")).toContain(H2[APHRODITE_MELEE]?.name ?? "");
   });
 
+  /** Closing lands on the door, which is where somebody who just finished is. */
+  it("hands back to the save screen when the summary is done", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    await act(async () => {
+      control("End run").click();
+    });
+    expect(container.querySelector(".saves")).toBeNull();
+
+    click("Close");
+
+    expect(overview()).toBeNull();
+    expect(container.querySelector(".saves")).not.toBeNull();
+  });
+
+  /**
+   * The header's own way in, beside the run boundary. Reached from there it
+   * lets go back into the run rather than throwing up the door, which would be
+   * the summary taking the game away from a player still in it.
+   */
+  it("opens from the header and closes back into the run", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    await act(async () => {
+      control("End run").click();
+    });
+    click("Close");
+    // Back through the door and into a fresh run.
+    enterGame();
+    expect(container.querySelector(".saves")).toBeNull();
+
+    click("Last run");
+    expect(overview()).not.toBeNull();
+
+    click("Close");
+    expect(overview()).toBeNull();
+    expect(container.querySelector(".saves")).toBeNull();
+    expect(container.querySelector(".app__godbar")).not.toBeNull();
+  });
+
+  /**
+   * Picking it back up, which is the answer to wanting the finished run's build
+   * again: it becomes the run in progress rather than a second read-only copy
+   * of the app.
+   */
+  it("puts the filed run back as the run in progress", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    tap(APHRODITE_MELEE);
+    await act(async () => {
+      control("End run").click();
+    });
+
+    await act(async () => {
+      control("Pick this run back up").click();
+    });
+
+    expect(overview()).toBeNull();
+    expect(container.querySelector(".saves")).toBeNull();
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+    // One run, in one slot: it is not also still the run before this one.
+    expect(await store.load("hades2", "last")).toBeNull();
+    expect(control("Last run", true)).toBeNull();
+  });
+
+  /**
+   * There is one active slot, so this is offered only where nothing would be
+   * overwritten. The source refuses it too; this is the control not being drawn
+   * in the first place.
+   */
+  it("does not offer to pick it back up over a run in progress", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+    await act(async () => {
+      control("End run").click();
+    });
+    click("Close");
+    enterGame();
+    tap(ARES_MELEE);
+
+    click("Last run");
+
+    expect(overview()).not.toBeNull();
+    expect(container.querySelector(".overview__reopen")).toBeNull();
+  });
+
   /**
    * A record this build cannot read is said out loud rather than read as "no
    * run was ever filed" — the run is gone either way, and the difference is
@@ -1148,7 +1238,7 @@ describe("the run overview", () => {
     await mount(store);
 
     expect(texts(".notice__body").join(" ")).toContain("store version");
-    expect(container.querySelector(".saves__review")).toBeNull();
+    expect(container.querySelector(".saves__slot[data-filed]")).toBeNull();
   });
 });
 

@@ -20,10 +20,9 @@ import { kindWordColour, treatmentOf } from "./rarity-palette.js";
  * One view for both games, and the only content that differs is the element row,
  * which Hades I has no system for.
  *
- * **The detail is part of this view rather than something it opens.** A finished
- * run is read to look things up in, so a tile says what it is on the pointer and
- * opens its Codex row on a click — the same row the Action Sheet and the Boon
- * Card draw.
+ * The detail is part of this view rather than something it opens: a finished run
+ * is read to look things up in, so a tile answers on the pointer and opens its
+ * Codex row on a click.
  */
 export interface RunOverviewProps {
   readonly run: FinishedRun;
@@ -199,15 +198,14 @@ function Group({
  * a surface with no page god: a boon of a **kind** takes that kind's own colour
  * rather than a god's.
  *
- * A Duo is why this exists. It answers to two gods, so it has none of its own,
- * and inside a god's group it fell to the unassigned neutral — which reads as a
- * boon whose god the app could not work out. The Duo colour is the same on every
- * Duo, and that is exactly right here: what a Duo *is* is what this view is
- * naming.
+ * A Duo is why this exists. It answers to two gods, so inside a god's group it
+ * fell to the unassigned neutral — the hue that means the app could not work out
+ * whose a boon is, which is the wrong thing to say about one whose identity is
+ * answering to two.
  *
- * A god page differs on purpose and stays as it is. There a Duo takes its
- * *partner's* colour, which says more than the Duo colour can when one of its
- * two gods is the page you are already on.
+ * A god page differs on purpose and stays as it is: there a Duo takes its
+ * *partner's* colour, which says more when one of its gods is the page you are
+ * already on.
  */
 function tileColour(boon: FinishedBoon): string {
   return boon.view.kind === null ? godColour(boon.view.god) : kindWordColour(boon.view.kind);

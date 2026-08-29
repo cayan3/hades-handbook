@@ -29,13 +29,17 @@ export interface SaveScreenProps {
    * Opens the **Run Overview** on the run filed last, or null where nothing has
    * been filed.
    *
-   * The door is where it belongs: this is the screen where a player decides
-   * what to do with a game, and the run they finished is one of the things
-   * there is to do with it. Without a way back, the second record would be
-   * written, shown once and unreachable after a reload — which is the whole of
-   * what it exists to survive.
+   * The door is where it belongs: this is where a player decides what to do with
+   * a game, and the run they finished is one of those things. Without a way
+   * back, the second record would be written, shown once, and unreachable after
+   * a reload — which is the whole of what it exists to survive.
+   *
+   * A slot rather than a control under the row: a save screen offers things as
+   * slots, and a button beside *Back* read as chrome.
    */
   readonly onReviewLast?: (() => void) | null;
+  /** What the filed run holds, for the slot that offers it. */
+  readonly lastRun?: RunSummary | null;
 }
 
 export function SaveScreen({
@@ -44,6 +48,7 @@ export function SaveScreen({
   onNew,
   onLeave,
   onReviewLast = null,
+  lastRun = null,
 }: SaveScreenProps) {
   const game = useGame();
   const { ref, onKeyDown } = useDialog(onLeave);
@@ -70,7 +75,18 @@ export function SaveScreen({
             declaration inherits to all three, and a slot that is only ever
             drawn beside its siblings never differs from them. Absent art sets
             nothing and the plain border stays. */}
-        <ul className="saves__slots" style={chromeStyle(game, "saveslot") as CSSProperties}>
+        {/* The track count comes from here rather than from a stylesheet asking
+            what is inside: the row holds two or three depending on what is
+            stored, and a fixed grid leaves an empty column beside them. */}
+        <ul
+          className="saves__slots"
+          style={
+            {
+              ...chromeStyle(game, "saveslot"),
+              "--saveslots": String(slotCount(run, onReviewLast)),
+            } as CSSProperties
+          }
+        >
           {run === null ? null : (
             <li className="saves__slot" data-filled="true">
               <button type="button" className="saves__take" onClick={onResume}>
@@ -97,26 +113,45 @@ export function SaveScreen({
             </button>
           </li>
 
-          {run === null ? (
+          {onReviewLast === null ? null : (
+            <li className="saves__slot" data-filed="true">
+              <button type="button" className="saves__take saves__review" onClick={onReviewLast}>
+                <span className="saves__what">Your last run</span>
+                {lastRun === null ? null : (
+                  <dl className="saves__stats">
+                    <Stat label="Boons" value={lastRun.held} />
+                    <Stat label="Gods met" value={lastRun.gods} />
+                    <Stat label="Goals" value={lastRun.goals} />
+                  </dl>
+                )}
+              </button>
+            </li>
+          )}
+
+          {run === null && onReviewLast === null ? (
             <li className="saves__slot" data-empty="true">
               <span className="saves__empty">( Empty Save Slot )</span>
             </li>
           ) : null}
         </ul>
 
-        <div className="saves__ways">
-          <button type="button" className="saves__back" onClick={onLeave}>
-            Back
-          </button>
-          {onReviewLast === null ? null : (
-            <button type="button" className="saves__review" onClick={onReviewLast}>
-              Your last run
-            </button>
-          )}
-        </div>
+        <button type="button" className="saves__back" onClick={onLeave}>
+          Back
+        </button>
       </div>
     </div>
   );
+}
+
+/**
+ * How many slots the row draws, which the grid needs and a stylesheet cannot
+ * count: *Continue* where there is a run, *Start a new run* always, *Your last
+ * run* where one is filed, and the empty placeholder only when neither of the
+ * other two is there to say what is stored.
+ */
+function slotCount(run: RunSummary | null, onReviewLast: (() => void) | null): number {
+  const filled = (run === null ? 0 : 1) + (onReviewLast === null ? 0 : 1);
+  return filled === 0 ? 2 : filled + 1;
 }
 
 /** One line of a filled slot, the way both games lay their own out. */

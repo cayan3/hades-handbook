@@ -279,6 +279,7 @@ function GameApp({
       onCurated={onCurated}
       choosing={choosing}
       onChosen={() => setChoosing(false)}
+      onReturnToDoor={() => setChoosing(true)}
     />
   );
 }
@@ -292,6 +293,7 @@ function Run({
   onCurated,
   choosing,
   onChosen,
+  onReturnToDoor,
 }: {
   readonly game: GameId;
   readonly session: RunSession;
@@ -301,6 +303,8 @@ function Run({
   readonly onCurated: (curated: Curated) => void;
   readonly choosing: boolean;
   readonly onChosen: () => void;
+  /** Puts the door back up, which is where a finished summary lets go. */
+  readonly onReturnToDoor: () => void;
 }) {
   const facts = useFacts(session);
   const intent = useIntent(session);
@@ -340,7 +344,16 @@ function Run({
    */
   const [lastRun, setLastRun] = useState<RunState | null>(null);
   const [filed, setFiled] = useState(0);
-  const [reviewing, setReviewing] = useState(false);
+  /**
+   * Whether the summary is open, and what closing it goes back to.
+   *
+   * Two entrances and they let go in different places. Reached by ending a run,
+   * closing lands on the door — which is where a player who just finished is
+   * deciding what to do next. Reached from the header mid-run, closing puts
+   * them back in the run they were reading, and throwing up the door there
+   * would be the summary taking the game away from them.
+   */
+  const [reviewing, setReviewing] = useState<"door" | "run" | null>(null);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -711,6 +724,18 @@ function Run({
           >
             Goals{goals.length === 0 ? "" : ` (${goals.length})`}
           </button>
+          {lastOverview === null ? null : (
+            /* Beside the run boundary, which is the cluster that acts on the
+               run rather than on a page — and where End run sits, which is the
+               control a player has just used when they want this. */
+            <button
+              type="button"
+              className="app__lastrun"
+              onClick={() => setReviewing("run")}
+            >
+              Last run
+            </button>
+          )}
           <EndRun
             started={started}
             // The summary opens on the record, not on the run that was just in
@@ -718,7 +743,7 @@ function Run({
             onFinish={() =>
               session.finishRun().then(() => {
                 setFiled((at) => at + 1);
-                setReviewing(true);
+                setReviewing("door");
               })
             }
             onClear={() => session.clearRun()}
@@ -988,13 +1013,40 @@ function Run({
             reached from the save screen, and closing goes back to it. Two
             shades stacked would be one dialog behind another with no way of
             reading which is which. */}
-        {!reviewing || lastOverview === null ? null : (
-          <RunOverview run={lastOverview} onClose={() => setReviewing(false)} />
+        {reviewing === null || lastOverview === null ? null : (
+          <RunOverview
+            run={lastOverview}
+            onClose={() => {
+              const back = reviewing;
+              setReviewing(null);
+              if (back === "door") onReturnToDoor();
+            }}
+            /* Only on a run with nothing in it. There is one active slot, so
+               adopting the filed run over a run somebody is playing would
+               overwrite it with no record left anywhere — and a fresh run is
+               where a player wants this anyway, having just ended one. */
+            onReopen={
+              started
+                ? undefined
+                : () => {
+                    void session
+                      .resumeLastRun()
+                      .then(() => {
+                        setFiled((at) => at + 1);
+                        setReviewing(null);
+                        onChosen();
+                      })
+                      .catch((cause: unknown) => {
+                        setFault(cause instanceof Error ? cause : new Error(String(cause)));
+                      });
+                  }
+            }
+          />
         )}
 
         {/* The door, over the page rather than in front of it: dismissing it
             is the same as continuing, which is what makes Escape safe here. */}
-        {!choosing || reviewing ? null : (
+        {!choosing || reviewing !== null ? null : (
           <SaveScreen
             run={stored}
             onResume={onChosen}
@@ -1015,7 +1067,16 @@ function Run({
             onLeave={() => {
               window.location.hash = HOME_HASH;
             }}
-            onReviewLast={lastOverview === null ? null : () => setReviewing(true)}
+            onReviewLast={lastOverview === null ? null : () => setReviewing("door")}
+            lastRun={
+              lastOverview === null
+                ? null
+                : {
+                    held: lastOverview.held,
+                    gods: lastOverview.gods,
+                    goals: lastOverview.goals,
+                  }
+            }
           />
         )}
 
