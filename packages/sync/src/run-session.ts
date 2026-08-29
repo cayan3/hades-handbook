@@ -51,6 +51,14 @@ export interface RunSession {
    */
   clearRun(): Promise<void>;
 
+  /**
+   * Adopts the run filed last as the run in progress. Here for `finishRun`'s
+   * reason: the overlay is the one thing the source cannot reach, so a layer
+   * left alone would lay a fresh run's hand-edits over a run that arrived
+   * whole.
+   */
+  resumeLastRun(): Promise<void>;
+
   /** Stops the layer listening. The stored run is untouched. */
   close(): void;
 }
@@ -128,6 +136,22 @@ export async function openRunSession(options: OpenManualSourceOptions): Promise<
         // The run survived the failed write, so the hand-edits over it have to
         // as well, or a caller retrying is clearing something different from
         // what they asked about.
+        for (const o of handHeld) layer.setOverride(o);
+        throw cause;
+      }
+    },
+
+    /**
+     * The overlay goes first, for the reason above, and comes back on a
+     * failure: the run this was meant to replace is still there, so the
+     * hand-edits over it have to be too.
+     */
+    async resumeLastRun(): Promise<void> {
+      const handHeld = layer.overrides;
+      layer.clearOverrides();
+      try {
+        await source.resumeLastRun();
+      } catch (cause) {
         for (const o of handHeld) layer.setOverride(o);
         throw cause;
       }

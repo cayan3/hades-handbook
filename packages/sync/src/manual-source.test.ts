@@ -1142,6 +1142,95 @@ describe("the run filed last", () => {
   });
 
   /**
+   * Picking it back up: one active slot, so this is only safe on a run holding
+   * nothing, and the second record is emptied rather than left to be offered
+   * twice.
+   */
+  describe("picking it back up", () => {
+    it("makes the filed run the run in progress and empties the second record", async () => {
+      const store = createMemoryStore();
+      const source = await open(store);
+      source.mark("HeraAttack", { rarity: "Rare" });
+      source.pin("HeraSpecial");
+      await source.finishRun();
+
+      await source.resumeLastRun();
+
+      expect(source.getFacts().held.get("HeraAttack")).toEqual({ rarity: "Rare", level: 1 });
+      expect([...source.getState().intent.pins]).toEqual(["HeraSpecial"]);
+      expect(await store.load("hades2", "last")).toBeNull();
+      // And it is what a reload finds, rather than only what memory holds.
+      const reopened = await open(store);
+      expect([...reopened.getFacts().held.keys()]).toEqual(["HeraAttack"]);
+    });
+
+    /** The one way this could lose a run, and it is refused rather than warned. */
+    it("refuses while the run in progress holds something", async () => {
+      const store = createMemoryStore();
+      const source = await open(store);
+      source.mark("HeraAttack");
+      await source.finishRun();
+      source.mark("HeraSpecial");
+
+      await expect(source.resumeLastRun()).rejects.toThrow(/end it before/);
+
+      expect([...source.getFacts().held.keys()]).toEqual(["HeraSpecial"]);
+      expect((await store.load("hades2", "last"))?.facts.held).toHaveLength(1);
+    });
+
+    /** A pin alone counts as a run, on the same terms the End run control uses. */
+    it("refuses on a run holding only a pin", async () => {
+      const source = await open();
+      source.mark("HeraAttack");
+      await source.finishRun();
+      source.pin("HeraSpecial");
+
+      await expect(source.resumeLastRun()).rejects.toThrow(/end it before/);
+    });
+
+    it("says so where nothing has been filed", async () => {
+      const source = await open();
+
+      await expect(source.resumeLastRun()).rejects.toThrow(/no run has been filed/);
+    });
+
+    /** Derived on the way in, the record carrying no count of its own. */
+    it("counts the elements of the run it adopts", async () => {
+      const catalog = testCatalog({
+        game: "hades2",
+        dataVersion: "build-1",
+        traits: traitTable(
+          testTrait("HestiaAttack", { god: "Hestia", slot: "Melee", elementGrants: ["Fire"] }),
+        ),
+        gods: new Set(["Hestia"]),
+        slots: new Set(["Melee"]),
+      });
+      const source = await openManualSource({
+        game: "hades2",
+        catalog,
+        store: createMemoryStore(),
+      });
+      source.mark("HestiaAttack");
+      await source.finishRun();
+
+      await source.resumeLastRun();
+
+      expect(source.getFacts().elements.get("Fire")).toBe(1);
+    });
+
+    /** Nothing to take back: this is a run arriving whole, not an edit. */
+    it("offers no undo of the run it adopted", async () => {
+      const source = await open();
+      source.mark("HeraAttack");
+      await source.finishRun();
+
+      await source.resumeLastRun();
+
+      expect(source.lastEdit).toBeNull();
+    });
+  });
+
+  /**
    * The run as it really was. `finishRun` hands the overlay back before the
    * record is written, so a hand-held field is not part of what was filed.
    */

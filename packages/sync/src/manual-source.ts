@@ -294,6 +294,23 @@ export interface ManualSource extends RunStateSource {
   lastRun(): Promise<RunState | null>;
 
   /**
+   * Puts the run filed last back as the run in progress, and leaves the second
+   * record empty.
+   *
+   * **Refuses where the current run has started**, which is the one way this
+   * could lose a run: there is only ever one active slot, so adopting the filed
+   * run over a run somebody is playing would overwrite it with no record left
+   * anywhere. The caller offers this on a fresh run, which is where a player
+   * wants it — right after ending one.
+   *
+   * **`last` is cleared rather than left.** A run cannot be both the one in
+   * progress and the one before it; left in place, the save screen would offer
+   * the same run twice and ending it would file it over itself. Ending it again
+   * files it again, so nothing is lost by this that the player cannot redo.
+   */
+  resumeLastRun(): Promise<void>;
+
+  /**
    * The last storage failure, or null. A view showing this is the difference
    * between a run that is not being saved and a run that looks fine.
    */
@@ -1285,6 +1302,58 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
         ...state,
         facts: { ...state.facts, elements: elementsFrom(state.facts.held, catalog) },
       };
+    },
+
+    async resumeLastRun(): Promise<void> {
+      if (state.facts.held.size > 0 || state.intent.pins.size > 0) {
+        throw new Error("the run in progress holds something; end it before picking another up");
+      }
+      const record = await store.load(catalog.game, "last");
+      if (record === null) throw new Error("no run has been filed");
+      const restored = fromPersisted(record);
+
+      /*
+       * The active record first, then the second one is emptied. A failure
+       * between the two leaves the run in both slots, which a retry converges;
+       * the other order can leave it in neither. Same argument `finishRun`
+       * makes at the same boundary.
+       */
+      const failed: { cause: Error | null } = { cause: null };
+      writes = writes.then(async () => {
+        try {
+          await store.save(catalog.game, "active", record);
+          await store.clear(catalog.game, "last");
+          storageError = null;
+        } catch (cause) {
+          failed.cause = cause instanceof Error ? cause : new Error(String(cause));
+          storageError = failed.cause;
+        }
+        refreshCondition();
+      });
+      await writes;
+      if (failed.cause !== null) throw failed.cause;
+
+      state = {
+        ...restored.state,
+        facts: {
+          ...restored.state.facts,
+          elements: elementsFrom(restored.state.facts.held, catalog),
+        },
+      };
+      quarantine = [...restored.quarantine];
+      notice = null;
+      pending = restored.pendingNotice ?? null;
+      rewardedWithoutBoon = new Set(restored.rewardedWithoutBoon ?? []);
+      // The overrides the record carried are handed back the way a load hands
+      // them back; the overlay is the caller's to restore, as it is on open.
+      overrides = [...(restored.overrides ?? [])];
+      // Nothing to take back: the last edit belonged to a run that ended, and
+      // this is that run arriving whole rather than one edit of it.
+      undoable = null;
+      previousEdit = null;
+      refreshCondition();
+      for (const listener of listeners) listener(state.facts);
+      for (const listener of intentListeners) listener(state.intent);
     },
 
     /**
