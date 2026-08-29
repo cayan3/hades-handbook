@@ -77,8 +77,53 @@ describe("godIconFor", () => {
 
   it("borrows the other game's file where this one names no symbol", () => {
     // The arm that keeps a god drawn rather than placeheld when one game's
-    // tables are short. Selene is Hades II's and Hades I never had her.
+    // tables are short. Selene is Hades II's and Hades I never had her; the
+    // other three are Hades II's cameo gods, who grant boons there without
+    // appearing in its loot table and so have no symbol of their own.
     expect(godIconFor("hades1", "Selene")).toBe("official/hades2/BoonSymbolSelene");
+    for (const god of ["Artemis", "Athena", "Dionysus"]) {
+      expect(godIconFor("hades2", god)).toBe(`official/hades1/BoonSymbol${god}`);
+    }
+  });
+
+  /**
+   * The borrow list is written out because asking the other game's table for
+   * the key is a cross-game data read, and a game's catalog now arrives at its
+   * own route — so that read is a throw on a page drawing the other game.
+   *
+   * Which makes the list a copy of something the tables know, and this is what
+   * holds the two together: every god either game names a symbol for is absent
+   * from it, and every god that reaches a page and has no symbol of its own is
+   * in it. A patch either way fails here rather than shipping a placeholder.
+   */
+  it("borrows exactly the gods whose own game names no symbol", () => {
+    // Every god a page can reach: the loot table's own, plus every god a trait
+    // record answers to — which is wider, because three Hades II gods grant
+    // boons without appearing in its table at all.
+    const reachable = (game: GameKey): readonly string[] => {
+      const gods = new Set<string>(
+        Object.keys(dataFor(game).gods as Record<string, unknown>).filter(
+          (name) => !name.startsWith("__mechanic_"),
+        ),
+      );
+      for (const record of Object.values(traitsFor(game))) {
+        if (record.god !== null) gods.add(record.god);
+        for (const god of record.duoGods ?? []) gods.add(god);
+      }
+      return [...gods].sort();
+    };
+
+    const borrowed = (game: GameKey): readonly string[] =>
+      reachable(game).filter((god) => !godIconFor(game, god).includes(`/${game}/`));
+
+    expect(borrowed("hades1")).toEqual([]);
+    expect(borrowed("hades2")).toEqual(["Artemis", "Athena", "Dionysus"]);
+    // And nothing a page can reach falls through to the placeholder.
+    for (const game of ["hades1", "hades2"] as const) {
+      for (const god of reachable(game)) {
+        expect(godIconFor(game, god), `${game}/${god}`).not.toBe("official/_missing");
+      }
+    }
   });
 
   it("lands on the shared placeholder for a god neither game draws", () => {
