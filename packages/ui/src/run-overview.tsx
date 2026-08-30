@@ -35,7 +35,11 @@ export interface RunOverviewProps {
    * run in whichever slot is open — so the label does not change with the case.
    */
   readonly onReturn: () => void;
-  /** Files the run in the open slot and opens a fresh one. */
+  /**
+   * Hands the player to the save screen to choose what to do next. It files
+   * nothing itself — the door's own slots do, and one of them is *Continue
+   * run*, so pressing this and changing your mind costs nothing.
+   */
   readonly onStartNew: () => void;
 }
 
@@ -82,7 +86,7 @@ export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
         aria-labelledby={titleId}
       >
         <h2 className="overview__title" id={titleId}>
-          Run summary
+          Run Overview
         </h2>
 
         <dl className="overview__stats">

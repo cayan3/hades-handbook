@@ -279,6 +279,7 @@ function GameApp({
       onCurated={onCurated}
       choosing={choosing}
       onChosen={() => setChoosing(false)}
+      onReturnToDoor={() => setChoosing(true)}
     />
   );
 }
@@ -292,6 +293,7 @@ function Run({
   onCurated,
   choosing,
   onChosen,
+  onReturnToDoor,
 }: {
   readonly game: GameId;
   readonly session: RunSession;
@@ -301,6 +303,8 @@ function Run({
   readonly onCurated: (curated: Curated) => void;
   readonly choosing: boolean;
   readonly onChosen: () => void;
+  /** Puts the door back up, which is where the boundary hands a player over. */
+  readonly onReturnToDoor: () => void;
 }) {
   const facts = useFacts(session);
   const intent = useIntent(session);
@@ -378,23 +382,20 @@ function Run({
 
   /** The finished run as the overview draws it, worked out once per record. */
   /**
-   * Files the run in the open slot and opens a fresh one — the one verb behind
-   * both places that offer it, the header's own menu and the summary's button.
+   * Hands the player to the door rather than acting on the run.
    *
-   * `finishRun` files nothing where the run holds nothing, so pressing this on
-   * a fresh run cannot put an empty record in front of the run before it.
+   * It files nothing itself: the save screen's own slots do that, and its first
+   * one is *Continue run* — so a player who pressed this and changed their mind
+   * still has the run they were in. Starting a run is a thing you choose at the
+   * door, which is where every other decision about which run to be in is made.
+   *
+   * The one verb behind both places that offer it, the header's menu and the
+   * summary's button.
    */
-  const startNewRun = useCallback(
-    () =>
-      session.finishRun().then(() => {
-        setFiled((at) => at + 1);
-        setReviewing(null);
-        onCurated(NO_TABS);
-        setSelected(HUB);
-        onChosen();
-      }),
-    [session, onCurated, onChosen],
-  );
+  const toTheDoor = useCallback(() => {
+    setReviewing(null);
+    onReturnToDoor();
+  }, [onReturnToDoor]);
 
   const lastOverview = useMemo(
     () => (lastRun === null ? null : finishedRun(source, lastRun, CORE_SLOTS[game])),
@@ -756,8 +757,7 @@ function Run({
           </button>
           <RunSummaryControl
             onOpen={() => setReviewing("current")}
-            onStartNew={startNewRun}
-            onFault={setFault}
+            onStartNew={toTheDoor}
           />
         </SiteHeader>
 
@@ -1051,11 +1051,7 @@ function Run({
                   setFault(cause instanceof Error ? cause : new Error(String(cause)));
                 });
             }}
-            onStartNew={() => {
-              void startNewRun().catch((cause: unknown) => {
-                setFault(cause instanceof Error ? cause : new Error(String(cause)));
-              });
-            }}
+            onStartNew={toTheDoor}
           />
         )}
 
@@ -1127,11 +1123,9 @@ function Run({
 function RunSummaryControl({
   onOpen,
   onStartNew,
-  onFault,
 }: {
   readonly onOpen: () => void;
-  readonly onStartNew: () => Promise<void>;
-  readonly onFault: (cause: Error) => void;
+  readonly onStartNew: () => void;
 }) {
   const { open, opener, wrapper, close } = useHoverDisclosure();
 
@@ -1141,14 +1135,14 @@ function RunSummaryControl({
    * shape the destructive variant used to have, now carrying the ordinary verb.
    *
    * It replaces *End run* and the *Skip summary* behind it. Ending a run is no
-   * longer a thing a player does to a run: they look at it, and then start
-   * another. `finishRun` files nothing where the run holds nothing, so the
-   * boundary cannot put an empty record in front of the run before it.
+   * longer a thing a player does to a run: they look at it, and then go to the
+   * door and choose. Nothing is filed on the way — the door's own slots do
+   * that, and one of them is *Continue run*.
    */
   return (
     <div className="app__end" {...wrapper}>
       <button type="button" ref={opener} className="app__finish" onClick={onOpen}>
-        Run summary
+        Overview
       </button>
       {!open ? null : (
         <ul className="app__endmenu">
@@ -1158,9 +1152,7 @@ function RunSummaryControl({
               className="app__startnew"
               onClick={() => {
                 close();
-                void onStartNew().catch((cause: unknown) => {
-                  onFault(cause instanceof Error ? cause : new Error(String(cause)));
-                });
+                onStartNew();
               }}
             >
               Start new run

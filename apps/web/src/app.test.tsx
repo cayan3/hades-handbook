@@ -144,17 +144,30 @@ function click(label: string): void {
 }
 
 /**
- * The run boundary, which lives behind the header's summary control: hover to
- * reveal it, then press. There is no *End run* any more — a run is not ended,
- * it is looked at and then another is started.
+ * The run boundary, behind the header's Overview control: hover to reveal it,
+ * then press. It files nothing — it puts the door up, and the door's slots are
+ * what act on the run.
  */
-async function startNewRun(): Promise<void> {
+function toTheDoor(): void {
   const wrapper = container.querySelector<HTMLElement>(".app__end");
-  if (wrapper === null) throw new Error("no run-summary control");
+  if (wrapper === null) throw new Error("no overview control");
   act(() => wrapper.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
-  await act(async () => {
-    container.querySelector<HTMLElement>(".app__startnew")?.click();
-  });
+  act(() => container.querySelector<HTMLElement>(".app__startnew")?.click());
+}
+
+/** A save-screen slot by what it says, since its index depends on what is stored. */
+async function takeSlot(what: string): Promise<void> {
+  const slot = [...container.querySelectorAll<HTMLElement>(".saves__take")].find(
+    (button) => button.querySelector(".saves__what")?.textContent === what,
+  );
+  if (slot === undefined) throw new Error(`no "${what}" slot`);
+  await act(async () => slot.click());
+}
+
+/** The whole boundary as a player walks it: to the door, then take a new run. */
+async function startNewRun(): Promise<void> {
+  toTheDoor();
+  await takeSlot("Start a new run");
 }
 
 /**
@@ -1041,7 +1054,7 @@ describe("the run overview", () => {
     await mount();
     tap(APHRODITE_MELEE);
 
-    click("Run summary");
+    click("Overview");
 
     expect(overview()).not.toBeNull();
     expect(texts(".overview__stat dd")[0]).toBe("1");
@@ -1055,7 +1068,7 @@ describe("the run overview", () => {
   it("carries the unaffiliated line", async () => {
     await mount();
     tap(APHRODITE_MELEE);
-    click("Run summary");
+    click("Overview");
 
     expect(container.querySelector(".overview__unaffiliated")?.textContent).toContain(
       "unofficial",
@@ -1066,7 +1079,7 @@ describe("the run overview", () => {
   it("returns to the run it was opened from", async () => {
     await mount();
     tap(APHRODITE_MELEE);
-    click("Run summary");
+    click("Overview");
 
     click("Return to current run");
 
@@ -1075,20 +1088,27 @@ describe("the run overview", () => {
     expect(container.querySelector(".app__godbar")).not.toBeNull();
   });
 
-  /** The second, which is the run boundary rather than a variant of anything. */
-  it("files the run and starts a fresh one from its own button", async () => {
+  /**
+   * The second button is the run boundary, and it hands over rather than
+   * acting: the door is where you choose, and its first slot is *Continue run*,
+   * so pressing this and changing your mind costs nothing.
+   */
+  it("hands over to the door rather than filing the run itself", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
-    click("Run summary");
+    click("Overview");
 
     await act(async () => {
       control("Start new run").click();
     });
 
     expect(overview()).toBeNull();
-    expect(container.querySelector(".loadout__empty")).not.toBeNull();
-    expect(await store.load("hades2", "last")).not.toBeNull();
+    expect(container.querySelector(".saves")).not.toBeNull();
+    // Nothing filed, and the run is still there to go back to.
+    expect(await store.load("hades2", "last")).toBeNull();
+    await takeSlot("Continue run");
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
   });
 
   /**
@@ -1171,15 +1191,6 @@ describe("the run overview", () => {
    * *before* this one until a reload.
    */
   it("follows the run the save screen files", async () => {
-    /** A slot by what it says, since which index it is depends on what is stored. */
-    const takeSlot = async (what: string) => {
-      const slot = [...container.querySelectorAll<HTMLElement>(".saves__take")].find(
-        (button) => button.querySelector(".saves__what")?.textContent === what,
-      );
-      if (slot === undefined) throw new Error(`no "${what}" slot`);
-      await act(async () => slot.click());
-    };
-
     await mount();
     tap(APHRODITE_MELEE);
 
@@ -1222,11 +1233,18 @@ describe("the run overview", () => {
  * no *Skip summary* any more, and the one verb here files the run. `clearRun`
  * survives in `sync` with no caller in the app.
  */
+/**
+ * The run boundary, which is behind the Overview control and hands the player
+ * to the door rather than acting on the run.
+ *
+ * **Throwing a run away without filing it is gone** (the user's call): there is
+ * no *Skip summary* any more. `clearRun` survives in `sync` with no caller.
+ */
 describe("starting a new run", () => {
-  /** The summary control, and the boundary it hides until somebody looks. */
+  /** The Overview control, and the boundary it hides until somebody looks. */
   function summaryControl(): HTMLElement {
     const found = container.querySelector<HTMLElement>(".app__end");
-    if (found === null) throw new Error("no run-summary control");
+    if (found === null) throw new Error("no overview control");
     return found;
   }
 
@@ -1235,12 +1253,12 @@ describe("starting a new run", () => {
   }
 
   /**
-   * One control rather than two. The summary is the click; the boundary is
+   * One control rather than two. The Overview is the click; the boundary is
    * revealed behind it, which is the shape the destructive variant used to
    * have — a run boundary is a variant of looking at the run, not a second
    * control of equal weight beside it.
    */
-  it("hides the boundary until the summary control is asked for it", async () => {
+  it("hides the boundary until the overview control is asked for it", async () => {
     await mount();
     expect(startNew()).toBeNull();
 
@@ -1254,7 +1272,7 @@ describe("starting a new run", () => {
   /** Reachable without a pointer, which is the whole cost of hiding it. */
   it("opens on focus and closes on Escape", async () => {
     await mount();
-    act(() => control("Run summary").focus());
+    act(() => control("Overview").focus());
     expect(startNew()).not.toBeNull();
 
     act(() => {
@@ -1262,18 +1280,33 @@ describe("starting a new run", () => {
     });
 
     expect(startNew()).toBeNull();
-    expect(document.activeElement).toBe(control("Run summary"));
+    expect(document.activeElement).toBe(control("Overview"));
   });
 
-  it("files the run and opens a fresh one", async () => {
+  /**
+   * It files nothing on the way. The door is where a player chooses, and its
+   * first slot is *Continue run* — so the boundary cannot end a run somebody
+   * did not mean to end.
+   */
+  it("puts the door up without touching the run", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
 
-    act(() => summaryControl().dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
-    await act(async () => {
-      startNew()?.click();
-    });
+    toTheDoor();
+
+    expect(container.querySelector(".saves")).not.toBeNull();
+    expect(await store.load("hades2", "last")).toBeNull();
+    await takeSlot("Continue run");
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+  });
+
+  it("files the run when the door's own slot is taken", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    tap(APHRODITE_MELEE);
+
+    await startNewRun();
 
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
     expect(await store.load("hades2", "last")).not.toBeNull();
@@ -1281,36 +1314,30 @@ describe("starting a new run", () => {
 
   /**
    * An empty run filed over the run before it is the loss this guard exists to
-   * stop, and the control is now always pressable — so the guard is the whole
-   * of what stops a second press wiping the first.
+   * stop, and nothing in the app disables the way there any more — so the guard
+   * is the whole of what stops a second pass wiping the first.
    */
   it("files nothing when the run holds nothing", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
 
-    const boundary = async () => {
-      act(() => summaryControl().dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
-      await act(async () => {
-        startNew()?.click();
-      });
-    };
-
-    await boundary();
+    await startNewRun();
     const filed = await store.load("hades2", "last");
     expect(filed).not.toBeNull();
 
-    // Pressed again on the fresh run it leaves, the record survives untouched.
-    await boundary();
+    // Walked again on the fresh run it leaves, the record survives untouched.
+    await startNewRun();
     expect(await store.load("hades2", "last")).toEqual(filed);
   });
 });
 
 describe("a write that throws", () => {
   /**
-   * The run boundary is the one edit that throws where a tap can reach it: it
-   * is also the one that discards what it holds, so it refuses to clear
-   * anything until both records are written. An exception out of a tap handler unmounts
+   * Filing a run is the one edit that throws where a tap can reach it — the
+   * door's own slot, now that the boundary itself files nothing. It is also the
+   * one that discards what it holds, so it refuses to clear anything until both
+   * records are written. An exception out of a tap handler unmounts
    * the tree, and a blank screen is a worse answer than a wrong one — so the
    * page has to survive it with the run intact.
    */
@@ -1330,25 +1357,6 @@ describe("a write that throws", () => {
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
   });
 
-  /** The same failure reached from the summary's own button. */
-  it("keeps the page when the boundary fails from the summary", async () => {
-    const memory = createMemoryStore();
-    const store: RunStore = {
-      load: (game, slot) => memory.load(game, slot),
-      clear: (game, slot) => memory.clear(game, slot),
-      save: () => Promise.reject(new Error("quota exceeded")),
-    };
-    await mount(store);
-    tap(APHRODITE_MELEE);
-    click("Run summary");
-
-    await act(async () => {
-      control("Start new run").click();
-    });
-
-    expect(texts(".notice__title")).toContain("That didn't work.");
-    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
-  });
 });
 
 describe("the god page", () => {
