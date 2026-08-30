@@ -1778,15 +1778,28 @@ describe("what the boon list shows", () => {
     tap(APHRODITE_MELEE);
     tap("AphroditeSpecialBoon");
 
-    // Through the sheet rather than the card: this is about the two removals
-    // being one gesture repeated, and the card offers the pool half only on the
-    // last boon a god has left.
+    /* Remove asks nothing while the god has another boon held, and leaves them
+       in the pool: a god you have met is one you have met. It is only on the
+       last one that the two removals differ, and only there that it asks. */
     tapOnPage(APHRODITE_MELEE);
-    click("I mis-tapped");
+    expect(texts(".sheet__removals button").map((t) => t.trim())).toEqual(["Remove"]);
+    click("Remove");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).not.toBeNull();
 
     tapOnPage("AphroditeSpecialBoon");
-    click("I mis-tapped");
+    click("Remove");
+    expect(texts(".sheet__removals button").map((t) => t.trim())).toEqual([
+      "Remove boon only",
+      "Remove boon and god from pool",
+    ]);
+    click("Remove boon only");
+    expect(container.querySelector('.app__gods button[data-pooled="true"]')).not.toBeNull();
+
+    // And the half that says so outright takes the god with it.
+    tap(APHRODITE_MELEE);
+    tapOnPage(APHRODITE_MELEE);
+    click("Remove");
+    click("Remove boon and god from pool");
     expect(container.querySelector('.app__gods button[data-pooled="true"]')).toBeNull();
   });
 });
@@ -2459,8 +2472,8 @@ describe("the weapon tabs", () => {
     act(() => form()?.querySelector<HTMLElement>(".node__control")?.click());
     // The only control the sheet offers a form: it cannot be lost in game, and
     // a goal is a boon to collect.
-    expect(texts(".sheet button").map((t) => t.trim())).toEqual(["Close", "I mis-tapped"]);
-    click("I mis-tapped");
+    expect(texts(".sheet button").map((t) => t.trim())).toEqual(["Close", "Remove"]);
+    click("Remove");
 
     expect(container.querySelector(".notice")).toBeNull();
     expect(form()?.dataset.state).toBe("Available");
@@ -2533,9 +2546,9 @@ describe("the weapon tabs", () => {
   });
 
   /**
-   * A hammer is held like a boon, so both removals were offered — and they do
-   * the same thing, the only difference between them being whether the god
-   * leaves the pool.
+   * A hammer belongs to a weapon rather than to a god, so the pool question the
+   * second removal asks has nothing to ask about — it never reaches the state
+   * where a boon's own Remove opens that choice.
    */
   it("offers a hammer one removal rather than two", async () => {
     await mount();
@@ -2545,7 +2558,7 @@ describe("the weapon tabs", () => {
     act(() => hammer()?.querySelector<HTMLElement>(".node__control")?.click());
     act(() => hammer()?.querySelector<HTMLElement>(".node__control")?.click());
 
-    expect(texts(".sheet__removals button").map((t) => t.trim())).toEqual(["I mis-tapped"]);
+    expect(texts(".sheet__removals button").map((t) => t.trim())).toEqual(["Remove"]);
     // Nor is it a goal question any more than a boon's is — that one stays.
     expect(texts(".sheet button").map((t) => t.trim())).toContain("Set as goal");
   });

@@ -1,18 +1,19 @@
 import type { Rarity, TraitId } from "@repo/core";
-import type { CSSProperties } from "react";
-import { PURGE_HINT, PURGE_LABEL, REMOVE_HINT, REMOVE_LABEL } from "./messages.js";
+import { type CSSProperties, useState } from "react";
 import type { NodeView } from "./node-view.js";
 import { byLadder, rarityColour } from "./rarity-palette.js";
 
 /**
  * The gestures a surface can offer about one boon.
  *
- * **The two removals are separate on purpose and the difference is a fact about
+ * **The two removals are separate verbs because the difference is a fact about
  * the run, not wording.** A mis-tap never happened, so the god goes back out of
  * the pool if nothing else holds them there; a boon lost in game was really
- * taken, so the god stays. One control would have to pick one of those
- * silently, and picking the mis-tap would under-report the pool for the rest of
- * the run — a god the player has met reading as one they have not.
+ * taken, so the god stays. What a surface *offers* is a second question: the
+ * two only ever differ on the last boon a god has left, so both are asked there
+ * and a plain Remove is drawn everywhere else. It takes the god-stays branch,
+ * because the other one under-reports the pool for the rest of the run — a god
+ * the player has met reading as one they have not.
  *
  * Displacement is the third and is not a gesture at all: it happens on its own
  * when a mark fills an occupied slot. It is announced before the mark rather
@@ -62,14 +63,24 @@ export function BoonActionBar({
   view,
   held,
   pinned,
+  alone = false,
   actions,
 }: {
   readonly view: NodeView;
   readonly held: boolean;
   readonly pinned: boolean;
+  /**
+   * Whether this is the last boon the run still holds from its god, which is
+   * the only case where the two removals differ. The surface knows it; this
+   * component sees one boon and cannot.
+   */
+  readonly alone?: boolean;
   readonly actions: BoonActions;
 }) {
   const { mark, remove, purge, pin, unpin } = actions;
+  /* Whether Remove has been pressed on the one boon where it has a question to
+     ask. Reset by the sheet closing, which unmounts this. */
+  const [asking, setAsking] = useState(false);
   // The ladder rather than the record's own order, which is alphabetical. The
   // order is a fact about rarities, so it is the same list the card's menu
   // draws; the colour on each choice is that menu's own.
@@ -80,6 +91,16 @@ export function BoonActionBar({
   // A form is not a goal: a goal is something to go and collect, and you start
   // the run with the form you chose.
   const pinning = !view.aspect && (pinned ? unpin !== undefined : pin !== undefined);
+  /**
+   * What a plain Remove does. A record filed under a weapon has no god, so
+   * `purge` — which exists to leave one in the pool — is the wrong half of the
+   * pair for it. The Loadout settles it the same way.
+   */
+  const takeOff = view.weapon !== null ? remove : purge;
+  /* The pool question is only worth asking on the last boon a god has left, and
+     only where there is a god and both answers are on offer. */
+  const pooling =
+    alone && view.weapon === null && remove !== undefined && purge !== undefined;
   if (!marking && !rerarity && !removing && !pinning) return null;
 
   return (
@@ -127,21 +148,31 @@ export function BoonActionBar({
 
       {!removing ? null : (
         <fieldset className="sheet__removals">
-          {/* Two controls because they are two different facts. The verb
-              carries the meaning, so neither needs an interrupting note. */}
           <legend>No longer have it?</legend>
-          {remove === undefined ? null : (
-            <button type="button" title={REMOVE_HINT} onClick={() => remove(view.trait)}>
-              {REMOVE_LABEL}
+          {!asking || !pooling ? (
+            /* One control, which is the Loadout's rule arriving here: the two
+               removals only ever differ on the last boon a god has left, and
+               offering both everywhere else asked a question with one answer
+               under two names. Plain Remove leaves the god in the pool — a god
+               you have met is one you have met, whatever became of the boon. */
+            <button
+              type="button"
+              onClick={() => (pooling ? setAsking(true) : takeOff?.(view.trait))}
+            >
+              Remove
             </button>
-          )}
-          {/* The pair is a question about the god pool, so a record filed under
-              a weapon gets the first control alone: there is no god to keep or
-              let go, and the two would do the same thing under two names. */}
-          {purge === undefined || view.weapon !== null ? null : (
-            <button type="button" title={PURGE_HINT} onClick={() => purge(view.trait)}>
-              {PURGE_LABEL}
-            </button>
+          ) : (
+            <>
+              <button type="button" onClick={() => purge?.(view.trait)}>
+                Remove boon only
+              </button>
+              {/* Named in the label, so it is said outright rather than
+                  inferred: a god purged earlier in the run is still one the
+                  player can take out here. */}
+              <button type="button" onClick={() => remove?.(view.trait, { fromPool: true })}>
+                Remove boon and god from pool
+              </button>
+            </>
           )}
         </fieldset>
       )}

@@ -188,12 +188,6 @@ export const UNAFFILIATED =
   "project with no connection to them and nothing in it is for sale. It comes " +
   "down on request.";
 
-/** The three removals, whose difference is a fact about the run rather than wording. */
-export const REMOVE_LABEL = "I mis-tapped";
-export const REMOVE_HINT = "It never happened. The god leaves the pool if nothing else holds them.";
-export const PURGE_LABEL = "I lost it in game";
-export const PURGE_HINT = "You had it, so the god stays in the pool.";
-
 /** Whether anything in the source's condition is worth interrupting for. */
 export function hasSomethingToSay(condition: SourceCondition): boolean {
   return (

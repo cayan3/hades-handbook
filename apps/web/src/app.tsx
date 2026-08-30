@@ -1114,6 +1114,15 @@ function Run({
             detail={deriveNodeDetail(source, openedView, facts, intent.pins)}
             pinned={intent.pins.has(opened)}
             overridden={session.layer.isOverridden("held", opened)}
+            /* Whether the two removals differ for this boon: they only do when
+               it is the last one the run holds from its god. The Loadout asks
+               the same question of its own entries. */
+            alone={
+              openedView.god !== null &&
+              [...facts.held.keys()].filter(
+                (other) => source.records[other]?.god === openedView.god,
+              ).length === 1
+            }
             onClose={() => setOpened(null)}
             actions={actions}
           />

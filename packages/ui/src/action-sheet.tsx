@@ -31,6 +31,11 @@ export interface ActionSheetProps {
   readonly pinned?: boolean;
   /** Whether this boon's held state is one the user is holding by hand. */
   readonly overridden?: boolean;
+  /**
+   * Whether this is the last boon the run holds from its god, which is the one
+   * case where the two removals differ and so the only one that asks.
+   */
+  readonly alone?: boolean;
   readonly onClose: () => void;
   readonly actions?: BoonActions;
 }
@@ -40,6 +45,7 @@ export function ActionSheet({
   detail,
   pinned = false,
   overridden = false,
+  alone = false,
   onClose,
   actions = {},
 }: ActionSheetProps) {
@@ -191,7 +197,7 @@ export function ActionSheet({
           </section>
         )}
 
-        <BoonActionBar view={view} held={held} pinned={pinned} actions={closing} />
+        <BoonActionBar view={view} held={held} pinned={pinned} alone={alone} actions={closing} />
       </div>
     </div>
   );

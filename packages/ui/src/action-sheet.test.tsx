@@ -9,7 +9,7 @@ import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ActionSheet } from "./action-sheet.js";
-import { OVERRIDDEN_LABEL, PURGE_LABEL, REMOVE_LABEL } from "./messages.js";
+import { OVERRIDDEN_LABEL } from "./messages.js";
 import type { NodeDetail, NodeView } from "./node-view.js";
 
 declare global {
@@ -426,11 +426,11 @@ describe("the write path", () => {
   });
 
   /**
-   * Two removals, not one. A mis-tap never happened, so the god goes back out
-   * of the pool if nothing else holds them; a boon lost in game was really
-   * taken, so the god stays. One control would have to pick one silently.
+   * One removal while the god has another boon held, and it leaves them in the
+   * pool: the two verbs only differ on whether the god goes, and a god the
+   * player has met reading as one they have not is the worse of the two errors.
    */
-  it("offers the two removals separately for a boon the run holds", () => {
+  it("offers one removal for a boon whose god the run still holds another of", () => {
     const remove = vi.fn();
     const purge = vi.fn();
     render(
@@ -442,12 +442,40 @@ describe("the write path", () => {
       />,
     );
 
-    const labels = actionButtons().map((button) => button.textContent);
-    expect(labels).toEqual([REMOVE_LABEL, PURGE_LABEL]);
+    expect(actionButtons().map((button) => button.textContent)).toEqual(["Remove"]);
     act(() => actionButtons()[0]!.click());
-    act(() => actionButtons()[1]!.click());
-    expect(remove).toHaveBeenCalledWith("ZeusWeaponTrait");
     expect(purge).toHaveBeenCalledWith("ZeusWeaponTrait");
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  /**
+   * The last boon a god has left is the one case where the two differ, so it is
+   * the one case that asks — behind Remove rather than beside it, which is what
+   * the Loadout's own card does.
+   */
+  it("asks about the pool on the last boon a god has left", () => {
+    const remove = vi.fn();
+    const purge = vi.fn();
+    render(
+      <ActionSheet
+        view={view({ state: "Obtained" })}
+        detail={detail()}
+        alone
+        onClose={noop}
+        actions={{ mark: noop, remove, purge }}
+      />,
+    );
+
+    expect(actionButtons().map((button) => button.textContent)).toEqual(["Remove"]);
+    act(() => actionButtons()[0]!.click());
+    expect(actionButtons().map((button) => button.textContent)).toEqual([
+      "Remove boon only",
+      "Remove boon and god from pool",
+    ]);
+
+    act(() => actionButtons()[1]!.click());
+    expect(remove).toHaveBeenCalledWith("ZeusWeaponTrait", { fromPool: true });
+    expect(purge).not.toHaveBeenCalled();
   });
 
   /**
