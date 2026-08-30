@@ -8,7 +8,7 @@ import type { FinishedBoon, FinishedRun, FinishedRunGroup } from "./finished-run
 import { godColour } from "./god-palette.js";
 import { UNAFFILIATED } from "./messages.js";
 import { useGame, useLadder } from "./presentation.js";
-import { kindWordColour } from "./rarity-palette.js";
+import { boonAccent } from "./rarity-palette.js";
 
 /**
  * The run that was filed last, drawn after the games' own results screen: what
@@ -26,17 +26,22 @@ import { kindWordColour } from "./rarity-palette.js";
  */
 export interface RunOverviewProps {
   readonly run: FinishedRun;
-  readonly onClose: () => void;
   /**
-   * Puts the filed run back as the run in progress, where the caller offers it.
-   * Absent where there is nothing to pick back up.
+   * Goes into the run being looked at, and Escape does the same.
+   *
+   * One meaning in both cases the caller has: the run already open, where it is
+   * a plain dismissal, and the run filed last, where going into it is what
+   * makes it the open one. There is no *finished* run in the model — only the
+   * run in whichever slot is open — so the label does not change with the case.
    */
-  readonly onReopen?: (() => void) | undefined;
+  readonly onReturn: () => void;
+  /** Files the run in the open slot and opens a fresh one. */
+  readonly onStartNew: () => void;
 }
 
-export function RunOverview({ run, onClose, onReopen }: RunOverviewProps) {
+export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
   const game = useGame();
-  const { ref, onKeyDown } = useDialog(onClose);
+  const { ref, onKeyDown } = useDialog(onReturn);
   const titleId = useId();
   /**
    * The boon whose card is showing, and how it got there.
@@ -77,7 +82,7 @@ export function RunOverview({ run, onClose, onReopen }: RunOverviewProps) {
         aria-labelledby={titleId}
       >
         <h2 className="overview__title" id={titleId}>
-          Your last run
+          Run summary
         </h2>
 
         <dl className="overview__stats">
@@ -95,7 +100,7 @@ export function RunOverview({ run, onClose, onReopen }: RunOverviewProps) {
             </p>
             {run.weapon.form === null ? null : (
               <>
-                <ul className="overview__boons">
+                <ul className="overview__boons" onMouseLeave={() => setHovered(null)}>
                   <li>
                     <Tile
                       boon={run.weapon.form}
@@ -152,16 +157,15 @@ export function RunOverview({ run, onClose, onReopen }: RunOverviewProps) {
           ))
         )}
 
+        {/* Two, always, and neither hides anything behind it: the run boundary
+            is one of them now rather than a variant of something else. The
+            image export is the other half of these actions and lands with it. */}
         <div className="overview__actions">
-          {onReopen === undefined ? null : (
-            <button type="button" className="overview__reopen" onClick={onReopen}>
-              See full build
-            </button>
-          )}
-          {/* The image export is the other half of these actions and lands with
-              it. */}
-          <button type="button" className="overview__close" onClick={onClose}>
-            Close
+          <button type="button" className="overview__close" onClick={onReturn}>
+            Return to current run
+          </button>
+          <button type="button" className="overview__reopen" onClick={onStartNew}>
+            Start new run
           </button>
         </div>
 
@@ -209,7 +213,16 @@ function Group({
   const open = group.boons.find((boon) => boon.view.trait === showing) ?? null;
 
   return (
-    <section className="overview__group" style={{ "--god": godColour(group.god) } as CSSProperties}>
+    <section
+      className="overview__group"
+      style={{ "--god": godColour(group.god) } as CSSProperties}
+      /* The leave belongs to the whole group, never to a tile. Per tile there
+         is a render between one leaving and the next arriving, so the card
+         unmounts and comes back and the run flickers as the pointer crosses it.
+         Here, moving between tiles never leaves, and the card under them swaps
+         in place. */
+      onMouseLeave={() => onHover(null)}
+    >
       <h3 className="overview__groupname">
         {group.god === null ? (
           group.weapon === null ? null : (
@@ -238,24 +251,6 @@ function Group({
       {open === null ? null : <Detail boon={open} />}
     </section>
   );
-}
-
-/**
- * The hue a tile carries, and the rule is the one the rest of the app follows on
- * a surface with no page god: a boon of a **kind** takes that kind's own colour
- * rather than a god's.
- *
- * A Duo is why this exists. It answers to two gods, so inside a god's group it
- * fell to the unassigned neutral — the hue that means the app could not work out
- * whose a boon is, which is the wrong thing to say about one whose identity is
- * answering to two.
- *
- * A god page differs on purpose and stays as it is: there a Duo takes its
- * *partner's* colour, which says more when one of its gods is the page you are
- * already on.
- */
-function tileColour(boon: FinishedBoon): string {
-  return boon.view.kind === null ? godColour(boon.view.god) : kindWordColour(boon.view.kind);
 }
 
 /**
@@ -299,7 +294,6 @@ function Tile({
       data-showing={showing === view.trait ? "true" : undefined}
       aria-expanded={showing === view.trait}
       onMouseEnter={() => onHover(view.trait)}
-      onMouseLeave={() => onHover(null)}
       onClick={() => onToggle(view.trait)}
     >
       <span
@@ -307,7 +301,7 @@ function Tile({
         data-game={game}
         data-ladder={ladder}
         data-state={view.state}
-        style={{ "--god": tileColour(boon) } as CSSProperties}
+        style={{ "--god": boonAccent(view) } as CSSProperties}
       >
         <NodeBox view={view} showElement={false} />
       </span>

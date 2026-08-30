@@ -1242,19 +1242,13 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     async finishRun(): Promise<void> {
       /**
        * A run holding nothing is not filed, and the guard is here rather than
-       * in a caller.
+       * in a caller: it used to be a disabled control, and the boundary is
+       * always pressable now, so a second press would file an empty run over
+       * the run just played.
        *
-       * It used to be a disabled control: the header greyed *End run* out until
-       * the run held a boon or a pin, so an empty run could not reach this. The
-       * boundary is behind the summary now and is always pressable, so the only
-       * place the rule can live is the verb — pressed twice, the second press
-       * would otherwise file an empty run over the run just played, which is
-       * the loss the greying existed to stop.
-       *
-       * A boon or a pin, and a pin alone counts: somebody put it there. The
-       * fresh run below is written either way, so a run carrying only an
-       * equipped form is still cleared by this — that never reached the old
-       * control at all.
+       * A boon or a pin, a pin alone counting. The fresh run below is written
+       * either way, so a run carrying only an equipped form is cleared by this
+       * — which never reached the old control at all.
        */
       const holding = state.facts.held.size > 0 || state.intent.pins.size > 0;
 

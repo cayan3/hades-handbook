@@ -537,23 +537,27 @@ h1,
 
 /* Red because it is the variant rather than the default, and because it is the
    one gesture on the page that no undo reaches: it files the run nowhere. */
-.app__skip {
+/* The run boundary, revealed behind the summary the way the destructive variant
+   used to be revealed behind End run. It is not destructive any more — it files
+   the run rather than throwing it away — so it is written in ink rather than in
+   the danger colour that one carried. */
+.app__startnew {
   display: block;
   width: 100%;
   padding: 0.4rem 0.7rem;
   border: 0;
   border-radius: 0.3rem;
   background: transparent;
-  color: #ff6b5c;
+  color: inherit;
   font: inherit;
   font-size: 1rem;
   text-align: left;
   cursor: pointer;
 }
 
-.app__skip:hover,
-.app__skip:focus-visible {
-  background: rgb(255 107 92 / 12%);
+.app__startnew:hover,
+.app__startnew:focus-visible {
+  background: rgb(255 255 255 / 8%);
 }
 
 /*

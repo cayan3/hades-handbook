@@ -279,7 +279,6 @@ function GameApp({
       onCurated={onCurated}
       choosing={choosing}
       onChosen={() => setChoosing(false)}
-      onReturnToDoor={() => setChoosing(true)}
     />
   );
 }
@@ -293,7 +292,6 @@ function Run({
   onCurated,
   choosing,
   onChosen,
-  onReturnToDoor,
 }: {
   readonly game: GameId;
   readonly session: RunSession;
@@ -303,8 +301,6 @@ function Run({
   readonly onCurated: (curated: Curated) => void;
   readonly choosing: boolean;
   readonly onChosen: () => void;
-  /** Puts the door back up, which is where a finished summary lets go. */
-  readonly onReturnToDoor: () => void;
 }) {
   const facts = useFacts(session);
   const intent = useIntent(session);
@@ -345,15 +341,14 @@ function Run({
   const [lastRun, setLastRun] = useState<RunState | null>(null);
   const [filed, setFiled] = useState(0);
   /**
-   * Whether the summary is open, and what closing it goes back to.
+   * Whether the summary is open, and **which slot's run it is showing**.
    *
-   * Two entrances and they let go in different places. Reached by ending a run,
-   * closing lands on the door — which is where a player who just finished is
-   * deciding what to do next. Reached from the header mid-run, closing puts
-   * them back in the run they were reading, and throwing up the door there
-   * would be the summary taking the game away from them.
+   * The header opens it on the run already in play; the door opens it on the
+   * run filed last. Nothing else differs — there is no *finished* run in the
+   * model, only the run in whichever slot is open, so the view and both its
+   * controls read the same either way.
    */
-  const [reviewing, setReviewing] = useState<"door" | "run" | null>(null);
+  const [reviewing, setReviewing] = useState<"current" | "filed" | null>(null);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
@@ -382,10 +377,45 @@ function Run({
   }, [session, filed]);
 
   /** The finished run as the overview draws it, worked out once per record. */
+  /**
+   * Files the run in the open slot and opens a fresh one — the one verb behind
+   * both places that offer it, the header's own menu and the summary's button.
+   *
+   * `finishRun` files nothing where the run holds nothing, so pressing this on
+   * a fresh run cannot put an empty record in front of the run before it.
+   */
+  const startNewRun = useCallback(
+    () =>
+      session.finishRun().then(() => {
+        setFiled((at) => at + 1);
+        setReviewing(null);
+        onCurated(NO_TABS);
+        setSelected(HUB);
+        onChosen();
+      }),
+    [session, onCurated, onChosen],
+  );
+
   const lastOverview = useMemo(
     () => (lastRun === null ? null : finishedRun(source, lastRun, CORE_SLOTS[game])),
     [source, lastRun, game],
   );
+
+  /**
+   * The run in play, summarised by the same derivation the filed one goes
+   * through — one shape, so the view cannot say two different things about two
+   * runs that are the same kind of thing.
+   *
+   * Read through the merged facts like every other surface, so a hand-held
+   * field shows up here too.
+   */
+  const currentOverview = useMemo(
+    () => finishedRun(source, { facts, intent }, CORE_SLOTS[game]),
+    [source, facts, intent, game],
+  );
+
+  const summary =
+    reviewing === null ? null : reviewing === "filed" ? lastOverview : currentOverview;
 
   /**
    * Adding a god puts the tab up and goes there, and takes them off the removed
@@ -724,22 +754,9 @@ function Run({
           >
             Goals{goals.length === 0 ? "" : ` (${goals.length})`}
           </button>
-          <EndRun
-            started={started}
-            /* Takes the boundary control's own place on a run with nothing to
-               end, rather than standing beside it: there is one slot in the
-               header for what acts on the run, and a disabled End run is not
-               using it. */
-            onReview={lastOverview === null ? null : () => setReviewing("run")}
-            // The summary opens on the record, not on the run that was just in
-            // memory — so what a player is shown is what was actually filed.
-            onFinish={() =>
-              session.finishRun().then(() => {
-                setFiled((at) => at + 1);
-                setReviewing("door");
-              })
-            }
-            onClear={() => session.clearRun()}
+          <RunSummaryControl
+            onOpen={() => setReviewing("current")}
+            onStartNew={startNewRun}
             onFault={setFault}
           />
         </SiteHeader>
@@ -1006,34 +1023,39 @@ function Run({
             reached from the save screen, and closing goes back to it. Two
             shades stacked would be one dialog behind another with no way of
             reading which is which. */}
-        {reviewing === null || lastOverview === null ? null : (
+        {summary === null ? null : (
           <RunOverview
-            run={lastOverview}
-            onClose={() => {
-              const back = reviewing;
-              setReviewing(null);
-              if (back === "door") onReturnToDoor();
+            run={summary}
+            /**
+             * One meaning: go into the run being looked at. From the header
+             * that is the run already open, so it closes; from the door it is
+             * the filed run, so it becomes the open one first.
+             *
+             * There is no *finished* run in the model any more — only the run
+             * in whichever slot is open — which is why the label does not
+             * change with the case.
+             */
+            onReturn={() => {
+              if (reviewing !== "filed") {
+                setReviewing(null);
+                return;
+              }
+              void session
+                .resumeLastRun()
+                .then(() => {
+                  setFiled((at) => at + 1);
+                  setReviewing(null);
+                  onChosen();
+                })
+                .catch((cause: unknown) => {
+                  setFault(cause instanceof Error ? cause : new Error(String(cause)));
+                });
             }}
-            /* Only on a run with nothing in it. There is one active slot, so
-               adopting the filed run over a run somebody is playing would
-               overwrite it with no record left anywhere — and a fresh run is
-               where a player wants this anyway, having just ended one. */
-            onReopen={
-              started
-                ? undefined
-                : () => {
-                    void session
-                      .resumeLastRun()
-                      .then(() => {
-                        setFiled((at) => at + 1);
-                        setReviewing(null);
-                        onChosen();
-                      })
-                      .catch((cause: unknown) => {
-                        setFault(cause instanceof Error ? cause : new Error(String(cause)));
-                      });
-                  }
-            }
+            onStartNew={() => {
+              void startNewRun().catch((cause: unknown) => {
+                setFault(cause instanceof Error ? cause : new Error(String(cause)));
+              });
+            }}
           />
         )}
 
@@ -1066,7 +1088,7 @@ function Run({
             onLeave={() => {
               window.location.hash = HOME_HASH;
             }}
-            onReviewLast={lastOverview === null ? null : () => setReviewing("door")}
+            onReviewLast={lastOverview === null ? null : () => setReviewing("filed")}
             lastRun={
               lastOverview === null
                 ? null
@@ -1102,81 +1124,46 @@ function Run({
  * is then a variant of the gesture rather than a second control of equal weight
  * standing beside it.
  */
-function EndRun({
-  started,
-  onFinish,
-  onClear,
+function RunSummaryControl({
+  onOpen,
+  onStartNew,
   onFault,
-  onReview,
 }: {
-  /** False before the run holds anything; see below. */
-  readonly started: boolean;
-  readonly onFinish: () => Promise<void>;
-  readonly onClear: () => Promise<void>;
+  readonly onOpen: () => void;
+  readonly onStartNew: () => Promise<void>;
   readonly onFault: (cause: Error) => void;
-  /** Opens the summary of the run filed last, where there is one. */
-  readonly onReview: (() => void) | null;
 }) {
   const { open, opener, wrapper, close } = useHoverDisclosure();
 
-  // Both verbs belong to the session, never to the source: the source's would
-  // empty the run and leave the overlay laying a finished run's hand-edits over
-  // the fresh one.
-  const run = (act: () => Promise<void>) => {
-    close();
-    void act().catch((cause: unknown) => {
-      onFault(cause instanceof Error ? cause : new Error(String(cause)));
-    });
-  };
-
   /**
-   * Both verbs are off until the run holds something.
+   * One control in the header acts on the run, and it opens the summary. The
+   * run *boundary* is behind it, revealed on the pointer or the keyboard — the
+   * shape the destructive variant used to have, now carrying the ordinary verb.
    *
-   * Ending an empty run files it as the last one, which overwrites the run a
-   * player actually played — and the only way to reach that is by mistake,
-   * since there is nothing to end. Skipping the summary goes with it: the menu
-   * is not rendered, so hovering the wrapper cannot open it either.
+   * It replaces *End run* and the *Skip summary* behind it. Ending a run is no
+   * longer a thing a player does to a run: they look at it, and then start
+   * another. `finishRun` files nothing where the run holds nothing, so the
+   * boundary cannot put an empty record in front of the run before it.
    */
-  /**
-   * With nothing to end and a run already filed, this slot carries the way back
-   * to that run's summary instead.
-   *
-   * One control in the header acts on the run, and a greyed-out End run is that
-   * control saying nothing. The moment it has nothing to say is exactly the
-   * moment the previous run is what a player is thinking about — they have just
-   * finished it. Where nothing is filed either, the greyed control stays, since
-   * *why* it is off is then the only thing there is to say.
-   */
-  if (!started && onReview !== null) {
-    return (
-      <div className="app__end">
-        <button type="button" className="app__finish app__lastrun" onClick={onReview}>
-          Last run
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="app__end" {...wrapper}>
-      <button
-        type="button"
-        ref={opener}
-        className="app__finish"
-        disabled={!started}
-        title={started ? undefined : "Nothing to end yet — mark a boon first."}
-        onClick={() => run(onFinish)}
-      >
-        End run
+      <button type="button" ref={opener} className="app__finish" onClick={onOpen}>
+        Run summary
       </button>
-      {!open || !started ? null : (
+      {!open ? null : (
         <ul className="app__endmenu">
           <li>
-            {/* Files nothing, so the run is in no record afterwards and the undo
-                offer goes with it. Red because it is the variant, and it is the
-                one gesture on the page that nothing takes back. */}
-            <button type="button" className="app__skip" onClick={() => run(onClear)}>
-              Skip summary
+            <button
+              type="button"
+              className="app__startnew"
+              onClick={() => {
+                close();
+                void onStartNew().catch((cause: unknown) => {
+                  onFault(cause instanceof Error ? cause : new Error(String(cause)));
+                });
+              }}
+            >
+              Start new run
             </button>
           </li>
         </ul>

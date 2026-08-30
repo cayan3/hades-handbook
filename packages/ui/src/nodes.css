@@ -2902,6 +2902,12 @@ kbd {
   margin-bottom: 1rem;
 }
 
+/* The boundary is the second of the two and reads as the heavier one: it is
+   what leaves this run behind. */
+.overview__reopen {
+  border-color: var(--game, rgb(255 255 255 / 25%));
+}
+
 /* The box only. The hover treatment is the package's shared one, further down,
    which these two join rather than restate — a second copy is a number's worth
    of disagreement away from reading as a second treatment. */

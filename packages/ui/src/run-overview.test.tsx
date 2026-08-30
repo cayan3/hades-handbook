@@ -92,8 +92,12 @@ function run(over: Partial<FinishedRun> = {}): FinishedRun {
   };
 }
 
-function overview(over: Partial<FinishedRun> = {}, onClose = () => {}): ReactElement {
-  return <RunOverview run={run(over)} onClose={onClose} />;
+function overview(
+  over: Partial<FinishedRun> = {},
+  onReturn = () => {},
+  onStartNew = () => {},
+): ReactElement {
+  return <RunOverview run={run(over)} onReturn={onReturn} onStartNew={onStartNew} />;
 }
 
 function texts(selector: string): string[] {
@@ -261,14 +265,21 @@ describe("Run Overview", () => {
     expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Tidal Dash does.");
     expect(container.querySelector(".overview__level")?.textContent).toBe("Level 3");
 
-    // Every boon is level 1, so saying so on all of them is noise.
-    act(() => tiles[0]!.dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    /* Straight from one tile to the next, which is what a pointer crossing a
+       row does. The card has to swap in place: a render with neither showing
+       unmounts it and brings it back, and the run flickers. */
     act(() => tiles[1]!.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    expect(container.querySelectorAll(".overview__detail")).toHaveLength(1);
     expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Wave Pulse does.");
+    // Every boon is level 1, so saying so on all of them is noise.
     expect(container.querySelector(".overview__level")).toBeNull();
 
-    // And the pointer leaving takes it away, having never committed to it.
-    act(() => tiles[1]!.dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    // Leaving the group takes it away, the pointer having never committed.
+    act(() =>
+      container
+        .querySelector(".overview__group")!
+        .dispatchEvent(new MouseEvent("mouseout", { bubbles: true })),
+    );
     expect(container.querySelector(".overview__detail")).toBeNull();
   });
 
@@ -299,7 +310,11 @@ describe("Run Overview", () => {
 
     // Held, so the pointer wandering off does not take it away — which is the
     // whole difference between a click and a hover here.
-    act(() => tiles[0]!.dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    act(() =>
+      container
+        .querySelector(".overview__group")!
+        .dispatchEvent(new MouseEvent("mouseout", { bubbles: true })),
+    );
     expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Tidal Dash does.");
 
     act(() => tiles[1]!.click());
@@ -313,37 +328,39 @@ describe("Run Overview", () => {
     expect(container.querySelector(".overview__detail")).toBeNull();
   });
 
-  /** Offered only where the caller says there is something to pick back up. */
-  it("offers to pick the run back up only when handed a way to", () => {
-    render(overview({ held: 1 }));
-    expect(container.querySelector(".overview__reopen")).toBeNull();
+  /**
+   * Two, always, and neither hides anything behind it. There is no *finished*
+   * run in the model — only the run in whichever slot is open — so what these
+   * say does not change with which one is being shown.
+   */
+  it("offers the same two actions whatever it is showing", () => {
+    const onReturn = vi.fn();
+    const onStartNew = vi.fn();
+    render(overview({ held: 1 }, onReturn, onStartNew));
 
-    const onReopen = vi.fn();
-    act(() =>
-      root.render(
-        <NodePresentation ladder="real-art" game="hades2">
-          <RunOverview run={run({ held: 1 })} onClose={() => {}} onReopen={onReopen} />
-        </NodePresentation>,
-      ),
-    );
+    expect(texts(".overview__actions button")).toEqual([
+      "Return to current run",
+      "Start new run",
+    ]);
+
+    act(() => container.querySelector<HTMLButtonElement>(".overview__close")?.click());
+    expect(onReturn).toHaveBeenCalledTimes(1);
     act(() => container.querySelector<HTMLButtonElement>(".overview__reopen")?.click());
-    expect(onReopen).toHaveBeenCalledTimes(1);
+    expect(onStartNew).toHaveBeenCalledTimes(1);
   });
 
-  it("closes on the control and on Escape", () => {
-    const onClose = vi.fn();
-    render(overview({ held: 1 }, onClose));
-
-    act(() => {
-      container.querySelector<HTMLButtonElement>(".overview__close")?.click();
-    });
-    expect(onClose).toHaveBeenCalledTimes(1);
+  /** Escape means the same thing the first button does, never the boundary. */
+  it("returns on Escape and never starts a run by accident", () => {
+    const onReturn = vi.fn();
+    const onStartNew = vi.fn();
+    render(overview({ held: 1 }, onReturn, onStartNew));
 
     act(() => {
       container
         .querySelector(".sheet-scrim")
         ?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     });
-    expect(onClose).toHaveBeenCalledTimes(2);
+    expect(onReturn).toHaveBeenCalledTimes(1);
+    expect(onStartNew).not.toHaveBeenCalled();
   });
 });
