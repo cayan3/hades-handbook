@@ -87,19 +87,8 @@ export function SaveScreen({
             } as CSSProperties
           }
         >
-          {run === null ? null : (
-            <li className="saves__slot" data-filled="true">
-              <button type="button" className="saves__take" onClick={onResume}>
-                <span className="saves__what">Continue run</span>
-                <dl className="saves__stats">
-                  <Stat label="Boons" value={run.held} />
-                  <Stat label="Gods met" value={run.gods} />
-                  <Stat label="Goals" value={run.goals} />
-                </dl>
-              </button>
-            </li>
-          )}
-
+          {/* Fixed order, whatever is present: a slot that moves depending on
+              what is stored is a slot a player has to read before pressing. */}
           <li className="saves__slot">
             <button type="button" className="saves__take" onClick={onNew}>
               <span className="saves__what">Start a new run</span>
@@ -112,6 +101,19 @@ export function SaveScreen({
               </p>
             </button>
           </li>
+
+          {run === null ? null : (
+            <li className="saves__slot" data-filled="true">
+              <button type="button" className="saves__take" onClick={onResume}>
+                <span className="saves__what">Continue run</span>
+                <dl className="saves__stats">
+                  <Stat label="Boons" value={run.held} />
+                  <Stat label="Gods met" value={run.gods} />
+                  <Stat label="Goals" value={run.goals} />
+                </dl>
+              </button>
+            </li>
+          )}
 
           {onReviewLast === null ? null : (
             <li className="saves__slot" data-filed="true">
@@ -136,7 +138,7 @@ export function SaveScreen({
         </ul>
 
         <button type="button" className="saves__back" onClick={onLeave}>
-          Back
+          Return to Home
         </button>
       </div>
     </div>

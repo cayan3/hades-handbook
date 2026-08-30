@@ -1124,17 +1124,13 @@ function Run({
  * standing beside it.
  */
 /**
- * The way back to the save screen, drawn as a door and nothing else.
+ * The way back to the save screen, drawn as a door and carrying no text — the
+ * header's run cluster is three wide on a phone, and a fourth word crowds the
+ * two that say something. A door because that is what the destination is, and
+ * because a rectangle with a handle is legible at this size.
  *
- * It carries no text for the same reason **Help** does not: the header's run
- * cluster is three controls wide on a phone, and a fourth word crowds the two
- * that have something to say. A door because that is what the destination is —
- * the screen a player passes through to choose which run to be in — and it is
- * legible at this size, being a rectangle with a handle.
- *
- * It replaces the boundary that used to hide behind the Overview control. A
- * disclosure on a control whose own job is to open something was one hover too
- * many, and this goes to the same place with one press.
+ * It replaces a disclosure behind the Overview control, which was one hover on
+ * a control whose own job is to open something.
  */
 function DoorControl({ onLeave }: { readonly onLeave: () => void }) {
   return (
