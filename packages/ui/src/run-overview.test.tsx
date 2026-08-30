@@ -238,6 +238,33 @@ describe("Run Overview", () => {
   });
 
   /**
+   * A Duo is drawn under both of its gods, so a trait id no longer names one
+   * tile. Keyed on the id alone, one click opened the card in both groups at
+   * once — against this view's own one-at-a-time rule.
+   */
+  it("opens a Duo's card in the group clicked, not in both it appears in", () => {
+    const duo = boon("Sea Storm", { view: { ...view("Sea Storm"), god: null, kind: "duo" } });
+    render(
+      overview({
+        groups: [
+          { key: "god:Poseidon", label: "Poseidon", god: "Poseidon", weapon: null, boons: [duo] },
+          { key: "god:Zeus", label: "Zeus", god: "Zeus", weapon: null, boons: [duo] },
+        ],
+      }),
+    );
+
+    const tiles = [...container.querySelectorAll<HTMLElement>(".overview__tile")];
+    expect(tiles).toHaveLength(2);
+    act(() => tiles[0]!.click());
+
+    expect(container.querySelectorAll(".overview__detail")).toHaveLength(1);
+    // And it is the group that was clicked that opened.
+    const groups = [...container.querySelectorAll(".overview__group")];
+    expect(groups[0]?.querySelector(".overview__detail")).not.toBeNull();
+    expect(groups[1]?.querySelector(".overview__detail")).toBeNull();
+  });
+
+  /**
    * The pointer opens the whole card, the way the Loadout's tiles do — a native
    * tooltip saying less, slower, on top of it would be two answers to one
    * question.

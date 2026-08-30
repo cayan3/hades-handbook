@@ -43,6 +43,20 @@ export interface RunOverviewProps {
   readonly onStartNew: () => void;
 }
 
+/**
+ * One tile's place in the view: which group it is drawn in, and which boon it
+ * is. A Duo answers to two gods and is drawn under both, so the boon alone does
+ * not name a tile.
+ */
+type Spot = string;
+
+function spotOf(groupKey: string, trait: TraitId): Spot {
+  return `${groupKey} ${trait}`;
+}
+
+/** The kit's own tile sits outside every group and needs a key of its own. */
+const KIT = "kit";
+
 export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
   const game = useGame();
   const { ref, onKeyDown } = useDialog(onReturn);
@@ -55,9 +69,13 @@ export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
    * is how you keep an answer while the pointer goes elsewhere. One at a time —
    * two open cards push the groups under them apart twice over, and the
    * question being asked is about one boon.
+   *
+   * Held as a **spot** rather than a trait id, because a Duo is drawn under
+   * both of its gods: keyed on the id alone, one click opened its card in both
+   * groups at once, which is the opposite of the one-at-a-time rule above.
    */
-  const [opened, setOpened] = useState<TraitId | null>(null);
-  const [hovered, setHovered] = useState<TraitId | null>(null);
+  const [opened, setOpened] = useState<Spot | null>(null);
+  const [hovered, setHovered] = useState<Spot | null>(null);
   const showing = opened ?? hovered;
 
   /**
@@ -66,13 +84,13 @@ export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
    * card straight back and the second click looks like it did nothing. The
    * Loadout learned the same thing.
    */
-  const toggle = (trait: TraitId): void => {
-    if (opened === trait) {
+  const toggle = (spot: Spot): void => {
+    if (opened === spot) {
       setOpened(null);
       setHovered(null);
       return;
     }
-    setOpened(trait);
+    setOpened(spot);
   };
 
   return (
@@ -108,6 +126,7 @@ export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
                   <li>
                     <Tile
                       boon={run.weapon.form}
+                      spot={spotOf(KIT, run.weapon.form.view.trait)}
                       showing={showing}
                       opened={opened}
                       onToggle={toggle}
@@ -115,7 +134,7 @@ export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
                     />
                   </li>
                 </ul>
-                {run.weapon.form.view.trait !== showing ? null : (
+                {spotOf(KIT, run.weapon.form.view.trait) !== showing ? null : (
                   <Detail boon={run.weapon.form} />
                 )}
               </>
@@ -208,13 +227,14 @@ function Group({
   onHover,
 }: {
   readonly group: FinishedRunGroup;
-  readonly showing: TraitId | null;
-  readonly opened: TraitId | null;
-  readonly onToggle: (trait: TraitId) => void;
-  readonly onHover: (trait: TraitId | null) => void;
+  readonly showing: Spot | null;
+  readonly opened: Spot | null;
+  readonly onToggle: (spot: Spot) => void;
+  readonly onHover: (spot: Spot | null) => void;
 }) {
   const game = useGame();
-  const open = group.boons.find((boon) => boon.view.trait === showing) ?? null;
+  const open =
+    group.boons.find((boon) => spotOf(group.key, boon.view.trait) === showing) ?? null;
 
   return (
     <section
@@ -242,6 +262,7 @@ function Group({
           <li key={boon.view.trait}>
             <Tile
               boon={boon}
+              spot={spotOf(group.key, boon.view.trait)}
               showing={showing}
               opened={opened}
               onToggle={onToggle}
@@ -274,31 +295,33 @@ function Group({
  */
 function Tile({
   boon,
+  spot,
   showing,
   opened,
   onToggle,
   onHover,
 }: {
   readonly boon: FinishedBoon;
-  readonly showing: TraitId | null;
-  readonly opened: TraitId | null;
-  readonly onToggle: (trait: TraitId) => void;
-  readonly onHover: (trait: TraitId | null) => void;
+  readonly spot: Spot;
+  readonly showing: Spot | null;
+  readonly opened: Spot | null;
+  readonly onToggle: (spot: Spot) => void;
+  readonly onHover: (spot: Spot | null) => void;
 }) {
   const game = useGame();
   const ladder = useLadder();
   const { view } = boon;
-  const isOpen = opened === view.trait;
+  const isOpen = opened === spot;
 
   return (
     <button
       type="button"
       className="overview__tile"
       data-open={isOpen ? "true" : undefined}
-      data-showing={showing === view.trait ? "true" : undefined}
-      aria-expanded={showing === view.trait}
-      onMouseEnter={() => onHover(view.trait)}
-      onClick={() => onToggle(view.trait)}
+      data-showing={showing === spot ? "true" : undefined}
+      aria-expanded={showing === spot}
+      onMouseEnter={() => onHover(spot)}
+      onClick={() => onToggle(spot)}
     >
       <span
         className="overview__tileicon node"
