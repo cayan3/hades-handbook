@@ -8,7 +8,7 @@ import type { FinishedBoon, FinishedRun, FinishedRunGroup } from "./finished-run
 import { godColour } from "./god-palette.js";
 import { UNAFFILIATED } from "./messages.js";
 import { useGame, useLadder } from "./presentation.js";
-import { boonAccent, treatmentOf } from "./rarity-palette.js";
+import { treatmentOf } from "./rarity-palette.js";
 
 /**
  * The run that was filed last, drawn after the games' own results screen: what
@@ -345,12 +345,11 @@ function Tile({
         data-ladder={ladder}
         data-state={view.state}
         data-treatment={painted ? treatment.word : undefined}
-        style={
-          {
-            "--god": boonAccent(view),
-            ...(painted ? { "--rarity": treatment.colour } : {}),
-          } as CSSProperties
-        }
+        /* Rarity and nothing else. A bare boon icon carries one colour here and
+           in the Loadout's panel, and it is the rarity — the god is the group
+           this tile is already under. A Duo still reads: its band is the games'
+           own Duo colour, the same one the card writes the word in. */
+        style={painted ? ({ "--rarity": treatment.colour } as CSSProperties) : undefined}
       >
         <NodeBox view={view} showElement={false} />
       </span>

@@ -211,11 +211,15 @@ describe("Run Overview", () => {
   });
 
   /**
-   * A Duo answers to two gods, so inside one god's group it used to fall to the
-   * unassigned neutral — which reads as a boon whose god the app could not work
-   * out. On a surface with no page god the games' own Duo colour is the answer.
+   * A bare boon icon carries rarity and nothing else, which is what the
+   * Loadout's panel draws. The god is the group heading above the tile, so an
+   * outline in the god's colour would spend the node's one identity channel
+   * repeating it — and beside the band it reads as two rings meaning two things.
+   *
+   * A Duo still reads, and this is what makes dropping the god colour safe: its
+   * band is the games' own Duo colour, the same one the card writes the word in.
    */
-  it("gives a Duo the Duo colour rather than a god's or the neutral", () => {
+  it("colours a tile by rarity alone, a Duo included", () => {
     const duo = boon("Zeus & Hera", { view: { ...view("Zeus & Hera"), god: null, kind: "duo" } });
     render(
       overview({
@@ -232,9 +236,18 @@ describe("Run Overview", () => {
     );
 
     const icons = [...container.querySelectorAll<HTMLElement>(".overview__tileicon")];
-    expect(icons[0]?.style.getPropertyValue("--god")).toBe("#D2FF61");
-    // And an ordinary boon of the group's god is untouched by the rule.
-    expect(icons[1]?.style.getPropertyValue("--god")).toBe("#2080FF");
+    expect(icons[0]?.style.getPropertyValue("--rarity")).toBe("#D2FF61");
+    expect(icons[0]?.dataset["treatment"]).toBe("Duo");
+    // Common is painted nowhere in this product and is not painted here either,
+    // so the second tile carries no band rather than a neutral one.
+    expect(icons[1]?.style.getPropertyValue("--rarity")).toBe("");
+    expect(icons[1]?.dataset["treatment"]).toBeUndefined();
+    // And no god's colour on either, which is the half that changed.
+    for (const icon of icons) expect(icon.style.getPropertyValue("--god")).toBe("");
+    // The heading still carries it — that is where the god is named.
+    expect(
+      container.querySelector<HTMLElement>(".overview__group")?.style.getPropertyValue("--god"),
+    ).toBe("#2080FF");
   });
 
   /**

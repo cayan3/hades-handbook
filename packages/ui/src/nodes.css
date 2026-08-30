@@ -2893,6 +2893,25 @@ kbd {
   isolation: isolate;
 }
 
+/*
+ * One colour on a bare icon, and it is the rarity. The god is the group this
+ * tile is already drawn under, so an outline in the god's colour spends the
+ * node's one identity channel saying what the heading above it just said — and
+ * next to the band it reads as two rings meaning two different things.
+ *
+ * The Loadout's panel settles it the same way and this is its pair of rules.
+ * **Both selectors need three classes' worth of specificity**: the ladder's own
+ * are `.node[data-state="X"] .node__box`, and a shorter selector here quietly
+ * loses and leaves the glow on every tile.
+ */
+.overview__tileicon.node[data-state] {
+  --outline: transparent;
+}
+
+.overview__tileicon.node[data-state] .node__box {
+  filter: none;
+}
+
 .overview__tileicon > * {
   position: relative;
   z-index: 1;
