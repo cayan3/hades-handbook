@@ -238,6 +238,34 @@ describe("Run Overview", () => {
   });
 
   /**
+   * Rarity was the one thing on this view that took a click to see, and the
+   * Loadout's panel already answers it on the tile. Same treatment, same place.
+   */
+  it("says what each boon was taken at, on the tile", () => {
+    render(
+      overview({
+        groups: [
+          {
+            key: "god:Poseidon",
+            label: "Poseidon",
+            god: "Poseidon",
+            weapon: null,
+            boons: [
+              boon("Tidal Dash", { view: { ...view("Tidal Dash"), rarity: "Heroic" } }),
+              boon("Sea Storm", { view: { ...view("Sea Storm"), god: null, kind: "duo" } }),
+            ],
+          },
+        ],
+      }),
+    );
+
+    const icons = [...container.querySelectorAll<HTMLElement>(".overview__tileicon")];
+    expect(icons.map((el) => el.dataset["treatment"])).toEqual(["Heroic", "Duo"]);
+    // The colour rides with it, or the band has nothing to paint.
+    expect(icons[0]?.style.getPropertyValue("--rarity")).not.toBe("");
+  });
+
+  /**
    * A Duo is drawn under both of its gods, so a trait id no longer names one
    * tile. Keyed on the id alone, one click opened the card in both groups at
    * once — against this view's own one-at-a-time rule.

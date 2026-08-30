@@ -8,7 +8,7 @@ import type { FinishedBoon, FinishedRun, FinishedRunGroup } from "./finished-run
 import { godColour } from "./god-palette.js";
 import { UNAFFILIATED } from "./messages.js";
 import { useGame, useLadder } from "./presentation.js";
-import { boonAccent } from "./rarity-palette.js";
+import { boonAccent, treatmentOf } from "./rarity-palette.js";
 
 /**
  * The run that was filed last, drawn after the games' own results screen: what
@@ -323,6 +323,11 @@ function Tile({
   const ladder = useLadder();
   const { view } = boon;
   const isOpen = opened === spot;
+  /* The rarity a boon was taken at, drawn as the band the Loadout's panel draws
+     rather than written in the card underneath — a run is read to look things
+     up in, and rarity was the one thing that took a click to see. */
+  const treatment = treatmentOf(view);
+  const painted = treatment !== null && treatment.colour !== null;
 
   return (
     <button
@@ -339,7 +344,13 @@ function Tile({
         data-game={game}
         data-ladder={ladder}
         data-state={view.state}
-        style={{ "--god": boonAccent(view) } as CSSProperties}
+        data-treatment={painted ? treatment.word : undefined}
+        style={
+          {
+            "--god": boonAccent(view),
+            ...(painted ? { "--rarity": treatment.colour } : {}),
+          } as CSSProperties
+        }
       >
         <NodeBox view={view} showElement={false} />
       </span>

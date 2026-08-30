@@ -2879,6 +2879,47 @@ kbd {
   --node-size: 2.95rem;
 }
 
+/*
+ * The rarity band, which is the Loadout panel's treatment asked in the same
+ * place for the same reason: what a boon was taken at, on the tile rather than
+ * inside a card somebody has to open first.
+ *
+ * The geometry is the Loadout's with its tile padding folded out — there the
+ * band is positioned against a tile that is `--tile-pad` bigger than the icon
+ * on every side, and here the icon is the box, so the same shape is an inset of
+ * that much the other way. The node itself is lifted over it.
+ */
+.overview__tileicon {
+  isolation: isolate;
+}
+
+.overview__tileicon > * {
+  position: relative;
+  z-index: 1;
+}
+
+.overview__tileicon[data-treatment]::before {
+  content: "";
+  position: absolute;
+  inset: -0.015rem;
+  /* Along the upper-right edge's own normal, so the width you see is the shift
+     times root two. */
+  transform: translate(0.22rem, -0.22rem);
+  z-index: 0;
+  background: var(--rarity);
+  clip-path: var(--node-clip);
+  border-radius: var(--node-radius);
+}
+
+/* Hades II wants an even ring rather than a wedge: a rounded square shifted up
+   and to the right shows as a coloured corner peeking out. The radius is the
+   icon's plus the ring's width, which is what makes two rounded rectangles
+   concentric. */
+.overview__tileicon[data-game="hades2"][data-treatment]::before {
+  inset: -0.16rem;
+  transform: none;
+  border-radius: calc(var(--node-radius) + 0.16rem);
+}
 
 /* The one size in this file allowed under the floor is the node's own name, and
    this is that name in another place, so it reads at the floor instead. */
