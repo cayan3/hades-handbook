@@ -1,10 +1,9 @@
 import { type CSSProperties, type ReactNode } from "react";
 import { NodeBox } from "./boon-node.js";
 import { RarityMark } from "./chrome.js";
-import { godColour } from "./god-palette.js";
 import type { NodeView } from "./node-view.js";
 import { useGame, useLadder } from "./presentation.js";
-import { treatmentOf } from "./rarity-palette.js";
+import { boonAccent, treatmentOf } from "./rarity-palette.js";
 
 /**
  * One boon as the games' own Codex draws it: the icon at the left, the name and
@@ -73,7 +72,7 @@ export function BoonRow({
         data-game={game}
         data-ladder={ladder}
         data-state={view.state}
-        style={{ "--god": godColour(view.god) } as CSSProperties}
+        style={{ "--god": boonAccent(view) } as CSSProperties}
       >
         <NodeBox view={view} pinned={pinned} showElement={showElement} />
       </span>

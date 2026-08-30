@@ -1,4 +1,5 @@
 import type { Rarity } from "@repo/core";
+import { godColour } from "./god-palette.js";
 import type { NodeKind, NodeView } from "./node-view.js";
 
 /**
@@ -142,4 +143,22 @@ export function kindOutlineColour(kind: NodeKind): string | null {
  */
 export function kindWordColour(kind: NodeKind): string {
   return kind === "duo" ? RARITY_COLOURS["Duo"]! : KIND_COLOURS[kind];
+}
+
+/**
+ * The hue a boon carries on a surface with **no page god** — every Codex row,
+ * and the Run Overview's tiles.
+ *
+ * A boon with a kind takes that kind's own colour and a kindless one takes its
+ * god's. The rule exists for the Duo: it answers to two gods so it has none of
+ * its own, and `godColour(null)` is the *unassigned* neutral — a pale near-white
+ * that means "whose this is could not be worked out", which is the wrong thing
+ * to say about a boon whose identity is answering to two.
+ *
+ * A god page does not use this and should not: there a Duo takes its
+ * **partner's** colour, which says more when one of its gods is the page you
+ * are already on.
+ */
+export function boonAccent(view: NodeView): string {
+  return view.kind === null ? godColour(view.god) : kindWordColour(view.kind);
 }
