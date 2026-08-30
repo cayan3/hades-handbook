@@ -41,7 +41,6 @@ import {
   graphTraits,
   weaponGraph,
   migrationMessage,
-  useHoverDisclosure,
 } from "@repo/ui";
 import { type CSSProperties, useCallback, useEffect, useMemo, useState } from "react";
 import { HOME_HASH, useRoute } from "./route.js";
@@ -755,10 +754,14 @@ function Run({
           >
             Goals{goals.length === 0 ? "" : ` (${goals.length})`}
           </button>
-          <RunSummaryControl
-            onOpen={() => setReviewing("current")}
-            onStartNew={toTheDoor}
-          />
+          <button
+            type="button"
+            className="app__finish"
+            onClick={() => setReviewing("current")}
+          >
+            Overview
+          </button>
+          <DoorControl onLeave={toTheDoor} />
         </SiteHeader>
 
         <Notices
@@ -1120,47 +1123,37 @@ function Run({
  * is then a variant of the gesture rather than a second control of equal weight
  * standing beside it.
  */
-function RunSummaryControl({
-  onOpen,
-  onStartNew,
-}: {
-  readonly onOpen: () => void;
-  readonly onStartNew: () => void;
-}) {
-  const { open, opener, wrapper, close } = useHoverDisclosure();
-
-  /**
-   * One control in the header acts on the run, and it opens the summary. The
-   * run *boundary* is behind it, revealed on the pointer or the keyboard — the
-   * shape the destructive variant used to have, now carrying the ordinary verb.
-   *
-   * It replaces *End run* and the *Skip summary* behind it. Ending a run is no
-   * longer a thing a player does to a run: they look at it, and then go to the
-   * door and choose. Nothing is filed on the way — the door's own slots do
-   * that, and one of them is *Continue run*.
-   */
+/**
+ * The way back to the save screen, drawn as a door and nothing else.
+ *
+ * It carries no text for the same reason **Help** does not: the header's run
+ * cluster is three controls wide on a phone, and a fourth word crowds the two
+ * that have something to say. A door because that is what the destination is —
+ * the screen a player passes through to choose which run to be in — and it is
+ * legible at this size, being a rectangle with a handle.
+ *
+ * It replaces the boundary that used to hide behind the Overview control. A
+ * disclosure on a control whose own job is to open something was one hover too
+ * many, and this goes to the same place with one press.
+ */
+function DoorControl({ onLeave }: { readonly onLeave: () => void }) {
   return (
-    <div className="app__end" {...wrapper}>
-      <button type="button" ref={opener} className="app__finish" onClick={onOpen}>
-        Overview
-      </button>
-      {!open ? null : (
-        <ul className="app__endmenu">
-          <li>
-            <button
-              type="button"
-              className="app__startnew"
-              onClick={() => {
-                close();
-                onStartNew();
-              }}
-            >
-              Start new run
-            </button>
-          </li>
-        </ul>
-      )}
-    </div>
+    <button type="button" className="app__door" title="Save slots" onClick={onLeave}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path d="M6 3.5h12v17H6z" />
+        <circle cx="14.6" cy="12" r="1" fill="currentColor" stroke="none" />
+      </svg>
+      <span className="visually-hidden">Save slots</span>
+    </button>
   );
 }
 

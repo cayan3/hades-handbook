@@ -77,7 +77,15 @@ async function mount(store: RunStore = createMemoryStore(), persistent = true): 
  * before this door existed.
  */
 function enterGame(): void {
-  const slot = [...container.querySelectorAll<HTMLElement>(".saves__take")][0];
+  /* By what the slot says, never by where it is: the row's order is fixed and
+     puts *Start a new run* first, so an index here would file the run this was
+     about to continue. */
+  const slots = [...container.querySelectorAll<HTMLElement>(".saves__take")];
+  const slot =
+    slots.find((button) => button.querySelector(".saves__what")?.textContent === "Continue run") ??
+    slots.find(
+      (button) => button.querySelector(".saves__what")?.textContent === "Start a new run",
+    );
   if (slot !== undefined) act(() => slot.click());
 }
 
@@ -144,15 +152,13 @@ function click(label: string): void {
 }
 
 /**
- * The run boundary, behind the header's Overview control: hover to reveal it,
- * then press. It files nothing — it puts the door up, and the door's slots are
- * what act on the run.
+ * The way back to the save screen: its own control in the header, drawn as a
+ * door and carrying no text. It files nothing — the door's slots act on the run.
  */
 function toTheDoor(): void {
-  const wrapper = container.querySelector<HTMLElement>(".app__end");
-  if (wrapper === null) throw new Error("no overview control");
-  act(() => wrapper.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
-  act(() => container.querySelector<HTMLElement>(".app__startnew")?.click());
+  const door = container.querySelector<HTMLElement>(".app__door");
+  if (door === null) throw new Error("no door control");
+  act(() => door.click());
 }
 
 /** A save-screen slot by what it says, since its index depends on what is stored. */
@@ -1240,53 +1246,32 @@ describe("the run overview", () => {
  * **Throwing a run away without filing it is gone** (the user's call): there is
  * no *Skip summary* any more. `clearRun` survives in `sync` with no caller.
  */
+/**
+ * The run boundary, which is the save screen: the header carries a way *there*
+ * and nothing that acts on a run.
+ *
+ * **Throwing a run away without filing it is gone** (the user's call): there is
+ * no *Skip summary* any more. `clearRun` survives in `sync` with no caller.
+ */
 describe("starting a new run", () => {
-  /** The Overview control, and the boundary it hides until somebody looks. */
-  function summaryControl(): HTMLElement {
-    const found = container.querySelector<HTMLElement>(".app__end");
-    if (found === null) throw new Error("no overview control");
-    return found;
-  }
-
-  function startNew(): HTMLElement | null {
-    return container.querySelector<HTMLElement>(".app__startnew");
-  }
-
   /**
-   * One control rather than two. The Overview is the click; the boundary is
-   * revealed behind it, which is the shape the destructive variant used to
-   * have — a run boundary is a variant of looking at the run, not a second
-   * control of equal weight beside it.
+   * The header's run cluster, which is three controls and no more: Goals, the
+   * Overview, and the door. Nothing in it ends a run.
    */
-  it("hides the boundary until the overview control is asked for it", async () => {
+  it("offers a way to the door and nothing that acts on the run", async () => {
     await mount();
-    expect(startNew()).toBeNull();
 
-    act(() => summaryControl().dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
-    expect(startNew()).not.toBeNull();
-
-    act(() => summaryControl().dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
-    expect(startNew()).toBeNull();
-  });
-
-  /** Reachable without a pointer, which is the whole cost of hiding it. */
-  it("opens on focus and closes on Escape", async () => {
-    await mount();
-    act(() => control("Overview").focus());
-    expect(startNew()).not.toBeNull();
-
-    act(() => {
-      startNew()?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-    });
-
-    expect(startNew()).toBeNull();
-    expect(document.activeElement).toBe(control("Overview"));
+    expect(container.querySelector(".app__door")).not.toBeNull();
+    expect(control("End run", true)).toBeNull();
+    expect(control("Start new run", true)).toBeNull();
+    // Named for a reader who gets no picture.
+    expect(container.querySelector(".app__door")?.textContent).toContain("Save slots");
   });
 
   /**
-   * It files nothing on the way. The door is where a player chooses, and its
-   * first slot is *Continue run* — so the boundary cannot end a run somebody
-   * did not mean to end.
+   * It files nothing on the way. The door is where a player chooses, and one of
+   * its slots is *Continue run* — so the boundary cannot end a run somebody did
+   * not mean to end.
    */
   it("puts the door up without touching the run", async () => {
     const store = createMemoryStore();
@@ -1314,8 +1299,8 @@ describe("starting a new run", () => {
 
   /**
    * An empty run filed over the run before it is the loss this guard exists to
-   * stop, and nothing in the app disables the way there any more — so the guard
-   * is the whole of what stops a second pass wiping the first.
+   * stop, and nothing in the app disables the way there — so the guard is the
+   * whole of what stops a second pass wiping the first.
    */
   it("files nothing when the run holds nothing", async () => {
     const store = createMemoryStore();
@@ -1326,7 +1311,6 @@ describe("starting a new run", () => {
     const filed = await store.load("hades2", "last");
     expect(filed).not.toBeNull();
 
-    // Walked again on the fresh run it leaves, the record survives untouched.
     await startNewRun();
     expect(await store.load("hades2", "last")).toEqual(filed);
   });
@@ -2207,7 +2191,7 @@ describe("the save screen", () => {
     expect(container.querySelector(".app__gods")).not.toBeNull();
   });
 
-  it("puts the stored run in the first slot and says what it holds", async () => {
+  it("says what the stored run holds, in a slot of its own", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
@@ -2216,7 +2200,9 @@ describe("the save screen", () => {
     await follow("#/");
     await follow(GAME_HASH.hades2);
 
-    expect(slots()).toEqual(["Continue run", "Start a new run"]);
+    /* Fixed order whatever is present, so a slot never moves under a player:
+       new, then the run in progress, then the one filed. */
+    expect(slots()).toEqual(["Start a new run", "Continue run"]);
     expect(texts(".saves__stat dt")).toEqual(["Boons", "Gods met", "Goals"]);
     expect(texts(".saves__stat dd")).toEqual(["1", "1", "1"]);
   });
@@ -2233,9 +2219,7 @@ describe("the save screen", () => {
 
     await follow("#/");
     await follow(GAME_HASH.hades2);
-    await act(async () => {
-      [...container.querySelectorAll<HTMLElement>(".saves__take")][1]?.click();
-    });
+    await takeSlot("Start a new run");
 
     expect(container.querySelector(".saves")).toBeNull();
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(false);
@@ -2323,9 +2307,7 @@ describe("an empty bar", () => {
 
     await follow("#/");
     await follow(GAME_HASH.hades2);
-    await act(async () => {
-      [...container.querySelectorAll<HTMLElement>(".saves__take")][1]?.click();
-    });
+    await takeSlot("Start a new run");
 
     expect(bar()).toEqual(["Hub"]);
     expect(container.querySelector('.app__godtab[aria-current="page"]')?.textContent?.trim()).toBe(

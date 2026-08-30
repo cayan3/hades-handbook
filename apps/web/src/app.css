@@ -514,50 +514,27 @@ h1,
  * than standing beside it as a second control of equal weight. Only one of the
  * two files the run, so they are not peers.
  */
-.app__end {
-  position: relative;
-}
-
-/* Flush against the control, with the breathing room inside it: a margin here
-   is a gap the pointer crosses on its way in, and crossing it closes the menu. */
-.app__endmenu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  z-index: 20;
-  width: max-content;
-  padding: 0.35rem;
-  margin: 0;
-  list-style: none;
-  border: 1px solid rgb(255 255 255 / 15%);
-  border-radius: 0.4rem;
-  background: var(--surface);
-  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
-}
-
 /* Red because it is the variant rather than the default, and because it is the
    one gesture on the page that no undo reaches: it files the run nowhere. */
-/* The run boundary, revealed behind the summary the way the destructive variant
-   used to be revealed behind End run. It is not destructive any more — it files
-   the run rather than throwing it away — so it is written in ink rather than in
-   the danger colour that one carried. */
-.app__startnew {
-  display: block;
-  width: 100%;
-  padding: 0.4rem 0.7rem;
-  border: 0;
-  border-radius: 0.3rem;
+/* The way back to the save screen: a door, no wider than the help control
+   beside it. Square so the two read as a pair rather than as a button and an
+   icon. */
+.app__door {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
   background: transparent;
   color: inherit;
-  font: inherit;
-  font-size: 1rem;
-  text-align: left;
   cursor: pointer;
 }
 
-.app__startnew:hover,
-.app__startnew:focus-visible {
-  background: rgb(255 255 255 / 8%);
+.app__door svg {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 /*
