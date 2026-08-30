@@ -1047,9 +1047,15 @@ function Run({
               // Filed rather than discarded: a run somebody is leaving behind
               // is still the run they played, and that is what `last` is for.
               if (started) {
-                void session.finishRun().catch((cause: unknown) => {
-                  setFault(cause instanceof Error ? cause : new Error(String(cause)));
-                });
+                void session
+                  .finishRun()
+                  // The record this files is what the summary reads, so the
+                  // read has to run again — without it the door and the header
+                  // go on offering the run *before* this one until a reload.
+                  .then(() => setFiled((at) => at + 1))
+                  .catch((cause: unknown) => {
+                    setFault(cause instanceof Error ? cause : new Error(String(cause)));
+                  });
               }
               // The bar goes with the run: a god added to plan with belongs to
               // the run they were added for, and the pool half empties itself.

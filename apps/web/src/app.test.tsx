@@ -1188,6 +1188,38 @@ describe("the run overview", () => {
   });
 
   /**
+   * Starting a new run over an existing one files it, and the summary has to
+   * follow: without the re-read, the door and the header go on offering the run
+   * *before* this one until a reload.
+   */
+  it("follows the run the save screen files", async () => {
+    /** A slot by what it says, since which index it is depends on what is stored. */
+    const takeSlot = async (what: string) => {
+      const slot = [...container.querySelectorAll<HTMLElement>(".saves__take")].find(
+        (button) => button.querySelector(".saves__what")?.textContent === what,
+      );
+      if (slot === undefined) throw new Error(`no "${what}" slot`);
+      await act(async () => slot.click());
+    };
+
+    await mount();
+    tap(APHRODITE_MELEE);
+    expect(control("Last run", true)).toBeNull();
+
+    // Filed by taking the new-run slot rather than by End run — the other
+    // writer of the second record, and the one that did not re-read it.
+    await follow("#/");
+    await follow(GAME_HASH.hades2);
+    await takeSlot("Start a new run");
+
+    // Nothing to end now, so the boundary slot carries the way back — and what
+    // it opens is the run just filed rather than nothing.
+    expect(control("Last run", true)).not.toBeNull();
+    click("Last run");
+    expect(texts(".overview__tilename")).toContain(H2[APHRODITE_MELEE]?.name ?? "");
+  });
+
+  /**
    * Picking it back up, which is the answer to wanting the finished run's build
    * again: it becomes the run in progress rather than a second read-only copy
    * of the app.
