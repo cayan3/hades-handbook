@@ -1,5 +1,6 @@
 import { weaponFor } from "@repo/catalog";
 import type { Element, GodId, RunState, TraitId, WeaponId } from "@repo/core";
+import { ELEMENTS } from "./elements.js";
 import { createNodeCache } from "./node-cache.js";
 import { type NodeDetail, type NodeSource, type NodeView, deriveNodeDetail } from "./node-view.js";
 
@@ -26,8 +27,15 @@ export interface FinishedRun {
   readonly weapon: EquippedWeapon | null;
   readonly groups: readonly FinishedRunGroup[];
   /**
-   * The elements the run accumulated, largest first. Empty in Hades I, which
-   * has no such system — the one thing the two games' overviews differ by.
+   * The elements the run accumulated — **all five of Hades II's, in the game's
+   * own order, including the ones it gathered none of.**
+   *
+   * A row that only names what a run has is a row a player has to read to find
+   * out what is missing, and it rearranges as the run picks them up. Five marks
+   * and five numbers say it at a glance.
+   *
+   * Empty in Hades I, which has no such system, and that is the one thing the
+   * two games' overviews differ by.
    */
   readonly elements: readonly ElementCount[];
 }
@@ -176,9 +184,10 @@ export function finishedRun(
             form: form === null ? null : boonOf(form),
           },
     groups,
-    elements: [...facts.elements]
-      .map(([element, count]) => ({ element, count }))
-      .sort((a, b) => b.count - a.count || a.element.localeCompare(b.element)),
+    elements:
+      source.game === "hades2"
+        ? ELEMENTS.map((element) => ({ element, count: facts.elements.get(element) ?? 0 }))
+        : [],
   };
 }
 

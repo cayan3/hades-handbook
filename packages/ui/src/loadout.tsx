@@ -4,6 +4,7 @@ import type { BoonActions } from "./boon-actions.js";
 import { ElementArt, SlotArt, chromeStyle } from "./boon-art.js";
 import { BoonNode } from "./boon-node.js";
 import { BoonRow } from "./boon-row.js";
+import { ELEMENTS } from "./elements.js";
 import { HoverMenu } from "./hover-menu.js";
 import { focusMember, memberAt, stepFor, stepIndex } from "./keys.js";
 import { OverrideMarker } from "./chrome.js";
@@ -45,21 +46,6 @@ export interface LoadoutEntry {
  * read by position, so a missing rung would shift every slot below it.
  */
 type Cell = LoadoutEntry | { readonly slot: SlotId; readonly view: null };
-
-/**
- * The order the game's own tray draws them in, so the row does not rearrange as
- * a run picks elements up — a `Map` hands them back in the order they arrived.
- *
- * Taken from a capture of that tray rather than from a declared list: the game
- * builds the row by iterating a hash table, so its data has no order to read.
- */
-const ELEMENTS: readonly Element[] = [
-  "Earth",
-  "Water",
-  "Air",
-  "Fire",
-  "Aether",
-];
 
 /**
  * How wide a card's title column is, in characters of the display face.

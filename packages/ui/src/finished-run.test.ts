@@ -55,6 +55,12 @@ function world() {
   return { ...createNodeSource("hades1", stubRules(), stubLookups(), byId), naming: stubNaming };
 }
 
+/** The same world under the game that has elements at all. */
+function hades2World() {
+  const byId = Object.fromEntries(RECORDS.map((entry) => [entry.id, entry]));
+  return { ...createNodeSource("hades2", stubRules(), stubLookups(), byId), naming: stubNaming };
+}
+
 const SLOTS = ["Melee", "Secondary", "Ranged"];
 
 function state(over: Partial<RunState["facts"]> = {}, intent: Partial<RunIntent> = {}): RunState {
@@ -207,22 +213,34 @@ describe("the run an overview draws", () => {
     expect(run.groups).toEqual([]);
   });
 
-  it("orders the elements by how many the run gathered", () => {
+  /**
+   * All five, in the game's own order, zeros included. A row naming only what a
+   * run has is one a player must read to find what is missing, and it
+   * rearranges as the run picks them up.
+   */
+  it("names all five of Hades II's elements, in the tray's order", () => {
     const run = finishedRun(
-      world(),
+      hades2World(),
       state({ elements: new Map([["Air", 1], ["Fire", 3]]) }),
       SLOTS,
     );
 
     expect(run.elements).toEqual([
-      { element: "Fire", count: 3 },
+      { element: "Earth", count: 0 },
+      { element: "Water", count: 0 },
       { element: "Air", count: 1 },
+      { element: "Fire", count: 3 },
+      { element: "Aether", count: 0 },
     ]);
   });
 
   /** Hades I has no element system, so its overview simply has no such row. */
-  it("has no elements where the run gathered none", () => {
-    const run = finishedRun(world(), state({ held: held("ZeusAttack") }), SLOTS);
+  it("names none in Hades I, whatever the facts carry", () => {
+    const run = finishedRun(
+      world(),
+      state({ held: held("ZeusAttack"), elements: new Map([["Fire", 2]]) }),
+      SLOTS,
+    );
 
     expect(run.elements).toEqual([]);
   });
