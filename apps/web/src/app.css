@@ -516,14 +516,14 @@ h1,
  */
 /* Red because it is the variant rather than the default, and because it is the
    one gesture on the page that no undo reaches: it files the run nowhere. */
-/* The way back to the save screen: a door, no wider than the help control
-   beside it. Square so the two read as a pair rather than as a button and an
-   icon. */
+/* The way back to the save screen, drawn as the slots themselves. The same
+   square as the help control beside it, off the same length, so the two read as
+   a pair rather than as a button and an icon. */
 .app__door {
   display: grid;
   place-items: center;
-  width: 2.1rem;
-  height: 2.1rem;
+  width: 2.3rem;
+  height: 2.3rem;
   padding: 0;
   border: 1px solid rgb(255 255 255 / 25%);
   border-radius: 0.35rem;
@@ -532,9 +532,14 @@ h1,
   cursor: pointer;
 }
 
+.app__door:hover,
+.app__door:focus-visible {
+  border-color: rgb(255 255 255 / 55%);
+}
+
 .app__door svg {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 /*

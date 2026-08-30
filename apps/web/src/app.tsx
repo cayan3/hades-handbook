@@ -1124,10 +1124,14 @@ function Run({
  * standing beside it.
  */
 /**
- * The way back to the save screen, drawn as a door and carrying no text — the
- * header's run cluster is three wide on a phone, and a fourth word crowds the
- * two that say something. A door because that is what the destination is, and
- * because a rectangle with a handle is legible at this size.
+ * The way back to the save screen, carrying no text — the header's run cluster
+ * is three wide on a phone and a fourth word crowds the two that say something.
+ *
+ * **Drawn as the slots themselves**, side by side and the first one filled,
+ * which is the destination in miniature. Side by side rather than stacked
+ * because three stacked bars is the menu glyph everyone already knows; and not
+ * a house, which is the product's own name's job — that leads to the front
+ * page, and this leads to a game's save screen.
  *
  * It replaces a disclosure behind the Overview control, which was one hover on
  * a control whose own job is to open something.
@@ -1139,14 +1143,14 @@ function DoorControl({ onLeave }: { readonly onLeave: () => void }) {
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="1.7"
+        strokeWidth="1.6"
         strokeLinejoin="round"
-        strokeLinecap="round"
         aria-hidden="true"
         focusable="false"
       >
-        <path d="M6 3.5h12v17H6z" />
-        <circle cx="14.6" cy="12" r="1" fill="currentColor" stroke="none" />
+        <rect x="3" y="4.5" width="5" height="15" rx="1" fill="currentColor" stroke="none" />
+        <rect x="9.5" y="4.5" width="5" height="15" rx="1" />
+        <rect x="16" y="4.5" width="5" height="15" rx="1" />
       </svg>
       <span className="visually-hidden">Save slots</span>
     </button>
