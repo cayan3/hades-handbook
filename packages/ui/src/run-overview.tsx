@@ -8,7 +8,7 @@ import type { FinishedBoon, FinishedRun, FinishedRunGroup } from "./finished-run
 import { godColour } from "./god-palette.js";
 import { UNAFFILIATED } from "./messages.js";
 import { useGame, useLadder } from "./presentation.js";
-import { kindWordColour, treatmentOf } from "./rarity-palette.js";
+import { kindWordColour } from "./rarity-palette.js";
 
 /**
  * The run that was filed last, drawn after the games' own results screen: what
@@ -38,9 +38,33 @@ export function RunOverview({ run, onClose, onReopen }: RunOverviewProps) {
   const game = useGame();
   const { ref, onKeyDown } = useDialog(onClose);
   const titleId = useId();
-  /* One at a time: two open rows push the groups under them apart twice over,
-     and the question a player is asking is about one boon. */
+  /**
+   * The boon whose card is showing, and how it got there.
+   *
+   * Hovering shows a card and clicking holds it open, which is the Loadout's
+   * own model: the pointer answers without committing to anything, and a click
+   * is how you keep an answer while the pointer goes elsewhere. One at a time —
+   * two open cards push the groups under them apart twice over, and the
+   * question being asked is about one boon.
+   */
   const [opened, setOpened] = useState<TraitId | null>(null);
+  const [hovered, setHovered] = useState<TraitId | null>(null);
+  const showing = opened ?? hovered;
+
+  /**
+   * Clicking an open tile closes it, and drops the hover with it: the pointer
+   * is still on the tile that was clicked, so otherwise the hover rule puts the
+   * card straight back and the second click looks like it did nothing. The
+   * Loadout learned the same thing.
+   */
+  const toggle = (trait: TraitId): void => {
+    if (opened === trait) {
+      setOpened(null);
+      setHovered(null);
+      return;
+    }
+    setOpened(trait);
+  };
 
   return (
     <div className="sheet-scrim" onKeyDown={onKeyDown}>
@@ -73,10 +97,16 @@ export function RunOverview({ run, onClose, onReopen }: RunOverviewProps) {
               <>
                 <ul className="overview__boons">
                   <li>
-                    <Tile boon={run.weapon.form} opened={opened} onOpen={setOpened} />
+                    <Tile
+                      boon={run.weapon.form}
+                      showing={showing}
+                      opened={opened}
+                      onToggle={toggle}
+                      onHover={setHovered}
+                    />
                   </li>
                 </ul>
-                {run.weapon.form.view.trait !== opened ? null : (
+                {run.weapon.form.view.trait !== showing ? null : (
                   <Detail boon={run.weapon.form} />
                 )}
               </>
@@ -111,14 +141,21 @@ export function RunOverview({ run, onClose, onReopen }: RunOverviewProps) {
           <p className="overview__nothing">This run held no boons.</p>
         ) : (
           run.groups.map((group) => (
-            <Group key={group.key} group={group} opened={opened} onOpen={setOpened} />
+            <Group
+              key={group.key}
+              group={group}
+              showing={showing}
+              opened={opened}
+              onToggle={toggle}
+              onHover={setHovered}
+            />
           ))
         )}
 
         <div className="overview__actions">
           {onReopen === undefined ? null : (
             <button type="button" className="overview__reopen" onClick={onReopen}>
-              Pick this run back up
+              See full build
             </button>
           )}
           {/* The image export is the other half of these actions and lands with
@@ -157,15 +194,19 @@ function Stat({ label, value }: { readonly label: string; readonly value: string
  */
 function Group({
   group,
+  showing,
   opened,
-  onOpen,
+  onToggle,
+  onHover,
 }: {
   readonly group: FinishedRunGroup;
+  readonly showing: TraitId | null;
   readonly opened: TraitId | null;
-  readonly onOpen: (trait: TraitId | null) => void;
+  readonly onToggle: (trait: TraitId) => void;
+  readonly onHover: (trait: TraitId | null) => void;
 }) {
   const game = useGame();
-  const open = group.boons.find((boon) => boon.view.trait === opened) ?? null;
+  const open = group.boons.find((boon) => boon.view.trait === showing) ?? null;
 
   return (
     <section className="overview__group" style={{ "--god": godColour(group.god) } as CSSProperties}>
@@ -182,7 +223,13 @@ function Group({
       <ul className="overview__boons">
         {group.boons.map((boon) => (
           <li key={boon.view.trait}>
-            <Tile boon={boon} opened={opened} onOpen={onOpen} />
+            <Tile
+              boon={boon}
+              showing={showing}
+              opened={opened}
+              onToggle={onToggle}
+              onHover={onHover}
+            />
           </li>
         ))}
       </ul>
@@ -213,20 +260,31 @@ function tileColour(boon: FinishedBoon): string {
 
 /**
  * A boon as this view draws one: the node's own artwork with the control taken
- * off, its name beside it, and what it is on the pointer.
+ * off, and its name beside it.
  *
- * A button, because the run being over does not make it inert — a finished run
- * is a thing to look up in, and the row underneath is what a player came back
- * for.
+ * A button, because the run being over does not make it inert. The pointer shows
+ * the card and a click holds it there.
+ *
+ * Focus deliberately does not show it, as in the Loadout: the dialog moves
+ * focus to its first control on open, and that is the first tile — so a card
+ * sprang open on a view nobody had pointed at anything in. A keyboard reaches
+ * the same card by pressing the button.
+ *
+ * No `title`: a native tooltip saying less, slower, over a card is two answers
+ * to one question and the slower one lands on top.
  */
 function Tile({
   boon,
+  showing,
   opened,
-  onOpen,
+  onToggle,
+  onHover,
 }: {
   readonly boon: FinishedBoon;
+  readonly showing: TraitId | null;
   readonly opened: TraitId | null;
-  readonly onOpen: (trait: TraitId | null) => void;
+  readonly onToggle: (trait: TraitId) => void;
+  readonly onHover: (trait: TraitId | null) => void;
 }) {
   const game = useGame();
   const ladder = useLadder();
@@ -238,9 +296,11 @@ function Tile({
       type="button"
       className="overview__tile"
       data-open={isOpen ? "true" : undefined}
-      aria-expanded={isOpen}
-      title={tipFor(boon)}
-      onClick={() => onOpen(isOpen ? null : view.trait)}
+      data-showing={showing === view.trait ? "true" : undefined}
+      aria-expanded={showing === view.trait}
+      onMouseEnter={() => onHover(view.trait)}
+      onMouseLeave={() => onHover(null)}
+      onClick={() => onToggle(view.trait)}
     >
       <span
         className="overview__tileicon node"
@@ -257,22 +317,14 @@ function Tile({
 }
 
 /**
- * What the pointer gets without opening anything: the name, what it was taken
- * as, and how far it was levelled.
+ * The Codex row, which is the component the Action Sheet and the Loadout's own
+ * card draw. Rarity or kind rides on the row already; the level is this view's
+ * to add, nothing else having a run to read it from.
  *
  * **The level is written only past the first.** Every boon is level 1, so
  * saying so on all of them is noise around the two or three a player actually
  * poured a Pom into — and a hammer's rank arrives in the same field.
  */
-function tipFor(boon: FinishedBoon): string {
-  const treatment = treatmentOf(boon.view);
-  const parts = [boon.view.name];
-  if (treatment !== null) parts.push(treatment.word);
-  if (boon.level > 1) parts.push(`Level ${boon.level}`);
-  return parts.join(" — ");
-}
-
-/** The Codex row, which is the component the Action Sheet and the card draw. */
 function Detail({ boon }: { readonly boon: FinishedBoon }) {
   return (
     <div className="overview__detail">
@@ -282,6 +334,7 @@ function Detail({ boon }: { readonly boon: FinishedBoon }) {
         showElement={false}
         title={<h4 className="boonrow__title">{boon.view.name}</h4>}
       >
+        {boon.level > 1 ? <p className="overview__level">Level {boon.level}</p> : null}
         {boon.detail.activation.length === 0 ? null : (
           <ul className="overview__activation">
             {boon.detail.activation.map((line) => (

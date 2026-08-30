@@ -724,20 +724,13 @@ function Run({
           >
             Goals{goals.length === 0 ? "" : ` (${goals.length})`}
           </button>
-          {lastOverview === null ? null : (
-            /* Beside the run boundary, which is the cluster that acts on the
-               run rather than on a page — and where End run sits, which is the
-               control a player has just used when they want this. */
-            <button
-              type="button"
-              className="app__lastrun"
-              onClick={() => setReviewing("run")}
-            >
-              Last run
-            </button>
-          )}
           <EndRun
             started={started}
+            /* Takes the boundary control's own place on a run with nothing to
+               end, rather than standing beside it: there is one slot in the
+               header for what acts on the run, and a disabled End run is not
+               using it. */
+            onReview={lastOverview === null ? null : () => setReviewing("run")}
             // The summary opens on the record, not on the run that was just in
             // memory — so what a player is shown is what was actually filed.
             onFinish={() =>
@@ -1108,12 +1101,15 @@ function EndRun({
   onFinish,
   onClear,
   onFault,
+  onReview,
 }: {
   /** False before the run holds anything; see below. */
   readonly started: boolean;
   readonly onFinish: () => Promise<void>;
   readonly onClear: () => Promise<void>;
   readonly onFault: (cause: Error) => void;
+  /** Opens the summary of the run filed last, where there is one. */
+  readonly onReview: (() => void) | null;
 }) {
   const { open, opener, wrapper, close } = useHoverDisclosure();
 
@@ -1135,6 +1131,26 @@ function EndRun({
    * since there is nothing to end. Skipping the summary goes with it: the menu
    * is not rendered, so hovering the wrapper cannot open it either.
    */
+  /**
+   * With nothing to end and a run already filed, this slot carries the way back
+   * to that run's summary instead.
+   *
+   * One control in the header acts on the run, and a greyed-out End run is that
+   * control saying nothing. The moment it has nothing to say is exactly the
+   * moment the previous run is what a player is thinking about — they have just
+   * finished it. Where nothing is filed either, the greyed control stays, since
+   * *why* it is off is then the only thing there is to say.
+   */
+  if (!started && onReview !== null) {
+    return (
+      <div className="app__end">
+        <button type="button" className="app__finish app__lastrun" onClick={onReview}>
+          Last run
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="app__end" {...wrapper}>
       <button

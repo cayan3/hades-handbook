@@ -233,8 +233,12 @@ describe("Run Overview", () => {
     expect(icons[1]?.style.getPropertyValue("--god")).toBe("#2080FF");
   });
 
-  /** The pointer answers without opening anything, which is most of the asking. */
-  it("says what a boon is on the pointer, and its level only past the first", () => {
+  /**
+   * The pointer opens the whole card, the way the Loadout's tiles do — a native
+   * tooltip saying less, slower, on top of it would be two answers to one
+   * question.
+   */
+  it("opens the card on the pointer, level and all", () => {
     render(
       overview({
         groups: [
@@ -243,26 +247,36 @@ describe("Run Overview", () => {
             label: "Poseidon",
             god: "Poseidon",
             weapon: null,
-            boons: [
-              boon("Tidal Dash", { level: 3 }),
-              boon("Wave Pulse"),
-            ],
+            boons: [boon("Tidal Dash", { level: 3 }), boon("Wave Pulse")],
           },
         ],
       }),
     );
 
     const tiles = [...container.querySelectorAll<HTMLElement>(".overview__tile")];
-    expect(tiles[0]?.title).toBe("Tidal Dash — Common — Level 3");
+    expect(tiles[0]?.title).toBe("");
+    expect(container.querySelector(".overview__detail")).toBeNull();
+
+    act(() => tiles[0]!.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Tidal Dash does.");
+    expect(container.querySelector(".overview__level")?.textContent).toBe("Level 3");
+
     // Every boon is level 1, so saying so on all of them is noise.
-    expect(tiles[1]?.title).toBe("Wave Pulse — Common");
+    act(() => tiles[0]!.dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    act(() => tiles[1]!.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Wave Pulse does.");
+    expect(container.querySelector(".overview__level")).toBeNull();
+
+    // And the pointer leaving takes it away, having never committed to it.
+    act(() => tiles[1]!.dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    expect(container.querySelector(".overview__detail")).toBeNull();
   });
 
   /**
    * The detail belongs to this view rather than to something it opens: a
    * finished run is read to look things up in.
    */
-  it("opens a boon's Codex row in place, one at a time", () => {
+  it("holds a card open on a click, and lets go on a second", () => {
     render(
       overview({
         groups: [
@@ -281,13 +295,20 @@ describe("Run Overview", () => {
     const tiles = [...container.querySelectorAll<HTMLElement>(".overview__tile")];
     act(() => tiles[0]!.click());
     expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Tidal Dash does.");
-    expect(tiles[0]?.getAttribute("aria-expanded")).toBe("true");
+    expect(tiles[0]?.getAttribute("data-open")).toBe("true");
+
+    // Held, so the pointer wandering off does not take it away — which is the
+    // whole difference between a click and a hover here.
+    act(() => tiles[0]!.dispatchEvent(new MouseEvent("mouseout", { bubbles: true })));
+    expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Tidal Dash does.");
 
     act(() => tiles[1]!.click());
     expect(container.querySelectorAll(".overview__detail")).toHaveLength(1);
     expect(container.querySelector(".boonrow__desc")?.textContent).toBe("What Wave Pulse does.");
 
-    // The control that opened it closes it.
+    /* The control that opened it closes it, and the hover goes with it: the
+       pointer is still on the tile, so otherwise the card comes straight back
+       and the second click looks like it did nothing. */
     act(() => tiles[1]!.click());
     expect(container.querySelector(".overview__detail")).toBeNull();
   });

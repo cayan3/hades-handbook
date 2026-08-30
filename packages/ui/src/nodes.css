@@ -2840,9 +2840,18 @@ kbd {
   background: rgb(255 255 255 / 6%);
 }
 
+/* Held open by a click, which is the state a pointer leaving does not take
+   away. Showing-on-hover is the lighter mark above. */
 .overview__tile[data-open="true"] {
   border-color: var(--god, rgb(255 255 255 / 30%));
   background: rgb(255 255 255 / 8%);
+}
+
+.overview__level {
+  margin: 0.4rem 0 0;
+  font-family: var(--face-mono, monospace);
+  font-size: 0.85rem;
+  opacity: 0.8;
 }
 
 /* Under the whole row rather than beside the tile, so opening one does not
@@ -2893,6 +2902,9 @@ kbd {
   margin-bottom: 1rem;
 }
 
+/* The box only. The hover treatment is the package's shared one, further down,
+   which these two join rather than restate — a second copy is a number's worth
+   of disagreement away from reading as a second treatment. */
 .overview__reopen,
 .overview__close {
   padding: 0.4rem 1.2rem;
@@ -2930,7 +2942,9 @@ kbd {
 .loadout__cardclose,
 .cardmenu__open,
 .cardmenu__list button,
-.godpicker__open {
+.godpicker__open,
+.overview__reopen,
+.overview__close {
   color: var(--choice, inherit);
   opacity: var(--control-rest, 0.72);
   transition: opacity 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
@@ -2951,7 +2965,11 @@ kbd {
 .cardmenu__list button:hover,
 .cardmenu__list button:focus-visible,
 .godpicker__open:hover,
-.godpicker__open:focus-visible {
+.godpicker__open:focus-visible,
+.overview__reopen:hover,
+.overview__reopen:focus-visible,
+.overview__close:hover,
+.overview__close:focus-visible {
   opacity: 1;
   box-shadow: 0 0 var(--control-glow, 0.45rem)
     color-mix(in srgb, var(--choice, currentColor) 45%, transparent);

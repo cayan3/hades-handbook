@@ -1153,9 +1153,11 @@ describe("the run overview", () => {
   });
 
   /**
-   * The header's own way in, beside the run boundary. Reached from there it
-   * lets go back into the run rather than throwing up the door, which would be
-   * the summary taking the game away from a player still in it.
+   * The header's own way in. It takes the run boundary's *place* on a run with
+   * nothing to end — one control there acts on the run, and a greyed-out End
+   * run is that control saying nothing. Reached from there it lets go back into
+   * the run rather than throwing up the door, which would be the summary taking
+   * the game away from a player still in it.
    */
   it("opens from the header and closes back into the run", async () => {
     await mount();
@@ -1168,6 +1170,8 @@ describe("the run overview", () => {
     enterGame();
     expect(container.querySelector(".saves")).toBeNull();
 
+    // In the boundary's own place, so there is no End run beside it.
+    expect(control("End run", true)).toBeNull();
     click("Last run");
     expect(overview()).not.toBeNull();
 
@@ -1175,6 +1179,12 @@ describe("the run overview", () => {
     expect(overview()).toBeNull();
     expect(container.querySelector(".saves")).toBeNull();
     expect(container.querySelector(".app__godbar")).not.toBeNull();
+
+    // And the moment the run holds something, the boundary is back and the way
+    // to the summary is not: one slot, and what it carries follows the run.
+    tap(APHRODITE_MELEE);
+    expect(control("Last run", true)).toBeNull();
+    expect((control("End run") as HTMLButtonElement).disabled).toBe(false);
   });
 
   /**
@@ -1191,7 +1201,7 @@ describe("the run overview", () => {
     });
 
     await act(async () => {
-      control("Pick this run back up").click();
+      control("See full build").click();
     });
 
     expect(overview()).toBeNull();
@@ -1217,7 +1227,13 @@ describe("the run overview", () => {
     enterGame();
     tap(ARES_MELEE);
 
-    click("Last run");
+    // The header's way in is gone once the run holds something, so the door is
+    // the way there — which is the entrance that survives a reload anyway.
+    await follow("#/");
+    await follow(GAME_HASH.hades2);
+    await act(async () => {
+      container.querySelector<HTMLElement>(".saves__review")?.click();
+    });
 
     expect(overview()).not.toBeNull();
     expect(container.querySelector(".overview__reopen")).toBeNull();
@@ -1293,13 +1309,15 @@ describe("throwing a run away", () => {
     const filed = await store.load("hades2", "last");
     expect(filed).not.toBeNull();
 
-    // The run that replaced it is fresh, so the control is off again and the
-    // record it would have overwritten survives.
-    expect((control("End run") as HTMLButtonElement).disabled).toBe(true);
-    await act(async () => {
-      control("End run").click();
-    });
+    /* The run that replaced it is fresh, so the boundary control is not there
+       to press at all: with a run filed and nothing to end, that slot carries
+       the way back to the summary instead. The record it would have overwritten
+       survives because nothing can reach the verb. */
+    expect(control("End run", true)).toBeNull();
+    expect(control("Last run", true)).not.toBeNull();
     expect(await store.load("hades2", "last")).toEqual(filed);
+    // Where nothing is filed either, the greyed control stays and says why —
+    // which is the state this test opened in, asserted above.
   });
 
   /**
