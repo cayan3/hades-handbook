@@ -1157,6 +1157,32 @@ describe("the run filed last", () => {
     expect(last?.facts.elements.get("Fire")).toBe(2);
   });
 
+  /** The same pass, on the read that only draws the run rather than adopting it. */
+  it("migrates the record it reads back", async () => {
+    const before = testCatalog({
+      game: "hades2",
+      dataVersion: "build-1",
+      traits: traitTable(testTrait("Cut", { god: "Hestia", slot: "Melee" })),
+      gods: new Set(["Hestia"]),
+      slots: new Set(["Melee"]),
+    });
+    const after = testCatalog({
+      game: "hades2",
+      dataVersion: "build-2",
+      traits: {},
+      gods: new Set(["Hestia"]),
+    });
+    const store = createMemoryStore();
+    const played = await openManualSource({ game: "hades2", catalog: before, store });
+    played.mark("Cut");
+    await played.finishRun();
+
+    const now = await openManualSource({ game: "hades2", catalog: after, store });
+
+    // Rather than a tile whose name is an id nothing can look up.
+    expect([...((await now.lastRun())?.facts.held.keys() ?? [])]).toEqual([]);
+  });
+
   /** Survives the source that wrote it, which is the whole point of a record. */
   it("is there after a reload", async () => {
     const store = createMemoryStore();
@@ -1229,6 +1255,52 @@ describe("the run filed last", () => {
       source.pin("HeraSpecial");
 
       await expect(source.resumeLastRun()).rejects.toThrow(/end it before/);
+    });
+
+    /**
+     * The record that survives reloads and app updates by design is the one
+     * that can be furthest behind the catalog now shipped, so it is the one
+     * that most needs the pass every other route into this package runs. Read
+     * raw, the ids went straight back into the active record on the next tap.
+     */
+    it("runs the migration on the run it adopts, and owes the notice", async () => {
+      const before = testCatalog({
+        game: "hades2",
+        dataVersion: "build-1",
+        traits: traitTable(
+          testTrait("Cut", { god: "Hestia", slot: "Melee" }),
+          testTrait("Kept", { god: "Hestia", slot: "Secondary" }),
+        ),
+        gods: new Set(["Hestia"]),
+        slots: new Set(["Melee", "Secondary"]),
+      });
+      const after = testCatalog({
+        game: "hades2",
+        dataVersion: "build-2",
+        traits: traitTable(testTrait("Kept", { god: "Hestia", slot: "Secondary" })),
+        gods: new Set(["Hestia"]),
+        slots: new Set(["Secondary"]),
+      });
+      const store = createMemoryStore();
+      const played = await openManualSource({ game: "hades2", catalog: before, store });
+      played.mark("Cut");
+      played.mark("Kept");
+      await played.finishRun();
+
+      const now = await openManualSource({ game: "hades2", catalog: after, store });
+      await now.resumeLastRun();
+
+      expect([...now.getFacts().held.keys()]).toEqual(["Kept"]);
+      expect(now.quarantine.map((entry) => entry.key)).toContain("Cut");
+      // Owed rather than swallowed: the pass that strips the id is the only
+      // pass that can say it was stripped. Two entries for one trait — the boon
+      // and the slot it filled — which is what a load reports too.
+      expect(now.migrationNotice?.entries.map((entry) => entry.key)).toContain("Cut");
+      expect(now.migrationNotice?.playedOn).toBe("build-1");
+      // And what reaches the record is what was read, so the next load does not
+      // run the same pass and owe the same notice again.
+      const active = await store.load("hades2", "active");
+      expect(active?.facts.held.map(([trait]) => trait)).toEqual(["Kept"]);
     });
 
     it("says so where nothing has been filed", async () => {

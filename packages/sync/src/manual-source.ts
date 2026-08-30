@@ -467,15 +467,18 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   let quarantine = seed.quarantine;
   let pending = seed.pendingNotice;
   let overrides = seed.overrides;
-  let notice: MigrationNotice | null =
-    pending === null
+  /* Built from what is owed rather than tracked beside it, so the two cannot
+     disagree. Two places owe one: opening a run, and adopting a filed one. */
+  const noticeFor = (owed: PersistedNotice | null): MigrationNotice | null =>
+    owed === null
       ? null
       : {
-          count: pending.entries.length,
-          entries: pending.entries,
-          playedOn: pending.playedOn,
+          count: owed.entries.length,
+          entries: owed.entries,
+          playedOn: owed.playedOn,
           now: catalog.dataVersion,
         };
+  let notice: MigrationNotice | null = noticeFor(pending);
   /**
    * Gods the pool holds for a reason other than a boon currently in `held`.
    *
@@ -1310,11 +1313,19 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       const record = await store.load(catalog.game, "last");
       if (record === null) return null;
       const { state } = fromPersisted(record);
+      /*
+       * Migrated on the way out, like every other route a stored run takes into
+       * this package. This is the record most likely to need it: it survives
+       * reloads and app updates by design, so it is the one that can be
+       * furthest behind the catalog now shipped. Read raw, a trait the catalog
+       * has since forgotten draws as a tile with an id for a name.
+       */
+      const { state: carried } = migrate(state, catalog);
       // Derived on the way out, the record deliberately not carrying a count it
       // could hold a stale copy of. Same call the seed and every commit make.
       return {
-        ...state,
-        facts: { ...state.facts, elements: elementsFrom(state.facts.held, catalog) },
+        ...carried,
+        facts: { ...carried.facts, elements: elementsFrom(carried.facts.held, catalog) },
       };
     },
 
@@ -1325,6 +1336,43 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       const record = await store.load(catalog.game, "last");
       if (record === null) throw new Error("no run has been filed");
       const restored = fromPersisted(record);
+      /*
+       * The same pass a load runs, and for the reason a load runs it: this run
+       * is about to become the one evaluation reads, and nothing with an id the
+       * catalog cannot name may reach that. Adopted raw, the ids would go
+       * straight back into `active` on the next tap, past the one pass whose
+       * job is that they never do.
+       *
+       * The overlay is scanned with it, which is the more urgent half — it is
+       * merged over the facts *after* they are cleaned, so an override left
+       * naming a forgotten trait puts that id back where nothing is looking.
+       */
+      const outcome = migrate(restored.state, catalog);
+      const overlay = scanOverrides(restored.overrides ?? [], catalog);
+      const setAside = [...outcome.quarantine, ...overlay.quarantine];
+      const keptQuarantine = [...restored.quarantine, ...setAside];
+      /* What the pass took out is owed to the player the same way a load owes
+         it: the pass that raises the notice is the pass that removes the ids it
+         is about, so by the next read there is nothing left to notice. */
+      const carriedNotice = restored.pendingNotice ?? null;
+      const owed = [...(carriedNotice?.entries ?? []), ...setAside];
+      const owedNotice: PersistedNotice | null =
+        owed.length === 0
+          ? null
+          : {
+              playedOn: carriedNotice?.playedOn ?? restored.state.facts.dataVersion,
+              entries: owed,
+            };
+      /* Written as it will be read, not as it was filed: the record going into
+         the active slot is the migrated run, or the next load would run the
+         same pass again and owe the same notice twice. */
+      const adopted = toPersisted({
+        state: outcome.state,
+        quarantine: keptQuarantine,
+        pendingNotice: owedNotice,
+        rewardedWithoutBoon: new Set(restored.rewardedWithoutBoon ?? []),
+        overrides: overlay.overrides,
+      });
 
       /*
        * The active record first, then the second one is emptied. A failure
@@ -1335,7 +1383,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       const failed: { cause: Error | null } = { cause: null };
       writes = writes.then(async () => {
         try {
-          await store.save(catalog.game, "active", record);
+          await store.save(catalog.game, "active", adopted);
           await store.clear(catalog.game, "last");
           storageError = null;
         } catch (cause) {
@@ -1348,19 +1396,19 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       if (failed.cause !== null) throw failed.cause;
 
       state = {
-        ...restored.state,
+        ...outcome.state,
         facts: {
-          ...restored.state.facts,
-          elements: elementsFrom(restored.state.facts.held, catalog),
+          ...outcome.state.facts,
+          elements: elementsFrom(outcome.state.facts.held, catalog),
         },
       };
-      quarantine = [...restored.quarantine];
-      notice = null;
-      pending = restored.pendingNotice ?? null;
+      quarantine = keptQuarantine;
+      pending = owedNotice;
+      notice = noticeFor(owedNotice);
       rewardedWithoutBoon = new Set(restored.rewardedWithoutBoon ?? []);
       // The overrides the record carried are handed back the way a load hands
       // them back; the overlay is the caller's to restore, as it is on open.
-      overrides = [...(restored.overrides ?? [])];
+      overrides = [...overlay.overrides];
       // Nothing to take back: the last edit belonged to a run that ended, and
       // this is that run arriving whole rather than one edit of it.
       undoable = null;
