@@ -43,19 +43,16 @@ export function Help({ onClose }: HelpProps) {
         </h2>
 
         <section className="help__part">
-          <h3>Marking what a run gives you</h3>
+          <h3>Tracking your run</h3>
           <p>{MARKING_HINT}</p>
-          <p>
-            Nothing is guessed for you. The Handbook only knows what you tell it, and it
-            keeps that in this browser as you go.
-          </p>
         </section>
 
         <section className="help__part">
-          <h3>Working toward a boon</h3>
+          <h3>Setting a boon goal</h3>
           <p>
-            Set a boon as a goal and Goals tracks it: what it still needs, what it
-            already has, and whether this run can still reach it at all.
+            Set a boon as a goal by right-clicking on it (desktop), or by opening
+            the boon description by clicking/tapping the boon icon. Then, visit the Goals panel to track what you already have, what you still need,
+            and whether you can still obtain it this run.
           </p>
           <p>
             A boon that no longer fits the run says so rather than going quiet — a full
@@ -66,13 +63,12 @@ export function Help({ onClose }: HelpProps) {
         <section className="help__part">
           <h3>Getting around</h3>
           <p>
-            The bar along the top is the gods this run has met, plus any you added to
-            plan with. Its first tab is the Hub, which is where a run starts and returns
-            to.
+            The bar along the top lists gods, hammers, NPCs, and other sources of boons/offerings.
+            The leftmost tab is the Hub, which shows a brief overview of your current
+            build. For more build details, hit "Overview" in the top right of the header.
           </p>
           <p>
-            The panel on the left is your Loadout — everything the run holds, in the
-            order the game lays it out.
+            The panel on the left shows your current build/Loadout.
           </p>
         </section>
 

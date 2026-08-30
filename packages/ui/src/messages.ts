@@ -46,8 +46,8 @@ const VERBS: Readonly<Record<EditAction, string>> = {
   equipWeapon: "Changed weapon",
   equipAspect: "Equipped",
   equipKeepsake: "Changed keepsake",
-  answerMirrorRow: "Answered the Mirror row",
-  answerTalent: "Answered",
+  answerMirrorRow: "Selected the Mirror row",
+  answerTalent: "Selected",
   setResource: "Set",
   pin: "Pinned",
   unpin: "Unpinned",
@@ -140,8 +140,8 @@ export function migrationMessage(
  */
 export const UNREADABLE_RUN_TITLE = "Your saved run couldn't be opened.";
 export const UNREADABLE_RUN_BODY =
-  "It has been kept exactly as it was rather than deleted, and this run started fresh. " +
-  "A later version of the Handbook may be able to read it.";
+  "The run was saved before starting a new one. " +
+  "A later version of the Handbook may be able to recover the saved run.";
 
 /**
  * The difference between a run that is not being saved and one that looks fine.
@@ -150,10 +150,9 @@ export const UNREADABLE_RUN_BODY =
  * every answer on screen is still right; what is at risk is only the reload,
  * and a message that reads like a crash would cost a run the player still has.
  */
-export const STORAGE_ERROR_TITLE = "This run isn't being saved.";
+export const STORAGE_ERROR_TITLE = "This run isn't being saved. Try checking your browser Storage.";
 export const STORAGE_ERROR_BODY =
-  "Keep playing — everything on screen is still right. It just won't survive a reload " +
-  "until saving works again. Storage can be blocked in a private window, or full.";
+  "Warning: reloading before the build is saved may result in your changes being deleted.";
 
 /**
  * Two tabs of the same origin share one database and write last-one-wins, and
@@ -162,7 +161,7 @@ export const STORAGE_ERROR_BODY =
  */
 export const OTHER_TAB_TITLE = "This run is open in another tab.";
 export const OTHER_TAB_BODY =
-  "Whichever tab saves last wins, so close the others before you carry on.";
+  "To avoid losing any data, close the other tabs before continuing here.";
 
 /** A "diverges from live" marker, per field, never a mode the run is in. */
 export const OVERRIDDEN_LABEL = "Held by hand";
@@ -174,8 +173,8 @@ export const OVERRIDDEN_HINT = "You set this yourself. It won't be updated for y
  * stopped being read long before it would have stopped being on the page.
  */
 export const MARKING_HINT =
-  "Tap a boon to mark it as taken. Long-press, or right-click, to set it as a " +
-  "goal. Tapping one you already hold opens its details.";
+  "Tap a boon to mark it as taken. Right-click or long-press to set it as a " +
+  "goal and start tracking its requirements. Tap a boon you already have to see boon details.";
 
 /**
  * The one thing this product has to say about itself before it is published,

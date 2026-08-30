@@ -9,6 +9,7 @@
  */
 
 import { traitsFor } from "@repo/catalog";
+import { STORAGE_ERROR_TITLE } from "@repo/ui";
 import {
   type RunSlot,
   type RunStore,
@@ -1013,7 +1014,7 @@ describe("a store that will not take a write", () => {
       await Promise.resolve();
     });
 
-    expect(texts(".notice__title")).toContain("This run isn't being saved.");
+    expect(texts(".notice__title")).toContain(STORAGE_ERROR_TITLE);
     // The edit was still accepted: the screen is right, only the reload is at
     // risk.
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);

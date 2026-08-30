@@ -40,7 +40,7 @@ describe("the undo offer", () => {
       "Changed keepsake keepsake:Frog",
     );
     expect(editSentence(edit({ action: "answerTalent", subject: "Ammo" }), naming)).toBe(
-      "Answered talent:Ammo",
+      "Selected talent:Ammo",
     );
   });
 

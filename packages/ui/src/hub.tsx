@@ -31,7 +31,7 @@ export function Hub({ held, pooled, goals, onGod, onGoals }: HubProps) {
       <section className="hub__goals">
         <h3>Goals at a glance</h3>
         {goals.length === 0 ? (
-          <p>Nothing pinned yet. Set a boon as a goal and its progress shows up here.</p>
+          <p>Nothing pinned yet. Set a boon as a goal to see tracking progress here.</p>
         ) : (
           <>
             <ul className="hub__goallist">

@@ -56,8 +56,8 @@ export function GoalsPanel({
       <section className="goals goals--empty">
         <h2>Goals</h2>
         <p>
-          Nothing pinned yet. Open a boon and set it as a goal to track what it needs — a
-          long press, a right-click, or <kbd>{GOAL_KEY}</kbd> with it focused.
+          Nothing pinned yet. To use the goal tracker, open a boon and set it as a goal
+          (long press, right-click, or <kbd>{GOAL_KEY}</kbd> while focused on the boon icon).
         </p>
       </section>
     );
