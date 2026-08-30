@@ -94,10 +94,10 @@ function run(over: Partial<FinishedRun> = {}): FinishedRun {
 
 function overview(
   over: Partial<FinishedRun> = {},
-  onReturn = () => {},
-  onStartNew = () => {},
+  onResume: (() => void) | null = () => {},
+  onSaveSlots = () => {},
 ): ReactElement {
-  return <RunOverview run={run(over)} onReturn={onReturn} onStartNew={onStartNew} />;
+  return <RunOverview run={run(over)} onResume={onResume} onSaveSlots={onSaveSlots} />;
 }
 
 function texts(selector: string): string[] {
@@ -361,33 +361,43 @@ describe("Run Overview", () => {
    * say does not change with which one is being shown.
    */
   it("offers the same two actions whatever it is showing", () => {
-    const onReturn = vi.fn();
-    const onStartNew = vi.fn();
-    render(overview({ held: 1 }, onReturn, onStartNew));
+    const onResume = vi.fn();
+    const onSaveSlots = vi.fn();
+    render(overview({ held: 1 }, onResume, onSaveSlots));
 
-    expect(texts(".overview__actions button")).toEqual([
-      "Return to current run",
-      "Start new run",
-    ]);
+    expect(texts(".overview__actions button")).toEqual(["Resume this run", "Back to save slots"]);
 
     act(() => container.querySelector<HTMLButtonElement>(".overview__close")?.click());
-    expect(onReturn).toHaveBeenCalledTimes(1);
-    act(() => container.querySelector<HTMLButtonElement>(".overview__reopen")?.click());
-    expect(onStartNew).toHaveBeenCalledTimes(1);
+    expect(onResume).toHaveBeenCalledTimes(1);
+    act(() => container.querySelector<HTMLButtonElement>(".overview__slots")?.click());
+    expect(onSaveSlots).toHaveBeenCalledTimes(1);
   });
 
-  /** Escape means the same thing the first button does, never the boundary. */
-  it("returns on Escape and never starts a run by accident", () => {
-    const onReturn = vi.fn();
-    const onStartNew = vi.fn();
-    render(overview({ held: 1 }, onReturn, onStartNew));
+  /**
+   * A filed run cannot be picked up while another is in play — one active slot,
+   * so adopting over it would overwrite a run somebody is playing. The source
+   * refuses it; drawing the control anyway turned that refusal into a fault
+   * dialog the player could reach in three clicks.
+   */
+  it("withholds the resume where the run cannot be picked up", () => {
+    render(overview({ held: 1 }, null));
+
+    expect(texts(".overview__actions button")).toEqual(["Back to save slots"]);
+    expect(container.querySelector(".overview__close")).toBeNull();
+  });
+
+  /** Escape goes where the always-safe control goes, never into a run. */
+  it("goes back to the save slots on Escape", () => {
+    const onResume = vi.fn();
+    const onSaveSlots = vi.fn();
+    render(overview({ held: 1 }, onResume, onSaveSlots));
 
     act(() => {
       container
         .querySelector(".sheet-scrim")
         ?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     });
-    expect(onReturn).toHaveBeenCalledTimes(1);
-    expect(onStartNew).not.toHaveBeenCalled();
+    expect(onSaveSlots).toHaveBeenCalledTimes(1);
+    expect(onResume).not.toHaveBeenCalled();
   });
 });

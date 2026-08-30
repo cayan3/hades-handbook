@@ -27,20 +27,24 @@ import { boonAccent } from "./rarity-palette.js";
 export interface RunOverviewProps {
   readonly run: FinishedRun;
   /**
-   * Goes into the run being looked at, and Escape does the same.
+   * Goes into the run being looked at, making it the run in play.
    *
    * One meaning in both cases the caller has: the run already open, where it is
-   * a plain dismissal, and the run filed last, where going into it is what
-   * makes it the open one. There is no *finished* run in the model — only the
-   * run in whichever slot is open — so the label does not change with the case.
+   * a plain dismissal, and a filed run, where going into it is what makes it
+   * the open one. There is no *finished* run in the model — only the run in
+   * whichever slot is open — so the label does not change with the case.
+   *
+   * **Null where the run cannot be resumed**, which is a filed run while
+   * another is still in play: there is one active slot, so adopting over a run
+   * somebody is playing would overwrite it. The source refuses this too, and a
+   * control that is drawn and then throws is the half that was missing.
    */
-  readonly onReturn: () => void;
+  readonly onResume: (() => void) | null;
   /**
-   * Hands the player to the save screen to choose what to do next. It files
-   * nothing itself — the door's own slots do, and one of them is *Continue
-   * run*, so pressing this and changing your mind costs nothing.
+   * Back to the save screen, and Escape does the same. Always available: it is
+   * the one way out that is safe whatever slot is open and whatever is in it.
    */
-  readonly onStartNew: () => void;
+  readonly onSaveSlots: () => void;
 }
 
 /**
@@ -57,12 +61,12 @@ function spotOf(groupKey: string, trait: TraitId): Spot {
 /** The kit's own tile sits outside every group and needs a key of its own. */
 const KIT = "kit";
 
-export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
+export function RunOverview({ run, onResume, onSaveSlots }: RunOverviewProps) {
   const game = useGame();
-  const { ref, onKeyDown } = useDialog(onReturn);
+  const { ref, onKeyDown } = useDialog(onSaveSlots);
   const titleId = useId();
   /**
-   * The boon whose card is showing, and how it got there.
+   * The tile whose card is showing, and how it got there.
    *
    * Hovering shows a card and clicking holds it open, which is the Loadout's
    * own model: the pointer answers without committing to anything, and a click
@@ -180,15 +184,22 @@ export function RunOverview({ run, onReturn, onStartNew }: RunOverviewProps) {
           ))
         )}
 
-        {/* Two, always, and neither hides anything behind it: the run boundary
-            is one of them now rather than a variant of something else. The
-            image export is the other half of these actions and lands with it. */}
+        {/* Neither hides anything behind it. There is no *start a new run*
+            here: it only ever put the save screen up, which is what the control
+            beside it does, so two buttons carried one behaviour. Starting a run
+            is a thing you choose at the door, among the slots. */}
         <div className="overview__actions">
-          <button type="button" className="overview__close" onClick={onReturn}>
-            Return to current run
-          </button>
-          <button type="button" className="overview__reopen" onClick={onStartNew}>
-            Start new run
+          {/* Withheld rather than disabled where the run cannot be picked up:
+              a greyed control on a screen reached from a save slot reads as
+              this run being damaged, when what is true is that another run is
+              still in play. */}
+          {onResume === null ? null : (
+            <button type="button" className="overview__close" onClick={onResume}>
+              Resume this run
+            </button>
+          )}
+          <button type="button" className="overview__slots" onClick={onSaveSlots}>
+            Back to save slots
           </button>
         </div>
 

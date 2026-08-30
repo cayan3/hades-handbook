@@ -1037,24 +1037,32 @@ function Run({
              * There is no *finished* run in the model any more — only the run
              * in whichever slot is open — which is why the label does not
              * change with the case.
+             *
+             * **Withheld on a filed run while another is still in play.** The
+             * source refuses that — one active slot, so adopting over a run
+             * somebody is playing would overwrite it — and it was refusing a
+             * control the player could reach and press, which surfaced the
+             * refusal as a fault. The guard belongs on both sides.
              */
-            onReturn={() => {
-              if (reviewing !== "filed") {
-                setReviewing(null);
-                return;
-              }
-              void session
-                .resumeLastRun()
-                .then(() => {
-                  setFiled((at) => at + 1);
-                  setReviewing(null);
-                  onChosen();
-                })
-                .catch((cause: unknown) => {
-                  setFault(cause instanceof Error ? cause : new Error(String(cause)));
-                });
-            }}
-            onStartNew={toTheDoor}
+            onResume={
+              reviewing !== "filed"
+                ? () => setReviewing(null)
+                : started
+                  ? null
+                  : () => {
+                      void session
+                        .resumeLastRun()
+                        .then(() => {
+                          setFiled((at) => at + 1);
+                          setReviewing(null);
+                          onChosen();
+                        })
+                        .catch((cause: unknown) => {
+                          setFault(cause instanceof Error ? cause : new Error(String(cause)));
+                        });
+                    }
+            }
+            onSaveSlots={toTheDoor}
           />
         )}
 

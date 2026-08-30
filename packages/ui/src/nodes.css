@@ -2879,6 +2879,7 @@ kbd {
   --node-size: 2.95rem;
 }
 
+
 /* The one size in this file allowed under the floor is the node's own name, and
    this is that name in another place, so it reads at the floor instead. */
 .overview__tilename {
@@ -2902,16 +2903,10 @@ kbd {
   margin-bottom: 1rem;
 }
 
-/* The boundary is the second of the two and reads as the heavier one: it is
-   what leaves this run behind. */
-.overview__reopen {
-  border-color: var(--game, rgb(255 255 255 / 25%));
-}
-
 /* The box only. The hover treatment is the package's shared one, further down,
-   which these two join rather than restate — a second copy is a number's worth
+   which these join rather than restate — a second copy is a number's worth
    of disagreement away from reading as a second treatment. */
-.overview__reopen,
+.overview__slots,
 .overview__close {
   padding: 0.4rem 1.2rem;
   border: 1px solid rgb(255 255 255 / 25%);
@@ -2949,7 +2944,7 @@ kbd {
 .cardmenu__open,
 .cardmenu__list button,
 .godpicker__open,
-.overview__reopen,
+.overview__slots,
 .overview__close,
 .saves__back {
   color: var(--choice, inherit);
@@ -2973,10 +2968,10 @@ kbd {
 .cardmenu__list button:focus-visible,
 .godpicker__open:hover,
 .godpicker__open:focus-visible,
-.overview__reopen:hover,
-.overview__reopen:focus-visible,
 .overview__close:hover,
 .overview__close:focus-visible,
+.overview__slots:hover,
+.overview__slots:focus-visible,
 .saves__back:hover,
 .saves__back:focus-visible {
   opacity: 1;

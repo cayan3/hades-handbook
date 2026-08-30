@@ -1088,7 +1088,7 @@ describe("the run overview", () => {
     tap(APHRODITE_MELEE);
     click("Overview");
 
-    click("Return to current run");
+    click("Resume this run");
 
     expect(overview()).toBeNull();
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
@@ -1096,9 +1096,10 @@ describe("the run overview", () => {
   });
 
   /**
-   * The second button is the run boundary, and it hands over rather than
-   * acting: the door is where you choose, and its first slot is *Continue run*,
-   * so pressing this and changing your mind costs nothing.
+   * The second button hands over rather than acting: the door is where you
+   * choose, and its first slot is *Continue run*, so pressing this and changing
+   * your mind costs nothing. There is no *start a new run* here — it only ever
+   * put this same screen up, so two buttons carried one behaviour.
    */
   it("hands over to the door rather than filing the run itself", async () => {
     const store = createMemoryStore();
@@ -1106,8 +1107,9 @@ describe("the run overview", () => {
     tap(APHRODITE_MELEE);
     click("Overview");
 
+    expect(control("Start new run", true)).toBeNull();
     await act(async () => {
-      control("Start new run").click();
+      control("Back to save slots").click();
     });
 
     expect(overview()).toBeNull();
@@ -1160,7 +1162,7 @@ describe("the run overview", () => {
       container.querySelector<HTMLElement>(".saves__review")?.click();
     });
     await act(async () => {
-      control("Return to current run").click();
+      control("Resume this run").click();
     });
 
     expect(overview()).toBeNull();
@@ -1168,6 +1170,32 @@ describe("the run overview", () => {
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
     // One run, in one slot: it is not also still the run before this one.
     expect(await store.load("hades2", "last")).toBeNull();
+  });
+
+  /**
+   * There is one active slot, so picking a filed run up over a run somebody is
+   * still playing would overwrite it with no record anywhere. The source has
+   * always refused that; the control was drawn anyway, so the refusal reached
+   * the player as a fault dialog three clicks from the door.
+   */
+  it("withholds the resume while another run is still in play", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    tap(APHRODITE_MELEE);
+    await startNewRun();
+    // A run in play again, so the filed one can no longer be adopted over it.
+    tap(ARES_MELEE);
+
+    toTheDoor();
+    await act(async () => {
+      container.querySelector<HTMLElement>(".saves__review")?.click();
+    });
+
+    expect(overview()).not.toBeNull();
+    expect(control("Resume this run", true)).toBeNull();
+    // The way out is still there, and nothing has been reported as broken.
+    expect(control("Back to save slots", true)).not.toBeNull();
+    expect(texts(".notice__title")).toEqual([]);
   });
 
   /** Survives the tab closing, which is the only reason it is a record. */
