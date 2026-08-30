@@ -128,6 +128,9 @@ describe("ending a run through the session", () => {
       clear: () => Promise.resolve(),
     };
     const session = await open(store);
+    // A run holding something, or there is no `last` write to fail on: an empty
+    // run is not filed at all.
+    session.source.mark("HeraAttack");
     session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
 
     await expect(session.finishRun()).rejects.toThrow(/quota/);

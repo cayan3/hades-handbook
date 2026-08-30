@@ -268,6 +268,10 @@ export interface ManualSource extends RunStateSource {
   /**
    * Ends the run: the current one becomes the previous one and a fresh run
    * starts. Two records is the whole of what is kept.
+   *
+   * **A run holding nothing is not filed.** The boundary control is always
+   * pressable, so pressing it twice would otherwise put an empty record in
+   * front of the run just played.
    */
   finishRun(): Promise<void>;
 
@@ -1236,6 +1240,24 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
      * but only this one leaves a partial write easy to read.
      */
     async finishRun(): Promise<void> {
+      /**
+       * A run holding nothing is not filed, and the guard is here rather than
+       * in a caller.
+       *
+       * It used to be a disabled control: the header greyed *End run* out until
+       * the run held a boon or a pin, so an empty run could not reach this. The
+       * boundary is behind the summary now and is always pressable, so the only
+       * place the rule can live is the verb — pressed twice, the second press
+       * would otherwise file an empty run over the run just played, which is
+       * the loss the greying existed to stop.
+       *
+       * A boon or a pin, and a pin alone counts: somebody put it there. The
+       * fresh run below is written either way, so a run carrying only an
+       * equipped form is still cleared by this — that never reached the old
+       * control at all.
+       */
+      const holding = state.facts.held.size > 0 || state.intent.pins.size > 0;
+
       const finished = toPersisted({
         state,
         quarantine,
@@ -1254,7 +1276,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       const failed: { cause: Error | null } = { cause: null };
       writes = writes.then(async () => {
         try {
-          await store.save(catalog.game, "last", finished);
+          if (holding) await store.save(catalog.game, "last", finished);
           await store.save(catalog.game, "active", fresh);
           storageError = null;
         } catch (cause) {

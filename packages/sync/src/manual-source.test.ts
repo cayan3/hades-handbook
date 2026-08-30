@@ -1064,6 +1064,49 @@ describe("persistence", () => {
  * Reading the second record back, which nothing did for two tiers — the run
  * boundary wrote it and no caller ever opened it.
  */
+describe("the run boundary's own guard", () => {
+  /**
+   * The control that reaches this is always pressable now, so the rule that
+   * used to live in a disabled button lives here. Pressed twice, the second
+   * press must not file an empty run over the run just played.
+   */
+  it("files nothing when the run holds nothing", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.finishRun();
+    const filed = await store.load("hades2", "last");
+
+    await source.finishRun();
+
+    expect(await store.load("hades2", "last")).toEqual(filed);
+  });
+
+  /** A pin alone counts as a run: somebody put it there. */
+  it("files a run holding only a pin", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.pin("HeraAttack");
+
+    await source.finishRun();
+
+    expect((await store.load("hades2", "last"))?.intent.pins).toEqual(["HeraAttack"]);
+  });
+
+  /**
+   * The fresh run is written either way, so a run carrying only an equipped
+   * form is still cleared — which never reached the old disabled control.
+   */
+  it("clears a run that holds only an equipped form", async () => {
+    const source = await open();
+    source.equipAspect("TorchAutofireAspect");
+
+    await source.finishRun();
+
+    expect(source.getFacts().equipped.aspect).toBeUndefined();
+  });
+});
+
 describe("the run filed last", () => {
   it("is nothing until a run has been filed", async () => {
     const source = await open();
@@ -1471,6 +1514,9 @@ describe("finishing a run when a write fails", () => {
   it("reports the failure the same way an ordinary write does", async () => {
     const store = storeFailing("last");
     const source = await open(store);
+    // A run holding something, or there is no `last` write to fail: an empty
+    // run is not filed at all.
+    source.mark("HeraAttack");
 
     await expect(source.finishRun()).rejects.toThrow(/quota/);
     expect(source.storageError?.message).toMatch(/quota/);
