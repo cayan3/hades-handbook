@@ -70,6 +70,17 @@ SLOT_ICONS = ("Attack", "Secondary", "Ranged", "Dash", "Wrath")
 # sidebar hover and select, and the success/failure ribbons -- which name an
 # outcome this product does not record.
 #
+# The pause screen has no part here either, and for the same reason. Both games
+# ship one `GUI\Shell\Box_Pause` -- 814x794 inside an 883x1063 canvas in Hades I,
+# 1103x737 inside 1173x1063 in Hades II -- and both are fixed compositions rather
+# than frames: the ornaments overhang the frame body by 244px in the first and
+# 280px in the second, 43% and 34% of the body's own width, with the ornament
+# band running 38% and 77% down the sprite. The two bodies also disagree on shape,
+# 1.16:1 against 1.5:1, so one panel cannot wear both without two layouts. Hades
+# II's pause screen is additionally grounded on a video texture (`ShellPause`, 32
+# frames in, 150 looping, 12 out), which is not a still. Extracted once to be
+# sure, looked at, and dropped: the panel keeps the product's own neutrals.
+#
 # The parts of the games' own interface this product borrows, each named for
 # what it is rather than for the sprite it came from, and each laid left to right
 # from however many pieces the game ships. The Loadout's tray is the one part
@@ -86,12 +97,10 @@ CHROME_PARTS = {
             "GUI\\Screens\\TraitTray_Right",
         ),
         "Chrome_SaveSlot": ("GUI\\Screens\\SaveProfileSlot",),
-        "Chrome_PauseBox": ("GUI\\Shell\\Box_Pause",),
     },
     "hades2": {
         "Chrome_Panel": ("GUI\\HUD\\TraitTrayBacking_NoHeader",),
         "Chrome_SaveSlot": ("GUI\\Screens\\SaveProfileSlot",),
-        "Chrome_PauseBox": ("GUI\\Shell\\Box_Pause",),
     },
 }
 

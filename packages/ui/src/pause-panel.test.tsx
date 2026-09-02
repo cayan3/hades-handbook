@@ -143,25 +143,6 @@ describe("the pause panel", () => {
     expect(container.querySelector(".pause")?.getAttribute("data-game")).toBe("hades2");
   });
 
-  /**
-   * MOCKUP — delete with the prop. What matters is the default: the two skins
-   * are opt-in, so a build with nothing asked for is the one that ships.
-   */
-  it("draws no skin unless one is asked for", () => {
-    render(<PausePanel {...handlers()} />);
-    const panel = () => container.querySelector(".pause");
-    expect(panel()?.getAttribute("data-skin")).toBeNull();
-    expect(panel()?.getAttribute("style") ?? "").not.toContain("--chrome-panel");
-
-    render(<PausePanel {...handlers()} skin="panel" />);
-    expect(panel()?.getAttribute("data-skin")).toBe("panel");
-    expect(panel()?.getAttribute("style")).toContain("Chrome_Panel");
-
-    render(<PausePanel {...handlers()} skin="box" />);
-    expect(panel()?.getAttribute("data-skin")).toBe("box");
-    expect(panel()?.getAttribute("style")).toContain("Chrome_PauseBox");
-  });
-
   /** A modal, and focus lands on the row that costs nothing. */
   it("is a dialog whose first control is Continue", () => {
     render(<PausePanel {...handlers()} />);

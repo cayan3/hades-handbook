@@ -1,5 +1,5 @@
 import type { GameId } from "@repo/core";
-import { Help, PausePanel, type PauseSkin, Shortcuts, isHelpKey, isShortcutsKey } from "@repo/ui";
+import { Help, PausePanel, Shortcuts, isHelpKey, isShortcutsKey } from "@repo/ui";
 import { type ReactNode, useEffect, useState } from "react";
 import { GAME_HASH, HOME_HASH } from "./route.js";
 
@@ -134,24 +134,12 @@ export function SiteHeader({
             setPauseOpen(false);
             window.location.hash = HOME_HASH;
           }}
-          skin={pauseSkin()}
         />
       )}
       {!helpOpen ? null : <Help onClose={() => setHelpOpen(false)} />}
       {!keysOpen ? null : <Shortcuts onClose={() => setKeysOpen(false)} />}
     </>
   );
-}
-
-/**
- * MOCKUP — which candidate skin the panel draws, off a `?skin=` search param so
- * the two can be compared in the running app. The search string rather than the
- * hash, which is the route and is not this to play with. Absent or unrecognised
- * is what ships. Delete with the prop once the call is made.
- */
-function pauseSkin(): PauseSkin {
-  const asked = new URLSearchParams(window.location.search).get("skin");
-  return asked === "panel" || asked === "box" ? asked : "none";
 }
 
 /**
