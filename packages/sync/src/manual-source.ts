@@ -20,6 +20,7 @@ import { migrate, scanOverrides } from "./migrate.js";
 import type { FactOverride } from "./overrides.js";
 import {
   type PersistedNotice,
+  type PersistedRun,
   type StoredRun,
   emptyRun,
   fromPersisted,
@@ -27,7 +28,8 @@ import {
 } from "./persisted.js";
 import type { RunStateSource, Unsub } from "./port.js";
 import type { QuarantinedEntry } from "./quarantine.js";
-import { type RunStore, createMemoryStore } from "./store.js";
+import { type SlotContents, type SlotRecord, adoptLegacySlots, holdsSomething } from "./slots.js";
+import { SAVE_SLOTS, type RunStore, type SaveSlot, createMemoryStore } from "./store.js";
 
 /**
  * What a load could not carry forward, and how many things that was.
@@ -118,6 +120,8 @@ export interface UndoableEdit {
  * and compare identity the way it already does with the facts.
  */
 export interface SourceCondition {
+  /** Which slot the run in progress is in, which moves when another opens. */
+  readonly slot: SaveSlot;
   /** What the load could not carry forward, until the user accepts it. */
   readonly migrationNotice: MigrationNotice | null;
   /** Why a stored run was set aside, when one was. */
@@ -266,51 +270,43 @@ export interface ManualSource extends RunStateSource {
   setNote(trait: TraitId, text: string): void;
 
   /**
-   * Ends the run: the current one becomes the previous one and a fresh run
-   * starts. Two records is the whole of what is kept.
+   * Which slot the run in progress is in.
    *
-   * **A run holding nothing is not filed.** The boundary control is always
-   * pressable, so pressing it twice would otherwise put an empty record in
-   * front of the run just played.
+   * Nothing is filed over anything now, so this is the whole of the run state:
+   * every run is in a slot, and one of those slots is the one being played.
    */
-  finishRun(): Promise<void>;
+  readonly slot: SaveSlot;
 
   /**
-   * Throws the run away and starts a fresh one, **filing nothing** — which is
-   * the difference from `finishRun` and the reason a caller has to mean it. A
-   * run somebody abandoned is not one they finished, so it does not go in front
-   * of the run they meant to keep.
+   * What each slot holds, in order, the open one included. Read per slot, so a
+   * record that will not decode costs its own row rather than the door — and a
+   * slot holding a run with nothing in it reads as empty, which is what keeps
+   * an abandoned start out of the four somebody has to choose between.
    */
-  clearRun(): Promise<void>;
+  slots(): Promise<readonly SlotRecord[]>;
 
   /**
-   * The run this game filed last, or null where nothing has been filed yet.
-   *
-   * Read back out of the record rather than remembered, because surviving a
-   * reload is the whole of what the second record is for — a copy held in
-   * memory would be right until the one moment it has to be.
-   *
-   * Throws where the record will not decode, which is contained in a way the
-   * active run's version of the same failure is not: nothing else on the page
-   * depends on it, so the caller can report it and carry on rather than having
-   * to set the record aside and start over.
+   * Opens a saved slot as the run in progress. The run being left stays where
+   * it is, which is why there is nothing here to refuse; the record is migrated
+   * and written back before it is adopted, like every other route in.
    */
-  lastRun(): Promise<RunState | null>;
+  openRun(slot: SaveSlot): Promise<void>;
 
   /**
-   * Puts the run filed last back as the run in progress, and leaves the second
-   * record empty.
+   * Starts a fresh run in a slot, replacing whatever that slot held.
    *
-   * **Refuses where the current run has started**, which is the one way this
-   * could lose a run: there is one active slot, so adopting over a run somebody
-   * is playing overwrites it with no record left anywhere.
-   *
-   * **`last` is cleared rather than left.** A run cannot be both the one in
-   * progress and the one before it; left in place the save screen would offer
-   * the same run twice. Ending it again re-files it, so nothing is lost that
-   * cannot be redone.
+   * The one verb in the product that destroys a run somebody kept, so the slot
+   * is the caller's to name — there is no rule here for choosing it.
    */
-  resumeLastRun(): Promise<void>;
+  startRun(slot: SaveSlot): Promise<void>;
+
+  /**
+   * Empties a slot.
+   *
+   * Emptying the open one leaves the run in progress with nothing in it, which
+   * is the same slot with nothing left to draw.
+   */
+  deleteRun(slot: SaveSlot): Promise<void>;
 
   /**
    * The last storage failure, or null. A view showing this is the difference
@@ -348,7 +344,14 @@ export async function openManualSource(
   const catalog = options.catalog ?? shippedCatalog(game);
   const store = options.store ?? createMemoryStore();
 
-  const loaded = await store.load(game, "active");
+  /* Before anything reads a slot: every installed copy of the two-record build
+     has its runs under the old keys, and this is the one pass that moves them. */
+  await adoptLegacySlots(store, game);
+  /* Slot 1 where nothing says otherwise, which is a store nobody has entered a
+     game from — the pointer is written the moment a run is started or opened. */
+  const slot = (await store.openSlot(game)) ?? 1;
+
+  const loaded = await store.load(game, slot);
   const fresh = (): StoredRun => ({
     state: emptyRun(game, catalog.dataVersion),
     quarantine: [],
@@ -415,6 +418,7 @@ export async function openManualSource(
   const source = createSource({
     catalog,
     store,
+    slot,
     state: outcome.state,
     quarantine,
     pendingNotice,
@@ -441,9 +445,19 @@ export async function openManualSource(
   return source;
 }
 
+/** A run arriving from a record, in the five pieces the source holds it in. */
+interface Incoming {
+  state: RunState;
+  quarantine: readonly QuarantinedEntry[];
+  pending: PersistedNotice | null;
+  rewardedWithoutBoon: ReadonlySet<GodId>;
+  overrides: readonly FactOverride[];
+}
+
 interface SourceSeed {
   catalog: SyncCatalog;
   store: RunStore;
+  slot: SaveSlot;
   state: RunState;
   quarantine: readonly QuarantinedEntry[];
   pendingNotice: PersistedNotice | null;
@@ -467,6 +481,9 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   let quarantine = seed.quarantine;
   let pending = seed.pendingNotice;
   let overrides = seed.overrides;
+  /* Which slot every write below goes to. Read at write time rather than
+     captured, so a tap in flight when another slot opens lands where it began. */
+  let slot: SaveSlot = seed.slot;
   /* Built from what is owed rather than tracked beside it, so the two cannot
      disagree. Two places owe one: opening a run, and adopting a filed one. */
   const noticeFor = (owed: PersistedNotice | null): MigrationNotice | null =>
@@ -553,7 +570,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
         overrides,
       });
       try {
-        await store.save(catalog.game, "active", snapshot);
+        await store.save(catalog.game, slot, snapshot);
         storageError = null;
       } catch (cause) {
         storageError = cause instanceof Error ? cause : new Error(String(cause));
@@ -650,6 +667,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   let previousEdit: Snapshot | null = null;
 
   let condition: SourceCondition = {
+    slot,
     migrationNotice: notice,
     unreadableRun,
     storageError,
@@ -669,6 +687,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
   function refreshCondition(): void {
     const lastEdit = undoable === null ? null : undoable.edit;
     if (
+      condition.slot === slot &&
       condition.migrationNotice === notice &&
       condition.storageError === storageError &&
       condition.quarantine === quarantine &&
@@ -676,7 +695,7 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     ) {
       return;
     }
-    condition = { migrationNotice: notice, unreadableRun, storageError, quarantine, lastEdit };
+    condition = { slot, migrationNotice: notice, unreadableRun, storageError, quarantine, lastEdit };
     for (const listener of conditionListeners) listener(condition);
   }
 
@@ -749,6 +768,114 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
     const slots = new Map(state.facts.slots);
     for (const [slot, occupant] of slots) if (occupant === trait) slots.set(slot, null);
     return { held, slots };
+  }
+
+  /**
+   * A stored record brought forward: migrated, its overlay scanned, its notice
+   * carried. One function because three routes need it — the open path, a slot
+   * being opened, and the summary a slot draws.
+   */
+  function broughtForward(restored: StoredRun): Incoming {
+    const outcome = migrate(restored.state, catalog);
+    /* The overlay is scanned with it: merged over the facts *after* the pass
+       that cleans them, an override naming a forgotten trait puts that id back
+       where nothing is looking. */
+    const overlay = scanOverrides(restored.overrides ?? [], catalog);
+    const setAside = [...outcome.quarantine, ...overlay.quarantine];
+    const carried = restored.pendingNotice ?? null;
+    const owed = [...(carried?.entries ?? []), ...setAside];
+    return {
+      state: {
+        ...outcome.state,
+        facts: {
+          ...outcome.state.facts,
+          elements: elementsFrom(outcome.state.facts.held, catalog),
+        },
+      },
+      quarantine: [...restored.quarantine, ...setAside],
+      pending:
+        owed.length === 0
+          ? null
+          : {
+              playedOn: carried?.playedOn ?? restored.state.facts.dataVersion,
+              entries: owed,
+            },
+      rewardedWithoutBoon: new Set(restored.rewardedWithoutBoon ?? []),
+      overrides: [...overlay.overrides],
+    };
+  }
+
+  /** A fresh run, which is what an absent record and a new run both are. */
+  function blank(): Incoming {
+    return {
+      state: emptyRun(catalog.game, catalog.dataVersion),
+      quarantine: [],
+      pending: null,
+      rewardedWithoutBoon: new Set<GodId>(),
+      overrides: [],
+    };
+  }
+
+  /**
+   * What one slot holds, for the row the save screen draws it as.
+   *
+   * A run with nothing in it reads as an empty slot, which is what keeps a
+   * walked-away-from start out of the four somebody has to choose between.
+   */
+  function contentsOf(record: PersistedRun | null): SlotContents {
+    if (record === null) return { kind: "empty" };
+    let decoded: StoredRun;
+    try {
+      decoded = fromPersisted(record);
+    } catch (cause) {
+      return {
+        kind: "unreadable",
+        cause: cause instanceof Error ? cause : new Error(String(cause)),
+      };
+    }
+    const { state: run, quarantine: setAside } = broughtForward(decoded);
+    // Quarantined entries hold the slot too: a run whose every id the catalog
+    // has forgotten still has something in it, and it is still recoverable.
+    return holdsSomething(run) || setAside.length > 0
+      ? { kind: "run", run }
+      : { kind: "empty" };
+  }
+
+  /** Takes a run whole: no undo survives it, this being an arrival not an edit. */
+  function adopt(next: Incoming): void {
+    state = next.state;
+    quarantine = next.quarantine;
+    pending = next.pending;
+    notice = noticeFor(next.pending);
+    rewardedWithoutBoon = next.rewardedWithoutBoon;
+    overrides = [...next.overrides];
+    undoable = null;
+    previousEdit = null;
+    refreshCondition();
+    for (const listener of listeners) listener(state.facts);
+    for (const listener of intentListeners) listener(state.intent);
+  }
+
+  /**
+   * Runs one boundary write and hands the failure to the caller.
+   *
+   * Chained like every other write so a tap in flight cannot land after it, and
+   * awaited because these are the three gestures somebody is waiting on.
+   */
+  async function boundary(write: () => Promise<void>): Promise<void> {
+    const failed: { cause: Error | null } = { cause: null };
+    writes = writes.then(async () => {
+      try {
+        await write();
+        storageError = null;
+      } catch (cause) {
+        failed.cause = cause instanceof Error ? cause : new Error(String(cause));
+        storageError = failed.cause;
+      }
+      refreshCondition();
+    });
+    await writes;
+    if (failed.cause !== null) throw failed.cause;
   }
 
   return {
@@ -1223,242 +1350,66 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
       commit(state.facts, { ...state.intent, notes });
     },
 
+    get slot() {
+      return slot;
+    },
+
+    async slots(): Promise<readonly SlotRecord[]> {
+      const records = await Promise.all(SAVE_SLOTS.map((at) => store.load(catalog.game, at)));
+      return SAVE_SLOTS.map((at, index) => ({
+        slot: at,
+        contents: contentsOf(records[index] ?? null),
+      }));
+    },
+
     /**
-     * The finished run moves into the second record and a fresh one takes its
-     * place. Quarantine does not travel into the fresh run: those entries
-     * belong to the run they came out of, which is where they are written, and
-     * carrying them forward would produce a notice about ids the new run never
-     * held.
-     *
-     * Nothing in memory is cleared until both records are written. This is the
-     * one edit that throws away what it is holding, so the usual "record the
-     * failure and carry on" shape is not enough here: clearing first leaves the
-     * run in exactly one place — the `active` record — and the next tap writes
-     * the empty run over it. The run is then gone, having survived the failure
-     * that was reported and not the one that was not.
-     *
-     * The finished record is written first for the same reason. If it fails
-     * nothing has moved and the caller can retry; if the fresh one fails the
-     * run is in both records and a retry converges. Neither order can lose it,
-     * but only this one leaves a partial write easy to read.
+     * The run being left is not written and not moved — it is already in its own
+     * slot. The record is written back migrated before the pointer moves, or the
+     * next load would run the same pass and owe the same notice twice; a failure
+     * before the pointer leaves the player in the slot they were in.
      */
-    async finishRun(): Promise<void> {
-      /**
-       * A run holding nothing is not filed, and the guard is here rather than
-       * in a caller: it used to be a disabled control, and the boundary is
-       * always pressable now, so a second press would file an empty run over
-       * the run just played.
-       *
-       * A boon or a pin, a pin alone counting. The fresh run below is written
-       * either way, so a run carrying only an equipped form is cleared by this
-       * — which never reached the old control at all.
-       */
-      const holding = state.facts.held.size > 0 || state.intent.pins.size > 0;
-
-      const finished = toPersisted({
-        state,
-        quarantine,
-        pendingNotice: pending,
-        rewardedWithoutBoon,
-        overrides,
-      });
-      const fresh = toPersisted({
-        state: emptyRun(catalog.game, catalog.dataVersion),
-        quarantine: [],
-      });
-
-      // Held on an object rather than a plain binding: the assignment happens
-      // inside the chained callback, and reading `storageError` instead would
-      // race an edit made while this was in flight.
-      const failed: { cause: Error | null } = { cause: null };
-      writes = writes.then(async () => {
-        try {
-          if (holding) await store.save(catalog.game, "last", finished);
-          await store.save(catalog.game, "active", fresh);
-          storageError = null;
-        } catch (cause) {
-          failed.cause = cause instanceof Error ? cause : new Error(String(cause));
-          storageError = failed.cause;
-        }
-        refreshCondition();
-      });
-      await writes;
-      if (failed.cause !== null) throw failed.cause;
-
-      state = emptyRun(catalog.game, catalog.dataVersion);
-      quarantine = [];
-      notice = null;
-      pending = null;
-      rewardedWithoutBoon = new Set();
-      overrides = [];
-      /**
-       * Nothing from the finished run may be taken back into the fresh one.
-       * The last edit belonged to a run that is now in the other record, and
-       * restoring it here would put a boon somebody earned last night into a
-       * run that has not started — while the record it came from still says
-       * the run ended without it.
-       */
-      undoable = null;
-      previousEdit = null;
-      refreshCondition();
-      // Announced directly rather than through `commit`, which would compare a
-      // fresh run against the one just filed and find plenty moved anyway — but
-      // this is not an edit and has no snapshot behind it. Both sides are told:
-      // the fresh run's pins are as empty as its held boons.
-      for (const listener of listeners) listener(state.facts);
-      for (const listener of intentListeners) listener(state.intent);
-    },
-
-    async lastRun(): Promise<RunState | null> {
-      const record = await store.load(catalog.game, "last");
-      if (record === null) return null;
-      const { state } = fromPersisted(record);
-      /*
-       * Migrated on the way out, like every other route a stored run takes into
-       * this package. This is the record most likely to need it: it survives
-       * reloads and app updates by design, so it is the one that can be
-       * furthest behind the catalog now shipped. Read raw, a trait the catalog
-       * has since forgotten draws as a tile with an id for a name.
-       */
-      const { state: carried } = migrate(state, catalog);
-      // Derived on the way out, the record deliberately not carrying a count it
-      // could hold a stale copy of. Same call the seed and every commit make.
-      return {
-        ...carried,
-        facts: { ...carried.facts, elements: elementsFrom(carried.facts.held, catalog) },
-      };
-    },
-
-    async resumeLastRun(): Promise<void> {
-      if (state.facts.held.size > 0 || state.intent.pins.size > 0) {
-        throw new Error("the run in progress holds something; end it before picking another up");
-      }
-      const record = await store.load(catalog.game, "last");
-      if (record === null) throw new Error("no run has been filed");
-      const restored = fromPersisted(record);
-      /*
-       * The same pass a load runs, and for the reason a load runs it: this run
-       * is about to become the one evaluation reads, and nothing with an id the
-       * catalog cannot name may reach that. Adopted raw, the ids would go
-       * straight back into `active` on the next tap, past the one pass whose
-       * job is that they never do.
-       *
-       * The overlay is scanned with it, which is the more urgent half — it is
-       * merged over the facts *after* they are cleaned, so an override left
-       * naming a forgotten trait puts that id back where nothing is looking.
-       */
-      const outcome = migrate(restored.state, catalog);
-      const overlay = scanOverrides(restored.overrides ?? [], catalog);
-      const setAside = [...outcome.quarantine, ...overlay.quarantine];
-      const keptQuarantine = [...restored.quarantine, ...setAside];
-      /* What the pass took out is owed to the player the same way a load owes
-         it: the pass that raises the notice is the pass that removes the ids it
-         is about, so by the next read there is nothing left to notice. */
-      const carriedNotice = restored.pendingNotice ?? null;
-      const owed = [...(carriedNotice?.entries ?? []), ...setAside];
-      const owedNotice: PersistedNotice | null =
-        owed.length === 0
-          ? null
-          : {
-              playedOn: carriedNotice?.playedOn ?? restored.state.facts.dataVersion,
-              entries: owed,
-            };
-      /* Written as it will be read, not as it was filed: the record going into
-         the active slot is the migrated run, or the next load would run the
-         same pass again and owe the same notice twice. */
+    async openRun(target: SaveSlot): Promise<void> {
+      if (target === slot) return;
+      const record = await store.load(catalog.game, target);
+      const next = record === null ? blank() : broughtForward(fromPersisted(record));
       const adopted = toPersisted({
-        state: outcome.state,
-        quarantine: keptQuarantine,
-        pendingNotice: owedNotice,
-        rewardedWithoutBoon: new Set(restored.rewardedWithoutBoon ?? []),
-        overrides: overlay.overrides,
+        state: next.state,
+        quarantine: next.quarantine,
+        pendingNotice: next.pending,
+        rewardedWithoutBoon: next.rewardedWithoutBoon,
+        overrides: next.overrides,
       });
-
-      /*
-       * The active record first, then the second one is emptied. A failure
-       * between the two leaves the run in both slots, which a retry converges;
-       * the other order can leave it in neither. Same argument `finishRun`
-       * makes at the same boundary.
-       */
-      const failed: { cause: Error | null } = { cause: null };
-      writes = writes.then(async () => {
-        try {
-          await store.save(catalog.game, "active", adopted);
-          await store.clear(catalog.game, "last");
-          storageError = null;
-        } catch (cause) {
-          failed.cause = cause instanceof Error ? cause : new Error(String(cause));
-          storageError = failed.cause;
-        }
-        refreshCondition();
+      await boundary(async () => {
+        await store.save(catalog.game, target, adopted);
+        await store.setOpenSlot(catalog.game, target);
       });
-      await writes;
-      if (failed.cause !== null) throw failed.cause;
-
-      state = {
-        ...outcome.state,
-        facts: {
-          ...outcome.state.facts,
-          elements: elementsFrom(outcome.state.facts.held, catalog),
-        },
-      };
-      quarantine = keptQuarantine;
-      pending = owedNotice;
-      notice = noticeFor(owedNotice);
-      rewardedWithoutBoon = new Set(restored.rewardedWithoutBoon ?? []);
-      // The overrides the record carried are handed back the way a load hands
-      // them back; the overlay is the caller's to restore, as it is on open.
-      overrides = [...overlay.overrides];
-      // Nothing to take back: the last edit belonged to a run that ended, and
-      // this is that run arriving whole rather than one edit of it.
-      undoable = null;
-      previousEdit = null;
-      refreshCondition();
-      for (const listener of listeners) listener(state.facts);
-      for (const listener of intentListeners) listener(state.intent);
+      slot = target;
+      adopt(next);
     },
 
     /**
-     * The same fresh run `finishRun` leaves behind, and one write instead of
-     * two: `last` is untouched, so an abandoned run does not sit in front of the
-     * run somebody meant to keep. Memory is cleared only after the write lands,
-     * for the reason above — clearing first leaves the run in one record that
-     * the next tap overwrites.
+     * The record goes down before the pointer moves, so a failure between the
+     * two leaves the player in the slot they were in with a fresh run waiting in
+     * the other — which the next attempt converges on.
      */
-    async clearRun(): Promise<void> {
-      const fresh = toPersisted({
-        state: emptyRun(catalog.game, catalog.dataVersion),
-        quarantine: [],
+    async startRun(target: SaveSlot): Promise<void> {
+      const next = blank();
+      const fresh = toPersisted({ state: next.state, quarantine: [] });
+      await boundary(async () => {
+        await store.save(catalog.game, target, fresh);
+        await store.setOpenSlot(catalog.game, target);
       });
+      slot = target;
+      adopt(next);
+    },
 
-      const failed: { cause: Error | null } = { cause: null };
-      writes = writes.then(async () => {
-        try {
-          await store.save(catalog.game, "active", fresh);
-          storageError = null;
-        } catch (cause) {
-          failed.cause = cause instanceof Error ? cause : new Error(String(cause));
-          storageError = failed.cause;
-        }
-        refreshCondition();
-      });
-      await writes;
-      if (failed.cause !== null) throw failed.cause;
-
-      state = emptyRun(catalog.game, catalog.dataVersion);
-      quarantine = [];
-      notice = null;
-      pending = null;
-      rewardedWithoutBoon = new Set();
-      overrides = [];
-      // Nothing survives, and an undo least of all: the run this edit took back
-      // is in no record at all, so restoring one boon of it would be inventing
-      // a run out of the one thing the user happened to do last.
-      undoable = null;
-      previousEdit = null;
-      refreshCondition();
-      for (const listener of listeners) listener(state.facts);
-      for (const listener of intentListeners) listener(state.intent);
+    /**
+     * Memory is emptied only after the record is gone, and only for the open
+     * slot: deleting one you are not in touches nothing you are looking at.
+     */
+    async deleteRun(target: SaveSlot): Promise<void> {
+      await boundary(() => store.clear(catalog.game, target));
+      if (target === slot) adopt(blank());
     },
 
     get storageError() {

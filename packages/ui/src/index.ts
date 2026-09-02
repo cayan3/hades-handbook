@@ -56,7 +56,7 @@ export type { HelpProps } from "./help.js";
 export { Hub, HubGlyph } from "./hub.js";
 export type { HubProps } from "./hub.js";
 export { SaveScreen } from "./save-screen.js";
-export type { RunSummary, SaveScreenProps } from "./save-screen.js";
+export type { RunSummary, SaveScreenProps, SlotState, SlotView } from "./save-screen.js";
 export { RunOverview } from "./run-overview.js";
 export type { RunOverviewProps } from "./run-overview.js";
 export { finishedRun } from "./finished-run.js";

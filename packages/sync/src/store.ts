@@ -2,18 +2,31 @@ import type { GameId } from "@repo/core";
 import { type PersistedRun, STORE_VERSION } from "./persisted.js";
 
 /**
+ * A numbered save slot. Four of them: three saved runs and the one being
+ * played, which is five rows on a phone once the row that starts a run is
+ * counted. The games themselves offer a handful rather than a list.
+ */
+export type SaveSlot = 1 | 2 | 3 | 4;
+
+export const SAVE_SLOTS: readonly SaveSlot[] = [1, 2, 3, 4];
+
+/**
+ * The keys the two-record build wrote. Read once by the pass that moves them
+ * into slots and never written again — they stay in the type because they are
+ * still in somebody's browser.
+ */
+export type LegacySlot = "active" | "last";
+
+/**
  * Which record this is.
  *
- * Two runs, not a list: the one being played and the one before it. A saved-run
- * library is a different product and a different set of questions, and every
- * view that reads a run reads one of those two.
- *
- * The third is not a run. It holds a record that could not be decoded, kept
- * because the alternative is deleting the only copy of somebody's run on the
- * word of the build that could not read it. Nothing loads it and no view shows
- * it; it exists so that a later build has something to try.
+ * The numbered slots are runs. `unreadable` is not: it holds a record that
+ * could not be decoded, kept because the alternative is deleting the only copy
+ * of somebody's run on the word of the build that could not read it. Nothing
+ * loads it and no view shows it; it exists so that a later build has something
+ * to try.
  */
-export type RunSlot = "active" | "last" | "unreadable";
+export type RunSlot = SaveSlot | LegacySlot | "unreadable";
 
 /**
  * Where persisted runs live, as an interface so that the browser is not the
@@ -27,6 +40,12 @@ export interface RunStore {
   load(game: GameId, slot: RunSlot): Promise<PersistedRun | null>;
   save(game: GameId, slot: RunSlot, run: PersistedRun): Promise<void>;
   clear(game: GameId, slot: RunSlot): Promise<void>;
+  /**
+   * Which slot this game's run is open in — the only run state there is, now
+   * that nothing is filed over anything. Null before a game has been entered.
+   */
+  openSlot(game: GameId): Promise<SaveSlot | null>;
+  setOpenSlot(game: GameId, slot: SaveSlot | null): Promise<void>;
 }
 
 /**
@@ -35,7 +54,17 @@ export interface RunStore {
  * up, and this is what makes it impossible rather than merely refused.
  */
 export function recordKey(game: GameId, slot: RunSlot): string {
-  return `${game}:${slot}`;
+  return `${game}:${typeof slot === "number" ? `slot${slot}` : slot}`;
+}
+
+/** Where the pointer sits. Not a record, so it cannot collide with one. */
+export function openKey(game: GameId): string {
+  return `${game}:open`;
+}
+
+/** Whether a stored number still names a slot, asked of anything read back. */
+export function isSaveSlot(value: unknown): value is SaveSlot {
+  return SAVE_SLOTS.some((slot) => slot === value);
 }
 
 /**
@@ -51,6 +80,7 @@ export function recordKey(game: GameId, slot: RunSlot): string {
  */
 export function createMemoryStore(): RunStore {
   const records = new Map<string, string>();
+  const open = new Map<string, SaveSlot>();
 
   return {
     load(game, slot) {
@@ -63,6 +93,14 @@ export function createMemoryStore(): RunStore {
     },
     clear(game, slot) {
       records.delete(recordKey(game, slot));
+      return Promise.resolve();
+    },
+    openSlot(game) {
+      return Promise.resolve(open.get(openKey(game)) ?? null);
+    },
+    setOpenSlot(game, slot) {
+      if (slot === null) open.delete(openKey(game));
+      else open.set(openKey(game), slot);
       return Promise.resolve();
     },
   };

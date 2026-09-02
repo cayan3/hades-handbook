@@ -94,9 +94,9 @@ function run(over: Partial<FinishedRun> = {}): FinishedRun {
 
 function overview(
   over: Partial<FinishedRun> = {},
-  onResume: (() => void) | null = () => {},
+  onResume: () => void = () => {},
   onSaveSlots = () => {},
-): ReactElement {
+) {
   return <RunOverview run={run(over)} onResume={onResume} onSaveSlots={onSaveSlots} />;
 }
 
@@ -397,9 +397,10 @@ describe("Run Overview", () => {
   });
 
   /**
-   * Two, always, and neither hides anything behind it. There is no *finished*
-   * run in the model — only the run in whichever slot is open — so what these
-   * say does not change with which one is being shown.
+   * Two, always. There is no *finished* run in the model — only the run in
+   * whichever slot is open — so what these say does not change with which one
+   * is being shown, and the resume is never withheld: the run being left stays
+   * in its own slot, so opening another costs nothing.
    */
   it("offers the same two actions whatever it is showing", () => {
     const onResume = vi.fn();
@@ -412,19 +413,6 @@ describe("Run Overview", () => {
     expect(onResume).toHaveBeenCalledTimes(1);
     act(() => container.querySelector<HTMLButtonElement>(".overview__slots")?.click());
     expect(onSaveSlots).toHaveBeenCalledTimes(1);
-  });
-
-  /**
-   * A filed run cannot be picked up while another is in play — one active slot,
-   * so adopting over it would overwrite a run somebody is playing. The source
-   * refuses it; drawing the control anyway turned that refusal into a fault
-   * dialog the player could reach in three clicks.
-   */
-  it("withholds the resume where the run cannot be picked up", () => {
-    render(overview({ held: 1 }, null));
-
-    expect(texts(".overview__actions button")).toEqual(["Back to save slots"]);
-    expect(container.querySelector(".overview__close")).toBeNull();
   });
 
   /** Escape goes where the always-safe control goes, never into a run. */

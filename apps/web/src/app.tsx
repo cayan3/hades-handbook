@@ -2,7 +2,8 @@ import { createLookups, traitsFor, weaponFor, weaponsFor } from "@repo/catalog";
 import type { GameId, Rarity, RunFacts, RunState, TraitId } from "@repo/core";
 import { createRules as hades1Rules } from "@repo/rules-hades1";
 import { createRules as hades2Rules } from "@repo/rules-hades2";
-import type { RunSession, RunStore, TabPresence } from "@repo/sync";
+import type { RunSession, RunStore, SaveSlot, SlotRecord, TabPresence } from "@repo/sync";
+import { SAVE_SLOTS, holdsSomething } from "@repo/sync";
 import {
   ActionSheet,
   type BoonActions,
@@ -18,6 +19,7 @@ import {
   NodePresentation,
   RunOverview,
   SaveScreen,
+  type SlotView,
   NoticeBar,
   type NodeSource,
   OTHER_TAB_BODY,
@@ -334,43 +336,37 @@ function Run({
    */
   const [heldGoals, setHeldGoals] = useState<ReadonlySet<TraitId>>(new Set());
   /**
-   * The run filed last, and whether its summary is open over the page.
-   *
-   * Read off the record rather than kept from the run that was just ended: the
-   * record is what survives a reload, and reading it back is the only thing
-   * that says it is any good. `filed` is bumped by the run boundary so the load
-   * runs again — one effect for both the first read and every later one.
+   * What the slots hold, read off the records rather than kept from the runs
+   * that were left: a record is what survives a reload, and reading it back is
+   * the only thing that says it is any good. `filed` is bumped by every slot
+   * verb so the read runs again.
    */
-  const [lastRun, setLastRun] = useState<RunState | null>(null);
+  const [stored, setStored] = useState<readonly SlotRecord[]>([]);
   const [filed, setFiled] = useState(0);
   /**
-   * Whether the summary is open, and **which slot's run it is showing**.
-   *
-   * The header opens it on the run already in play; the door opens it on the
-   * run filed last. Nothing else differs — there is no *finished* run in the
-   * model, only the run in whichever slot is open, so the view and both its
-   * controls read the same either way.
+   * Whether the summary is open, and which slot's run it is showing. The header
+   * opens it on the run in play and the door on a saved one; nothing else
+   * differs, there being no *finished* run in the model.
    */
-  const [reviewing, setReviewing] = useState<"current" | "filed" | null>(null);
+  const [reviewing, setReviewing] = useState<"current" | SaveSlot | null>(null);
 
   const source = useMemo(() => nodeSourceFor(game), [game]);
   const tabs = useMemo(() => godTabs(source), [source]);
 
   /*
-   * A record that will not decode is reported rather than swallowed: the run
-   * that was played is gone either way, and saying so is the difference between
-   * a defect and a mystery. `live` guards the switch a player can make while
-   * this is in flight.
+   * A record that will not decode is reported in its own slot rather than
+   * thrown, so one damaged save costs its own row and not the door. `live`
+   * guards the switch a player can make while this is in flight.
    */
   useEffect(() => {
     let live = true;
-    session.source.lastRun().then(
-      (run) => {
-        if (live) setLastRun(run);
+    session.source.slots().then(
+      (slots) => {
+        if (live) setStored(slots);
       },
       (cause: unknown) => {
         if (!live) return;
-        setLastRun(null);
+        setStored([]);
         setFault(cause instanceof Error ? cause : new Error(String(cause)));
       },
     );
@@ -396,10 +392,45 @@ function Run({
     onReturnToDoor();
   }, [onReturnToDoor]);
 
-  const lastOverview = useMemo(
-    () => (lastRun === null ? null : finishedRun(source, lastRun, CORE_SLOTS[game])),
-    [source, lastRun, game],
+  /**
+   * The tail every slot verb shares: a record moved, so the read that draws the
+   * door runs again, and a failure is reported rather than thrown out of a tap.
+   */
+  const afterSlot = useCallback((verb: Promise<void>) => {
+    void verb
+      .then(() => {
+        setFiled((at) => at + 1);
+      })
+      .catch((cause: unknown) => {
+        setFault(cause instanceof Error ? cause : new Error(String(cause)));
+      });
+  }, []);
+
+  /**
+   * A different run means a different bar: the tabs were built for the old one.
+   *
+   * The door stays up until the verb lands. Closed first, a tap made while the
+   * write was in flight would be wiped by the run arriving behind it.
+   */
+  const intoRun = useCallback(
+    (verb: Promise<void>) => {
+      afterSlot(
+        verb.then(() => {
+          onCurated(NO_TABS);
+          setSelected(HUB);
+          setReviewing(null);
+          onChosen();
+        }),
+      );
+    },
+    [afterSlot, onCurated, onChosen],
   );
+
+  /** The run a saved slot holds, as the overview draws it. Worked out per read. */
+  const savedRun = (slot: SaveSlot): RunState | null => {
+    const record = stored.find((held) => held.slot === slot);
+    return record?.contents.kind === "run" ? record.contents.run : null;
+  };
 
   /**
    * The run in play, summarised by the same derivation the filed one goes
@@ -414,8 +445,16 @@ function Run({
     [source, facts, intent, game],
   );
 
+  const reviewedSlot = reviewing === null || reviewing === "current" ? null : reviewing;
+  const reviewed = reviewedSlot === null ? null : savedRun(reviewedSlot);
   const summary =
-    reviewing === null ? null : reviewing === "filed" ? lastOverview : currentOverview;
+    reviewing === null
+      ? null
+      : reviewing === "current"
+        ? currentOverview
+        : reviewed === null
+          ? null
+          : finishedRun(source, reviewed, CORE_SLOTS[game]);
 
   /**
    * Adding a god puts the tab up and goes there, and takes them off the removed
@@ -714,18 +753,42 @@ function Run({
   const openedView = opened === null ? null : view(opened);
 
   /**
-   * Whether there is a run here at all. A pin and no boons still counts:
-   * somebody put it there.
-   *
-   * Two controls ask. The save screen's first slot shows what there is to
-   * resume, and ending a run files it as the last one — which must not happen
-   * for an empty run, since it would sit in front of the run it is meant to
-   * remember.
+   * The four slots as the door draws them. The open one is read through the
+   * merged facts, which is the rule everywhere — a field held by hand belongs in
+   * the counts beside the run it is held over; the rest are their records.
    */
-  const started = facts.held.size > 0 || intent.pins.size > 0;
-  const stored = !started
-    ? null
-    : { held: facts.held.size, gods: facts.godPool.size, goals: intent.pins.size };
+  const slotViews: readonly SlotView[] = SAVE_SLOTS.map((slot) => {
+    if (slot === condition.slot) {
+      /* Quarantined entries hold the slot too: a run whose every id the catalog
+         has forgotten still has something in it, and it is still recoverable. */
+      const live = { facts, intent };
+      return holdsSomething(live) || condition.quarantine.length > 0
+        ? {
+            slot,
+            state: "open" as const,
+            summary: {
+              held: facts.held.size,
+              gods: facts.godPool.size,
+              goals: intent.pins.size,
+            },
+          }
+        : { slot, state: "empty" as const, summary: null };
+    }
+    const contents = stored.find((held) => held.slot === slot)?.contents;
+    if (contents === undefined || contents.kind === "empty") {
+      return { slot, state: "empty" as const, summary: null };
+    }
+    if (contents.kind === "unreadable") return { slot, state: "unreadable" as const, summary: null };
+    return {
+      slot,
+      state: "saved" as const,
+      summary: {
+        held: contents.run.facts.held.size,
+        gods: contents.run.facts.godPool.size,
+        goals: contents.run.intent.pins.size,
+      },
+    };
+  });
 
   /*
    * The art ships, so the real-art ladder is what the product is.
@@ -1022,45 +1085,22 @@ function Run({
           />
         )}
 
-        {/* Instead of the door rather than over it: reviewing the last run is
-            reached from the save screen, and closing goes back to it. Two
-            shades stacked would be one dialog behind another with no way of
-            reading which is which. */}
+        {/* Instead of the door rather than over it: a saved run is reached from
+            the save screen, and closing goes back to it. Two shades stacked
+            would be one dialog behind another with no way of reading which is
+            which. */}
         {summary === null ? null : (
           <RunOverview
             run={summary}
-            /**
-             * One meaning: go into the run being looked at. From the header
-             * that is the run already open, so it closes; from the door it is
-             * the filed run, so it becomes the open one first.
-             *
-             * There is no *finished* run in the model any more — only the run
-             * in whichever slot is open — which is why the label does not
-             * change with the case.
-             *
-             * **Withheld on a filed run while another is still in play.** The
-             * source refuses that — one active slot, so adopting over a run
-             * somebody is playing would overwrite it — and it was refusing a
-             * control the player could reach and press, which surfaced the
-             * refusal as a fault. The guard belongs on both sides.
-             */
+            /* One meaning: go into the run being looked at — a close from the
+               header, and an opening from the door. Never withheld now: the run
+               being left stays in its own slot, so nothing has to be refused. */
             onResume={
-              reviewing !== "filed"
+              reviewedSlot === null
                 ? () => setReviewing(null)
-                : started
-                  ? null
-                  : () => {
-                      void session
-                        .resumeLastRun()
-                        .then(() => {
-                          setFiled((at) => at + 1);
-                          setReviewing(null);
-                          onChosen();
-                        })
-                        .catch((cause: unknown) => {
-                          setFault(cause instanceof Error ? cause : new Error(String(cause)));
-                        });
-                    }
+                : () => {
+                    intoRun(session.openRun(reviewedSlot));
+                  }
             }
             onSaveSlots={toTheDoor}
           />
@@ -1070,41 +1110,23 @@ function Run({
             is the same as continuing, which is what makes Escape safe here. */}
         {!choosing || reviewing !== null ? null : (
           <SaveScreen
-            run={stored}
-            onResume={onChosen}
-            onNew={() => {
-              // Filed rather than discarded: a run somebody is leaving behind
-              // is still the run they played, and that is what `last` is for.
-              if (started) {
-                void session
-                  .finishRun()
-                  // The record this files is what the summary reads, so the
-                  // read has to run again — without it the door and the header
-                  // go on offering the run *before* this one until a reload.
-                  .then(() => setFiled((at) => at + 1))
-                  .catch((cause: unknown) => {
-                    setFault(cause instanceof Error ? cause : new Error(String(cause)));
-                  });
+            slots={slotViews}
+            /* The open slot is the run you are in, so pressing it is simply
+               going back to it; any other slot is looked at before it is
+               opened, the summary being where a run is picked up or dropped. */
+            onOpen={(slot) => {
+              if (slot === condition.slot) {
+                onChosen();
+                return;
               }
-              // The bar goes with the run: a god added to plan with belongs to
-              // the run they were added for, and the pool half empties itself.
-              onCurated(NO_TABS);
-              setSelected(HUB);
-              onChosen();
+              setReviewing(slot);
+            }}
+            onStart={(slot) => {
+              intoRun(session.startRun(slot));
             }}
             onLeave={() => {
               window.location.hash = HOME_HASH;
             }}
-            onReviewLast={lastOverview === null ? null : () => setReviewing("filed")}
-            lastRun={
-              lastOverview === null
-                ? null
-                : {
-                    held: lastOverview.held,
-                    gods: lastOverview.gods,
-                    goals: lastOverview.goals,
-                  }
-            }
           />
         )}
 

@@ -67,19 +67,19 @@ describe("a source and its overlay, wired", () => {
   });
 });
 
-describe("ending a run through the session", () => {
+describe("crossing a slot boundary through the session", () => {
   /**
-   * The failure the pairing exists for. `finishRun` empties the source and
-   * starts a fresh run, and the overlay is the one piece of state it cannot
-   * reach — so a layer left to itself goes on laying the finished run's
-   * hand-edits over a run that has not started, with evaluation reading them.
+   * The failure the pairing exists for. A slot verb replaces the run the source
+   * holds, and the overlay is the one piece of state it cannot reach — so a
+   * layer left to itself goes on laying the old run's hand-edits over the new
+   * one, with evaluation reading them.
    */
-  it("leaves nothing of the finished run's overlay over the fresh one", async () => {
+  it("leaves nothing of the old run's overlay over the fresh one", async () => {
     const session = await open();
     session.source.mark("HeraAttack");
     session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
 
-    await session.finishRun();
+    await session.startRun(2);
 
     expect(session.layer.overrides).toEqual([]);
     expect(session.layer.getFacts().godPool.has("Zeus")).toBe(false);
@@ -94,115 +94,100 @@ describe("ending a run through the session", () => {
     session.layer.subscribe((facts) => {
       seen.push(facts.godPool.has("Zeus"));
     });
-    await session.finishRun();
+    await session.startRun(2);
 
-    // Every notification the run boundary produced said the same thing. A clear
+    // Every notification the boundary produced said the same thing. A clear
     // that came after the source's own would have announced `true` once first.
     expect(seen).not.toContain(true);
   });
 
-  it("stores the finished run without the hypotheticals laid over it", async () => {
+  it("stores the run it left without the hypotheticals laid over it", async () => {
     const store = createMemoryStore();
     const session = await open(store);
     session.source.mark("HeraAttack");
     session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
 
-    await session.finishRun();
+    await session.startRun(2);
     await session.source.flush();
 
-    const last = fromPersisted(await store.load("hades2", "last"));
-    expect([...last.state.facts.held.keys()]).toEqual(["HeraAttack"]);
-    expect(last.overrides).toEqual([]);
+    const before = fromPersisted(await store.load("hades2", 1));
+    expect([...before.state.facts.held.keys()]).toEqual(["HeraAttack"]);
+    expect(before.overrides).toEqual([]);
   });
 
   /**
-   * Ending a run is the one edit that discards what it holds, so a failed write
-   * has to leave everything where it was and let the caller retry. The run is
-   * intact on its own; the overlay is intact only if it is put back.
+   * A failed write has to leave everything where it was and let the caller
+   * retry. The run is intact on its own; the overlay is intact only if it is
+   * put back.
    */
   it("puts the overlay back when the run could not be stored", async () => {
+    const memory = createMemoryStore();
     const store: RunStore = {
-      load: () => Promise.resolve(null),
-      save: (_game, slot) =>
-        slot === "last" ? Promise.reject(new Error("quota")) : Promise.resolve(),
-      clear: () => Promise.resolve(),
+      ...memory,
+      save: (game, slot, run) =>
+        slot === 2 ? Promise.reject(new Error("quota")) : memory.save(game, slot, run),
     };
     const session = await open(store);
-    // A run holding something, or there is no `last` write to fail on: an empty
-    // run is not filed at all.
     session.source.mark("HeraAttack");
     session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
 
-    await expect(session.finishRun()).rejects.toThrow(/quota/);
+    await expect(session.startRun(2)).rejects.toThrow(/quota/);
 
     expect(session.layer.overrides).toEqual([{ path: "godPool", god: "Zeus", present: true }]);
     expect(session.layer.getFacts().godPool.has("Zeus")).toBe(true);
   });
+
+  /** Opening a saved slot crosses the same boundary and owes the same clear. */
+  it("clears the overlay when another slot is opened", async () => {
+    const session = await open();
+    session.source.mark("HeraAttack");
+    await session.startRun(2);
+    session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
+
+    await session.openRun(1);
+
+    expect(session.layer.overrides).toEqual([]);
+    expect([...session.layer.getFacts().held.keys()]).toEqual(["HeraAttack"]);
+  });
 });
 
-describe("clearing a run through the session", () => {
-  /**
-   * The same boundary as ending one, and the overlay has to cross it the same
-   * way — a caller emptying the source directly would leave the abandoned run's
-   * hand-edits over a run that has not started.
-   */
-  it("leaves nothing of the abandoned run's overlay over the fresh one", async () => {
+describe("deleting a slot through the session", () => {
+  it("clears the overlay where the slot is the one in play", async () => {
     const session = await open();
     session.source.mark("HeraAttack");
     session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
 
-    await session.clearRun();
+    await session.deleteRun(session.source.slot);
 
     expect(session.layer.overrides).toEqual([]);
-    expect(session.layer.getFacts().godPool.has("Zeus")).toBe(false);
     expect(session.layer.getFacts().held.size).toBe(0);
   });
 
-  it("never hands a listener the fresh run under the old overlay", async () => {
-    const session = await open();
-    session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
-
-    const seen: boolean[] = [];
-    session.layer.subscribe((facts) => {
-      seen.push(facts.godPool.has("Zeus"));
-    });
-    await session.clearRun();
-
-    expect(seen).not.toContain(true);
-  });
-
   /**
-   * The whole difference from ending one. `last` is what a player goes to for
-   * the run they meant to keep, and a run they threw away has no business
-   * sitting in front of it.
+   * And leaves it alone otherwise: deleting a run nobody is in changes nothing
+   * the layer is laid over, so throwing the hand-edits away would be a loss
+   * with no boundary behind it.
    */
-  it("files nothing, so a run stored earlier is still the previous one", async () => {
-    const store = createMemoryStore();
-    const session = await open(store);
+  it("keeps the overlay where the slot is one nobody is in", async () => {
+    const session = await open();
     session.source.mark("HeraAttack");
-    await session.finishRun();
+    await session.startRun(2);
+    session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
 
-    session.source.mark("ZeusAttack");
-    await session.clearRun();
-    await session.source.flush();
+    await session.deleteRun(1);
 
-    const last = fromPersisted(await store.load("hades2", "last"));
-    expect([...last.state.facts.held.keys()]).toEqual(["HeraAttack"]);
-    const active = fromPersisted(await store.load("hades2", "active"));
-    expect(active.state.facts.held.size).toBe(0);
+    expect(session.layer.overrides).toEqual([{ path: "godPool", god: "Zeus", present: true }]);
+    expect(session.layer.getFacts().godPool.has("Zeus")).toBe(true);
   });
 
-  it("puts the overlay back when the fresh run could not be stored", async () => {
-    const store: RunStore = {
-      load: () => Promise.resolve(null),
-      save: () => Promise.reject(new Error("quota")),
-      clear: () => Promise.resolve(),
-    };
+  it("puts the overlay back when the record could not be removed", async () => {
+    const memory = createMemoryStore();
+    const store: RunStore = { ...memory, clear: () => Promise.reject(new Error("quota")) };
     const session = await open(store);
     session.source.mark("HeraAttack");
     session.layer.setOverride({ path: "godPool", god: "Zeus", present: true });
 
-    await expect(session.clearRun()).rejects.toThrow(/quota/);
+    await expect(session.deleteRun(session.source.slot)).rejects.toThrow(/quota/);
 
     // The run survived the failed write, so what the user was holding by hand
     // over it has to survive too, or the retry is about something else.

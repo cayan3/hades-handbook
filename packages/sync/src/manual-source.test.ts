@@ -854,13 +854,13 @@ describe("watching intent, which the port cannot carry", () => {
     expect(source.getFacts()).toBe(before);
   });
 
-  it("tells an intent subscriber when a run ends and the fresh one has no pins", async () => {
+  it("tells an intent subscriber when a fresh run starts and has no pins", async () => {
     const source = await open();
     source.pin("HeraAttack");
     const seen: number[] = [];
     source.subscribeIntent((intent) => seen.push(intent.pins.size));
 
-    await source.finishRun();
+    await source.startRun(2);
 
     expect(seen).toEqual([0]);
   });
@@ -953,7 +953,7 @@ describe("a writer that moves nothing", () => {
     expect(source.migrationNotice).toBeNull();
     expect(heard).toBe(1);
     await source.flush();
-    const stored = fromPersisted(await store.load("hades2", "active"));
+    const stored = fromPersisted(await store.load("hades2", 1));
     expect(stored.pendingNotice).toBeNull();
   });
 });
@@ -980,8 +980,7 @@ describe("what the source has to say about itself", () => {
     let failing = true;
     const memory = createMemoryStore();
     const store: RunStore = {
-      load: (game, slot) => memory.load(game, slot),
-      clear: (game, slot) => memory.clear(game, slot),
+      ...memory,
       save: (game, slot, run) =>
         failing ? Promise.reject(new Error("quota")) : memory.save(game, slot, run),
     };
@@ -1046,89 +1045,93 @@ describe("persistence", () => {
     expect([...reopened.getFacts().held.keys()]).toEqual(["HeraSpecial"]);
   });
 
-  it("moves a finished run into the second record and starts a fresh one", async () => {
+  it("leaves the run it was in where it was and opens the new slot", async () => {
     const store = createMemoryStore();
     const source = await open(store);
     source.mark("HeraAttack");
 
-    await source.finishRun();
+    await source.startRun(2);
 
     expect(source.getFacts().held.size).toBe(0);
-    expect(await store.load("hades2", "last")).not.toBeNull();
+    expect(source.slot).toBe(2);
+    // Nothing was filed over anything: the run is still in the slot it was in.
+    expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
     const reopened = await open(store);
     expect(reopened.getFacts().held.size).toBe(0);
+    expect(reopened.slot).toBe(2);
   });
 });
 
 /**
- * Reading the second record back, which nothing did for two tiers — the run
- * boundary wrote it and no caller ever opened it.
+ * The four slots, read back. Nothing is filed over anything now: a run stays in
+ * the slot it was played in until somebody chooses to replace it.
  */
-describe("the run boundary's own guard", () => {
+describe("what the slots hold", () => {
+  it("reads all four, empty where nothing has been played", async () => {
+    const source = await open();
+
+    const slots = await source.slots();
+
+    expect(slots.map((held) => held.slot)).toEqual([1, 2, 3, 4]);
+    expect(slots.every((held) => held.contents.kind === "empty")).toBe(true);
+  });
+
   /**
-   * The control that reaches this is always pressable now, so the rule that
-   * used to live in a disabled button lives here. Pressed twice, the second
-   * press must not file an empty run over the run just played.
+   * The rule the old empty-run guard became. It was a refusal in the verb,
+   * defending one filed record; per slot it is a question about what a slot
+   * *is*, so a run somebody walked away from never takes one.
    */
-  it("files nothing when the run holds nothing", async () => {
+  it("reads a run holding nothing as an empty slot", async () => {
     const store = createMemoryStore();
     const source = await open(store);
     source.mark("HeraAttack");
-    await source.finishRun();
-    const filed = await store.load("hades2", "last");
+    source.remove("HeraAttack");
+    await source.startRun(2);
+    await source.flush();
 
-    await source.finishRun();
-
-    expect(await store.load("hades2", "last")).toEqual(filed);
+    // Written, and still not a slot: the record exists, the run in it does not.
+    expect(await store.load("hades2", 1)).not.toBeNull();
+    const slots = await source.slots();
+    expect(slots[0]?.contents.kind).toBe("empty");
   });
 
   /** A pin alone counts as a run: somebody put it there. */
-  it("files a run holding only a pin", async () => {
-    const store = createMemoryStore();
-    const source = await open(store);
+  it("reads a run holding only a pin as a run", async () => {
+    const source = await open();
     source.pin("HeraAttack");
+    await source.startRun(2);
 
-    await source.finishRun();
+    const slots = await source.slots();
 
-    expect((await store.load("hades2", "last"))?.intent.pins).toEqual(["HeraAttack"]);
+    expect(slots[0]?.contents.kind).toBe("run");
   });
 
-  /**
-   * The fresh run is written either way, so a run carrying only an equipped
-   * form is still cleared — which never reached the old disabled control.
-   */
-  it("clears a run that holds only an equipped form", async () => {
+  /** And so does an equipped form, which never reached the old control at all. */
+  it("reads a run holding only an equipped form as a run", async () => {
     const source = await open();
     source.equipAspect("TorchAutofireAspect");
+    await source.startRun(2);
 
-    await source.finishRun();
+    const slots = await source.slots();
 
-    expect(source.getFacts().equipped.aspect).toBeUndefined();
-  });
-});
-
-describe("the run filed last", () => {
-  it("is nothing until a run has been filed", async () => {
-    const source = await open();
-    source.mark("HeraAttack");
-
-    expect(await source.lastRun()).toBeNull();
+    expect(slots[0]?.contents.kind).toBe("run");
   });
 
-  it("carries what the run held, its pool and its pins", async () => {
+  it("carries what each run held, its pool and its pins", async () => {
     const source = await open();
     source.mark("HeraAttack", { rarity: "Rare" });
     source.equipAspect("TorchAutofireAspect");
     source.pin("HeraSpecial");
-    await source.finishRun();
+    await source.startRun(2);
 
-    const last = await source.lastRun();
+    const [first] = await source.slots();
+    const run = first?.contents.kind === "run" ? first.contents.run : null;
 
-    expect(last?.facts.held.get("HeraAttack")).toEqual({ rarity: "Rare", level: 1 });
-    expect([...(last?.facts.godPool ?? [])]).toEqual(["Hera"]);
-    expect(last?.facts.equipped.aspect).toBe("TorchAutofireAspect");
-    expect(last?.facts.equipped.weapon).toBe("WeaponTorch");
-    expect([...(last?.intent.pins ?? [])]).toEqual(["HeraSpecial"]);
+    expect(run?.facts.held.get("HeraAttack")).toEqual({ rarity: "Rare", level: 1 });
+    expect([...(run?.facts.godPool ?? [])]).toEqual(["Hera"]);
+    expect(run?.facts.equipped.aspect).toBe("TorchAutofireAspect");
+    expect(run?.facts.equipped.weapon).toBe("WeaponTorch");
+    expect([...(run?.intent.pins ?? [])]).toEqual(["HeraSpecial"]);
   });
 
   /**
@@ -1136,7 +1139,7 @@ describe("the run filed last", () => {
    * back out of storage has to run the same derivation a load does — otherwise
    * the run that ended with three Fire boons reads as having none.
    */
-  it("counts the elements the run held", async () => {
+  it("counts the elements each run held", async () => {
     const catalog = testCatalog({
       game: "hades2",
       dataVersion: "build-1",
@@ -1150,15 +1153,16 @@ describe("the run filed last", () => {
     const source = await openManualSource({ game: "hades2", catalog, store: createMemoryStore() });
     source.mark("HestiaAttack");
     source.mark("HestiaSpecial");
-    await source.finishRun();
+    await source.startRun(2);
 
-    const last = await source.lastRun();
+    const [first] = await source.slots();
+    const run = first?.contents.kind === "run" ? first.contents.run : null;
 
-    expect(last?.facts.elements.get("Fire")).toBe(2);
+    expect(run?.facts.elements.get("Fire")).toBe(2);
   });
 
-  /** The same pass, on the read that only draws the run rather than adopting it. */
-  it("migrates the record it reads back", async () => {
+  /** The same pass, on the read that only draws a run rather than opening it. */
+  it("migrates the records it reads back", async () => {
     const before = testCatalog({
       game: "hades2",
       dataVersion: "build-1",
@@ -1175,12 +1179,46 @@ describe("the run filed last", () => {
     const store = createMemoryStore();
     const played = await openManualSource({ game: "hades2", catalog: before, store });
     played.mark("Cut");
-    await played.finishRun();
+    await played.startRun(2);
 
     const now = await openManualSource({ game: "hades2", catalog: after, store });
 
     // Rather than a tile whose name is an id nothing can look up.
-    expect([...((await now.lastRun())?.facts.held.keys() ?? [])]).toEqual([]);
+    const [first] = await now.slots();
+    expect(first?.contents.kind === "run" ? [...first.contents.run.facts.held.keys()] : null).toEqual(
+      [],
+    );
+  });
+
+  /**
+   * A run the update emptied is still a run: what the pass took out is in the
+   * quarantine, recoverable, and reading the slot as free would let the next
+   * *Start a new run* write over the only copy of it.
+   */
+  it("keeps the slot of a run the update left holding nothing", async () => {
+    const before = testCatalog({
+      game: "hades2",
+      dataVersion: "build-1",
+      traits: traitTable(testTrait("Cut", { god: "Hestia", slot: "Melee" })),
+      gods: new Set(["Hestia"]),
+      slots: new Set(["Melee"]),
+    });
+    const after = testCatalog({
+      game: "hades2",
+      dataVersion: "build-2",
+      traits: {},
+      gods: new Set(),
+    });
+    const store = createMemoryStore();
+    const played = await openManualSource({ game: "hades2", catalog: before, store });
+    played.mark("Cut");
+    await played.startRun(2);
+
+    const now = await openManualSource({ game: "hades2", catalog: after, store });
+    const [first] = await now.slots();
+
+    expect(first?.contents.kind).toBe("run");
+    expect(first?.contents.kind === "run" ? first.contents.run.facts.held.size : -1).toBe(0);
   });
 
   /** Survives the source that wrote it, which is the whole point of a record. */
@@ -1188,215 +1226,259 @@ describe("the run filed last", () => {
     const store = createMemoryStore();
     const source = await open(store);
     source.mark("HeraAttack");
-    await source.finishRun();
+    await source.startRun(2);
 
     const reopened = await open(store);
+    const [first] = await reopened.slots();
 
-    expect([...((await reopened.lastRun())?.facts.held.keys() ?? [])]).toEqual(["HeraAttack"]);
+    expect(first?.contents.kind === "run" ? [...first.contents.run.facts.held.keys()] : []).toEqual(
+      ["HeraAttack"],
+    );
   });
 
   /**
-   * Contained where the active run's version of the same failure is not: the
-   * caller reports it and the rest of the page carries on, so there is nothing
-   * to gain from repairing or hiding it.
+   * Contained to its own row rather than thrown. With one filed record a throw
+   * cost the caller a summary; with four it would cost them the whole door, and
+   * the three readable runs beside it are not damaged.
    */
-  it("refuses a record it cannot decode", async () => {
+  it("reports a record it cannot decode in that slot alone", async () => {
     const store = createMemoryStore();
     const source = await open(store);
-    await store.save("hades2", "last", {
+    await store.save("hades2", 3, {
       storeVersion: STORE_VERSION + 1,
     } as unknown as ReturnType<typeof toPersisted>);
 
-    await expect(source.lastRun()).rejects.toThrow(/store version/);
+    const slots = await source.slots();
+
+    expect(slots[2]?.contents.kind).toBe("unreadable");
+    expect(
+      slots[2]?.contents.kind === "unreadable" ? slots[2].contents.cause.message : "",
+    ).toMatch(/store version/);
+    expect(slots[0]?.contents.kind).toBe("empty");
   });
 
   /**
-   * Picking it back up: one active slot, so this is only safe on a run holding
-   * nothing, and the second record is emptied rather than left to be offered
-   * twice.
+   * The run as it really was. The session hands the overlay back before the
+   * record is written, so a hand-held field is not part of what is stored.
    */
-  describe("picking it back up", () => {
-    it("makes the filed run the run in progress and empties the second record", async () => {
-      const store = createMemoryStore();
-      const source = await open(store);
-      source.mark("HeraAttack", { rarity: "Rare" });
-      source.pin("HeraSpecial");
-      await source.finishRun();
-
-      await source.resumeLastRun();
-
-      expect(source.getFacts().held.get("HeraAttack")).toEqual({ rarity: "Rare", level: 1 });
-      expect([...source.getState().intent.pins]).toEqual(["HeraSpecial"]);
-      expect(await store.load("hades2", "last")).toBeNull();
-      // And it is what a reload finds, rather than only what memory holds.
-      const reopened = await open(store);
-      expect([...reopened.getFacts().held.keys()]).toEqual(["HeraAttack"]);
-    });
-
-    /** The one way this could lose a run, and it is refused rather than warned. */
-    it("refuses while the run in progress holds something", async () => {
-      const store = createMemoryStore();
-      const source = await open(store);
-      source.mark("HeraAttack");
-      await source.finishRun();
-      source.mark("HeraSpecial");
-
-      await expect(source.resumeLastRun()).rejects.toThrow(/end it before/);
-
-      expect([...source.getFacts().held.keys()]).toEqual(["HeraSpecial"]);
-      expect((await store.load("hades2", "last"))?.facts.held).toHaveLength(1);
-    });
-
-    /** A pin alone counts as a run, on the same terms the End run control uses. */
-    it("refuses on a run holding only a pin", async () => {
-      const source = await open();
-      source.mark("HeraAttack");
-      await source.finishRun();
-      source.pin("HeraSpecial");
-
-      await expect(source.resumeLastRun()).rejects.toThrow(/end it before/);
-    });
-
-    /**
-     * The record that survives reloads and app updates by design is the one
-     * that can be furthest behind the catalog now shipped, so it is the one
-     * that most needs the pass every other route into this package runs. Read
-     * raw, the ids went straight back into the active record on the next tap.
-     */
-    it("runs the migration on the run it adopts, and owes the notice", async () => {
-      const before = testCatalog({
-        game: "hades2",
-        dataVersion: "build-1",
-        traits: traitTable(
-          testTrait("Cut", { god: "Hestia", slot: "Melee" }),
-          testTrait("Kept", { god: "Hestia", slot: "Secondary" }),
-        ),
-        gods: new Set(["Hestia"]),
-        slots: new Set(["Melee", "Secondary"]),
-      });
-      const after = testCatalog({
-        game: "hades2",
-        dataVersion: "build-2",
-        traits: traitTable(testTrait("Kept", { god: "Hestia", slot: "Secondary" })),
-        gods: new Set(["Hestia"]),
-        slots: new Set(["Secondary"]),
-      });
-      const store = createMemoryStore();
-      const played = await openManualSource({ game: "hades2", catalog: before, store });
-      played.mark("Cut");
-      played.mark("Kept");
-      await played.finishRun();
-
-      const now = await openManualSource({ game: "hades2", catalog: after, store });
-      await now.resumeLastRun();
-
-      expect([...now.getFacts().held.keys()]).toEqual(["Kept"]);
-      expect(now.quarantine.map((entry) => entry.key)).toContain("Cut");
-      // Owed rather than swallowed: the pass that strips the id is the only
-      // pass that can say it was stripped. Two entries for one trait — the boon
-      // and the slot it filled — which is what a load reports too.
-      expect(now.migrationNotice?.entries.map((entry) => entry.key)).toContain("Cut");
-      expect(now.migrationNotice?.playedOn).toBe("build-1");
-      // And what reaches the record is what was read, so the next load does not
-      // run the same pass and owe the same notice again.
-      const active = await store.load("hades2", "active");
-      expect(active?.facts.held.map(([trait]) => trait)).toEqual(["Kept"]);
-    });
-
-    it("says so where nothing has been filed", async () => {
-      const source = await open();
-
-      await expect(source.resumeLastRun()).rejects.toThrow(/no run has been filed/);
-    });
-
-    /** Derived on the way in, the record carrying no count of its own. */
-    it("counts the elements of the run it adopts", async () => {
-      const catalog = testCatalog({
-        game: "hades2",
-        dataVersion: "build-1",
-        traits: traitTable(
-          testTrait("HestiaAttack", { god: "Hestia", slot: "Melee", elementGrants: ["Fire"] }),
-        ),
-        gods: new Set(["Hestia"]),
-        slots: new Set(["Melee"]),
-      });
-      const source = await openManualSource({
-        game: "hades2",
-        catalog,
-        store: createMemoryStore(),
-      });
-      source.mark("HestiaAttack");
-      await source.finishRun();
-
-      await source.resumeLastRun();
-
-      expect(source.getFacts().elements.get("Fire")).toBe(1);
-    });
-
-    /** Nothing to take back: this is a run arriving whole, not an edit. */
-    it("offers no undo of the run it adopted", async () => {
-      const source = await open();
-      source.mark("HeraAttack");
-      await source.finishRun();
-
-      await source.resumeLastRun();
-
-      expect(source.lastEdit).toBeNull();
-    });
-  });
-
-  /**
-   * The run as it really was. `finishRun` hands the overlay back before the
-   * record is written, so a hand-held field is not part of what was filed.
-   */
-  it("does not carry the overrides that were laid over the run", async () => {
+  it("does not carry the overrides that were laid over a run", async () => {
     const source = await open();
     source.mark("HeraAttack");
     source.putOverrides([{ path: "godPool", god: "Zeus", present: true }]);
-    await source.finishRun();
+    await source.startRun(2);
 
-    const last = await source.lastRun();
+    const [first] = await source.slots();
+    const run = first?.contents.kind === "run" ? first.contents.run : null;
 
-    expect([...(last?.facts.godPool ?? [])]).toEqual(["Hera"]);
+    // The source stores what it was given; nothing here merges an override in.
+    expect([...(run?.facts.godPool ?? [])]).toEqual(["Hera"]);
   });
 });
 
-describe("throwing a run away", () => {
+/**
+ * Opening another slot, which is the whole of what resuming is. The run being
+ * left stays where it is, so there is nothing here to refuse.
+ */
+describe("opening another slot", () => {
+  it("makes that slot's run the run in progress and leaves the other alone", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack", { rarity: "Rare" });
+    source.pin("HeraSpecial");
+    await source.startRun(2);
+    source.mark("HeraSpecial");
+    await source.flush();
+
+    await source.openRun(1);
+
+    expect(source.slot).toBe(1);
+    expect(source.getFacts().held.get("HeraAttack")).toEqual({ rarity: "Rare", level: 1 });
+    expect([...source.getState().intent.pins]).toEqual(["HeraSpecial"]);
+    // The run that was in play is still in its own slot, whole.
+    expect((await store.load("hades2", 2))?.facts.held).toHaveLength(1);
+    // And it is what a reload finds, rather than only what memory holds.
+    const reopened = await open(store);
+    expect([...reopened.getFacts().held.keys()]).toEqual(["HeraAttack"]);
+  });
+
   /**
-   * The other run boundary, and the difference is the whole of it: an abandoned
-   * run is filed nowhere, so the run a player actually finished is still the one
-   * waiting for them.
+   * The refusal this needed is gone with the reason for it: adopting a run used
+   * to overwrite the one in play, because there was one active slot.
    */
-  it("starts a fresh run and leaves the previous one where it was", async () => {
+  it("does not refuse while the run in progress holds something", async () => {
     const store = createMemoryStore();
     const source = await open(store);
     source.mark("HeraAttack");
-    await source.finishRun();
+    await source.startRun(2);
     source.mark("HeraSpecial");
+    await source.flush();
 
-    await source.clearRun();
+    await source.openRun(1);
+
+    expect([...source.getFacts().held.keys()]).toEqual(["HeraAttack"]);
+    expect((await store.load("hades2", 2))?.facts.held).toHaveLength(1);
+  });
+
+  it("opens an empty slot as a fresh run rather than failing", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    await source.openRun(3);
+
+    expect(source.slot).toBe(3);
+    expect(source.getFacts().held.size).toBe(0);
+  });
+
+  it("does nothing at all where the slot is the one already open", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+
+    await source.openRun(source.slot);
+
+    expect([...source.getFacts().held.keys()]).toEqual(["HeraAttack"]);
+  });
+
+  /**
+   * The record that survives reloads and app updates by design is the one that
+   * can be furthest behind the catalog now shipped, so it is the one that most
+   * needs the pass every other route into this package runs. Read raw, the ids
+   * went straight back into the open record on the next tap.
+   */
+  it("runs the migration on the run it opens, and owes the notice", async () => {
+    const before = testCatalog({
+      game: "hades2",
+      dataVersion: "build-1",
+      traits: traitTable(
+        testTrait("Cut", { god: "Hestia", slot: "Melee" }),
+        testTrait("Kept", { god: "Hestia", slot: "Secondary" }),
+      ),
+      gods: new Set(["Hestia"]),
+      slots: new Set(["Melee", "Secondary"]),
+    });
+    const after = testCatalog({
+      game: "hades2",
+      dataVersion: "build-2",
+      traits: traitTable(testTrait("Kept", { god: "Hestia", slot: "Secondary" })),
+      gods: new Set(["Hestia"]),
+      slots: new Set(["Secondary"]),
+    });
+    const store = createMemoryStore();
+    const played = await openManualSource({ game: "hades2", catalog: before, store });
+    played.mark("Cut");
+    played.mark("Kept");
+    await played.startRun(2);
+
+    const now = await openManualSource({ game: "hades2", catalog: after, store });
+    await now.openRun(1);
+
+    expect([...now.getFacts().held.keys()]).toEqual(["Kept"]);
+    expect(now.quarantine.map((entry) => entry.key)).toContain("Cut");
+    // Owed rather than swallowed: the pass that strips the id is the only
+    // pass that can say it was stripped. Two entries for one trait — the boon
+    // and the slot it filled — which is what a load reports too.
+    expect(now.migrationNotice?.entries.map((entry) => entry.key)).toContain("Cut");
+    expect(now.migrationNotice?.playedOn).toBe("build-1");
+    // And what reaches the record is what was read, so the next load does not
+    // run the same pass and owe the same notice again.
+    const opened = await store.load("hades2", 1);
+    expect(opened?.facts.held.map(([trait]) => trait)).toEqual(["Kept"]);
+  });
+
+  /** Derived on the way in, the record carrying no count of its own. */
+  it("counts the elements of the run it opens", async () => {
+    const catalog = testCatalog({
+      game: "hades2",
+      dataVersion: "build-1",
+      traits: traitTable(
+        testTrait("HestiaAttack", { god: "Hestia", slot: "Melee", elementGrants: ["Fire"] }),
+      ),
+      gods: new Set(["Hestia"]),
+      slots: new Set(["Melee"]),
+    });
+    const source = await openManualSource({
+      game: "hades2",
+      catalog,
+      store: createMemoryStore(),
+    });
+    source.mark("HestiaAttack");
+    await source.startRun(2);
+
+    await source.openRun(1);
+
+    expect(source.getFacts().elements.get("Fire")).toBe(1);
+  });
+
+  /** Nothing to take back: this is a run arriving whole, not an edit. */
+  it("offers no undo of the run it opened", async () => {
+    const source = await open();
+    source.mark("HeraAttack");
+    await source.startRun(2);
+
+    await source.openRun(1);
+
+    expect(source.lastEdit).toBeNull();
+  });
+
+  /** Which slot is open is the run state, so it is on the condition too. */
+  it("tells a condition subscriber which slot is open now", async () => {
+    const source = await open();
+    const seen: number[] = [];
+    source.subscribeCondition((condition) => seen.push(condition.slot));
+
+    await source.startRun(3);
+
+    expect(seen).toContain(3);
+  });
+});
+
+describe("deleting a slot", () => {
+  /**
+   * The verb that had no caller for a tier, and the caller it has now. Deleting
+   * a run you are not in touches nothing you are looking at.
+   */
+  it("empties a saved slot and leaves the run in progress alone", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.startRun(2);
+    source.mark("HeraSpecial");
+    await source.flush();
+
+    await source.deleteRun(1);
+
+    expect(await store.load("hades2", 1)).toBeNull();
+    expect([...source.getFacts().held.keys()]).toEqual(["HeraSpecial"]);
+  });
+
+  it("empties the open slot in memory as well as on disk", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.flush();
+
+    await source.deleteRun(source.slot);
 
     expect(source.getFacts().held.size).toBe(0);
-    expect((await store.load("hades2", "last"))?.facts.held).toHaveLength(1);
-    expect((await store.load("hades2", "active"))?.facts.held).toHaveLength(0);
+    expect(await store.load("hades2", 1)).toBeNull();
+    // The slot stays open: it is the one you are in, and now it is empty.
+    expect(source.slot).toBe(1);
   });
 
   /**
    * There is no record to take the boon back out of, so an undo offer here
-   * would restore one edit of a run that exists nowhere. The same argument
-   * `finishRun` makes, with less left over.
+   * would restore one edit of a run that exists nowhere.
    */
   it("takes the undo offer with it", async () => {
     const source = await open();
     source.mark("HeraAttack");
     expect(source.lastEdit).not.toBeNull();
 
-    await source.clearRun();
+    await source.deleteRun(source.slot);
 
     expect(source.lastEdit).toBeNull();
   });
 
-  it("tells both sides the fresh run is empty", async () => {
+  it("tells both sides the open slot is empty", async () => {
     const source = await open();
     source.mark("HeraAttack");
     source.pin("HeraAttack");
@@ -1405,37 +1487,32 @@ describe("throwing a run away", () => {
     source.subscribe((next) => facts.push(next.held.size));
     source.subscribeIntent((next) => intent.push(next.pins.size));
 
-    await source.clearRun();
+    await source.deleteRun(source.slot);
 
     expect(facts).toEqual([0]);
     expect(intent).toEqual([0]);
   });
 
-  /**
-   * The run is intact after a refused write, which is the same bargain
-   * `finishRun` strikes — except that here a retry is the only way forward,
-   * there being no half-written pair to converge.
-   */
-  it("keeps the run when the fresh record cannot be written", async () => {
+  /** A refused delete leaves the run where it was, and says so. */
+  it("keeps the run when the record cannot be removed", async () => {
     const inner = createMemoryStore();
     let refuse = false;
     const store: RunStore = {
-      load: inner.load.bind(inner),
-      clear: inner.clear.bind(inner),
-      save: (game, target, run) =>
-        refuse ? Promise.reject(new Error("quota exceeded")) : inner.save(game, target, run),
+      ...inner,
+      clear: (game, target) =>
+        refuse ? Promise.reject(new Error("quota exceeded")) : inner.clear(game, target),
     };
     const source = await open(store);
     source.mark("HeraAttack");
     await source.flush();
 
     refuse = true;
-    await expect(source.clearRun()).rejects.toThrow(/quota/);
+    await expect(source.deleteRun(1)).rejects.toThrow(/quota/);
     expect(source.getFacts().held.has("HeraAttack")).toBe(true);
     expect(source.storageError?.message).toMatch(/quota/);
 
     refuse = false;
-    await source.clearRun();
+    await source.deleteRun(1);
     expect(source.getFacts().held.size).toBe(0);
   });
 });
@@ -1451,9 +1528,8 @@ describe("a store that fails a write", () => {
   function flakyStore(): RunStore & { failNext: boolean } {
     const inner = createMemoryStore();
     const store = {
+      ...inner,
       failNext: false,
-      load: inner.load.bind(inner),
-      clear: inner.clear.bind(inner),
       save(game: Parameters<RunStore["save"]>[0], slot: Parameters<RunStore["save"]>[1], run: Parameters<RunStore["save"]>[2]) {
         if (store.failNext) {
           store.failNext = false;
@@ -1513,18 +1589,17 @@ describe("a store that fails a write", () => {
   });
 });
 
-describe("finishing a run when a write fails", () => {
+describe("a slot verb whose write fails", () => {
   /**
-   * The two records move together or not at all. Ending a run is the one edit
-   * that throws away what is in memory, so doing it before the write lands
-   * leaves the run in exactly one place — the record the next tap overwrites.
+   * The record goes down before the pointer moves. A failure between the two
+   * leaves the player in the slot they were already in, which the next attempt
+   * converges on — the other order would point at a slot with nothing in it.
    */
   function storeFailing(slot: RunSlot | null): RunStore & { failOn: RunSlot | null } {
     const inner = createMemoryStore();
     const store = {
+      ...inner,
       failOn: slot,
-      load: inner.load.bind(inner),
-      clear: inner.clear.bind(inner),
       save(game: GameId, target: RunSlot, run: Parameters<RunStore["save"]>[2]) {
         if (target === store.failOn) return Promise.reject(new Error("quota exceeded"));
         return inner.save(game, target, run);
@@ -1533,64 +1608,76 @@ describe("finishing a run when a write fails", () => {
     return store;
   }
 
-  it("keeps the run when the finished record cannot be written", async () => {
-    const store = storeFailing("last");
+  it("keeps the run and the slot when the fresh record cannot be written", async () => {
+    const store = storeFailing(null);
     const source = await open(store);
+    await source.startRun(1);
     source.mark("HeraAttack");
     await source.flush();
 
-    await expect(source.finishRun()).rejects.toThrow(/quota/);
+    store.failOn = 2;
+    await expect(source.startRun(2)).rejects.toThrow(/quota/);
 
-    // Still the run that was being played, in memory and in storage. Cleared
-    // here, the only surviving copy would be the `active` record, and the very
-    // next tap would write the empty run over it.
+    // Still the run that was being played, in memory, in its slot, and open.
     expect(source.getFacts().held.has("HeraAttack")).toBe(true);
-    expect(await store.load("hades2", "last")).toBeNull();
-    expect((await store.load("hades2", "active"))?.facts.held).toHaveLength(1);
+    expect(source.slot).toBe(1);
+    expect(await store.openSlot("hades2")).toBe(1);
+    expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
   });
 
-  it("does not lose the run to the next tap after a failed finish", async () => {
-    const store = storeFailing("last");
-    const source = await open(store);
-    source.mark("HeraAttack");
-    await source.flush();
-    await source.finishRun().catch(() => undefined);
-
-    source.mark("HeraSpecial");
-    await source.flush();
-
-    const active = await store.load("hades2", "active");
-    expect(active?.facts.held.map(([trait]) => trait).sort()).toEqual(["HeraAttack", "HeraSpecial"]);
-  });
-
-  it("keeps the run in memory when only the fresh record fails, so a retry finishes it", async () => {
-    // Set after the run is under way, so the failure lands on the second of
-    // the two writes rather than on the ordinary saves before it.
+  it("does not lose the run to the next tap after a failed start", async () => {
     const store = storeFailing(null);
     const source = await open(store);
     source.mark("HeraAttack");
     await source.flush();
 
-    store.failOn = "active";
-    await expect(source.finishRun()).rejects.toThrow(/quota/);
-    expect(source.getFacts().held.has("HeraAttack")).toBe(true);
+    store.failOn = 2;
+    await source.startRun(2).catch(() => undefined);
+    store.failOn = null;
+    source.mark("HeraSpecial");
+    await source.flush();
+
+    const held = await store.load("hades2", 1);
+    expect(held?.facts.held.map(([trait]) => trait).sort()).toEqual(["HeraAttack", "HeraSpecial"]);
+  });
+
+  it("lets a retry finish what the failure stopped", async () => {
+    const store = storeFailing(null);
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.flush();
+
+    store.failOn = 2;
+    await expect(source.startRun(2)).rejects.toThrow(/quota/);
 
     store.failOn = null;
-    await source.finishRun();
+    await source.startRun(2);
 
     expect(source.getFacts().held.size).toBe(0);
-    expect((await store.load("hades2", "last"))?.facts.held).toHaveLength(1);
-    expect((await store.load("hades2", "active"))?.facts.held).toHaveLength(0);
+    expect(source.slot).toBe(2);
+    expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
+  });
+
+  it("keeps the slot it was in when the run it was opening cannot be written", async () => {
+    const store = storeFailing(null);
+    const source = await open(store);
+    source.mark("HeraAttack");
+    await source.startRun(2);
+    await source.flush();
+
+    store.failOn = 1;
+    await expect(source.openRun(1)).rejects.toThrow(/quota/);
+
+    expect(source.slot).toBe(2);
+    expect(source.getFacts().held.size).toBe(0);
   });
 
   it("reports the failure the same way an ordinary write does", async () => {
-    const store = storeFailing("last");
+    const store = storeFailing(2);
     const source = await open(store);
-    // A run holding something, or there is no `last` write to fail: an empty
-    // run is not filed at all.
     source.mark("HeraAttack");
 
-    await expect(source.finishRun()).rejects.toThrow(/quota/);
+    await expect(source.startRun(2)).rejects.toThrow(/quota/);
     expect(source.storageError?.message).toMatch(/quota/);
   });
 });
@@ -1733,7 +1820,7 @@ describe("a stored run this build cannot read", () => {
    */
   async function storeHolding(record: unknown): Promise<RunStore> {
     const store = createMemoryStore();
-    await store.save("hades2", "active", record as Parameters<RunStore["save"]>[2]);
+    await store.save("hades2", 1, record as Parameters<RunStore["save"]>[2]);
     return store;
   }
 
@@ -1781,8 +1868,7 @@ describe("a stored run this build cannot read", () => {
   it("refuses to start when the record it cannot read also cannot be preserved", async () => {
     const inner = await unreadableRecord();
     const store: RunStore = {
-      load: inner.load.bind(inner),
-      clear: inner.clear.bind(inner),
+      ...inner,
       save: (game, slot, run) =>
         slot === "unreadable"
           ? Promise.reject(new Error("quota exceeded"))
@@ -1826,7 +1912,7 @@ describe("the overlay stored beside the run", () => {
     source.mark("HeraAttack");
     await source.flush();
 
-    const record = await store.load("hades2", "active");
+    const record = await store.load("hades2", 1);
 
     expect(record === null ? true : "overrides" in record).toBe(false);
     expect((await open(store)).overrides).toEqual([]);
@@ -1862,41 +1948,40 @@ describe("the overlay stored beside the run", () => {
     expect(source.migrationNotice?.count).toBe(1);
   });
 
-  it("is gone when the run it belonged to ends", async () => {
+  it("is gone when a fresh run starts over the run it belonged to", async () => {
     const store = createMemoryStore();
     const source = await open(store);
     source.putOverrides([{ path: "held", key: "HeraAttack", value: null }]);
 
-    await source.finishRun();
+    await source.startRun(source.slot);
 
     expect(source.overrides).toEqual([]);
     expect((await open(store)).overrides).toEqual([]);
   });
 
   /**
-   * A write chained while `finishRun`'s two record writes are in flight used to
-   * capture the run as it was at the tap — which, since nothing is cleared until
-   * both records are written, was the *finished* run. It then landed after both,
-   * so the record meaning "the run in progress" came back holding the run that
-   * had just ended, and the next load un-ended it. The write is chained after
-   * the boundary and now snapshots there too, so it stores the fresh run.
+   * A write chained while a boundary's record writes are in flight used to
+   * capture the run as it was at the tap, then land after them — putting the
+   * run that had just been left back into the record meaning "the run in
+   * progress". The write is chained after the boundary and now snapshots there
+   * too, so it stores the run the boundary arrived at.
    */
-  it("is not put back by a write that lands while the run is ending", async () => {
+  it("is not put back by a write that lands while another slot is opening", async () => {
     const store = createMemoryStore();
     const source = await open(store);
     source.mark("HeraAttack");
 
-    const ending = source.finishRun();
+    const opening = source.startRun(2);
     source.putOverrides([{ path: "godPool", god: "Zeus", present: true }]);
-    await ending;
+    await opening;
     await source.flush();
 
     const reopened = await open(store);
     expect([...reopened.getFacts().held.keys()]).toEqual([]);
     expect(reopened.overrides).toEqual([]);
-    // The finished run is where it belongs, and it kept what it had.
-    const last = fromPersisted(await store.load("hades2", "last"));
-    expect([...last.state.facts.held.keys()]).toEqual(["HeraAttack"]);
+    // The run that was left is where it belongs, and it kept what it had.
+    const before = fromPersisted(await store.load("hades2", 1));
+    expect([...before.state.facts.held.keys()]).toEqual(["HeraAttack"]);
   });
 });
 
@@ -2087,15 +2172,15 @@ describe("taking back the last edit", () => {
   });
 
   /**
-   * The offer does not survive the run it belongs to. That edit is in the other
-   * record now, and putting it back here would drop a boon somebody earned last
+   * The offer does not survive the run it belongs to. That edit is in another
+   * slot now, and putting it back here would drop a boon somebody earned last
    * night into a run that has not started.
    */
-  it("is off the table once the run has ended", async () => {
+  it("is off the table once another run is open", async () => {
     const source = await open();
     source.mark("HeraAttack");
 
-    await source.finishRun();
+    await source.startRun(2);
 
     expect(source.lastEdit).toBeNull();
     source.undo();

@@ -40,8 +40,20 @@ export { STORE_VERSION, emptyRun, fromPersisted, toPersisted } from "./persisted
 export type { MigrateOptions, MigrationOutcome, OverrideScan } from "./migrate.js";
 export { migrate, scanOverrides } from "./migrate.js";
 
-export type { RunSlot, RunStore } from "./store.js";
-export { DB_NAME, DB_VERSION, STORE_NAME, createMemoryStore, recordKey } from "./store.js";
+export type { LegacySlot, RunSlot, RunStore, SaveSlot } from "./store.js";
+export {
+  DB_NAME,
+  DB_VERSION,
+  SAVE_SLOTS,
+  STORE_NAME,
+  createMemoryStore,
+  isSaveSlot,
+  openKey,
+  recordKey,
+} from "./store.js";
+
+export type { SlotContents, SlotRecord } from "./slots.js";
+export { adoptLegacySlots, holdsSomething } from "./slots.js";
 
 export type {
   IdbDatabaseLike,

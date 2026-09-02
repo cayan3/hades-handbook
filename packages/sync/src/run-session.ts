@@ -5,18 +5,19 @@ import {
   openManualSource,
 } from "./manual-source.js";
 import { type OverrideLayer, createOverrideLayer } from "./override-layer.js";
+import type { SaveSlot } from "./store.js";
 
 /**
  * A source and the overlay laid over it, wired together and ended together.
  *
  * The two halves are built to be independent and are: the layer wraps any
  * source, and the source stores an overlay it never reads. What neither of them
- * can own alone is the run *boundary*. Ending a run empties the source and
- * starts a fresh one, and the overlay is the one piece of state the source
- * cannot reach — so a layer left alone goes on laying a finished run's
- * hand-edits over a run that has not started, and puts them back in the record
- * at the next change. That is the same failure `finishRun` already refuses for
- * the undo offer, arriving through the one field it does not hold.
+ * can own alone is the run *boundary*. Opening another slot replaces the run
+ * the source holds, and the overlay is the one piece of state the source
+ * cannot reach — so a layer left alone goes on laying one run's hand-edits
+ * over another, and puts them back in that run's record at the next change.
+ * That is the same failure the source already refuses for the undo offer,
+ * arriving through the one field it does not hold.
  *
  * So the pairing lives here rather than in a view. It is small enough to write
  * in three lines and exactly the kind of thing that gets written in three
@@ -25,8 +26,8 @@ import { type OverrideLayer, createOverrideLayer } from "./override-layer.js";
 export interface RunSession {
   /**
    * Every writer: marks, the equipped kit, intent, undo, the migration notice.
-   * **Except `finishRun`** — call this session's, which is the whole reason
-   * the pairing exists.
+   * **Except the three slot verbs** — call this session's, which is the whole
+   * reason the pairing exists.
    */
   readonly source: ManualSource;
 
@@ -38,26 +39,20 @@ export interface RunSession {
   readonly layer: OverrideLayer;
 
   /**
-   * Ends the run, hands every field back to the source first, and leaves the
-   * pair over a fresh run.
+   * Opens a saved slot as the run in progress, handing every held field back
+   * first. Here for the reason above: the overlay is the one thing the source
+   * cannot reach.
    */
-  finishRun(): Promise<void>;
+  openRun(slot: SaveSlot): Promise<void>;
+
+  /** Starts a fresh run in a slot, replacing whatever that slot held. */
+  startRun(slot: SaveSlot): Promise<void>;
 
   /**
-   * Throws the run away and starts a fresh one, filing nothing — the same
-   * boundary as `finishRun` with nothing kept on the far side. Here for
-   * `finishRun`'s reason: emptying the source directly leaves the overlay it
-   * cannot reach laying an abandoned run's hand-edits over a fresh one.
+   * Empties a slot. The overlay goes only where that slot is the open one —
+   * deleting a run nobody is in changes nothing the layer is laid over.
    */
-  clearRun(): Promise<void>;
-
-  /**
-   * Adopts the run filed last as the run in progress. Here for `finishRun`'s
-   * reason: the overlay is the one thing the source cannot reach, so a layer
-   * left alone would lay a fresh run's hand-edits over a run that arrived
-   * whole.
-   */
-  resumeLastRun(): Promise<void>;
+  deleteRun(slot: SaveSlot): Promise<void>;
 
   /** Stops the layer listening. The stored run is untouched. */
   close(): void;
@@ -85,76 +80,51 @@ export async function openRunSession(options: OpenManualSourceOptions): Promise<
     },
   });
 
+  /**
+   * Hands the overlay back, crosses the boundary, and puts it back where that
+   * failed: the run this was to replace is still there, so the hand-edits over
+   * it have to be too, and these same guards accepted them a moment ago.
+   */
+  async function acrossTheBoundary(boundary: () => Promise<void>): Promise<void> {
+    const handHeld = layer.overrides;
+    layer.clearOverrides();
+    try {
+      await boundary();
+    } catch (cause) {
+      for (const o of handHeld) layer.setOverride(o);
+      throw cause;
+    }
+  }
+
   return {
     source,
     layer,
 
     /**
-     * The overlay is handed back **before** the run ends, not after.
-     *
-     * After, there is a window with no way to close it from out here: the last
-     * thing `finishRun` does is hand the fresh facts to every listener, and the
-     * layer is one of them, so it recomputes and announces a merge of a run
-     * that has not started under the previous run's hand-edits. A view is told
-     * that once, and it is exactly the wrong answer.
-     *
-     * Which leaves the finished record without the overlay it had, and that is
-     * the right trade rather than a cost worth avoiding: an override is what
-     * the user is *trying out* over what happened, and a run that has ended has
-     * nothing left to try. What is stored in `last` is the run as it really
-     * was.
+     * The overlay goes first: the last thing the source does is hand the new
+     * facts to every listener, so clearing afterwards announces the arriving run
+     * under the previous one's hand-edits. The slot left behind loses the
+     * overlay, which is right — a slot stores the run as it really was.
      */
-    async finishRun(): Promise<void> {
-      const handHeld = layer.overrides;
-      layer.clearOverrides();
-      try {
-        await source.finishRun();
-      } catch (cause) {
-        // Ending a run is the one edit that discards what it holds, so a
-        // failure has to leave everything where it was and let the caller
-        // retry. The run itself is intact already; the overlay is only intact
-        // if it is put back, and it was accepted by these same guards a moment
-        // ago.
-        for (const o of handHeld) layer.setOverride(o);
-        throw cause;
-      }
+    async openRun(slot: SaveSlot): Promise<void> {
+      await acrossTheBoundary(() => source.openRun(slot));
+    },
+
+    /** For the reason above; nothing of a run survives a fresh one in any case. */
+    async startRun(slot: SaveSlot): Promise<void> {
+      await acrossTheBoundary(() => source.startRun(slot));
     },
 
     /**
-     * The overlay goes before the run does, for `finishRun`'s reason: the last
-     * thing the source does is hand the fresh facts to every listener, so
-     * clearing afterwards announces a run that has not started under the
-     * abandoned run's hand-edits. Nothing is lost that was not already going —
-     * this verb files no record for an overlay to be missing from.
+     * Only the open slot's deletion is a run change out here: deleting one
+     * nobody is in leaves the layer laid over exactly what it was.
      */
-    async clearRun(): Promise<void> {
-      const handHeld = layer.overrides;
-      layer.clearOverrides();
-      try {
-        await source.clearRun();
-      } catch (cause) {
-        // The run survived the failed write, so the hand-edits over it have to
-        // as well, or a caller retrying is clearing something different from
-        // what they asked about.
-        for (const o of handHeld) layer.setOverride(o);
-        throw cause;
+    async deleteRun(slot: SaveSlot): Promise<void> {
+      if (slot !== source.slot) {
+        await source.deleteRun(slot);
+        return;
       }
-    },
-
-    /**
-     * The overlay goes first, for the reason above, and comes back on a
-     * failure: the run this was meant to replace is still there, so the
-     * hand-edits over it have to be too.
-     */
-    async resumeLastRun(): Promise<void> {
-      const handHeld = layer.overrides;
-      layer.clearOverrides();
-      try {
-        await source.resumeLastRun();
-      } catch (cause) {
-        for (const o of handHeld) layer.setOverride(o);
-        throw cause;
-      }
+      await acrossTheBoundary(() => source.deleteRun(slot));
     },
 
     close(): void {

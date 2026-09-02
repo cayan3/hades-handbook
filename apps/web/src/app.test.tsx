@@ -68,7 +68,7 @@ async function mount(store: RunStore = createMemoryStore(), persistent = true): 
   await act(async () => {
     root.render(<App store={store} presence={null} persistent={persistent} />);
   });
-  enterGame();
+  await enterGame();
 }
 
 /**
@@ -77,17 +77,19 @@ async function mount(store: RunStore = createMemoryStore(), persistent = true): 
  * — neither touches what is stored, so every test below starts where it did
  * before this door existed.
  */
-function enterGame(): void {
+async function enterGame(): Promise<void> {
   /* By what the slot says, never by where it is: the row's order is fixed and
-     puts *Start a new run* first, so an index here would file the run this was
-     about to continue. */
+     puts *Start a new run* first, so an index here would replace the run this
+     was about to continue. */
   const slots = [...container.querySelectorAll<HTMLElement>(".saves__take")];
   const slot =
     slots.find((button) => button.querySelector(".saves__what")?.textContent === "Continue run") ??
     slots.find(
       (button) => button.querySelector(".saves__what")?.textContent === "Start a new run",
     );
-  if (slot !== undefined) act(() => slot.click());
+  // Awaited, because starting a run is a write and the door stays up until it
+  // lands — a tap made in that window would be wiped by the run arriving.
+  if (slot !== undefined) await act(async () => slot.click());
 }
 
 /** Follows one of the app's own links, which is how a game is reached now. */
@@ -163,10 +165,11 @@ function toTheDoor(): void {
 }
 
 /** A save-screen slot by what it says, since its index depends on what is stored. */
-async function takeSlot(what: string): Promise<void> {
-  const slot = [...container.querySelectorAll<HTMLElement>(".saves__take")].find(
+async function takeSlot(what: string, at = 0): Promise<void> {
+  const slots = [...container.querySelectorAll<HTMLElement>(".saves__take")].filter(
     (button) => button.querySelector(".saves__what")?.textContent === what,
   );
+  const slot = slots[at];
   if (slot === undefined) throw new Error(`no "${what}" slot`);
   await act(async () => slot.click());
 }
@@ -175,6 +178,18 @@ async function takeSlot(what: string): Promise<void> {
 async function startNewRun(): Promise<void> {
   toTheDoor();
   await takeSlot("Start a new run");
+}
+
+/** What each of the four slots is offering, in slot order. */
+function slotLabels(): string[] {
+  return [...container.querySelectorAll<HTMLElement>(".saves__slot")]
+    .slice(1)
+    .map(
+      (el) =>
+        el.querySelector(".saves__what")?.textContent ??
+        el.querySelector(".saves__empty")?.textContent ??
+        "",
+    );
 }
 
 /**
@@ -554,7 +569,7 @@ describe("the undo offer", () => {
 });
 
 describe("what a load could not carry", () => {
-  async function storeHolding(record: unknown, slot: RunSlot = "active"): Promise<RunStore> {
+  async function storeHolding(record: unknown, slot: RunSlot = 1): Promise<RunStore> {
     const store = createMemoryStore();
     await store.save("hades2", slot, record as never);
     return store;
@@ -994,11 +1009,7 @@ describe("another tab of the same run", () => {
 describe("a store that will not take a write", () => {
   function failing(): RunStore {
     const memory = createMemoryStore();
-    return {
-      load: (game, slot) => memory.load(game, slot),
-      clear: (game, slot) => memory.clear(game, slot),
-      save: () => Promise.reject(new Error("quota exceeded")),
-    };
+    return { ...memory, save: () => Promise.reject(new Error("quota exceeded")) };
   }
 
   /**
@@ -1026,8 +1037,8 @@ describe("a store that will not take a write", () => {
   });
 });
 
-describe("ending a run", () => {
-  it("files it and starts a fresh one", async () => {
+describe("starting a run in another slot", () => {
+  it("leaves the old run in its slot and opens the fresh one", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
@@ -1035,7 +1046,9 @@ describe("ending a run", () => {
     await startNewRun();
 
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
-    expect(await store.load("hades2", "last")).not.toBeNull();
+    // Nothing was filed over anything: the run is still in the slot it was in.
+    expect(await store.load("hades2", 1)).not.toBeNull();
+    expect(await store.openSlot("hades2")).toBe(2);
 
     // And the fresh run is the one a reload finds.
     const source = await openManualSource({ game: "hades2", store });
@@ -1096,12 +1109,12 @@ describe("the run overview", () => {
   });
 
   /**
-   * The second button hands over rather than acting: the door is where you
-   * choose, and its first slot is *Continue run*, so pressing this and changing
-   * your mind costs nothing. There is no *start a new run* here — it only ever
-   * put this same screen up, so two buttons carried one behaviour.
+   * The way out hands over rather than acting: the door is where you choose,
+   * and one of its slots is *Continue run*, so pressing this and changing your
+   * mind costs nothing. There is no *start a new run* here — it only ever put
+   * this same screen up, so two buttons carried one behaviour.
    */
-  it("hands over to the door rather than filing the run itself", async () => {
+  it("hands over to the door rather than acting on the run", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
@@ -1114,8 +1127,8 @@ describe("the run overview", () => {
 
     expect(overview()).toBeNull();
     expect(container.querySelector(".saves")).not.toBeNull();
-    // Nothing filed, and the run is still there to go back to.
-    expect(await store.load("hades2", "last")).toBeNull();
+    // The run is where it was and still the one being played.
+    expect(await store.openSlot("hades2")).toBe(1);
     await takeSlot("Continue run");
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
   });
@@ -1124,10 +1137,17 @@ describe("the run overview", () => {
    * The way back that survives a reload, and the one entrance that shows a run
    * other than the one in play.
    */
-  it("is reachable from the save screen once a run has been filed", async () => {
+  it("is reachable from a saved slot on the save screen", async () => {
     const store = createMemoryStore();
     await mount(store);
-    expect(container.querySelector(".saves__review")).toBeNull();
+    toTheDoor();
+    expect(slotLabels()).toEqual([
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+    ]);
+    await takeSlot("Start a new run");
 
     tap(APHRODITE_MELEE);
     await startNewRun();
@@ -1135,11 +1155,14 @@ describe("the run overview", () => {
     await follow("#/");
     await follow(GAME_HASH.hades2);
     // A slot of its own, which is how a save screen offers anything.
-    expect(container.querySelector(".saves__slot[data-filed] .saves__review")).not.toBeNull();
+    expect(slotLabels()).toEqual([
+      "Saved run",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+    ]);
 
-    await act(async () => {
-      container.querySelector<HTMLElement>(".saves__review")?.click();
-    });
+    await takeSlot("Saved run");
     // Instead of the door rather than over it.
     expect(overview()).not.toBeNull();
     expect(container.querySelector(".saves")).toBeNull();
@@ -1147,10 +1170,10 @@ describe("the run overview", () => {
   });
 
   /**
-   * Going into the run being looked at, which for the filed one means making it
-   * the run in the open slot. One label, because the model has one kind of run.
+   * Going into the run being looked at, which for a saved one means opening its
+   * slot. One label, because the model has one kind of run.
    */
-  it("goes into the filed run when that is the one it is showing", async () => {
+  it("goes into a saved run when that is the one it is showing", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
@@ -1158,9 +1181,7 @@ describe("the run overview", () => {
 
     await follow("#/");
     await follow(GAME_HASH.hades2);
-    await act(async () => {
-      container.querySelector<HTMLElement>(".saves__review")?.click();
-    });
+    await takeSlot("Saved run");
     await act(async () => {
       control("Resume this run").click();
     });
@@ -1168,33 +1189,34 @@ describe("the run overview", () => {
     expect(overview()).toBeNull();
     expect(container.querySelector(".saves")).toBeNull();
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
-    // One run, in one slot: it is not also still the run before this one.
-    expect(await store.load("hades2", "last")).toBeNull();
+    // It is the slot that is open now, and it is still the only copy.
+    expect(await store.openSlot("hades2")).toBe(1);
   });
 
   /**
-   * There is one active slot, so picking a filed run up over a run somebody is
-   * still playing would overwrite it with no record anywhere. The source has
-   * always refused that; the control was drawn anyway, so the refusal reached
-   * the player as a fault dialog three clicks from the door.
+   * The withholding is gone with the reason for it. Adopting a run used to
+   * overwrite the one in play, because there was one active slot; the run being
+   * left now stays in its own slot, so nothing has to be refused.
    */
-  it("withholds the resume while another run is still in play", async () => {
+  it("offers the resume even while another run is still in play", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
     await startNewRun();
-    // A run in play again, so the filed one can no longer be adopted over it.
+    // A run in play again, in the slot beside the saved one.
     tap(ARES_MELEE);
 
     toTheDoor();
-    await act(async () => {
-      container.querySelector<HTMLElement>(".saves__review")?.click();
-    });
+    await takeSlot("Saved run");
 
     expect(overview()).not.toBeNull();
-    expect(control("Resume this run", true)).toBeNull();
-    // The way out is still there, and nothing has been reported as broken.
-    expect(control("Back to save slots", true)).not.toBeNull();
+    await act(async () => {
+      control("Resume this run").click();
+    });
+
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+    // And the run that was in play is still in the slot it was in.
+    expect((await store.load("hades2", 2))?.facts.held).toHaveLength(1);
     expect(texts(".notice__title")).toEqual([]);
   });
 
@@ -1214,18 +1236,16 @@ describe("the run overview", () => {
 
     await follow("#/");
     await follow(GAME_HASH.hades2);
-    await act(async () => {
-      container.querySelector<HTMLElement>(".saves__review")?.click();
-    });
+    await takeSlot("Saved run");
     expect(texts(".overview__tilename")).toContain(H2[APHRODITE_MELEE]?.name ?? "");
   });
 
   /**
-   * Starting a new run over an existing one files it, and the summary has to
-   * follow: without the re-read, the door and the header go on offering the run
-   * *before* this one until a reload.
+   * Starting a new run leaves the old one in its slot, and the door has to
+   * follow: without the re-read it goes on offering the slots as they stood
+   * before, until a reload.
    */
-  it("follows the run the save screen files", async () => {
+  it("follows the run the save screen left behind", async () => {
     await mount();
     tap(APHRODITE_MELEE);
 
@@ -1235,52 +1255,39 @@ describe("the run overview", () => {
 
     await follow("#/");
     await follow(GAME_HASH.hades2);
-    await act(async () => {
-      container.querySelector<HTMLElement>(".saves__review")?.click();
-    });
+    await takeSlot("Saved run");
     expect(texts(".overview__tilename")).toContain(H2[APHRODITE_MELEE]?.name ?? "");
   });
 
   /**
-   * A record this build cannot read is said out loud rather than read as "no
-   * run was ever filed" — the run is gone either way, and the difference is
-   * between a defect and a mystery.
+   * A record this build cannot read costs its own slot and nothing else — the
+   * three beside it are not damaged, and the player is told which one is.
    */
-  it("reports a filed run it cannot decode", async () => {
+  it("reports a saved run it cannot decode in that slot alone", async () => {
     const store = createMemoryStore();
-    await store.save("hades2", "last", {
+    await store.save("hades2", 3, {
       storeVersion: STORE_VERSION + 9,
       facts: {},
       intent: {},
     } as never);
     await mount(store);
+    toTheDoor();
 
-    expect(texts(".notice__body").join(" ")).toContain("store version");
-    expect(container.querySelector(".saves__slot[data-filed]")).toBeNull();
+    expect(slotLabels()).toEqual([
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "Damaged save",
+      "( Empty Save Slot )",
+    ]);
+    expect(texts(".notice__title")).toEqual([]);
   });
 });
 
 /**
- * The run boundary, which is now behind the summary rather than a control of
- * its own.
- *
- * **Throwing a run away without filing it is gone** (the user's call): there is
- * no *Skip summary* any more, and the one verb here files the run. `clearRun`
- * survives in `sync` with no caller in the app.
- */
-/**
- * The run boundary, which is behind the Overview control and hands the player
- * to the door rather than acting on the run.
- *
- * **Throwing a run away without filing it is gone** (the user's call): there is
- * no *Skip summary* any more. `clearRun` survives in `sync` with no caller.
- */
-/**
  * The run boundary, which is the save screen: the header carries a way *there*
- * and nothing that acts on a run.
- *
- * **Throwing a run away without filing it is gone** (the user's call): there is
- * no *Skip summary* any more. `clearRun` survives in `sync` with no caller.
+ * and nothing that acts on a run. Starting a run takes a free slot and the run
+ * you were in stays where it is, so a run goes only where every slot is taken
+ * and the player names the one to drop.
  */
 describe("starting a new run", () => {
   /**
@@ -1310,55 +1317,164 @@ describe("starting a new run", () => {
     toTheDoor();
 
     expect(container.querySelector(".saves")).not.toBeNull();
-    expect(await store.load("hades2", "last")).toBeNull();
+    expect(slotLabels()[0]).toBe("Continue run");
     await takeSlot("Continue run");
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
   });
 
-  it("files the run when the door's own slot is taken", async () => {
+  /**
+   * The door closes when the run is really there, not when the press happens.
+   * Closed first, a tap made while the write was in flight would be wiped by
+   * the fresh run arriving behind it — which is what the harness found.
+   */
+  it("keeps the door up until the new run has been stored", async () => {
+    const memory = createMemoryStore();
+    let gate: Promise<void> | null = null;
+    let open: (() => void) | null = null;
+    const store: RunStore = {
+      ...memory,
+      save: async (game, slot, run) => {
+        if (gate !== null) await gate;
+        return memory.save(game, slot, run);
+      },
+    };
+    await mount(store);
+    tap(APHRODITE_MELEE);
+    toTheDoor();
+
+    gate = new Promise<void>((resolve) => {
+      open = resolve;
+    });
+    await takeSlot("Start a new run");
+    expect(container.querySelector(".saves")).not.toBeNull();
+
+    gate = null;
+    await act(async () => {
+      open?.();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    expect(container.querySelector(".saves")).toBeNull();
+  });
+
+  it("takes the first free slot and says which before it is pressed", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
+    toTheDoor();
 
-    await startNewRun();
+    expect(texts(".saves__note")[0]).toContain("slot 2");
+    await takeSlot("Start a new run");
 
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
-    expect(await store.load("hades2", "last")).not.toBeNull();
+    expect(await store.openSlot("hades2")).toBe(2);
   });
 
   /**
-   * An empty run filed over the run before it is the loss this guard exists to
-   * stop, and nothing in the app disables the way there — so the guard is the
-   * whole of what stops a second pass wiping the first.
+   * What the old empty-run guard became. It was a refusal inside the verb,
+   * defending one filed record; per slot it is a question about what a slot is,
+   * so a run holding nothing never takes one and the door can be walked as many
+   * times as you like.
    */
-  it("files nothing when the run holds nothing", async () => {
+  it("reuses the slot it is in where that run holds nothing", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+
+    await startNewRun();
+    await startNewRun();
+    await startNewRun();
+    toTheDoor();
+
+    expect(slotLabels()).toEqual([
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+    ]);
+    expect(await store.openSlot("hades2")).toBe(1);
+  });
+
+  /**
+   * The defect the slots absorbed: the boundary used to be skipped entirely on
+   * a run holding only an equipped weapon, so *Start a new run* handed the
+   * player back the weapon they were leaving behind.
+   */
+  it("gives a fresh run to a player whose old one carried only a weapon", async () => {
+    await mount();
+    click("Witch's Staff");
+
+    await startNewRun();
+
+    expect(container.querySelector(".loadout__weaponname")?.textContent ?? "").not.toContain(
+      "Witch's Staff",
+    );
+  });
+
+  /**
+   * A run is lost only where the player fills the last slot and names the one
+   * to drop, which is two deliberate presses rather than a confirmation nobody
+   * reads.
+   */
+  it("asks which run to replace once every slot is taken", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
-
     await startNewRun();
-    const filed = await store.load("hades2", "last");
-    expect(filed).not.toBeNull();
-
+    tap(APHRODITE_MELEE);
     await startNewRun();
-    expect(await store.load("hades2", "last")).toEqual(filed);
+    tap(APHRODITE_MELEE);
+    await startNewRun();
+    tap(APHRODITE_MELEE);
+    toTheDoor();
+
+    expect(texts(".saves__note")[0]).toContain("pick one to replace");
+    await takeSlot("Start a new run");
+
+    // Armed, and nothing dropped yet: the screen says what it is asking.
+    expect(container.querySelector(".saves__title")?.textContent).toBe("Choose a run to replace");
+    expect(slotLabels().every((label) => label === "Replace this run")).toBe(true);
+    expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
+
+    await takeSlot("Replace this run", 2);
+
+    expect(container.querySelector(".saves")).toBeNull();
+    expect(container.querySelector(".loadout__empty")).not.toBeNull();
+    expect(await store.openSlot("hades2")).toBe(3);
+    // The three the player did not name are untouched.
+    expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
+    expect((await store.load("hades2", 2))?.facts.held).toHaveLength(1);
+  });
+
+  it("lets the player back out of the question without dropping anything", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    for (const _ of [1, 2, 3]) {
+      tap(APHRODITE_MELEE);
+      await startNewRun();
+    }
+    tap(APHRODITE_MELEE);
+    toTheDoor();
+    await takeSlot("Start a new run");
+
+    await takeSlot("Never mind");
+
+    expect(container.querySelector(".saves__title")?.textContent).toBe(
+      "Choose a save slot to begin",
+    );
+    expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
   });
 });
 
 describe("a write that throws", () => {
   /**
-   * Filing a run is the one edit that throws where a tap can reach it — the
-   * door's own slot, now that the boundary itself files nothing. It is also the
-   * one that discards what it holds, so it refuses to clear anything until both
-   * records are written. An exception out of a tap handler unmounts
-   * the tree, and a blank screen is a worse answer than a wrong one — so the
-   * page has to survive it with the run intact.
+   * Starting a run is the one boundary a tap can reach, and it writes before it
+   * clears anything. An exception out of a tap handler unmounts the tree, and a
+   * blank screen is a worse answer than a wrong one — so the page has to
+   * survive it with the run intact.
    */
-  it("keeps the page and the run when the run cannot be filed", async () => {
+  it("keeps the page and the run when the new run cannot be stored", async () => {
     const memory = createMemoryStore();
     const store: RunStore = {
-      load: (game, slot) => memory.load(game, slot),
-      clear: (game, slot) => memory.clear(game, slot),
+      ...memory,
       save: () => Promise.reject(new Error("quota exceeded")),
     };
     await mount(store);
@@ -2215,20 +2331,30 @@ describe("the site header", () => {
  * what the games' own save screens do.
  */
 describe("the save screen", () => {
-  const slots = () =>
+  const rows = () =>
     [...container.querySelectorAll<HTMLElement>(".saves__slot")].map(
-      (el) => el.querySelector(".saves__what")?.textContent ?? el.textContent?.trim() ?? "",
+      (el) =>
+        el.querySelector(".saves__what")?.textContent ??
+        el.querySelector(".saves__empty")?.textContent ??
+        "",
     );
 
-  it("offers a new run and nothing to resume where nothing is stored", async () => {
+  /** Five rows and always five, so nothing a player is reaching for can move. */
+  it("offers a new run and four slots where nothing is stored", async () => {
     window.location.hash = GAME_HASH.hades2;
     await act(async () => {
       root.render(<App store={createMemoryStore()} presence={null} persistent />);
     });
 
-    expect(slots()).toEqual(["Start a new run", "( Empty Save Slot )"]);
+    expect(rows()).toEqual([
+      "Start a new run",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+    ]);
     // The god bar is behind it, so answering is what gets you in.
-    enterGame();
+    await enterGame();
     expect(container.querySelector(".saves")).toBeNull();
     expect(container.querySelector(".app__gods")).not.toBeNull();
   });
@@ -2243,18 +2369,26 @@ describe("the save screen", () => {
     await follow(GAME_HASH.hades2);
 
     /* Fixed order whatever is present, so a slot never moves under a player:
-       new, then the run in progress, then the one filed. */
-    expect(slots()).toEqual(["Start a new run", "Continue run"]);
+       the row that starts a run, then the four slots by number. */
+    expect(rows()[0]).toBe("Start a new run");
+    expect(rows()[1]).toBe("Continue run");
     expect(texts(".saves__stat dt")).toEqual(["Boons", "Gods met", "Goals"]);
     expect(texts(".saves__stat dd")).toEqual(["1", "1", "1"]);
   });
 
+  /** Numbered, so two saved runs are told apart before their counts are read. */
+  it("names each slot by its number", async () => {
+    await mount();
+    toTheDoor();
+
+    expect(texts(".saves__ordinal")).toEqual(["Slot 1", "Slot 2", "Slot 3", "Slot 4"]);
+  });
+
   /**
-   * Filed rather than thrown away, which is the difference between this and the
-   * header's own Skip summary: the run somebody is leaving is still the run they
-   * played.
+   * Kept rather than filed over, which is the whole of the model: the run
+   * somebody is leaving stays in the slot it was played in.
    */
-  it("files the old run when a new one is started over it", async () => {
+  it("keeps the old run in its slot when a new one is started", async () => {
     await mount();
     tap(APHRODITE_MELEE);
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
@@ -2265,6 +2399,16 @@ describe("the save screen", () => {
 
     expect(container.querySelector(".saves")).toBeNull();
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(false);
+
+    // Slot 2 is the open one and its run holds nothing, so it reads as free —
+    // which is what lets the door be walked again without piling up empties.
+    toTheDoor();
+    expect(slotLabels()).toEqual([
+      "Saved run",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+    ]);
   });
 
   /**
@@ -2308,6 +2452,8 @@ describe("a run that will not open", () => {
       load: fail,
       save: fail,
       clear: fail,
+      openSlot: fail,
+      setOpenSlot: fail,
     } as unknown as RunStore;
   }
 

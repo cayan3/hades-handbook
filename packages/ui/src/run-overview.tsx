@@ -27,19 +27,11 @@ import { treatmentOf } from "./rarity-palette.js";
 export interface RunOverviewProps {
   readonly run: FinishedRun;
   /**
-   * Goes into the run being looked at, making it the run in play.
-   *
-   * One meaning in both cases the caller has: the run already open, where it is
-   * a plain dismissal, and a filed run, where going into it is what makes it
-   * the open one. There is no *finished* run in the model — only the run in
-   * whichever slot is open — so the label does not change with the case.
-   *
-   * **Null where the run cannot be resumed**, which is a filed run while
-   * another is still in play: there is one active slot, so adopting over a run
-   * somebody is playing would overwrite it. The source refuses this too, and a
-   * control that is drawn and then throws is the half that was missing.
+   * Goes into the run being looked at, making it the run in play — a dismissal
+   * where that is the open run, and an opening where it is another slot. Never
+   * withheld: the run being left stays in its own slot, so it costs nothing.
    */
-  readonly onResume: (() => void) | null;
+  readonly onResume: () => void;
   /**
    * Back to the save screen, and Escape does the same. Always available: it is
    * the one way out that is safe whatever slot is open and whatever is in it.
@@ -189,15 +181,9 @@ export function RunOverview({ run, onResume, onSaveSlots }: RunOverviewProps) {
             beside it does, so two buttons carried one behaviour. Starting a run
             is a thing you choose at the door, among the slots. */}
         <div className="overview__actions">
-          {/* Withheld rather than disabled where the run cannot be picked up:
-              a greyed control on a screen reached from a save slot reads as
-              this run being damaged, when what is true is that another run is
-              still in play. */}
-          {onResume === null ? null : (
-            <button type="button" className="overview__close" onClick={onResume}>
-              Resume this run
-            </button>
-          )}
+          <button type="button" className="overview__close" onClick={onResume}>
+            Resume this run
+          </button>
           <button type="button" className="overview__slots" onClick={onSaveSlots}>
             Back to save slots
           </button>

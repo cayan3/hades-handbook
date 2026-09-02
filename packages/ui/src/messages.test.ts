@@ -98,12 +98,13 @@ describe("the migration notice", () => {
 
 describe("whether there is anything to interrupt for", () => {
   const quiet = {
+    slot: 1,
     migrationNotice: null,
     unreadableRun: null,
     storageError: null,
     quarantine: [],
     lastEdit: null,
-  };
+  } as const;
 
   it("ignores an edit and a quarantine that nobody is owed an explanation for", () => {
     expect(hasSomethingToSay(quiet)).toBe(false);

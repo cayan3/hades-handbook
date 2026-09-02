@@ -1,6 +1,16 @@
 import type { GameId } from "@repo/core";
 import type { PersistedRun } from "./persisted.js";
-import { DB_NAME, DB_VERSION, STORE_NAME, type RunSlot, type RunStore, recordKey } from "./store.js";
+import {
+  DB_NAME,
+  DB_VERSION,
+  STORE_NAME,
+  type RunSlot,
+  type RunStore,
+  type SaveSlot,
+  isSaveSlot,
+  openKey,
+  recordKey,
+} from "./store.js";
 
 /**
  * IndexedDB, described structurally rather than imported.
@@ -209,6 +219,21 @@ export function createIdbStore(factory: IdbFactoryLike): RunStore {
 
     async clear(game: GameId, slot: RunSlot): Promise<void> {
       await withStore("readwrite", (store) => store.delete(recordKey(game, slot)));
+    },
+
+    async openSlot(game: GameId): Promise<SaveSlot | null> {
+      // Checked rather than cast: this is the one value the app branches the
+      // whole run on, and a slot count that shrinks would leave a stale one.
+      const stored = await withStore("readonly", (store) => store.get(openKey(game)));
+      return isSaveSlot(stored) ? stored : null;
+    },
+
+    async setOpenSlot(game: GameId, slot: SaveSlot | null): Promise<void> {
+      if (slot === null) {
+        await withStore("readwrite", (store) => store.delete(openKey(game)));
+        return;
+      }
+      await withStore("readwrite", (store) => store.put(slot, openKey(game)));
     },
   };
 }
