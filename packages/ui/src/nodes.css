@@ -3115,6 +3115,70 @@ kbd {
     color-mix(in srgb, var(--glow, var(--choice, currentColor)) 45%, transparent);
 }
 
+/*
+ * MOCKUP — the two candidate skins, behind a `?skin=` URL and off by default, so
+ * both can be looked at in the running app before either is chosen. Delete both
+ * blocks and the `skin` prop together once the call is made.
+ *
+ * `panel` is the tray skin the Loadout and the save slots already wear, at the
+ * same measured slices, so this costs no new art and no new aspect.
+ */
+.pause[data-skin="panel"] {
+  --chrome-slice: 10;
+  --chrome-frame: 10px;
+  --chrome-radius: 0.15rem;
+  padding: calc(var(--chrome-frame) + 1.1rem);
+  border: 0 solid transparent;
+  border-image-source: var(--chrome-panel);
+  border-image-slice: var(--chrome-slice);
+  border-image-width: var(--chrome-frame);
+  border-radius: var(--chrome-radius);
+  background-image: var(--chrome-panel);
+  background-position: center;
+  background-size: cover;
+}
+
+.pause[data-game="hades2"][data-skin="panel"] {
+  --chrome-slice: 32;
+  --chrome-frame: 12px;
+  --chrome-radius: 0.6rem;
+}
+
+/*
+ * `box` is the games' own pause frame, which is a fixed composition rather than
+ * a nine-slice: the ornaments overhang the frame body, so the panel has to take
+ * the sprite's own aspect and inset its rows into the body.
+ *
+ * Every number measured off the shipped file rather than chosen — the fill runs
+ * x 152..710 y 40..682 of Hades I's 812x690 and x 150..948 y 96..716 of Hades
+ * II's 1101x722 — and stated as a share of the WIDTH, which is what a percentage
+ * padding resolves against on all four sides.
+ */
+.pause[data-skin="box"] {
+  width: min(34rem, 100%);
+  aspect-ratio: 812 / 690;
+  padding: 4.9% 12.4% 0.9% 18.7%;
+  border: 0;
+  border-radius: 0;
+  background: var(--chrome-panel) center / 100% 100% no-repeat;
+  box-shadow: none;
+}
+
+.pause[data-game="hades2"][data-skin="box"] {
+  aspect-ratio: 1101 / 722;
+  padding: 8.7% 13.8% 0.5% 13.6%;
+}
+
+/* The rows share what the frame leaves, the box's height being the art's rather
+   than the content's. */
+.pause[data-skin="box"] .pause__group {
+  align-content: center;
+}
+
+.pause[data-skin="box"] .pause__group + .pause__group {
+  margin-top: 1rem;
+}
+
 /* The outline lights with the glow, which is what a filled save slot does — and
    only here, the rule above being shared with controls that have no game. */
 .pause__option:hover,

@@ -86,10 +86,12 @@ CHROME_PARTS = {
             "GUI\\Screens\\TraitTray_Right",
         ),
         "Chrome_SaveSlot": ("GUI\\Screens\\SaveProfileSlot",),
+        "Chrome_PauseBox": ("GUI\\Shell\\Box_Pause",),
     },
     "hades2": {
         "Chrome_Panel": ("GUI\\HUD\\TraitTrayBacking_NoHeader",),
         "Chrome_SaveSlot": ("GUI\\Screens\\SaveProfileSlot",),
+        "Chrome_PauseBox": ("GUI\\Shell\\Box_Pause",),
     },
 }
 

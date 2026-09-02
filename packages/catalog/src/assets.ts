@@ -149,9 +149,9 @@ export function elementIconFor(game: GameKey, element: Element): string {
 
 /**
  * A part of the games' own interface, rather than a picture of a thing in them.
- * Two entries; the boon card's frame is the next.
+ * Three entries; the boon card's frame is the next.
  */
-export type ChromePart = "panel" | "saveslot";
+export type ChromePart = "panel" | "saveslot" | "pausebox";
 
 /**
  * Panel art, and the first arm here allowed to answer with nothing. Everything
@@ -169,8 +169,8 @@ export function chromeFor(game: GameKey, part: ChromePart): string | null {
 }
 
 const CHROME: Readonly<Record<GameKey, Partial<Record<ChromePart, string>>>> = {
-  hades1: { panel: "Chrome_Panel", saveslot: "Chrome_SaveSlot" },
-  hades2: { panel: "Chrome_Panel", saveslot: "Chrome_SaveSlot" },
+  hades1: { panel: "Chrome_Panel", saveslot: "Chrome_SaveSlot", pausebox: "Chrome_PauseBox" },
+  hades2: { panel: "Chrome_Panel", saveslot: "Chrome_SaveSlot", pausebox: "Chrome_PauseBox" },
 };
 
 /**

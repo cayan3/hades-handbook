@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+import { chromeStyle } from "./boon-art.js";
 import { useDialog } from "./dialog.js";
 import { useGame } from "./presentation.js";
 
@@ -8,6 +10,14 @@ import { useGame } from "./presentation.js";
  * leave it, separated by a gap and nothing else, which is what both games' own
  * pause screens draw.
  */
+/**
+ * MOCKUP, not a setting. Which candidate skin to draw, so both can be looked at
+ * in the running app before either is chosen: `none` is what ships, `panel` the
+ * tray skin the Loadout and the save slots already wear, `box` the games' own
+ * pause frame. Delete this and its two stylesheet blocks once the call is made.
+ */
+export type PauseSkin = "none" | "panel" | "box";
+
 export interface PausePanelProps {
   /** Dismisses it, which is what the shade and Escape do too. */
   readonly onContinue: () => void;
@@ -17,11 +27,23 @@ export interface PausePanelProps {
   readonly onSaveSlots: () => void;
   /** Home, exactly where the save screen's own *Return to Home* goes. */
   readonly onHome: () => void;
+  /** Mockup only; absent everywhere but a `?skin=` URL. */
+  readonly skin?: PauseSkin;
 }
 
-export function PausePanel({ onContinue, onHelp, onSaveSlots, onHome }: PausePanelProps) {
+export function PausePanel({
+  onContinue,
+  onHelp,
+  onSaveSlots,
+  onHome,
+  skin = "none",
+}: PausePanelProps) {
   const game = useGame();
   const { ref, onKeyDown } = useDialog(onContinue);
+  // One property carries whichever chrome part the element asked for, which is
+  // what lets the two skins share a stylesheet variable and differ by attribute.
+  const skinned =
+    skin === "none" ? {} : chromeStyle(game, skin === "box" ? "pausebox" : "panel");
 
   return (
     <div
@@ -38,6 +60,8 @@ export function PausePanel({ onContinue, onHelp, onSaveSlots, onHome }: PausePan
         /* The rows glow in the game's own colour, which is the one thing the
            save screen beside it differs by too. */
         data-game={game}
+        data-skin={skin === "none" ? undefined : skin}
+        style={skinned as CSSProperties}
         ref={ref}
         role="dialog"
         aria-modal="true"
