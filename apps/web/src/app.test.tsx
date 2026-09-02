@@ -2470,9 +2470,9 @@ describe("the pause panel", () => {
   });
 
   /**
-   * The key and the row have to behave the same, which is D488's own rule
-   * applied to its own panel: pressing `?` over the open menu must land exactly
-   * where *How to use this Handbook* lands — one dialog, and the menu gone.
+   * The key and the row have to behave the same: pressing `?` over the open
+   * menu must land exactly where *How to use this Handbook* lands — one dialog,
+   * and the menu gone. An identically-named way in goes to an identical place.
    *
    * Left alone it stacked two scrims, and one Escape then closed both, every
    * dialog here listening for that key on the document.
