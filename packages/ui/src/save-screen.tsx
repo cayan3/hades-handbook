@@ -161,9 +161,14 @@ function Slot({
       <button type="button" className="saves__take" onClick={onPress}>
         <span className="saves__ordinal">Slot {slot}</span>
         <span className="saves__what">{label(state, asking)}</span>
-        {summary === null ? (
-          <p className="saves__note">{note(state)}</p>
-        ) : (
+        {/* A damaged save is the one filled slot with no counts to draw, so it
+            says what it is instead — including that it can be reclaimed. */}
+        {state === "unreadable" ? (
+          <p className="saves__note">
+            This build could not read it. Starting a run here replaces it.
+          </p>
+        ) : null}
+        {summary === null ? null : (
           <dl className="saves__stats">
             <Stat label="Boons" value={summary.held} />
             <Stat label="Gods met" value={summary.gods} />
@@ -180,11 +185,6 @@ function label(state: SlotState, asking: boolean): string {
   if (state === "open") return "Continue run";
   if (state === "unreadable") return "Damaged save";
   return "Saved run";
-}
-
-function note(state: SlotState): string {
-  if (state === "unreadable") return "This build could not read it. Starting a run here replaces it.";
-  return "Nothing in it yet.";
 }
 
 /** One line of a filled slot, the way both games lay their own out. */
