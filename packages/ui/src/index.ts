@@ -53,6 +53,8 @@ export { GoalCard, GoalsPanel } from "./goals.js";
 export type { Goal, GoalsPanelProps } from "./goals.js";
 export { Help } from "./help.js";
 export type { HelpProps } from "./help.js";
+export { PausePanel } from "./pause-panel.js";
+export type { PausePanelProps } from "./pause-panel.js";
 export { Hub, HubGlyph } from "./hub.js";
 export type { HubProps } from "./hub.js";
 export { SaveScreen } from "./save-screen.js";

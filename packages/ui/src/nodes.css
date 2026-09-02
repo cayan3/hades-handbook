@@ -2471,6 +2471,40 @@ kbd {
 }
 
 /*
+ * The menu the header's control opens, and Escape with nothing else open. It
+ * reuses the sheet's box for the reason Help does, and its two groups are told
+ * apart by a gap alone: a rule between them would read as a heading.
+ */
+.pause {
+  width: min(24rem, 100%);
+  padding: 1.4rem 1.2rem 1.6rem;
+}
+
+.pause__group {
+  display: grid;
+  gap: 0.45rem;
+}
+
+/* Wide enough to read as a break rather than as loose spacing, the two rows
+   below it being the ones that leave the run. */
+.pause__group + .pause__group {
+  margin-top: 1.8rem;
+}
+
+.pause__option {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font-family: var(--face-display, inherit);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+  cursor: pointer;
+}
+
+/*
  * The door into a game, laid out the way both games lay theirs out: a title
  * above a row of slots, the filled one carrying label-and-value lines and the
  * empty one saying so. Its accent follows the game, which is the one thing that
@@ -3028,7 +3062,8 @@ kbd {
 .overview__slots,
 .overview__drop,
 .overview__close,
-.saves__back {
+.saves__back,
+.pause__option {
   color: var(--choice, inherit);
   opacity: var(--control-rest, 0.72);
   transition: opacity 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
@@ -3057,7 +3092,9 @@ kbd {
 .overview__slots:hover,
 .overview__slots:focus-visible,
 .saves__back:hover,
-.saves__back:focus-visible {
+.saves__back:focus-visible,
+.pause__option:hover,
+.pause__option:focus-visible {
   opacity: 1;
   box-shadow: 0 0 var(--control-glow, 0.45rem)
     color-mix(in srgb, var(--choice, currentColor) 45%, transparent);
