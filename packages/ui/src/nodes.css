@@ -2634,6 +2634,15 @@ kbd {
   opacity: 0.55;
 }
 
+/* The row that starts a run has no number, and still holds the line: a
+   zero-width space gives the empty span the same line box the numbered ones
+   have, so every slot's label sits at the same height. An empty flex item
+   establishes no line box at all, which is why this is content and not a
+   height — a height would be the number's, guessed. */
+.saves__ordinal:empty::before {
+  content: "\200B";
+}
+
 @media (max-width: 48rem) {
   .saves__slots {
     grid-template-columns: minmax(0, 1fr);

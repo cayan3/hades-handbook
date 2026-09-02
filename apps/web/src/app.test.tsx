@@ -2406,7 +2406,9 @@ describe("the save screen", () => {
     await mount();
     toTheDoor();
 
-    expect(texts(".saves__ordinal")).toEqual(["Slot 1", "Slot 2", "Slot 3"]);
+    // The first is the row that starts a run, empty so its label lines up with
+    // the numbered slots' labels rather than sitting a line above them.
+    expect(texts(".saves__ordinal")).toEqual(["", "Slot 1", "Slot 2", "Slot 3"]);
   });
 
   /**

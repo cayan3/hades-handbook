@@ -183,7 +183,23 @@ describe("the slots themselves", () => {
 
     expect(
       [...container.querySelectorAll(".saves__ordinal")].map((el) => el.textContent),
-    ).toEqual(["Slot 1", "Slot 2", "Slot 3"]);
+    ).toEqual(["", "Slot 1", "Slot 2", "Slot 3"]);
+  });
+
+  /**
+   * The empty first one is the row that starts a run, and it is there so that
+   * label sits on the same line as the numbered slots' labels. The height comes
+   * from the stylesheet — an empty flex item establishes no line box — and the
+   * runner has no layout, so what is asserted here is that the element exists
+   * and says nothing to a reader.
+   */
+  it("holds the number's line on the row that has no number", () => {
+    render(screen(slots("saved", "open", "empty")));
+
+    const first = container.querySelectorAll(".saves__slot")[0];
+    const ordinal = first?.querySelector(".saves__ordinal");
+    expect(ordinal?.textContent).toBe("");
+    expect(ordinal?.getAttribute("aria-hidden")).toBe("true");
   });
 
   it("opens the slot it was pressed on", () => {

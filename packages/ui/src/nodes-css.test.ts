@@ -384,6 +384,19 @@ describe("the node stylesheet", () => {
   });
 
   /**
+   * The save screen's first row carries no slot number and still has to hold
+   * the line the numbered ones put theirs on, or its label sits a line above
+   * them. An empty flex item establishes no line box, so the height has to come
+   * from content — a zero-width space — rather than from a guessed number.
+   */
+  it("gives the numberless save row the line box the numbered ones have", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const match = rules.match(/\.saves__ordinal:empty::before\s*\{([^}]*)\}/);
+    expect(match, "the empty ordinal holds no line").not.toBeNull();
+    expect(match![1]).toMatch(/content:\s*"\\200B"/);
+  });
+
+  /**
    * A removal is red wherever one is offered — on a card, and on the summary
    * that drops a whole run — and the colour arrives as `--choice` so the
    * outline and the glow follow it with no second rule.

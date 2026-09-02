@@ -98,7 +98,11 @@ export function SaveScreen({ slots, onOpen, onStart, onLeave }: SaveScreenProps)
                 else setReplacing(!replacing);
               }}
             >
-                {/* The label and nothing else, the user's call: which slot it
+              {/* Empty, and it holds the line the numbered slots put their
+                  number on — without it this label sits a line above theirs.
+                  Hidden from a reader, who is not missing anything. */}
+              <span className="saves__ordinal" aria-hidden="true" />
+              {/* The label and nothing else, the user's call: which slot it
                   takes is not a choice, and a full screen says what it is
                   asking by changing state rather than by warning first. */}
               <span className="saves__what">{asking ? "Never mind" : "Start a new run"}</span>
