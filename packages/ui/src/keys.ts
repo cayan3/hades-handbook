@@ -220,7 +220,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
   { keys: [PREVIOUS_GOD_KEY, NEXT_GOD_KEY], what: "The previous or next god." },
   { keys: [HELP_KEY, HELP_KEY_ALT], what: "How to use the Handbook." },
   { keys: [SHORTCUTS_KEY], what: "This list." },
-  { keys: ["Esc"], what: "Close whatever is open." },
+  { keys: ["Esc"], what: "Close whatever is open, or open the menu when nothing is." },
 ];
 
 /** Step through a list, clamped at both ends. Wrapping reads as teleporting. */

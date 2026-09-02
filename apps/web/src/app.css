@@ -516,10 +516,10 @@ h1,
  */
 /* Red because it is the variant rather than the default, and because it is the
    one gesture on the page that no undo reaches: it files the run nowhere. */
-/* The way back to the save screen, drawn as the slots themselves. The same
-   square as the help control beside it, off the same length, so the two read as
-   a pair rather than as a button and an icon. */
-.app__door {
+/* The way into the menu, drawn as the three stacked bars a menu is drawn as
+   everywhere. The same square as the help control beside it, off the same
+   length, so the two read as a pair rather than as a button and an icon. */
+.app__menu {
   display: grid;
   place-items: center;
   width: 2.3rem;
@@ -532,12 +532,12 @@ h1,
   cursor: pointer;
 }
 
-.app__door:hover,
-.app__door:focus-visible {
+.app__menu:hover,
+.app__menu:focus-visible {
   border-color: rgb(255 255 255 / 55%);
 }
 
-.app__door svg {
+.app__menu svg {
   width: 1.25rem;
   height: 1.25rem;
 }

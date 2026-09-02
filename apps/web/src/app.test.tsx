@@ -25,7 +25,7 @@ import { act } from "react";
 import { type Root, createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { App } from "./app.js";
-import { GAME_HASH } from "./route.js";
+import { GAME_HASH, HOME_HASH } from "./route.js";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -154,14 +154,20 @@ function click(label: string): void {
   act(() => control(label).click());
 }
 
+/** The header's menu control, which is where Escape leads too. */
+function openMenu(): void {
+  const menu = container.querySelector<HTMLElement>(".app__menu");
+  if (menu === null) throw new Error("no menu control");
+  act(() => menu.click());
+}
+
 /**
- * The way back to the save screen: its own control in the header, drawn as a
- * door and carrying no text. It files nothing — the door's slots act on the run.
+ * The way back to the save screen: the header's menu, then the row in it that
+ * says so. It files nothing — the door's own slots act on the run.
  */
 function toTheDoor(): void {
-  const door = container.querySelector<HTMLElement>(".app__door");
-  if (door === null) throw new Error("no door control");
-  act(() => door.click());
+  openMenu();
+  click("Save slots");
 }
 
 /** A save-screen slot by what it says, since its index depends on what is stored. */
@@ -1318,16 +1324,22 @@ describe("the run overview", () => {
 describe("starting a new run", () => {
   /**
    * The header's run cluster, which is three controls and no more: Goals, the
-   * Overview, and the door. Nothing in it ends a run.
+   * Overview, and the menu. Nothing in it ends a run.
    */
   it("offers a way to the door and nothing that acts on the run", async () => {
     await mount();
 
-    expect(container.querySelector(".app__door")).not.toBeNull();
+    expect(container.querySelector(".app__menu")).not.toBeNull();
     expect(control("End run", true)).toBeNull();
     expect(control("Start new run", true)).toBeNull();
     // Named for a reader who gets no picture.
-    expect(container.querySelector(".app__door")?.textContent).toContain("Save slots");
+    expect(container.querySelector(".app__menu")?.textContent).toContain("Menu");
+
+    // And the save screen is behind it rather than under it: the glyph says
+    // menu, so pressing it has to produce one.
+    openMenu();
+    expect(container.querySelector(".pause")).not.toBeNull();
+    expect(container.querySelector(".saves")).toBeNull();
   });
 
   /**
@@ -2348,6 +2360,124 @@ describe("the site header", () => {
 
     press("h");
     expect(container.querySelector(".help")).not.toBeNull();
+  });
+});
+
+/**
+ * The pause panel: what the header's menu control opens, and what Escape opens
+ * where nothing else is. Every row is a way somewhere else, and two of them go
+ * where a control elsewhere already goes — so the test that matters is that
+ * they arrive in the same place.
+ */
+describe("the pause panel", () => {
+  function rows(): string[] {
+    return [...container.querySelectorAll(".pause__option")].map((el) => el.textContent ?? "");
+  }
+
+  it("stands between the control and the save screen", async () => {
+    await mount();
+
+    openMenu();
+    expect(rows()).toEqual([
+      "Continue",
+      "How to use this Handbook",
+      "Save slots",
+      "Return to Home",
+    ]);
+
+    click("Save slots");
+    expect(container.querySelector(".pause")).toBeNull();
+    expect(container.querySelector(".saves")).not.toBeNull();
+  });
+
+  /** Dismissing is continuing, so the run is exactly where it was left. */
+  it("puts the player back in the run and touches nothing", async () => {
+    await mount();
+    tap(APHRODITE_MELEE);
+
+    openMenu();
+    click("Continue");
+
+    expect(container.querySelector(".pause")).toBeNull();
+    expect(container.querySelector(".saves")).toBeNull();
+    expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
+  });
+
+  /**
+   * The second way in, the control being the first: a phone has no Escape, so
+   * this can never be the only route.
+   */
+  it("opens on Escape where nothing else is open", async () => {
+    await mount();
+
+    press("Escape");
+    expect(container.querySelector(".pause")).not.toBeNull();
+
+    // And Escape out of it again, which is the same key meaning the nearer
+    // thing — the panel is now what is open.
+    press("Escape");
+    expect(container.querySelector(".pause")).toBeNull();
+  });
+
+  /**
+   * Escape belongs to whatever is already open, and the menu is the last thing
+   * it can mean. Both cases matter: a modal, and the Goals panel, which is not
+   * one and takes the key anyway.
+   */
+  it("leaves Escape to whatever is already open", async () => {
+    await mount();
+
+    press("?", { shiftKey: true });
+    press("Escape");
+    expect(container.querySelector(".help")).toBeNull();
+    expect(container.querySelector(".pause")).toBeNull();
+
+    goal("AllCloseBoon");
+    click("Goals (1)");
+    press("Escape");
+    expect(container.querySelector(".app__goals")).toBeNull();
+    expect(container.querySelector(".pause")).toBeNull();
+  });
+
+  /**
+   * The rule a pause menu owes: a row named after a control elsewhere lands
+   * where that control lands. Duplication is the point — two meanings are not.
+   */
+  it("opens the same Help the header's own control does", async () => {
+    await mount();
+
+    act(() => container.querySelector<HTMLElement>(".app__help")?.click());
+    const fromHeader = container.querySelector(".help")?.textContent;
+    press("Escape");
+
+    openMenu();
+    click("How to use this Handbook");
+    expect(container.querySelector(".pause")).toBeNull();
+    expect(container.querySelector(".help")?.textContent).toBe(fromHeader);
+  });
+
+  it("returns to Home exactly where the save screen's own row does", async () => {
+    await mount();
+
+    openMenu();
+    await act(async () => {
+      control("Return to Home").click();
+      window.dispatchEvent(new HashChangeEvent("hashchange"));
+    });
+
+    expect(window.location.hash).toBe(HOME_HASH);
+    expect(container.querySelector(".home")).not.toBeNull();
+  });
+
+  /** Nothing to pause on a page that is no game's, and no save slots either. */
+  it("is not offered on a page with no game", async () => {
+    await act(async () => {
+      root.render(<App store={createMemoryStore()} presence={null} persistent />);
+    });
+
+    expect(container.querySelector(".app__menu")).toBeNull();
+    press("Escape");
+    expect(container.querySelector(".pause")).toBeNull();
   });
 });
 

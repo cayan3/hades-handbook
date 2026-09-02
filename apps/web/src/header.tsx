@@ -1,26 +1,36 @@
 import type { GameId } from "@repo/core";
-import { Help, Shortcuts, isHelpKey, isShortcutsKey } from "@repo/ui";
+import { Help, PausePanel, Shortcuts, isHelpKey, isShortcutsKey } from "@repo/ui";
 import { type ReactNode, useEffect, useState } from "react";
 import { GAME_HASH, HOME_HASH } from "./route.js";
 
 /**
- * The one header every page wears, and the only place the two how-does-this-work
- * dialogs live — so they are reachable from a page with no run as well as from
- * one with a run in it.
+ * The one header every page wears, and the only place the how-does-this-work
+ * dialogs and the pause panel live — so they are reachable from a page with no
+ * run as well as from one with a run in it.
  *
  * The run-wide controls arrive as children rather than as props: they act on a
- * session, which a page without a game does not have.
+ * session, which a page without a game does not have. The way to the save
+ * screen is a prop instead, being a destination rather than something done to
+ * a run, and it is what tells this header there is a game to pause.
  */
 export function SiteHeader({
   game,
+  onSaveSlots,
   children,
 }: {
   /** Null on a page that is not one game's, which changes what the end holds. */
   readonly game: GameId | null;
+  /**
+   * The way to the save screen, on a game's page and absent everywhere else.
+   * Its absence is what withholds the menu: a page with no game has nothing to
+   * pause and two of the panel's four rows would lead nowhere.
+   */
+  readonly onSaveSlots?: () => void;
   readonly children?: ReactNode;
 }) {
   const [helpOpen, setHelpOpen] = useState(false);
   const [keysOpen, setKeysOpen] = useState(false);
+  const [pauseOpen, setPauseOpen] = useState(false);
 
   useEffect(() => {
     const press = (event: globalThis.KeyboardEvent) => {
@@ -35,6 +45,25 @@ export function SiteHeader({
     document.addEventListener("keydown", press);
     return () => document.removeEventListener("keydown", press);
   }, []);
+
+  /**
+   * Escape opens the menu where nothing else is open — the second way in, the
+   * control being the first, since a phone has no Escape at all.
+   *
+   * What is open is read off the document rather than tracked: everything that
+   * takes this key listens here too and is still mounted when this runs, so a
+   * query answers it without a flag anybody has to keep in step.
+   */
+  useEffect(() => {
+    if (onSaveSlots === undefined || pauseOpen) return;
+    const press = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      if (document.querySelector(OPEN_ALREADY) !== null) return;
+      setPauseOpen(true);
+    };
+    document.addEventListener("keydown", press);
+    return () => document.removeEventListener("keydown", press);
+  }, [onSaveSlots, pauseOpen]);
 
   return (
     <>
@@ -62,6 +91,7 @@ export function SiteHeader({
 
         <div className="app__headend">
           {children}
+          {onSaveSlots === undefined ? null : <MenuControl onOpen={() => setPauseOpen(true)} />}
           {game !== null ? null : <OpenHandbook />}
           {/* Game-agnostic, so it is on every page where the controls beside it
               are on none. */}
@@ -76,9 +106,65 @@ export function SiteHeader({
         </div>
       </header>
 
+      {!pauseOpen || onSaveSlots === undefined ? null : (
+        <PausePanel
+          onContinue={() => setPauseOpen(false)}
+          /* Closed as Help opens, in one update — so the panel's own focus
+             hand-back runs first and Help returns to the same control. */
+          onHelp={() => {
+            setPauseOpen(false);
+            setHelpOpen(true);
+          }}
+          onSaveSlots={() => {
+            setPauseOpen(false);
+            onSaveSlots();
+          }}
+          onHome={() => {
+            setPauseOpen(false);
+            window.location.hash = HOME_HASH;
+          }}
+        />
+      )}
       {!helpOpen ? null : <Help onClose={() => setHelpOpen(false)} />}
       {!keysOpen ? null : <Shortcuts onClose={() => setKeysOpen(false)} />}
     </>
+  );
+}
+
+/**
+ * Everything that already answers Escape: any modal, and the Goals panel, which
+ * is not one. The menu is the last thing this key means, so it opens only where
+ * this finds nothing.
+ */
+const OPEN_ALREADY = '[role="dialog"], .app__goals';
+
+/**
+ * The way into the menu, carrying no text — the header's run cluster is three
+ * controls wide on a phone and a fourth word crowds the two that say something.
+ *
+ * **Three stacked bars**, which is the glyph everyone already reads as a menu.
+ * That is what it now opens: it was drawn as the save slots side by side while
+ * it went straight to the save screen, and stacking them then would have
+ * promised a menu that was not there.
+ */
+function MenuControl({ onOpen }: { readonly onOpen: () => void }) {
+  return (
+    <button type="button" className="app__menu" title="Menu" onClick={onOpen}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <line x1="4" y1="6.5" x2="20" y2="6.5" />
+        <line x1="4" y1="12" x2="20" y2="12" />
+        <line x1="4" y1="17.5" x2="20" y2="17.5" />
+      </svg>
+      <span className="visually-hidden">Menu</span>
+    </button>
   );
 }
 

@@ -806,7 +806,7 @@ function Run({
   return (
     <NodePresentation ladder="real-art" game={game}>
       <div className="app">
-        <SiteHeader game={game}>
+        <SiteHeader game={game} onSaveSlots={toTheDoor}>
           {/* In the header rather than pinned to the panel, so the control that
               opens it cannot sit on top of anything at a narrow width. */}
           <button
@@ -824,7 +824,6 @@ function Run({
           >
             Overview
           </button>
-          <DoorControl onLeave={toTheDoor} />
         </SiteHeader>
 
         <Notices
@@ -1165,48 +1164,6 @@ function Run({
         )}
       </div>
     </NodePresentation>
-  );
-}
-
-/**
- * Ending a run, and the one other way out of it.
- *
- * One control rather than two: the ordinary end is the button, and throwing the
- * run away without filing it is revealed under the pointer. The destructive half
- * is then a variant of the gesture rather than a second control of equal weight
- * standing beside it.
- */
-/**
- * The way back to the save screen, carrying no text — the header's run cluster
- * is three wide on a phone and a fourth word crowds the two that say something.
- *
- * **Drawn as the slots themselves**, side by side and the first one filled,
- * which is the destination in miniature. Side by side rather than stacked
- * because three stacked bars is the menu glyph everyone already knows; and not
- * a house, which is the product's own name's job — that leads to the front
- * page, and this leads to a game's save screen.
- *
- * It replaces a disclosure behind the Overview control, which was one hover on
- * a control whose own job is to open something.
- */
-function DoorControl({ onLeave }: { readonly onLeave: () => void }) {
-  return (
-    <button type="button" className="app__door" title="Save slots" onClick={onLeave}>
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <rect x="3" y="4.5" width="5" height="15" rx="1" fill="currentColor" stroke="none" />
-        <rect x="9.5" y="4.5" width="5" height="15" rx="1" />
-        <rect x="16" y="4.5" width="5" height="15" rx="1" />
-      </svg>
-      <span className="visually-hidden">Save slots</span>
-    </button>
   );
 }
 
