@@ -31,6 +31,8 @@ export function SiteHeader({
   const [helpOpen, setHelpOpen] = useState(false);
   const [keysOpen, setKeysOpen] = useState(false);
   const [pauseOpen, setPauseOpen] = useState(false);
+  /** Whether there is a game to pause, which is all the Escape binding needs. */
+  const pausable = onSaveSlots !== undefined;
 
   useEffect(() => {
     const press = (event: globalThis.KeyboardEvent) => {
@@ -40,7 +42,13 @@ export function SiteHeader({
       } else if (isShortcutsKey(event)) {
         event.preventDefault();
         setKeysOpen(true);
+      } else {
+        return;
       }
+      // The key hands over rather than stacking, which is what the panel's own
+      // Help row does: two scrims read as one dialog behind another, and both
+      // would answer the same Escape.
+      setPauseOpen(false);
     };
     document.addEventListener("keydown", press);
     return () => document.removeEventListener("keydown", press);
@@ -55,7 +63,7 @@ export function SiteHeader({
    * query answers it without a flag anybody has to keep in step.
    */
   useEffect(() => {
-    if (onSaveSlots === undefined || pauseOpen) return;
+    if (!pausable || pauseOpen) return;
     const press = (event: globalThis.KeyboardEvent) => {
       if (event.key !== "Escape") return;
       if (document.querySelector(OPEN_ALREADY) !== null) return;
@@ -63,7 +71,10 @@ export function SiteHeader({
     };
     document.addEventListener("keydown", press);
     return () => document.removeEventListener("keydown", press);
-  }, [onSaveSlots, pauseOpen]);
+    // On whether the prop is there rather than on the prop: this never calls it,
+    // and the callback is rebuilt every render, so naming it would re-subscribe
+    // the listener on every one.
+  }, [pausable, pauseOpen]);
 
   return (
     <>

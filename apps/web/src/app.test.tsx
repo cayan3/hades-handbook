@@ -2469,6 +2469,59 @@ describe("the pause panel", () => {
     expect(container.querySelector(".home")).not.toBeNull();
   });
 
+  /**
+   * The key and the row have to behave the same, which is D488's own rule
+   * applied to its own panel: pressing `?` over the open menu must land exactly
+   * where *How to use this Handbook* lands — one dialog, and the menu gone.
+   *
+   * Left alone it stacked two scrims, and one Escape then closed both, every
+   * dialog here listening for that key on the document.
+   */
+  it("hands over to Help rather than stacking on top of it", async () => {
+    await mount();
+
+    openMenu();
+    press("?", { shiftKey: true });
+
+    expect(container.querySelector(".help")).not.toBeNull();
+    expect(container.querySelector(".pause")).toBeNull();
+    expect(container.querySelectorAll(".sheet-scrim")).toHaveLength(1);
+
+    press("Escape");
+    expect(container.querySelector(".help")).toBeNull();
+    expect(container.querySelector(".pause")).toBeNull();
+  });
+
+  /** The shortcut list is a step past Help and takes the menu with it too. */
+  it("hands over to the shortcut list the same way", async () => {
+    await mount();
+
+    openMenu();
+    press("k");
+
+    expect(container.querySelector(".shortcuts")).not.toBeNull();
+    expect(container.querySelector(".pause")).toBeNull();
+    expect(container.querySelectorAll(".sheet-scrim")).toHaveLength(1);
+  });
+
+  /**
+   * A claim the comment on this makes and nothing was holding: the panel closes
+   * in the same update that opens Help, so its own focus hand-back runs first
+   * and Help captures the menu control as its opener. Two updates would land a
+   * keyboard user on the body when Help closes.
+   */
+  it("hands the focus back to the control it was opened from", async () => {
+    await mount();
+    const menu = container.querySelector<HTMLElement>(".app__menu");
+
+    act(() => menu?.focus());
+    openMenu();
+    click("How to use this Handbook");
+    act(() => container.querySelector<HTMLElement>(".sheet__close")?.click());
+
+    expect(document.activeElement).toBe(menu);
+  });
+
   /** Nothing to pause on a page that is no game's, and no save slots either. */
   it("is not offered on a page with no game", async () => {
     await act(async () => {
