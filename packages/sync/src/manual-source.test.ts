@@ -1063,16 +1063,16 @@ describe("persistence", () => {
 });
 
 /**
- * The four slots, read back. Nothing is filed over anything now: a run stays in
+ * The three slots, read back. Nothing is filed over anything now: a run stays in
  * the slot it was played in until somebody chooses to replace it.
  */
 describe("what the slots hold", () => {
-  it("reads all four, empty where nothing has been played", async () => {
+  it("reads all three, empty where nothing has been played", async () => {
     const source = await open();
 
     const slots = await source.slots();
 
-    expect(slots.map((held) => held.slot)).toEqual([1, 2, 3, 4]);
+    expect(slots.map((held) => held.slot)).toEqual([1, 2, 3]);
     expect(slots.every((held) => held.contents.kind === "empty")).toBe(true);
   });
 

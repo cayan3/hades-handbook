@@ -180,7 +180,7 @@ async function startNewRun(): Promise<void> {
   await takeSlot("Start a new run");
 }
 
-/** What each of the four slots is offering, in slot order. */
+/** What each of the three slots is offering, in slot order. */
 function slotLabels(): string[] {
   return [...container.querySelectorAll<HTMLElement>(".saves__slot")]
     .slice(1)
@@ -1145,7 +1145,6 @@ describe("the run overview", () => {
       "( Empty Save Slot )",
       "( Empty Save Slot )",
       "( Empty Save Slot )",
-      "( Empty Save Slot )",
     ]);
     await takeSlot("Start a new run");
 
@@ -1157,7 +1156,6 @@ describe("the run overview", () => {
     // A slot of its own, which is how a save screen offers anything.
     expect(slotLabels()).toEqual([
       "Saved run",
-      "( Empty Save Slot )",
       "( Empty Save Slot )",
       "( Empty Save Slot )",
     ]);
@@ -1306,7 +1304,6 @@ describe("the run overview", () => {
       "( Empty Save Slot )",
       "( Empty Save Slot )",
       "Damaged save",
-      "( Empty Save Slot )",
     ]);
     expect(texts(".notice__title")).toEqual([]);
   });
@@ -1385,13 +1382,16 @@ describe("starting a new run", () => {
     expect(container.querySelector(".saves")).toBeNull();
   });
 
-  it("takes the first free slot and says which before it is pressed", async () => {
+  it("takes the first free slot, and the row says only what it is", async () => {
     const store = createMemoryStore();
     await mount(store);
     tap(APHRODITE_MELEE);
     toTheDoor();
 
-    expect(texts(".saves__note")[0]).toContain("slot 2");
+    // The label and nothing else, the user's call: which slot it takes is not a
+    // choice, so saying which reads as one.
+    const first = container.querySelectorAll(".saves__slot")[0];
+    expect(first?.querySelector(".saves__note")).toBeNull();
     await takeSlot("Start a new run");
 
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
@@ -1414,7 +1414,6 @@ describe("starting a new run", () => {
     toTheDoor();
 
     expect(slotLabels()).toEqual([
-      "( Empty Save Slot )",
       "( Empty Save Slot )",
       "( Empty Save Slot )",
       "( Empty Save Slot )",
@@ -1451,32 +1450,30 @@ describe("starting a new run", () => {
     tap(APHRODITE_MELEE);
     await startNewRun();
     tap(APHRODITE_MELEE);
-    await startNewRun();
-    tap(APHRODITE_MELEE);
     toTheDoor();
 
-    expect(texts(".saves__note")[0]).toContain("pick one to replace");
     await takeSlot("Start a new run");
 
-    // Armed, and nothing dropped yet: the screen says what it is asking.
+    // Armed, and nothing dropped yet: the screen says what it is asking by
+    // changing state, which is the only warning there is.
     expect(container.querySelector(".saves__title")?.textContent).toBe("Choose a run to replace");
     expect(slotLabels().every((label) => label === "Replace this run")).toBe(true);
     expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
 
-    await takeSlot("Replace this run", 2);
+    await takeSlot("Replace this run", 1);
 
     expect(container.querySelector(".saves")).toBeNull();
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
-    expect(await store.openSlot("hades2")).toBe(3);
-    // The three the player did not name are untouched.
+    expect(await store.openSlot("hades2")).toBe(2);
+    // The two the player did not name are untouched.
     expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
-    expect((await store.load("hades2", 2))?.facts.held).toHaveLength(1);
+    expect((await store.load("hades2", 3))?.facts.held).toHaveLength(1);
   });
 
   it("lets the player back out of the question without dropping anything", async () => {
     const store = createMemoryStore();
     await mount(store);
-    for (const _ of [1, 2, 3]) {
+    for (const _ of [1, 2]) {
       tap(APHRODITE_MELEE);
       await startNewRun();
     }
@@ -2368,8 +2365,8 @@ describe("the save screen", () => {
         "",
     );
 
-  /** Five rows and always five, so nothing a player is reaching for can move. */
-  it("offers a new run and four slots where nothing is stored", async () => {
+  /** Four rows and always four, so nothing a player is reaching for can move. */
+  it("offers a new run and three slots where nothing is stored", async () => {
     window.location.hash = GAME_HASH.hades2;
     await act(async () => {
       root.render(<App store={createMemoryStore()} presence={null} persistent />);
@@ -2377,7 +2374,6 @@ describe("the save screen", () => {
 
     expect(rows()).toEqual([
       "Start a new run",
-      "( Empty Save Slot )",
       "( Empty Save Slot )",
       "( Empty Save Slot )",
       "( Empty Save Slot )",
@@ -2398,7 +2394,7 @@ describe("the save screen", () => {
     await follow(GAME_HASH.hades2);
 
     /* Fixed order whatever is present, so a slot never moves under a player:
-       the row that starts a run, then the four slots by number. */
+       the row that starts a run, then the three slots by number. */
     expect(rows()[0]).toBe("Start a new run");
     expect(rows()[1]).toBe("Continue run");
     expect(texts(".saves__stat dt")).toEqual(["Boons", "Gods met", "Goals"]);
@@ -2410,7 +2406,7 @@ describe("the save screen", () => {
     await mount();
     toTheDoor();
 
-    expect(texts(".saves__ordinal")).toEqual(["Slot 1", "Slot 2", "Slot 3", "Slot 4"]);
+    expect(texts(".saves__ordinal")).toEqual(["Slot 1", "Slot 2", "Slot 3"]);
   });
 
   /**
@@ -2434,7 +2430,6 @@ describe("the save screen", () => {
     toTheDoor();
     expect(slotLabels()).toEqual([
       "Saved run",
-      "( Empty Save Slot )",
       "( Empty Save Slot )",
       "( Empty Save Slot )",
     ]);

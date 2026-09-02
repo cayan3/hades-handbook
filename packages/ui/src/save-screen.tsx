@@ -5,7 +5,7 @@ import { useDialog } from "./dialog.js";
 import { useGame } from "./presentation.js";
 
 /**
- * The door into a game, drawn the way both games draw theirs: four slots and a
+ * The door into a game, drawn the way both games draw theirs: three slots and a
  * row that starts a run. Nothing is filed over anything — the run you leave
  * stays in its own slot, and one is lost only where every slot is taken and the
  * player picks which to drop.
@@ -31,7 +31,7 @@ export interface SlotView {
 }
 
 export interface SaveScreenProps {
-  /** All four, in slot order, whatever they hold. */
+  /** All three, in slot order, whatever they hold. */
   readonly slots: readonly SlotView[];
   /** Continues the open run, or looks at a saved one. */
   readonly onOpen: (slot: SaveSlot) => void;
@@ -76,7 +76,7 @@ export function SaveScreen({ slots, onOpen, onStart, onLeave }: SaveScreenProps)
             declaration inherits to all three, and a slot that is only ever
             drawn beside its siblings never differs from them. Absent art sets
             nothing and the plain border stays. */}
-        {/* Five tracks and always five: the row no longer changes shape with
+        {/* Four tracks and always four: the row no longer changes shape with
             what is stored, so nothing a player is reaching for can move. */}
         <ul
           className="saves__slots"
@@ -98,10 +98,10 @@ export function SaveScreen({ slots, onOpen, onStart, onLeave }: SaveScreenProps)
                 else setReplacing(!replacing);
               }}
             >
+                {/* The label and nothing else, the user's call: which slot it
+                  takes is not a choice, and a full screen says what it is
+                  asking by changing state rather than by warning first. */}
               <span className="saves__what">{asking ? "Never mind" : "Start a new run"}</span>
-              {/* Said here rather than found out afterwards: which slot it takes,
-                  and that a full screen asks before it drops anything. */}
-              <p className="saves__note">{startNote(slots, free, asking)}</p>
             </button>
           </li>
 
@@ -128,20 +128,6 @@ export function SaveScreen({ slots, onOpen, onStart, onLeave }: SaveScreenProps)
       </div>
     </div>
   );
-}
-
-/** What the first row will do, which depends only on whether a slot is free. */
-function startNote(
-  slots: readonly SlotView[],
-  free: SlotView | null,
-  asking: boolean,
-): string {
-  if (asking) return "Nothing has been replaced yet.";
-  if (free === null) return "Every slot holds a run, so you'll pick one to replace.";
-  if (slots.every((slot) => slot.state === "empty")) {
-    return "Nothing is stored yet, so this is where you begin.";
-  }
-  return `It begins in slot ${String(free.slot)}, and the runs beside it are kept.`;
 }
 
 function Slot({

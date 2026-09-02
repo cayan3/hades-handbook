@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  *
- * The save screen: four slots and the row that starts a run. What is tested
+ * The save screen: three slots and the row that starts a run. What is tested
  * here is the allocation and the arming, which are the component's own — the
  * app hands it what each slot holds and nothing else.
  */
@@ -42,7 +42,7 @@ function render(node: ReactElement): void {
   );
 }
 
-/** Four slots from four words, which is all this component reads. */
+/** Three slots from three words, which is all this component reads. */
 function slots(...states: SlotState[]): readonly SlotView[] {
   return states.map((state, at) => ({
     slot: (at + 1) as SaveSlot,
@@ -78,20 +78,21 @@ function press(what: string, at = 0): void {
 }
 
 describe("the row that starts a run", () => {
-  /** Five rows and always five, so nothing a player reaches for can move. */
+  /** Four rows and always four, so nothing a player reaches for can move. */
   it("draws the same shape whatever is stored", () => {
-    render(screen(slots("empty", "empty", "empty", "empty")));
-    expect(labels()).toHaveLength(5);
+    render(screen(slots("empty", "empty", "empty")));
+    expect(labels()).toHaveLength(4);
 
-    render(screen(slots("open", "saved", "saved", "saved")));
-    expect(labels()).toHaveLength(5);
+    render(screen(slots("open", "saved", "saved")));
+    expect(labels()).toHaveLength(4);
   });
 
-  it("takes the lowest free slot and says which before it is pressed", () => {
+  /** The label and nothing else: which slot it takes is not a choice. */
+  it("carries no note, and takes the lowest free slot", () => {
     const onStart = vi.fn();
-    render(screen(slots("saved", "empty", "empty", "saved"), onStart));
+    render(screen(slots("saved", "empty", "saved"), onStart));
 
-    expect(container.querySelector(".saves__note")?.textContent).toContain("slot 2");
+    expect(container.querySelectorAll(".saves__slot")[0]?.querySelector(".saves__note")).toBeNull();
     press("Start a new run");
 
     expect(onStart).toHaveBeenCalledWith(2);
@@ -104,7 +105,7 @@ describe("the row that starts a run", () => {
    */
   it("reuses the open slot where the run in it holds nothing", () => {
     const onStart = vi.fn();
-    render(screen(slots("saved", "empty", "saved", "saved"), onStart));
+    render(screen(slots("saved", "empty", "saved"), onStart));
 
     press("Start a new run");
 
@@ -117,13 +118,12 @@ describe("the row that starts a run", () => {
  * drop — two deliberate presses rather than a confirmation nobody reads.
  */
 describe("a screen with every slot taken", () => {
-  const full = slots("open", "saved", "saved", "saved");
+  const full = slots("open", "saved", "saved");
 
-  it("says the question is coming rather than dropping anything", () => {
+  it("changes state rather than dropping anything", () => {
     const onStart = vi.fn();
     render(screen(full, onStart));
 
-    expect(container.querySelector(".saves__note")?.textContent).toContain("pick one to replace");
     press("Start a new run");
 
     expect(onStart).not.toHaveBeenCalled();
@@ -168,28 +168,27 @@ describe("a screen with every slot taken", () => {
 
 describe("the slots themselves", () => {
   it("names the open one Continue run and the rest saved runs", () => {
-    render(screen(slots("saved", "open", "empty", "unreadable")));
+    render(screen(slots("saved", "open", "unreadable")));
 
     expect(labels()).toEqual([
       "Start a new run",
       "Saved run",
       "Continue run",
-      "( Empty Save Slot )",
       "Damaged save",
     ]);
   });
 
   it("numbers every slot, in fixed order", () => {
-    render(screen(slots("saved", "open", "empty", "unreadable")));
+    render(screen(slots("saved", "open", "empty")));
 
     expect(
       [...container.querySelectorAll(".saves__ordinal")].map((el) => el.textContent),
-    ).toEqual(["Slot 1", "Slot 2", "Slot 3", "Slot 4"]);
+    ).toEqual(["Slot 1", "Slot 2", "Slot 3"]);
   });
 
   it("opens the slot it was pressed on", () => {
     const onOpen = vi.fn();
-    render(screen(slots("saved", "open", "empty", "empty"), () => {}, onOpen));
+    render(screen(slots("saved", "open", "empty"), () => {}, onOpen));
 
     press("Saved run");
 
@@ -198,13 +197,13 @@ describe("the slots themselves", () => {
 
   /** The row above allocates, so an empty slot is not a second way to do it. */
   it("draws an empty slot as no control at all", () => {
-    render(screen(slots("empty", "empty", "empty", "empty")));
+    render(screen(slots("empty", "empty", "empty")));
 
     expect(container.querySelectorAll(".saves__take")).toHaveLength(1);
   });
 
   it("shows the three counts a filled slot carries", () => {
-    render(screen(slots("open", "empty", "empty", "empty")));
+    render(screen(slots("open", "empty", "empty")));
 
     expect([...container.querySelectorAll(".saves__stat dt")].map((el) => el.textContent)).toEqual([
       "Boons",
@@ -222,14 +221,13 @@ describe("the slots themselves", () => {
    * A record this build cannot read keeps its slot rather than reading as free:
    * there is something in it, and it is somebody's run.
    */
-  it("says a damaged save can be replaced, and asks before it is", () => {
+  it("keeps a damaged save's slot, and asks before replacing it", () => {
     const onStart = vi.fn();
-    render(screen(slots("open", "saved", "saved", "unreadable"), onStart));
+    render(screen(slots("open", "saved", "unreadable"), onStart));
 
-    expect(container.querySelector(".saves__note")?.textContent).toContain("pick one to replace");
     press("Start a new run");
-    press("Replace this run", 3);
+    press("Replace this run", 2);
 
-    expect(onStart).toHaveBeenCalledWith(4);
+    expect(onStart).toHaveBeenCalledWith(3);
   });
 });

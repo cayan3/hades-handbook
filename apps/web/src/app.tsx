@@ -753,7 +753,7 @@ function Run({
   const openedView = opened === null ? null : view(opened);
 
   /**
-   * The four slots as the door draws them. The open one is read through the
+   * The three slots as the door draws them. The open one is read through the
    * merged facts, which is the rule everywhere — a field held by hand belongs in
    * the counts beside the run it is held over; the rest are their records.
    */

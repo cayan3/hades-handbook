@@ -2,13 +2,13 @@ import type { GameId } from "@repo/core";
 import { type PersistedRun, STORE_VERSION } from "./persisted.js";
 
 /**
- * A numbered save slot. Four of them: three saved runs and the one being
- * played, which is five rows on a phone once the row that starts a run is
- * counted. The games themselves offer a handful rather than a list.
+ * A numbered save slot. Three of them: two saved runs and the one being played,
+ * which is four rows on a phone once the row that starts a run is counted. The
+ * games themselves offer a handful rather than a list.
  */
-export type SaveSlot = 1 | 2 | 3 | 4;
+export type SaveSlot = 1 | 2 | 3;
 
-export const SAVE_SLOTS: readonly SaveSlot[] = [1, 2, 3, 4];
+export const SAVE_SLOTS: readonly SaveSlot[] = [1, 2, 3];
 
 /**
  * The keys the two-record build wrote. Read once by the pass that moves them
