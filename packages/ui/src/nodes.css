@@ -2480,6 +2480,15 @@ kbd {
   padding: 1.4rem 1.2rem 1.6rem;
 }
 
+/* The game's own colour, the way the save screen beside it takes one. */
+.pause[data-game="hades1"] {
+  --game: var(--hades1, #b70d12);
+}
+
+.pause[data-game="hades2"] {
+  --game: var(--hades2, #30b090);
+}
+
 .pause__group {
   display: grid;
   gap: 0.45rem;
@@ -2491,7 +2500,10 @@ kbd {
   margin-top: 1.8rem;
 }
 
+/* The glow is the game's and the ink is not: Hades I's blood red is a colour to
+   be lit by rather than to read four rows of. */
 .pause__option {
+  --glow: var(--game);
   padding: 0.6rem 0.9rem;
   border: 1px solid rgb(255 255 255 / 25%);
   border-radius: 0.35rem;
@@ -3096,8 +3108,18 @@ kbd {
 .pause__option:hover,
 .pause__option:focus-visible {
   opacity: 1;
+  /* `--glow` where the glow's colour and the ink's are different questions, and
+     `--choice` everywhere else — which is every control written before the pause
+     panel, so none of them changes. */
   box-shadow: 0 0 var(--control-glow, 0.45rem)
-    color-mix(in srgb, var(--choice, currentColor) 45%, transparent);
+    color-mix(in srgb, var(--glow, var(--choice, currentColor)) 45%, transparent);
+}
+
+/* The outline lights with the glow, which is what a filled save slot does — and
+   only here, the rule above being shared with controls that have no game. */
+.pause__option:hover,
+.pause__option:focus-visible {
+  border-color: var(--game);
 }
 
 /*

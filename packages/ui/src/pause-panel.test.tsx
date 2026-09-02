@@ -9,6 +9,7 @@ import { act, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PausePanel } from "./pause-panel.js";
+import { NodePresentation } from "./presentation.js";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -29,8 +30,14 @@ afterEach(() => {
   container.remove();
 });
 
-function render(node: ReactElement): void {
-  act(() => root.render(node));
+function render(node: ReactElement, game: "hades1" | "hades2" = "hades2"): void {
+  act(() =>
+    root.render(
+      <NodePresentation ladder="real-art" game={game}>
+        {node}
+      </NodePresentation>,
+    ),
+  );
 }
 
 /** All four handlers, so a test can assert the one it pressed and no other. */
@@ -125,6 +132,15 @@ describe("the pause panel", () => {
     expect(spies.onContinue).toHaveBeenCalledTimes(2);
     expect(spies.onSaveSlots).not.toHaveBeenCalled();
     expect(spies.onHome).not.toHaveBeenCalled();
+  });
+
+  /** The rows glow in the game being read, so the panel says which one it is. */
+  it("carries the game it is drawn over", () => {
+    render(<PausePanel {...handlers()} />, "hades1");
+    expect(container.querySelector(".pause")?.getAttribute("data-game")).toBe("hades1");
+
+    render(<PausePanel {...handlers()} />, "hades2");
+    expect(container.querySelector(".pause")?.getAttribute("data-game")).toBe("hades2");
   });
 
   /** A modal, and focus lands on the row that costs nothing. */

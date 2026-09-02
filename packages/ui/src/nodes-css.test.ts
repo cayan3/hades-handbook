@@ -384,6 +384,37 @@ describe("the node stylesheet", () => {
   });
 
   /**
+   * The pause panel's rows glow in the game's own colour rather than in the
+   * shared white, and the ink stays neutral — Hades I's blood red is a colour
+   * to be lit by, not to read four rows of.
+   *
+   * The glow reads `--glow` falling back to `--choice`, so the channel exists
+   * without changing any control written before it: every other one leaves
+   * `--glow` unset and keeps the ink's colour.
+   */
+  it("glows the pause rows in the game's colour and leaves the ink alone", () => {
+    const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+    const body = (selector: string) => {
+      const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return new RegExp(`(^|\\})[^{}]*${literal}[^{}]*\\{([^}]*)\\}`, "m").exec(rules)?.[2] ?? "";
+    };
+
+    // The panel takes each game's own token, the way the save screen does.
+    expect(body('.pause[data-game="hades1"]')).toMatch(/--game:\s*var\(--hades1/);
+    expect(body('.pause[data-game="hades2"]')).toMatch(/--game:\s*var\(--hades2/);
+
+    // The row points its glow at that token and sets no colour of its own.
+    expect(body(".pause__option")).toMatch(/--glow:\s*var\(--game\)/);
+    expect(body(".pause__option")).not.toMatch(/--choice:/);
+
+    // And the shared glow actually reads the channel, or the line above is inert.
+    const glow = rules.match(/box-shadow:[^;]*var\(--control-glow[^;]*;/);
+    expect(glow?.[0], "the shared glow does not read --glow").toMatch(
+      /var\(--glow,\s*var\(--choice/,
+    );
+  });
+
+  /**
    * The save screen's first row carries no slot number and still has to hold
    * the line the numbered ones put theirs on, or its label sits a line above
    * them. An empty flex item establishes no line box, so the height has to come

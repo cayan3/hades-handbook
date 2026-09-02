@@ -1,4 +1,5 @@
 import { useDialog } from "./dialog.js";
+import { useGame } from "./presentation.js";
 
 /**
  * The menu behind the header's own control and behind Escape.
@@ -19,6 +20,7 @@ export interface PausePanelProps {
 }
 
 export function PausePanel({ onContinue, onHelp, onSaveSlots, onHome }: PausePanelProps) {
+  const game = useGame();
   const { ref, onKeyDown } = useDialog(onContinue);
 
   return (
@@ -33,6 +35,9 @@ export function PausePanel({ onContinue, onHelp, onSaveSlots, onHome }: PausePan
     >
       <div
         className="sheet pause"
+        /* The rows glow in the game's own colour, which is the one thing the
+           save screen beside it differs by too. */
+        data-game={game}
         ref={ref}
         role="dialog"
         aria-modal="true"
