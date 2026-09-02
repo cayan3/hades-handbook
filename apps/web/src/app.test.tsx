@@ -2470,6 +2470,24 @@ describe("the pause panel", () => {
   });
 
   /**
+   * The order of the header's end, which is a decision rather than an accident:
+   * the menu leads the controls it opens onto, and Help keeps the last slot it
+   * holds on every page. The two are squares and are not peers — one is a
+   * game's and comes and goes with one.
+   */
+  it("leads the run cluster and leaves Help at the end", async () => {
+    await mount();
+
+    const end = [...container.querySelectorAll<HTMLElement>(".app__headend > button")];
+    expect(end.map((button) => button.className)).toEqual([
+      "app__menu",
+      "app__goalstoggle",
+      "app__finish",
+      "app__help",
+    ]);
+  });
+
+  /**
    * The key and the row have to behave the same: pressing `?` over the open
    * menu must land exactly where *How to use this Handbook* lands — one dialog,
    * and the menu gone. An identically-named way in goes to an identical place.

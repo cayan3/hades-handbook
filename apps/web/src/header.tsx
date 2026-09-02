@@ -101,8 +101,13 @@ export function SiteHeader({
         )}
 
         <div className="app__headend">
-          {children}
+          {/* Ahead of the run-wide controls rather than beside Help, which is
+              the user's call. The two are squares and are not peers: this one
+              is a game's and comes and goes with one, where Help is on every
+              page and acts on nothing — so it leads the cluster it opens onto
+              and Help keeps the end slot it holds everywhere. */}
           {onSaveSlots === undefined ? null : <MenuControl onOpen={() => setPauseOpen(true)} />}
+          {children}
           {game !== null ? null : <OpenHandbook />}
           {/* Game-agnostic, so it is on every page where the controls beside it
               are on none. */}
@@ -152,6 +157,10 @@ const OPEN_ALREADY = '[role="dialog"], .app__goals';
 /**
  * The way into the menu, carrying no text — the header's run cluster is three
  * controls wide on a phone and a fourth word crowds the two that say something.
+ *
+ * It leads that cluster rather than sitting beside Help at the end: the two are
+ * both squares and read as a pair, and they are not one — this appears only on a
+ * game's page and Help is on every page.
  *
  * **Three stacked bars**, which is the glyph everyone already reads as a menu.
  * That is what it now opens: it was drawn as the save slots side by side while
