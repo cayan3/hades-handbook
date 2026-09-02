@@ -96,8 +96,16 @@ function overview(
   over: Partial<FinishedRun> = {},
   onResume: () => void = () => {},
   onSaveSlots = () => {},
+  onDelete = () => {},
 ) {
-  return <RunOverview run={run(over)} onResume={onResume} onSaveSlots={onSaveSlots} />;
+  return (
+    <RunOverview
+      run={run(over)}
+      onResume={onResume}
+      onDelete={onDelete}
+      onSaveSlots={onSaveSlots}
+    />
+  );
 }
 
 function texts(selector: string): string[] {
@@ -397,22 +405,63 @@ describe("Run Overview", () => {
   });
 
   /**
-   * Two, always. There is no *finished* run in the model — only the run in
+   * Three, always. There is no *finished* run in the model — only the run in
    * whichever slot is open — so what these say does not change with which one
    * is being shown, and the resume is never withheld: the run being left stays
    * in its own slot, so opening another costs nothing.
    */
-  it("offers the same two actions whatever it is showing", () => {
+  it("offers the same three actions whatever it is showing", () => {
     const onResume = vi.fn();
     const onSaveSlots = vi.fn();
     render(overview({ held: 1 }, onResume, onSaveSlots));
 
-    expect(texts(".overview__actions button")).toEqual(["Resume this run", "Back to save slots"]);
+    expect(texts(".overview__actions button")).toEqual([
+      "Resume this run",
+      "Delete this run",
+      "Back to save slots",
+    ]);
 
     act(() => container.querySelector<HTMLButtonElement>(".overview__close")?.click());
     expect(onResume).toHaveBeenCalledTimes(1);
     act(() => container.querySelector<HTMLButtonElement>(".overview__slots")?.click());
     expect(onSaveSlots).toHaveBeenCalledTimes(1);
+  });
+
+  /**
+   * The one gesture that destroys a run somebody kept, so it is asked twice
+   * rather than confirmed in a dialog — the run itself is on the screen above
+   * the control, which says more than any sentence would.
+   */
+  it("asks before it drops a run, and the first press drops nothing", () => {
+    const onDelete = vi.fn();
+    render(overview({ held: 1 }, () => {}, () => {}, onDelete));
+
+    act(() => container.querySelector<HTMLButtonElement>(".overview__drop")?.click());
+
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(texts(".overview__actions button")).toEqual([
+      "Delete this run permanently",
+      "Never mind",
+    ]);
+
+    act(() => container.querySelector<HTMLButtonElement>(".overview__drop")?.click());
+    expect(onDelete).toHaveBeenCalledTimes(1);
+  });
+
+  /** And the way out of the question is a control, not a guess. */
+  it("puts the row back where the second press is never made", () => {
+    const onDelete = vi.fn();
+    render(overview({ held: 1 }, () => {}, () => {}, onDelete));
+
+    act(() => container.querySelector<HTMLButtonElement>(".overview__drop")?.click());
+    act(() => container.querySelector<HTMLButtonElement>(".overview__slots")?.click());
+
+    expect(onDelete).not.toHaveBeenCalled();
+    expect(texts(".overview__actions button")).toEqual([
+      "Resume this run",
+      "Delete this run",
+      "Back to save slots",
+    ]);
   });
 
   /** Escape goes where the always-safe control goes, never into a run. */

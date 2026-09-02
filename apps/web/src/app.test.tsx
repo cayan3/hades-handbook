@@ -1220,6 +1220,35 @@ describe("the run overview", () => {
     expect(texts(".notice__title")).toEqual([]);
   });
 
+  /**
+   * The one gesture that destroys a run somebody kept, and the caller `clearRun`
+   * spent a tier without. Asked twice rather than confirmed in a dialog: the run
+   * is on the screen above the control.
+   */
+  it("drops a saved run when it is asked twice, and not once", async () => {
+    const store = createMemoryStore();
+    await mount(store);
+    tap(APHRODITE_MELEE);
+    await startNewRun();
+
+    toTheDoor();
+    await takeSlot("Saved run");
+    await act(async () => {
+      control("Delete this run").click();
+    });
+    expect(await store.load("hades2", 1)).not.toBeNull();
+
+    await act(async () => {
+      control("Delete this run permanently").click();
+    });
+
+    expect(container.querySelector(".saves")).not.toBeNull();
+    expect(await store.load("hades2", 1)).toBeNull();
+    expect(slotLabels()[0]).toBe("( Empty Save Slot )");
+    // The run in play is untouched, which is what makes deleting one safe.
+    expect(await store.openSlot("hades2")).toBe(2);
+  });
+
   /** Survives the tab closing, which is the only reason it is a record. */
   it("is still there after a reload", async () => {
     const store = createMemoryStore();

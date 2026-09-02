@@ -2978,6 +2978,7 @@ kbd {
    which these join rather than restate — a second copy is a number's worth
    of disagreement away from reading as a second treatment. */
 .overview__slots,
+.overview__drop,
 .overview__close {
   padding: 0.4rem 1.2rem;
   border: 1px solid rgb(255 255 255 / 25%);
@@ -3016,6 +3017,7 @@ kbd {
 .cardmenu__list button,
 .godpicker__open,
 .overview__slots,
+.overview__drop,
 .overview__close,
 .saves__back {
   color: var(--choice, inherit);
@@ -3041,6 +3043,8 @@ kbd {
 .godpicker__open:focus-visible,
 .overview__close:hover,
 .overview__close:focus-visible,
+.overview__drop:hover,
+.overview__drop:focus-visible,
 .overview__slots:hover,
 .overview__slots:focus-visible,
 .saves__back:hover,
@@ -3067,6 +3071,14 @@ kbd {
  * colour the outline and the glow with no second rule about red.
  */
 .loadout__cardremove,
+.overview__drop,
 .cardmenu[data-tone="danger"] {
   --choice: var(--danger, #e5484d);
+}
+
+/* Armed, the control is the only thing on the row that is not a way out, so it
+   carries the ink the second press deserves rather than the resting dim. */
+.overview__drop--armed {
+  border-color: var(--danger, #e5484d);
+  opacity: 1;
 }

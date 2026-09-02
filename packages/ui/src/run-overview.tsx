@@ -32,6 +32,13 @@ export interface RunOverviewProps {
    * withheld: the run being left stays in its own slot, so it costs nothing.
    */
   readonly onResume: () => void;
+
+  /**
+   * Drops the run being looked at, which is the only way a slot is emptied.
+   * Asked twice rather than confirmed in a dialog, the run itself being on the
+   * screen above the control.
+   */
+  readonly onDelete: () => void;
   /**
    * Back to the save screen, and Escape does the same. Always available: it is
    * the one way out that is safe whatever slot is open and whatever is in it.
@@ -53,10 +60,12 @@ function spotOf(groupKey: string, trait: TraitId): Spot {
 /** The kit's own tile sits outside every group and needs a key of its own. */
 const KIT = "kit";
 
-export function RunOverview({ run, onResume, onSaveSlots }: RunOverviewProps) {
+export function RunOverview({ run, onResume, onDelete, onSaveSlots }: RunOverviewProps) {
   const game = useGame();
   const { ref, onKeyDown } = useDialog(onSaveSlots);
   const titleId = useId();
+  /** Whether the row is asking about the delete rather than offering it. */
+  const [dropping, setDropping] = useState(false);
   /**
    * The tile whose card is showing, and how it got there.
    *
@@ -181,12 +190,40 @@ export function RunOverview({ run, onResume, onSaveSlots }: RunOverviewProps) {
             beside it does, so two buttons carried one behaviour. Starting a run
             is a thing you choose at the door, among the slots. */}
         <div className="overview__actions">
-          <button type="button" className="overview__close" onClick={onResume}>
-            Resume this run
-          </button>
-          <button type="button" className="overview__slots" onClick={onSaveSlots}>
-            Back to save slots
-          </button>
+          {dropping ? (
+            <>
+              <button
+                type="button"
+                className="overview__drop overview__drop--armed"
+                onClick={onDelete}
+              >
+                Delete this run permanently
+              </button>
+              <button
+                type="button"
+                className="overview__slots"
+                onClick={() => setDropping(false)}
+              >
+                Never mind
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" className="overview__close" onClick={onResume}>
+                Resume this run
+              </button>
+              <button
+                type="button"
+                className="overview__drop"
+                onClick={() => setDropping(true)}
+              >
+                Delete this run
+              </button>
+              <button type="button" className="overview__slots" onClick={onSaveSlots}>
+                Back to save slots
+              </button>
+            </>
+          )}
         </div>
 
         {/* The one place this product's disclaimer leaves the site, an exported

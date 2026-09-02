@@ -1102,6 +1102,20 @@ function Run({
                     intoRun(session.openRun(reviewedSlot));
                   }
             }
+            /* The run the player is looking at is the one that goes, which is
+               why this is here and not on the door: a slot's counts say far
+               less about what is being dropped than the run itself does. */
+            onDelete={() => {
+              const target = reviewedSlot ?? condition.slot;
+              afterSlot(session.deleteRun(target));
+              // Only the open slot's deletion empties the run in play, and the
+              // bar was built for that run.
+              if (target === condition.slot) {
+                onCurated(NO_TABS);
+                setSelected(HUB);
+              }
+              toTheDoor();
+            }}
             onSaveSlots={toTheDoor}
           />
         )}

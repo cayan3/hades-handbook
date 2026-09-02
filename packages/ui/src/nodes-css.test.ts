@@ -384,13 +384,14 @@ describe("the node stylesheet", () => {
   });
 
   /**
-   * A removal is red wherever a card offers one, and the colour arrives as
-   * `--choice` so the outline and the glow follow it with no second rule.
+   * A removal is red wherever one is offered — on a card, and on the summary
+   * that drops a whole run — and the colour arrives as `--choice` so the
+   * outline and the glow follow it with no second rule.
    */
-  it("writes a card's removals in the danger colour", () => {
+  it("writes every removal in the danger colour", () => {
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
     const match = rules.match(
-      /\.loadout__cardremove,\s*\.cardmenu\[data-tone="danger"\]\s*\{([^}]*)\}/,
+      /\.loadout__cardremove,\s*\.overview__drop,\s*\.cardmenu\[data-tone="danger"\]\s*\{([^}]*)\}/,
     );
     expect(match, "the removals do not name a colour together").not.toBeNull();
     expect(match![1]).toMatch(/--choice:\s*var\(--danger/);
