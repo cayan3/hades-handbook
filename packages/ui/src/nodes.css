@@ -2723,6 +2723,9 @@ kbd {
  * same one line the save screen beside it uses.
  */
 .overview {
+  /* The corner control is placed against this box, and the box is the scroll
+     container, so the control travels with the content the way the title does. */
+  position: relative;
   width: min(56rem, 100%);
   max-height: 90vh;
   padding: 1.6rem;
@@ -3029,13 +3032,71 @@ kbd {
   margin-bottom: 1rem;
 }
 
+/*
+ * The control that draws the picture, in the corner rather than in the row
+ * below: that row is three settled controls and is already the widest thing on
+ * the view, and a share is not a fourth thing the run can be done to.
+ */
+.overview__picture {
+  position: absolute;
+  top: 1.4rem;
+  right: 1.4rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.overview__picture svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* Drawing one takes a moment on a long run, and a control that looks pressable
+   through it invites the second press that starts the work again. */
+.overview__picture[disabled] {
+  cursor: progress;
+  opacity: 0.35;
+}
+
+/*
+ * The picture at the width of the view it was taken of, which is the width it
+ * was drawn at — the bitmap behind it is twice that, so it stays crisp where a
+ * phone hands it to a display of its own.
+ */
+.picture__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0 0 1rem;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 0.4rem;
+}
+
+.picture__hint,
+.picture__missing {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-align: center;
+  opacity: 0.7;
+}
+
 /* The box only. The hover treatment is the package's shared one, further down,
    which these join rather than restate — a second copy is a number's worth
    of disagreement away from reading as a second treatment. */
 .overview__slots,
 .overview__drop,
-.overview__close {
+.overview__close,
+.picture__save {
   padding: 0.4rem 1.2rem;
+  text-decoration: none;
   border: 1px solid rgb(255 255 255 / 25%);
   border-radius: 0.35rem;
   background: transparent;
@@ -3074,6 +3135,8 @@ kbd {
 .overview__slots,
 .overview__drop,
 .overview__close,
+.overview__picture,
+.picture__save,
 .saves__back,
 .pause__option {
   color: var(--choice, inherit);
@@ -3103,6 +3166,10 @@ kbd {
 .overview__drop:focus-visible,
 .overview__slots:hover,
 .overview__slots:focus-visible,
+.overview__picture:hover,
+.overview__picture:focus-visible,
+.picture__save:hover,
+.picture__save:focus-visible,
 .saves__back:hover,
 .saves__back:focus-visible,
 .pause__option:hover,

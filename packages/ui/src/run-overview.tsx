@@ -1,5 +1,5 @@
 import type { TraitId } from "@repo/core";
-import { type CSSProperties, useId, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useId, useState } from "react";
 import { ElementArt, GodArt, WeaponArt } from "./boon-art.js";
 import { NodeBox } from "./boon-node.js";
 import { BoonRow } from "./boon-row.js";
@@ -9,6 +9,7 @@ import { godColour } from "./god-palette.js";
 import { UNAFFILIATED } from "./messages.js";
 import { useGame, useLadder } from "./presentation.js";
 import { treatmentOf } from "./rarity-palette.js";
+import { PictureGlyph, PicturePanel, type RunPicture, takePicture } from "./run-picture.js";
 
 /**
  * The run that was filed last, drawn after the games' own results screen: what
@@ -62,7 +63,21 @@ const KIT = "kit";
 
 export function RunOverview({ run, onResume, onDelete, onSaveSlots }: RunOverviewProps) {
   const game = useGame();
-  const { ref, onKeyDown } = useDialog(onSaveSlots);
+  /**
+   * The picture the view has taken of itself, and whether it is being taken.
+   * Drawn in place of the run rather than over it: a second shade would be one
+   * dialog behind another with no way of reading which is which.
+   */
+  const [picture, setPicture] = useState<RunPicture | null>(null);
+  const [taking, setTaking] = useState(false);
+  const [refused, setRefused] = useState(false);
+  /* Escape leaves the picture before it leaves the view, which is the same
+     step back the control beside it takes. */
+  const close = useCallback(
+    () => (picture === null ? onSaveSlots() : setPicture(null)),
+    [picture, onSaveSlots],
+  );
+  const { ref, onKeyDown } = useDialog(close);
   const titleId = useId();
   /** Whether the row is asking about the delete rather than offering it. */
   const [dropping, setDropping] = useState(false);
@@ -98,6 +113,25 @@ export function RunOverview({ run, onResume, onDelete, onSaveSlots }: RunOvervie
     setOpened(spot);
   };
 
+  /**
+   * Taken after the render that closed the open card, not during the press:
+   * whether a card is open is an artifact of where the pointer happens to be,
+   * and a reading aid is not part of what the run looked like.
+   */
+  useEffect(() => {
+    if (!taking) return;
+    const view = ref.current;
+    if (view === null) return;
+    let live = true;
+    takePicture(view)
+      .then((taken) => live && setPicture(taken))
+      .catch(() => live && setRefused(true))
+      .finally(() => live && setTaking(false));
+    return () => {
+      live = false;
+    };
+  }, [taking, ref]);
+
   return (
     <div className="sheet-scrim" onKeyDown={onKeyDown}>
       <div
@@ -108,123 +142,162 @@ export function RunOverview({ run, onResume, onDelete, onSaveSlots }: RunOvervie
         aria-modal="true"
         aria-labelledby={titleId}
       >
+        {/* Out of the picture along with the action row: what the run held is
+            the content, and the controls that act on it are not. */}
+        <button
+          type="button"
+          className="overview__picture"
+          data-picture=""
+          disabled={taking}
+          title={picture === null ? "Picture of this run" : "Back to the run"}
+          onClick={() => {
+            setRefused(false);
+            if (picture === null) {
+              setOpened(null);
+              setHovered(null);
+              setTaking(true);
+            } else {
+              setPicture(null);
+            }
+          }}
+        >
+          <PictureGlyph />
+          <span className="visually-hidden">
+            {picture === null ? "Picture of this run" : "Back to the run"}
+          </span>
+        </button>
+
         <h2 className="overview__title" id={titleId}>
-          Run Overview
+          {picture === null ? "Run Overview" : "Picture of this run"}
         </h2>
 
-        <dl className="overview__stats">
-          <Stat label="Boons" value={String(run.held)} />
-          <Stat label="Gods met" value={String(run.gods)} />
-          <Stat label="Goals" value={run.goals === 0 ? "—" : `${run.goalsMet}/${run.goals}`} />
-        </dl>
+        {picture !== null ? (
+          <PicturePanel picture={picture} onBack={() => setPicture(null)} />
+        ) : (
+          <>
+          <dl className="overview__stats">
+            <Stat label="Boons" value={String(run.held)} />
+            <Stat label="Gods met" value={String(run.gods)} />
+            <Stat label="Goals" value={run.goals === 0 ? "—" : `${run.goalsMet}/${run.goals}`} />
+          </dl>
 
-        {run.weapon === null ? null : (
-          <section className="overview__kit">
-            <h3>Weapon</h3>
-            <p className="overview__weapon">
-              <WeaponArt game={game} weapon={run.weapon.weapon} className="overview__wpnart" />
-              <span>{run.weapon.name}</span>
-            </p>
-            {run.weapon.form === null ? null : (
-              <>
-                <ul className="overview__boons" onMouseLeave={() => setHovered(null)}>
-                  <li>
-                    <Tile
-                      boon={run.weapon.form}
-                      spot={spotOf(KIT, run.weapon.form.view.trait)}
-                      showing={showing}
-                      opened={opened}
-                      onToggle={toggle}
-                      onHover={setHovered}
-                    />
+          {run.weapon === null ? null : (
+            <section className="overview__kit">
+              <h3>Weapon</h3>
+              <p className="overview__weapon">
+                <WeaponArt game={game} weapon={run.weapon.weapon} className="overview__wpnart" />
+                <span>{run.weapon.name}</span>
+              </p>
+              {run.weapon.form === null ? null : (
+                <>
+                  <ul className="overview__boons" onMouseLeave={() => setHovered(null)}>
+                    <li>
+                      <Tile
+                        boon={run.weapon.form}
+                        spot={spotOf(KIT, run.weapon.form.view.trait)}
+                        showing={showing}
+                        opened={opened}
+                        onToggle={toggle}
+                        onHover={setHovered}
+                      />
+                    </li>
+                  </ul>
+                  {spotOf(KIT, run.weapon.form.view.trait) !== showing ? null : (
+                    <Detail boon={run.weapon.form} />
+                  )}
+                </>
+              )}
+            </section>
+          )}
+
+          {run.elements.length === 0 ? null : (
+            <section className="overview__elements">
+              <h3>Elements</h3>
+              {/* The symbol and the number. Five marks and five counts say it
+                  already, so the word is carried for a reader who gets no symbol
+                  rather than drawn beside one. */}
+              <ul>
+                {run.elements.map(({ element, count }) => (
+                  <li key={element}>
+                    <ElementArt game={game} element={element} className="overview__elmart" />
+                    <span aria-hidden="true">{count}</span>
+                    <span className="visually-hidden">
+                      {element}: {count}
+                    </span>
                   </li>
-                </ul>
-                {spotOf(KIT, run.weapon.form.view.trait) !== showing ? null : (
-                  <Detail boon={run.weapon.form} />
-                )}
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {run.groups.length === 0 ? (
+            /* A run with pins and no boons is a real run: ending one is allowed
+               precisely because somebody put the pins there. So it reads as
+               itself rather than as a page with a section missing. */
+            <p className="overview__nothing">This run held no boons.</p>
+          ) : (
+            run.groups.map((group) => (
+              <Group
+                key={group.key}
+                group={group}
+                showing={showing}
+                opened={opened}
+                onToggle={toggle}
+                onHover={setHovered}
+              />
+            ))
+          )}
+
+          {/* Neither hides anything behind it. There is no *start a new run*
+              here: it only ever put the save screen up, which is what the control
+              beside it does, so two buttons carried one behaviour. Starting a run
+              is a thing you choose at the door, among the slots. */}
+          <div className="overview__actions" data-picture="">
+            {dropping ? (
+              <>
+                <button
+                  type="button"
+                  className="overview__drop overview__drop--armed"
+                  onClick={onDelete}
+                >
+                  Delete this run permanently
+                </button>
+                <button
+                  type="button"
+                  className="overview__slots"
+                  onClick={() => setDropping(false)}
+                >
+                  Never mind
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="button" className="overview__close" onClick={onResume}>
+                  Resume this run
+                </button>
+                <button
+                  type="button"
+                  className="overview__drop"
+                  onClick={() => setDropping(true)}
+                >
+                  Delete this run
+                </button>
+                <button type="button" className="overview__slots" onClick={onSaveSlots}>
+                  Back to save slots
+                </button>
               </>
             )}
-          </section>
+          </div>
+          </>
         )}
 
-        {run.elements.length === 0 ? null : (
-          <section className="overview__elements">
-            <h3>Elements</h3>
-            {/* The symbol and the number. Five marks and five counts say it
-                already, so the word is carried for a reader who gets no symbol
-                rather than drawn beside one. */}
-            <ul>
-              {run.elements.map(({ element, count }) => (
-                <li key={element}>
-                  <ElementArt game={game} element={element} className="overview__elmart" />
-                  <span aria-hidden="true">{count}</span>
-                  <span className="visually-hidden">
-                    {element}: {count}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {run.groups.length === 0 ? (
-          /* A run with pins and no boons is a real run: ending one is allowed
-             precisely because somebody put the pins there. So it reads as
-             itself rather than as a page with a section missing. */
-          <p className="overview__nothing">This run held no boons.</p>
-        ) : (
-          run.groups.map((group) => (
-            <Group
-              key={group.key}
-              group={group}
-              showing={showing}
-              opened={opened}
-              onToggle={toggle}
-              onHover={setHovered}
-            />
-          ))
-        )}
-
-        {/* Neither hides anything behind it. There is no *start a new run*
-            here: it only ever put the save screen up, which is what the control
-            beside it does, so two buttons carried one behaviour. Starting a run
-            is a thing you choose at the door, among the slots. */}
-        <div className="overview__actions">
-          {dropping ? (
-            <>
-              <button
-                type="button"
-                className="overview__drop overview__drop--armed"
-                onClick={onDelete}
-              >
-                Delete this run permanently
-              </button>
-              <button
-                type="button"
-                className="overview__slots"
-                onClick={() => setDropping(false)}
-              >
-                Never mind
-              </button>
-            </>
-          ) : (
-            <>
-              <button type="button" className="overview__close" onClick={onResume}>
-                Resume this run
-              </button>
-              <button
-                type="button"
-                className="overview__drop"
-                onClick={() => setDropping(true)}
-              >
-                Delete this run
-              </button>
-              <button type="button" className="overview__slots" onClick={onSaveSlots}>
-                Back to save slots
-              </button>
-            </>
-          )}
-        </div>
+        {/* Said rather than swallowed: the picture is drawn in the browser and
+            a browser that cannot draw one leaves the control looking broken. */}
+        {refused ? (
+          <p className="picture__missing" data-picture="">
+            This browser could not draw the picture.
+          </p>
+        ) : null}
 
         {/* The one place this product's disclaimer leaves the site, an exported
             screenshot carrying whatever the view drew. One constant, so it
