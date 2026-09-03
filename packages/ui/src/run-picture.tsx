@@ -179,6 +179,22 @@ export function pictureScale(width: number, height: number): number {
 }
 
 /**
+ * Where the clone is measured: off-screen, and **inert**, not merely hidden.
+ *
+ * `aria-hidden` does not take anything out of the tab order, and the clone is a
+ * second copy of every tile the view draws — so without this a keyboard lands
+ * in a copy of the run that is about to be deleted.
+ */
+export function pictureStage(page: HTMLElement, width: number): HTMLElement {
+  const stage = document.createElement("div");
+  stage.setAttribute("aria-hidden", "true");
+  stage.inert = true;
+  stage.style.cssText = `position:absolute;left:-10000px;top:0;width:${width}px`;
+  stage.appendChild(page);
+  return stage;
+}
+
+/**
  * Draws the view and hands back the picture.
  *
  * The clone is mounted off-screen to be measured, and that is the only way to
@@ -190,10 +206,7 @@ export async function takePicture(view: HTMLElement): Promise<RunPicture> {
   const clone = pictureClone(view);
   const page = pictureFrame(clone, width);
 
-  const stage = document.createElement("div");
-  stage.setAttribute("aria-hidden", "true");
-  stage.style.cssText = `position:absolute;left:-10000px;top:0;width:${width}px`;
-  stage.appendChild(page);
+  const stage = pictureStage(page, width);
   document.body.appendChild(stage);
 
   try {

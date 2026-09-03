@@ -2757,6 +2757,9 @@ kbd {
  */
 .overview__title {
   margin: 0 0 1.2rem;
+  /* Room for the corner control at both ends, so the title stays centred on the
+     view rather than on what is left of it. */
+  padding: 0 2.6rem;
   font-family: var(--face-display, inherit);
   font-size: 1.15rem;
   letter-spacing: 0.22em;
@@ -3060,7 +3063,7 @@ kbd {
 
 /* Drawing one takes a moment on a long run, and a control that looks pressable
    through it invites the second press that starts the work again. */
-.overview__picture[disabled] {
+.overview__picture[aria-disabled="true"] {
   cursor: progress;
   opacity: 0.35;
 }

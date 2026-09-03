@@ -119,6 +119,10 @@ export function RunOverview({ run, onResume, onDelete, onSaveSlots }: RunOvervie
    * and a reading aid is not part of what the run looked like.
    */
   useEffect(() => {
+    // A second press while one is being drawn does nothing, and this is what
+    // makes it nothing: `taking` is already true, so the effect does not run
+    // again. A guard in the handler was written first and no mutation could
+    // tell it apart from this.
     if (!taking) return;
     const view = ref.current;
     if (view === null) return;
@@ -148,7 +152,10 @@ export function RunOverview({ run, onResume, onDelete, onSaveSlots }: RunOvervie
           type="button"
           className="overview__picture"
           data-picture=""
-          disabled={taking}
+          /* Refused rather than disabled: `disabled` drops the keyboard user
+             to the body the moment the control they just pressed goes inert,
+             and there is nothing on this view to hand them on to. */
+          aria-disabled={taking}
           title={picture === null ? "Picture of this run" : "Back to the run"}
           onClick={() => {
             setRefused(false);

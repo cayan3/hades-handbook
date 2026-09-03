@@ -22,6 +22,7 @@ import {
   pictureFrame,
   pictureHeight,
   pictureScale,
+  pictureStage,
   pictureStyles,
   pictureSvg,
   sourceUrls,
@@ -292,6 +293,25 @@ describe("what the picture embeds", () => {
   });
 });
 
+describe("the clone while it is being measured", () => {
+  /**
+   * `aria-hidden` leaves everything in the tab order, and the clone is a second
+   * copy of every tile the view draws — a keyboard would otherwise land in a
+   * run that is about to be removed from the document.
+   */
+  it("is inert while it sits in the page", () => {
+    const stage = pictureStage(pictureFrame(pictureClone(overview()), 800), 800);
+    expect(stage.inert).toBe(true);
+    expect(stage.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("is off-screen at the width it is measured for", () => {
+    const stage = pictureStage(document.createElement("div"), 800);
+    expect(stage.style.width).toBe("800px");
+    expect(stage.style.left).toBe("-10000px");
+  });
+});
+
 describe("the picture as one document", () => {
   it("is the size it was measured at", () => {
     const svg = pictureSvg("<div/>", "a{color:red}", 896, 2480);
@@ -379,6 +399,36 @@ describe("taking one from the view", () => {
       "could not draw the picture",
     );
     expect(container.querySelector(".picture__image")).toBeNull();
+  });
+
+  /**
+   * Two things at once, both about the press that is already working. The
+   * control says so without going `disabled`, which would drop the keyboard
+   * user to the body; and a second press starts nothing, the effect that draws
+   * the picture already depending on the flag that press would set again.
+   */
+  it("refuses a second press without taking the focus away", async () => {
+    let settle = (_: unknown) => {};
+    taken.mockReturnValue(new Promise((resolve) => (settle = resolve)));
+    overview();
+
+    const control = container.querySelector<HTMLElement>(".overview__picture")!;
+    control.focus();
+    await press("Picture of this run");
+    expect(control.getAttribute("aria-disabled")).toBe("true");
+    expect(document.activeElement).toBe(control);
+
+    await act(async () => control.click());
+    expect(taken).toHaveBeenCalledTimes(1);
+
+    // Any render while one is being drawn, not only another press: without the
+    // flag in the effect's dependencies this starts a second capture, drops the
+    // first on the floor and reads a view somebody has since clicked in.
+    await act(async () => container.querySelector<HTMLElement>(".overview__tile")?.click());
+    expect(taken).toHaveBeenCalledTimes(1);
+
+    await act(async () => settle(picture()));
+    expect(container.querySelector(".picture__image")).not.toBeNull();
   });
 
   it("says how many icons the picture is short of", async () => {
