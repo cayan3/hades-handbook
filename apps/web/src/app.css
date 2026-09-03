@@ -741,9 +741,13 @@ h1,
   /*
    * The tabs start where the boons do rather than where the page does. Same
    * track sizes as the body above, so the two stay aligned by construction
-   * instead of by a number somebody has to keep in step — the first column is
-   * the Loadout's, and what belongs over it is the equipped kit rather than a
-   * god, so it is left empty until there is something to put there.
+   * instead of by a number somebody has to keep in step.
+   *
+   * The first track is the Loadout's column and is deliberately empty: the
+   * alignment is what it is for. It once said the equipped kit belonged there,
+   * which stopped being true when the kit was built below the tray instead.
+   * Whatever takes it must survive not existing under 48rem, and must be no
+   * deeper than a row of tabs or it pushes the whole body down.
    */
   .app__gods {
     display: grid;

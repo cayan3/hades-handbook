@@ -71,7 +71,7 @@ export interface LoadoutProps {
    * deliberately knows about neither.
    */
   readonly coreSlots?: readonly SlotId[];
-  /** The equipped kit, which is not the Loadout and is shown beside it. */
+  /** The equipped kit, which is not the Loadout and is drawn under its tray. */
   readonly equipped?: readonly {
     readonly label: string;
     readonly value: string;

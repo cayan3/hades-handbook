@@ -1253,7 +1253,7 @@ function Notices({
   );
 }
 
-/** The equipped kit, which is not the Loadout and sits beside it. */
+/** The equipped kit, which is not the Loadout and is drawn under it. */
 function equippedItems(
   facts: RunFacts,
   game: GameId,
