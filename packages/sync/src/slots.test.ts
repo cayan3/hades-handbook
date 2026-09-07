@@ -88,6 +88,22 @@ describe("moving the two old records into slots", () => {
     expect(await store.openSlot("hades2")).toBe(1);
   });
 
+  /**
+   * The pointer says whether this has run, and a slot holding a run says the
+   * same thing more locally. Both are checked, because the pointer alone leaves
+   * one order — a slot written before the pointer was — in which this pass
+   * writes an old record over a newer run.
+   */
+  it("leaves a slot that already holds a run alone", async () => {
+    const store = createMemoryStore();
+    await store.save("hades2", 1, runHolding("ZeusAttack"));
+    await store.save("hades2", "active", runHolding("HeraAttack"));
+
+    await adoptLegacySlots(store, "hades2");
+
+    expect(heldIn(await store.load("hades2", 1))).toEqual(["ZeusAttack"]);
+  });
+
   it("writes no pointer where there was nothing to move", async () => {
     const store = createMemoryStore();
 
@@ -217,5 +233,51 @@ describe("whether a run holds anything", () => {
     const corrected = empty();
     corrected.facts.slots.set("Melee", null);
     expect(holdsSomething(corrected)).toBe(false);
+  });
+
+  /**
+   * An empty talent map is an answer: the Mirror was asked and nothing was
+   * selected, which is why the codec keeps it apart from an absent one. Read as
+   * nothing, a run carrying only that answer would be written over by the next
+   * fresh run.
+   */
+  it("says yes to a talent map that was answered with nothing", () => {
+    const answered = empty();
+    answered.facts.equipped = { talents: new Map() };
+    expect(holdsSomething(answered)).toBe(true);
+  });
+
+  /**
+   * Field by field, so a field added later turns up here with no case and this
+   * goes red. The predicate is a hand-written list, and the way it fails is a
+   * slot reading free that is not — a run written over with nothing to say it
+   * happened. Three fields are deliberately not read and are named as such.
+   */
+  it("reads every field of a run except the three it means to skip", () => {
+    const populate: Record<string, (run: RunState) => void> = {
+      held: (run) => run.facts.held.set("HeraAttack", { rarity: "Common", level: 1 }),
+      godPool: (run) => run.facts.godPool.add("Hera"),
+      resources: (run) => run.facts.resources.set("Darkness", 100),
+      bans: (run) => run.facts.bans.add("HeraAttack"),
+      equipped: (run) => {
+        run.facts.equipped = { weapon: "WeaponTorch" };
+      },
+      pins: (run) => run.intent.pins.add("HeraAttack"),
+      planned: (run) => run.intent.planned.add("HeraAttack"),
+      notes: (run) => run.intent.notes.set("HeraAttack", "for the duo"),
+    };
+    /* `game` and `dataVersion` are not things a player put there; `elements` is
+       derived from `held`; `slots` is skipped for the reason above. */
+    const skipped = ["game", "dataVersion", "elements", "slots"];
+
+    const fields = [...Object.keys(empty().facts), ...Object.keys(empty().intent)];
+    expect(fields.filter((field) => !skipped.includes(field)).sort()).toEqual(
+      Object.keys(populate).sort(),
+    );
+    for (const [field, put] of Object.entries(populate)) {
+      const run = empty();
+      put(run);
+      expect(holdsSomething(run), `${field} should make a slot taken`).toBe(true);
+    }
   });
 });

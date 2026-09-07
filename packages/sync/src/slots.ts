@@ -10,6 +10,12 @@ import type { RunStore, SaveSlot } from "./store.js";
  *
  * `slots` is not read. A boon taken and then corrected leaves the position
  * behind with nothing in it, which is a run holding nothing.
+ *
+ * The talent map is read for being *there* rather than for having entries: an
+ * empty one means the Mirror was asked and nothing was chosen, which the codec
+ * keeps apart from an absent one and which a player put there like anything
+ * else. It is checked field by field in the test beside this, so a field added
+ * to a run later cannot quietly leave a slot reading free.
  */
 export function holdsSomething(state: RunState): boolean {
   const { facts, intent } = state;
@@ -22,7 +28,7 @@ export function holdsSomething(state: RunState): boolean {
     weapon !== undefined ||
     aspect !== undefined ||
     keepsake !== undefined ||
-    (talents !== undefined && talents.size > 0) ||
+    talents !== undefined ||
     intent.pins.size > 0 ||
     intent.planned.size > 0 ||
     intent.notes.size > 0
@@ -30,11 +36,11 @@ export function holdsSomething(state: RunState): boolean {
 }
 
 /**
- * What one slot holds, asked of all four so the save screen can draw them.
+ * What one slot holds, asked of all three so the save screen can draw them.
  *
- * A record that will not decode is reported in its own slot rather than
- * thrown: with one filed run a throw cost the caller a summary, and with four
- * it would cost them the whole door.
+ * A record that cannot be read is reported in its own slot rather than thrown:
+ * with one filed run a throw cost the caller a summary, and with three it would
+ * cost them the whole door.
  */
 export type SlotContents =
   | { readonly kind: "empty" }
@@ -63,8 +69,12 @@ export async function adoptLegacySlots(store: RunStore, game: GameId): Promise<v
   const [active, last] = await Promise.all([store.load(game, "active"), store.load(game, "last")]);
   if (active === null && last === null) return;
 
-  if (active !== null) await store.save(game, 1, active);
-  if (last !== null) await store.save(game, 2, last);
+  // A slot with a run already in it is left alone. The pointer is the record of
+  // this having run, but it is written last, so a slot written before it went
+  // down is a run this pass would otherwise put an older copy over.
+  const free = async (slot: SaveSlot) => (await store.load(game, slot)) === null;
+  if (active !== null && (await free(1))) await store.save(game, 1, active);
+  if (last !== null && (await free(2))) await store.save(game, 2, last);
   // Slot 1 whether or not there was an active record: the run in progress was
   // that one, and an absent record there is the empty run it already was.
   await store.setOpenSlot(game, 1);
