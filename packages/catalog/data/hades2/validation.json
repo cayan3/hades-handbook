@@ -633,6 +633,8 @@
  ],
  "descriptionRefsWithNoProseCount": 33,
  "descriptionsCarryingMarkup": [],
+ "descriptionsWithMalformedValues": [],
+ "descriptionsWithValues": 320,
  "duoBoonCount": 37,
  "duoBoons": [
   "AllCloseBoon",

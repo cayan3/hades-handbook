@@ -1,6 +1,20 @@
 {
- "AchillesPatroclusAssistTrait": "Your Summon deals ? damage to 2 foes one after another.",
- "AmmoBoltTrait": "Your collectible Bloodstone strike nearby foes with lightning every ? Sec.",
+ "AchillesPatroclusAssistTrait": {
+  "text": "Your Summon deals {0} damage to 2 foes one after another.",
+  "values": {
+   "default": [
+    "1500"
+   ]
+  }
+ },
+ "AmmoBoltTrait": {
+  "text": "Your collectible Bloodstone strike nearby foes with lightning every {0} Sec.",
+  "values": {
+   "default": [
+    "1"
+   ]
+  }
+ },
  "AmmoReclaimTrait": "Foes drop Bloodstone stuck in them faster.",
  "AmmoReloadTrait": "You regenerate Bloodstone faster.",
  "AphroditeDeathTrait": "When foes are slain, they damage nearby foes and inflict Weak.",
@@ -19,23 +33,72 @@
  "AresDragTrait": "Your Blade Rift effects last longer and pull foes in.",
  "AresHomingTrait": "Your Cast creates a faster Blade Rift that seeks the nearest foe.",
  "AresLoadCurseTrait": "Your Doom effects deal more damage when applied multiple times.",
- "AresLongCurseTrait": "Your Doom effects deal more damage, but take +? Sec. to activate.",
+ "AresLongCurseTrait": {
+  "text": "Your Doom effects deal more damage, but take +{0} Sec. to activate.",
+  "values": {
+   "default": [
+    "0.5"
+   ]
+  }
+ },
  "AresRangedTrait": "Your Cast sends a Blade Rift hurtling ahead.",
  "AresRetaliateTrait": "After you take damage, inflict Doom on foes around you.",
  "AresRushTrait": "Your Dash creates a Blade Rift where you started.",
  "AresSecondaryTrait": "Your Special inflicts Doom.",
- "AresShoutTrait": "Your Call turns you into an Impervious Blade Rift for ? Sec.",
+ "AresShoutTrait": {
+  "text": "Your Call turns you into an Impervious Blade Rift for {0} Sec.",
+  "values": {
+   "default": [
+    "1.2"
+   ]
+  }
+ },
  "AresWeaponTrait": "Your Attack inflicts Doom.",
  "ArtemisAmmoExitTrait": "Your foes take damage when your Bloodstone stuck in them is dislodged.",
  "ArtemisBonusProjectileTrait": "Your Cast fires a second projectile, which deals reduced base damage.",
  "ArtemisCriticalTrait": "Your Critical effects deal even more damage.",
- "ArtemisRangedTrait": "Your Cast seeks foes, with ? chance to deal Critical damage.",
- "ArtemisReflectBuffTrait": "After you Deflect, briefly gain ? chance to deal Critical damage.",
+ "ArtemisRangedTrait": {
+  "text": "Your Cast seeks foes, with {0} chance to deal Critical damage.",
+  "values": {
+   "default": [
+    "10%"
+   ]
+  }
+ },
+ "ArtemisReflectBuffTrait": {
+  "text": "After you Deflect, briefly gain {0} chance to deal Critical damage.",
+  "values": {
+   "default": [
+    "20%"
+   ]
+  }
+ },
  "ArtemisRushTrait": "Your Dash-Strike deals more damage.",
- "ArtemisSecondaryTrait": "Your Special is stronger, with ? chance to deal Critical damage.",
- "ArtemisShoutTrait": "Your Call fires a seeking arrow with ? Critical chance.",
+ "ArtemisSecondaryTrait": {
+  "text": "Your Special is stronger, with {0} chance to deal Critical damage.",
+  "values": {
+   "default": [
+    "20%"
+   ]
+  }
+ },
+ "ArtemisShoutTrait": {
+  "text": "Your Call fires a seeking arrow with {0} Critical chance.",
+  "values": {
+   "default": [
+    "35%"
+   ]
+  }
+ },
  "ArtemisSupportingFireTrait": "After you Cast, or hit with an Attack or Special, fire a seeking arrow.",
- "ArtemisWeaponTrait": "Your Attack is stronger, with ? chance to deal Critical damage.",
+ "ArtemisWeaponTrait": {
+  "text": "Your Attack is stronger, with {0} chance to deal Critical damage.",
+  "values": {
+   "default": [
+    "15%"
+   ]
+  }
+ },
  "AthenaBackstabDebuffTrait": "Your abilities that can Deflect also make foes Exposed.",
  "AthenaRangedTrait": "Your Cast damages foes in a small area, and can Deflect.",
  "AthenaRetaliateTrait": "After you take damage, damage foes around you and briefly Deflect.",
@@ -59,161 +122,880 @@
  "BowBaseUpgradeTrait": "The form in which the heart-seeking bow first revealed itself.",
  "BowBondBoostTrait": "Your Celestial Sharanga Attack creates a Blast Wave around you.",
  "BowBondTrait": "You have Celestial Sharanga, which can cause Shared Suffering.",
- "BowChainShotTrait": "Your Attack hits up to ? foes, dealing ? base damage for each.",
- "BowCloseAttackTrait": "Your Attack deals ? damage to nearby foes.",
- "BowConsecutiveBarrageTrait": "Your Special deals +? base damage for each consecutive hit to a foe.",
- "BowDashFanTrait": "Your Dash-Strike fires ? shots for ? damage in a short-range spread.",
+ "BowChainShotTrait": {
+  "text": "Your Attack hits up to {0} foes, dealing {1} base damage for each.",
+  "values": {
+   "default": [
+    "3",
+    "15%"
+   ]
+  }
+ },
+ "BowCloseAttackTrait": {
+  "text": "Your Attack deals {0} damage to nearby foes.",
+  "values": {
+   "default": [
+    "150%"
+   ]
+  }
+ },
+ "BowConsecutiveBarrageTrait": {
+  "text": "Your Special deals +{0} base damage for each consecutive hit to a foe.",
+  "values": {
+   "default": [
+    "3"
+   ]
+  }
+ },
+ "BowDashFanTrait": {
+  "text": "Your Dash-Strike fires {0} shots for {1} damage in a short-range spread.",
+  "values": {
+   "default": [
+    "9",
+    "15"
+   ]
+  }
+ },
  "BowDoubleShotTrait": "Your Attack fires 2 shots side-by-side, but has reduced range.",
  "BowLoadAmmoTrait": "Your Cast loads Bloodstone into your next Attack, firing on impact.",
- "BowLongRangeDamageTrait": "Your Attack deals ? damage to distant foes.",
+ "BowLongRangeDamageTrait": {
+  "text": "Your Attack deals {0} damage to distant foes.",
+  "values": {
+   "default": [
+    "200%"
+   ]
+  }
+ },
  "BowMarkHomingTrait": "Your Special automatically seeks the foe last struck by your Attack.",
- "BowPenetrationTrait": "Your Special pierces foes and deals ? damage to Armor.",
- "BowPowerShotTrait": "Your Power Shot is easier to execute and deals ? damage.",
- "BowRandomExplosionTrait": "Holding Attack creates miniblasts nearby that deal ? damage.",
- "BowSecondaryBarrageTrait": "Your Special fires +? shots.",
- "BowSecondaryFocusedFireTrait": "Hold Special for up to ? base damage; minimum range reduced.",
- "BowSlowChargeDamageTrait": "Your Attack deals ? damage in an area, but charges up slower.",
+ "BowPenetrationTrait": {
+  "text": "Your Special pierces foes and deals {0} damage to Armor.",
+  "values": {
+   "default": [
+    "400%"
+   ]
+  }
+ },
+ "BowPowerShotTrait": {
+  "text": "Your Power Shot is easier to execute and deals {0} damage.",
+  "values": {
+   "default": [
+    "150%"
+   ]
+  }
+ },
+ "BowRandomExplosionTrait": {
+  "text": "Holding Attack creates miniblasts nearby that deal {0} damage.",
+  "values": {
+   "default": [
+    "30"
+   ]
+  }
+ },
+ "BowSecondaryBarrageTrait": {
+  "text": "Your Special fires +{0} shots.",
+  "values": {
+   "default": [
+    "4"
+   ]
+  }
+ },
+ "BowSecondaryFocusedFireTrait": {
+  "text": "Hold Special for up to {0} base damage; minimum range reduced.",
+  "values": {
+   "default": [
+    "250%"
+   ]
+  }
+ },
+ "BowSlowChargeDamageTrait": {
+  "text": "Your Attack deals {0} damage in an area, but charges up slower.",
+  "values": {
+   "default": [
+    "300%"
+   ]
+  }
+ },
  "BowTapFireTrait": "Hold Attack to shoot rapidly, but you cannot Power Shot.",
- "BowTransitionTapFireTrait": "After your Attack, press Attack for a shot that deals ? damage.",
+ "BowTransitionTapFireTrait": {
+  "text": "After your Attack, press Attack for a shot that deals {0} damage.",
+  "values": {
+   "default": [
+    "50"
+   ]
+  }
+ },
  "BowTripleShotTrait": "Your Attack fires 3 shots in a spread pattern.",
- "BowWideShotTrait": "Your Attack hits a ? wider area.",
+ "BowWideShotTrait": {
+  "text": "Your Attack hits a {0} wider area.",
+  "values": {
+   "default": [
+    "200%"
+   ]
+  }
+ },
  "CastBackstabTrait": "Your Cast gains any bonuses you have for striking foes from behind.",
  "CastNovaTrait": "Whenever you Cast, damage foes around you and inflict Chill.",
  "ChamberGoldTrait": "Each time you enter a Chamber, gain a bit of wealth.",
- "ChaosBlessingAlphaStrikeTrait": "Afterward, you deal ? damage striking undamaged foes.",
- "ChaosBlessingAmmoTrait": "Afterward, gain +? Bloodstone.",
- "ChaosBlessingBackstabTrait": "Afterward, you deal ? damage striking foes from behind.",
- "ChaosBlessingBoonRarityTrait": "Afterward, Boons have ? chance to be Rare or better.",
- "ChaosBlessingDashAttackTrait": "Afterward, your Dash-Strike deals ? damage.",
+ "ChaosBlessingAlphaStrikeTrait": {
+  "text": "Afterward, you deal {0} damage striking undamaged foes.",
+  "values": {
+   "Epic": [
+    "60-100%"
+   ],
+   "Rare": [
+    "45-75%"
+   ],
+   "default": [
+    "30-50%"
+   ]
+  }
+ },
+ "ChaosBlessingAmmoTrait": {
+  "text": "Afterward, gain +{0} Bloodstone.",
+  "values": {
+   "default": [
+    "1"
+   ]
+  }
+ },
+ "ChaosBlessingBackstabTrait": {
+  "text": "Afterward, you deal {0} damage striking foes from behind.",
+  "values": {
+   "Epic": [
+    "120-160%"
+   ],
+   "Rare": [
+    "90-120%"
+   ],
+   "default": [
+    "60-80%"
+   ]
+  }
+ },
+ "ChaosBlessingBoonRarityTrait": {
+  "text": "Afterward, Boons have {0} chance to be Rare or better.",
+  "values": {
+   "Epic": [
+    "22-40%"
+   ],
+   "Rare": [
+    "17-30%"
+   ],
+   "default": [
+    "11-20%"
+   ]
+  }
+ },
+ "ChaosBlessingDashAttackTrait": {
+  "text": "Afterward, your Dash-Strike deals {0} damage.",
+  "values": {
+   "Epic": [
+    "80-120%"
+   ],
+   "Rare": [
+    "60-90%"
+   ],
+   "default": [
+    "40-60%"
+   ]
+  }
+ },
  "ChaosBlessingExtraChanceTrait": "Afterward, gain +1 use of Death Defiance (this escape attempt).",
- "ChaosBlessingGemTrait": "Afterward, any Gemstones you find are worth ?.",
- "ChaosBlessingHealTrait": "Afterward, restore ? Life.",
- "ChaosBlessingMaxHealthTrait": "Afterward, gain +? Max Life.",
- "ChaosBlessingMeleeTrait": "Afterward, your Attack deals ? damage.",
- "ChaosBlessingMetapointTrait": "Afterward, any Darkness and Gemstones you find are worth ?.",
- "ChaosBlessingMoneyTrait": "Afterward, any Charon's Obol you find is worth ?.",
- "ChaosBlessingRangedTrait": "Afterward, your Cast deals ? damage.",
- "ChaosBlessingSecondaryTrait": "Afterward, your Special deals ? damage.",
- "ChaosBlessingTrapDamageTrait": "Afterward, Traps deal ? damage to your foes.",
- "ChaosCurseAmmoUseDelayTrait": "For the next ? Encounter(s), you cannot collect Bloodstone for ? Sec.",
- "ChaosCurseCastAttackTrait": "For the next ? Encounter(s), each time you Cast, get hit for -? Life.",
- "ChaosCurseDamageTrait": "For the next ? Encounter(s), you take ? damage.",
- "ChaosCurseDashAttackTrait": "For the next ? Encounter(s), each time you Dash, get hit for -? Life.",
- "ChaosCurseDashRangeTrait": "For the next ? Encounter(s), your Dash has -?% range.",
- "ChaosCurseDeathWeaponTrait": "For the next ? Encounter(s), slain foes toss an Inferno-Bomb at you.",
- "ChaosCurseHealthTrait": "For the next ? Encounter(s), your Life Total is reduced by ? Max Life.",
- "ChaosCurseHiddenRoomReward": "For the next ? Chamber(s), chamber reward previews are hidden.",
- "ChaosCurseMoveSpeedTrait": "For the next ? Encounter(s), you have ?% move speed.",
- "ChaosCurseNoMoneyTrait": "For the next ? Encounter(s), you cannot earn Charon's Obol.",
- "ChaosCursePrimaryAttackTrait": "For the next ? Encounter(s), each time you Attack, get hit for -? Life.",
- "ChaosCurseSecondaryAttackTrait": "For the next ? Encounter(s), each time you Special, get hit for -? Life.",
- "ChaosCurseSpawnTrait": "For the next ? standard Encounter(s), you face ? more foes.",
- "ChaosCurseTrapDamageTrait": "For the next ? Encounter(s), you take ? damage from Traps.",
- "CharmTrait": "Your Weak effects also have a ? chance to Charm foes.",
- "CollisionTouchTrait": "Running into foes makes them ?% slower for ? Sec.",
+ "ChaosBlessingGemTrait": {
+  "text": "Afterward, any Gemstones you find are worth {0}.",
+  "values": {
+   "Epic": [
+    "100-150%"
+   ],
+   "Rare": [
+    "75-110%"
+   ],
+   "default": [
+    "50-75%"
+   ]
+  }
+ },
+ "ChaosBlessingHealTrait": {
+  "text": "Afterward, restore {0} Life.",
+  "values": {
+   "Epic": [
+    "60-120"
+   ],
+   "Rare": [
+    "45-90"
+   ],
+   "default": [
+    "30-60"
+   ]
+  }
+ },
+ "ChaosBlessingMaxHealthTrait": {
+  "text": "Afterward, gain +{0} Max Life.",
+  "values": {
+   "Epic": [
+    "60-80"
+   ],
+   "Rare": [
+    "45-60"
+   ],
+   "default": [
+    "30-40"
+   ]
+  }
+ },
+ "ChaosBlessingMeleeTrait": {
+  "text": "Afterward, your Attack deals {0} damage.",
+  "values": {
+   "Epic": [
+    "60-80%"
+   ],
+   "Rare": [
+    "45-60%"
+   ],
+   "default": [
+    "30-40%"
+   ]
+  }
+ },
+ "ChaosBlessingMetapointTrait": {
+  "text": "Afterward, any Darkness and Gemstones you find are worth {0}.",
+  "values": {
+   "Epic": [
+    "100-160%"
+   ],
+   "Rare": [
+    "75-120%"
+   ],
+   "default": [
+    "50-80%"
+   ]
+  }
+ },
+ "ChaosBlessingMoneyTrait": {
+  "text": "Afterward, any Charon's Obol you find is worth {0}.",
+  "values": {
+   "Epic": [
+    "60-100%"
+   ],
+   "Rare": [
+    "45-75%"
+   ],
+   "default": [
+    "30-50%"
+   ]
+  }
+ },
+ "ChaosBlessingRangedTrait": {
+  "text": "Afterward, your Cast deals {0} damage.",
+  "values": {
+   "Epic": [
+    "60-80%"
+   ],
+   "Rare": [
+    "45-60%"
+   ],
+   "default": [
+    "30-40%"
+   ]
+  }
+ },
+ "ChaosBlessingSecondaryTrait": {
+  "text": "Afterward, your Special deals {0} damage.",
+  "values": {
+   "Epic": [
+    "60-120%"
+   ],
+   "Rare": [
+    "45-90%"
+   ],
+   "default": [
+    "30-60%"
+   ]
+  }
+ },
+ "ChaosBlessingTrapDamageTrait": {
+  "text": "Afterward, Traps deal {0} damage to your foes.",
+  "values": {
+   "Epic": [
+    "600%"
+   ],
+   "Rare": [
+    "450%"
+   ],
+   "default": [
+    "300%"
+   ]
+  }
+ },
+ "ChaosCurseAmmoUseDelayTrait": {
+  "text": "For the next {0} Encounter(s), you cannot collect Bloodstone for {1} Sec.",
+  "values": {
+   "default": [
+    "3-4",
+    "10-15"
+   ]
+  }
+ },
+ "ChaosCurseCastAttackTrait": {
+  "text": "For the next {0} Encounter(s), each time you Cast, get hit for -{1} Life.",
+  "values": {
+   "default": [
+    "3-4",
+    "3-5"
+   ]
+  }
+ },
+ "ChaosCurseDamageTrait": {
+  "text": "For the next {0} Encounter(s), you take {1} damage.",
+  "values": {
+   "default": [
+    "3-4",
+    "20-50%"
+   ]
+  }
+ },
+ "ChaosCurseDashAttackTrait": {
+  "text": "For the next {0} Encounter(s), each time you Dash, get hit for -{1} Life.",
+  "values": {
+   "default": [
+    "3-4",
+    "2-3"
+   ]
+  }
+ },
+ "ChaosCurseDashRangeTrait": {
+  "text": "For the next {0} Encounter(s), your Dash has -{1}% range.",
+  "values": {
+   "default": [
+    "3-4",
+    "20-50"
+   ]
+  }
+ },
+ "ChaosCurseDeathWeaponTrait": {
+  "text": "For the next {0} Encounter(s), slain foes toss an Inferno-Bomb at you.",
+  "values": {
+   "default": [
+    "3-4"
+   ]
+  }
+ },
+ "ChaosCurseHealthTrait": {
+  "text": "For the next {0} Encounter(s), your Life Total is reduced by {1} Max Life.",
+  "values": {
+   "default": [
+    "3-4",
+    "-49--25"
+   ]
+  }
+ },
+ "ChaosCurseHiddenRoomReward": {
+  "text": "For the next {0} Chamber(s), chamber reward previews are hidden.",
+  "values": {
+   "default": [
+    "4-5"
+   ]
+  }
+ },
+ "ChaosCurseMoveSpeedTrait": {
+  "text": "For the next {0} Encounter(s), you have {1}% move speed.",
+  "values": {
+   "default": [
+    "3-4",
+    "-60--40"
+   ]
+  }
+ },
+ "ChaosCurseNoMoneyTrait": {
+  "text": "For the next {0} Encounter(s), you cannot earn Charon's Obol.",
+  "values": {
+   "default": [
+    "3-4"
+   ]
+  }
+ },
+ "ChaosCursePrimaryAttackTrait": {
+  "text": "For the next {0} Encounter(s), each time you Attack, get hit for -{1} Life.",
+  "values": {
+   "default": [
+    "3-4",
+    "3-5"
+   ]
+  }
+ },
+ "ChaosCurseSecondaryAttackTrait": {
+  "text": "For the next {0} Encounter(s), each time you Special, get hit for -{1} Life.",
+  "values": {
+   "default": [
+    "3-4",
+    "3-5"
+   ]
+  }
+ },
+ "ChaosCurseSpawnTrait": {
+  "text": "For the next {0} standard Encounter(s), you face {1} more foes.",
+  "values": {
+   "default": [
+    "3-4",
+    "30-80%"
+   ]
+  }
+ },
+ "ChaosCurseTrapDamageTrait": {
+  "text": "For the next {0} Encounter(s), you take {1} damage from Traps.",
+  "values": {
+   "default": [
+    "3-4",
+    "200-400%"
+   ]
+  }
+ },
+ "CharmTrait": {
+  "text": "Your Weak effects also have a {0} chance to Charm foes.",
+  "values": {
+   "default": [
+    "15%"
+   ]
+  }
+ },
+ "CollisionTouchTrait": {
+  "text": "Running into foes makes them {0}% slower for {1} Sec.",
+  "values": {
+   "Epic": [
+    "30",
+    "3"
+   ],
+   "Heroic": [
+    "35",
+    "3"
+   ],
+   "Rare": [
+    "25",
+    "3"
+   ],
+   "default": [
+    "20",
+    "3"
+   ]
+  }
+ },
  "CritBonusTrait": "Any damage you deal has a chance to be Critical.",
  "CritVulnerabilityTrait": "After you deal Critical damage to a foe, a foe near it is Marked.",
  "CriticalBufferMultiplierTrait": "Your Critical effects deal even more damage to Armor.",
  "CriticalSuperGenerationTrait": "Your God Gauge charges up faster when you deal Critical damage.",
  "CurseSickTrait": "Your Doom effects continuously strike Weak foes.",
- "DeathDefianceFreezeTimeTrait": "Stubborn Defiance makes time come almost to a halt for ? seconds.",
+ "DeathDefianceFreezeTimeTrait": {
+  "text": "Stubborn Defiance makes time come almost to a halt for {0} seconds.",
+  "values": {
+   "Epic": [
+    "9-10"
+   ],
+   "Heroic": [
+    "11.5-12.5"
+   ],
+   "Rare": [
+    "6.5-7.5"
+   ],
+   "default": [
+    "5"
+   ]
+  }
+ },
  "DefensiveSuperGenerationTrait": "Your God Gauge charges up faster when you take damage.",
  "DemeterRangedBonusTrait": "Your Cast fires longer and inflicts Chill.",
  "DemeterRangedTrait": "Your Cast drops a crystal that fires a beam at foes for ? Sec.",
  "DemeterRetaliateTrait": "After you take damage, damage and completely Chill your foe.",
  "DemeterRushTrait": "Your Dash shoots a gust ahead that inflicts Chill.",
  "DemeterSecondaryTrait": "Your Special is stronger and inflicts Chill.",
- "DemeterShoutTrait": "Your Call creates a winter vortex that grows over ? Sec., inflicting Chill.",
+ "DemeterShoutTrait": {
+  "text": "Your Call creates a winter vortex that grows over {0} Sec., inflicting Chill.",
+  "values": {
+   "default": [
+    "5"
+   ]
+  }
+ },
  "DemeterWeaponTrait": "Your Attack is stronger and inflicts Chill.",
  "DionysusAphroditeStackIncreaseTrait": "Your Hangover effects can stack more times against Weak foes.",
  "DionysusComboVulnerability": "Hangover-afflicted foes take bonus damage in Festive Fog.",
  "DionysusDefenseTrait": "You take less damage while standing in Festive Fog.",
  "DionysusNullifyProjectileTrait": "Your Festive Fog blocks most foes' ranged attacks, but is smaller.",
- "DionysusPoisonPowerTrait": "Deal more damage while ? or more foes are Hangover-afflicted.",
+ "DionysusPoisonPowerTrait": {
+  "text": "Deal more damage while {0} or more foes are Hangover-afflicted.",
+  "values": {
+   "default": [
+    "3"
+   ]
+  }
+ },
  "DionysusRangedTrait": "Your Cast lobs a large explosive that bursts into Festive Fog.",
  "DionysusRushTrait": "Your Dash causes Hangover several times near where you started.",
  "DionysusSecondaryTrait": "Your Special inflicts Hangover.",
- "DionysusShoutTrait": "Your Call inflicts Hangover on foes all around you for ? Sec.",
+ "DionysusShoutTrait": {
+  "text": "Your Call inflicts Hangover on foes all around you for {0} Sec.",
+  "values": {
+   "default": [
+    "1.5"
+   ]
+  }
+ },
  "DionysusSlowTrait": "Your Hangover effects also make foes move slower.",
- "DionysusSpreadTrait": "Hangover-afflicted foes inflict it on other foes near them every ? Sec.",
+ "DionysusSpreadTrait": {
+  "text": "Hangover-afflicted foes inflict it on other foes near them every {0} Sec.",
+  "values": {
+   "default": [
+    "4"
+   ]
+  }
+ },
  "DionysusWeaponTrait": "Your Attack inflicts Hangover.",
- "DiscountTrait": "All items can be purchased for -?% Charon's Obol (this escape attempt).",
+ "DiscountTrait": {
+  "text": "All items can be purchased for -{0}% Charon's Obol (this escape attempt).",
+  "values": {
+   "default": [
+    "20"
+   ]
+  }
+ },
  "DislodgeAmmoTrait": "Your Special dislodges Bloodstone from foes.",
  "DodgeChanceTrait": "Whenever you are hit, you have a chance to Dodge automatically.",
  "DoorHealTrait": "If your Life is low after Encounters, restore to the threshold.",
  "DoubleCollisionTrait": "Your Boons with knock-away effects shove foes multiple times.",
- "DusaAssistTrait": "Your Summon joins you for ? Sec., repeatedly firing shots that petrify foes and deal 70 damage.",
- "EncounterStartOffenseBuffTrait": "Your Attack and Special are stronger the first ? Sec. in Encounter(s).",
+ "DusaAssistTrait": {
+  "text": "Your Summon joins you for {0} Sec., repeatedly firing shots that petrify foes and deal 70 damage.",
+  "values": {
+   "default": [
+    "30"
+   ]
+  }
+ },
+ "EncounterStartOffenseBuffTrait": {
+  "text": "Your Attack and Special are stronger the first {0} Sec. in Encounter(s).",
+  "values": {
+   "default": [
+    "10"
+   ]
+  }
+ },
  "EnemyDamageTrait": "Resist damage from foes' attacks.",
  "FishingTrait": "You have a greater chance to find a Fishing Point in each Chamber.",
  "FistAttackDefenseTrait": "While using your Attack or Special, you are Sturdy.",
- "FistAttackFinisherTrait": "Your Dash-Strike deals +?% damage; added to Attack sequence.",
+ "FistAttackFinisherTrait": {
+  "text": "Your Dash-Strike deals +{0}% damage; added to Attack sequence.",
+  "values": {
+   "default": [
+    "60"
+   ]
+  }
+ },
  "FistBaseUpgradeTrait": "The form in which the twin fists first revealed themselves.",
  "FistChargeAttackTrait": "Hold Attack for a blow that can Power Strike for +50% damage.",
- "FistChargeSpecialTrait": "Hold Special for longer range and up to ? base damage.",
- "FistConsecutiveAttackTrait": "Your Attack deals +? base damage for each consecutive hit to a foe.",
- "FistDashAttackHealthBufferTrait": "Your Dash-Strike pierces foes and deals ? damage to Armor.",
- "FistDetonateBoostTrait": "Maim-afflicted foes take ? damage and move ?% slower.",
+ "FistChargeSpecialTrait": {
+  "text": "Hold Special for longer range and up to {0} base damage.",
+  "values": {
+   "default": [
+    "100%"
+   ]
+  }
+ },
+ "FistConsecutiveAttackTrait": {
+  "text": "Your Attack deals +{0} base damage for each consecutive hit to a foe.",
+  "values": {
+   "default": [
+    "5"
+   ]
+  }
+ },
+ "FistDashAttackHealthBufferTrait": {
+  "text": "Your Dash-Strike pierces foes and deals {0} damage to Armor.",
+  "values": {
+   "default": [
+    "900%"
+   ]
+  }
+ },
+ "FistDetonateBoostTrait": {
+  "text": "Maim-afflicted foes take {0} damage and move {1}% slower.",
+  "values": {
+   "default": [
+    "25%",
+    "30"
+   ]
+  }
+ },
  "FistDetonateTrait": "You have the Claws of Enkidu, whose Dash-Upper can Maim foes.",
- "FistDoubleDashSpecialTrait": "Your Dash-Upper deals ? damage in an area.",
- "FistHeavyAttackTrait": "Your Attack becomes a 3-hit sequence; each deals ? base damage.",
- "FistKillTrait": "Whenever your Special slays foes, restore ?% Healing.",
- "FistReachAttackTrait": "Your Attack has more range and deals ? damage.",
- "FistSpecialFireballTrait": "Your Special becomes a charged shot that deals ? base damage.",
- "FistSpecialLandTrait": "After using your Special, deal ? damage in an area where you land.",
- "FistTeleportSpecialTrait": "Your Special becomes a flying kick that deals ? base damage twice.",
- "FistVacuumTrait": "Your Special becomes Magnetic Cutter; its pull deals ? damage.",
+ "FistDoubleDashSpecialTrait": {
+  "text": "Your Dash-Upper deals {0} damage in an area.",
+  "values": {
+   "default": [
+    "100%"
+   ]
+  }
+ },
+ "FistHeavyAttackTrait": {
+  "text": "Your Attack becomes a 3-hit sequence; each deals {0} base damage.",
+  "values": {
+   "default": [
+    "40"
+   ]
+  }
+ },
+ "FistKillTrait": {
+  "text": "Whenever your Special slays foes, restore {0}% Healing.",
+  "values": {
+   "default": [
+    "2"
+   ]
+  }
+ },
+ "FistReachAttackTrait": {
+  "text": "Your Attack has more range and deals {0} damage.",
+  "values": {
+   "default": [
+    "10%"
+   ]
+  }
+ },
+ "FistSpecialFireballTrait": {
+  "text": "Your Special becomes a charged shot that deals {0} base damage.",
+  "values": {
+   "default": [
+    "50"
+   ]
+  }
+ },
+ "FistSpecialLandTrait": {
+  "text": "After using your Special, deal {0} damage in an area where you land.",
+  "values": {
+   "default": [
+    "90"
+   ]
+  }
+ },
+ "FistTeleportSpecialTrait": {
+  "text": "Your Special becomes a flying kick that deals {0} base damage twice.",
+  "values": {
+   "default": [
+    "40"
+   ]
+  }
+ },
+ "FistVacuumTrait": {
+  "text": "Your Special becomes Magnetic Cutter; its pull deals {0} damage.",
+  "values": {
+   "default": [
+    "20"
+   ]
+  }
+ },
  "FistWeaveTrait": "After landing ? strikes, your next Special hits more times.",
  "FountainDamageBonusTrait": "Using a Fountain restores all Life and gives you bonus damage.",
- "FuryAssistTrait": "Your Summon deals ? damage in an area near your closest foe, then continually down the line.",
+ "FuryAssistTrait": {
+  "text": "Your Summon deals {0} damage in an area near your closest foe, then continually down the line.",
+  "values": {
+   "default": [
+    "2500"
+   ]
+  }
+ },
  "GiftHealthTrait": "Gain Max Life when you pick up Nectar.",
  "GodModeTrait": "You are resistant to all sources of damage while in God Mode.",
- "GunArmorPenerationTrait": "Your Attack pierces foes and deals ? damage to Armor.",
+ "GunArmorPenerationTrait": {
+  "text": "Your Attack pierces foes and deals {0} damage to Armor.",
+  "values": {
+   "default": [
+    "50%"
+   ]
+  }
+ },
  "GunBaseUpgradeTrait": "The form in which the adamant rail first revealed itself.",
- "GunChainShotTrait": "Your Attack bounces to ? additional foe.",
- "GunConsecutiveFireTrait": "Your Attack deals +? damage for each consecutive hit to a foe.",
+ "GunChainShotTrait": {
+  "text": "Your Attack bounces to {0} additional foe.",
+  "values": {
+   "default": [
+    "1"
+   ]
+  }
+ },
+ "GunConsecutiveFireTrait": {
+  "text": "Your Attack deals +{0} damage for each consecutive hit to a foe.",
+  "values": {
+   "default": [
+    "2"
+   ]
+  }
+ },
  "GunDashAmmoTrait": "Your Dash makes you Reload 3 ammo.",
- "GunEmptyClipBlastTrait": "When you deplete your ammo, deal ? damage to foes around you.",
- "GunExplodingSecondaryTrait": "Your Special becomes a rocket that deals ? base damage.",
- "GunFinalBulletTrait": "Your last Attack before depleting your ammo deals ? damage.",
- "GunGrenadeClusterTrait": "Your Special fires a spread of ? bombs, but each deals -?% damage.",
- "GunGrenadeDropTrait": "Your Special deals ? base damage in a large area; it can hurt you.",
- "GunGrenadeFastTrait": "You can use your Special ? times in rapid succession.",
+ "GunEmptyClipBlastTrait": {
+  "text": "When you deplete your ammo, deal {0} damage to foes around you.",
+  "values": {
+   "default": [
+    "100"
+   ]
+  }
+ },
+ "GunExplodingSecondaryTrait": {
+  "text": "Your Special becomes a rocket that deals {0} base damage.",
+  "values": {
+   "default": [
+    "80"
+   ]
+  }
+ },
+ "GunFinalBulletTrait": {
+  "text": "Your last Attack before depleting your ammo deals {0} damage.",
+  "values": {
+   "default": [
+    "700%"
+   ]
+  }
+ },
+ "GunGrenadeClusterTrait": {
+  "text": "Your Special fires a spread of {0} bombs, but each deals -{1}% damage.",
+  "values": {
+   "default": [
+    "5",
+    "30"
+   ]
+  }
+ },
+ "GunGrenadeDropTrait": {
+  "text": "Your Special deals {0} base damage in a large area; it can hurt you.",
+  "values": {
+   "default": [
+    "300%"
+   ]
+  }
+ },
+ "GunGrenadeFastTrait": {
+  "text": "You can use your Special {0} times in rapid succession.",
+  "values": {
+   "default": [
+    "3"
+   ]
+  }
+ },
  "GunGrenadeSelfEmpowerTrait": "For 4 Sec. after absorbing your Special's blast, deal more damage.",
  "GunHeavyBulletTrait": "Your Attack deals damage in an area and briefly slows foes.",
- "GunHomingBulletTrait": "Your Attack seeks the nearest foe and deals ? damage.",
+ "GunHomingBulletTrait": {
+  "text": "Your Attack seeks the nearest foe and deals {0} damage.",
+  "values": {
+   "default": [
+    "10%"
+   ]
+  }
+ },
  "GunInfiniteAmmoTrait": "Your Attack is a 3-round burst; you never have to Reload.",
- "GunLoadedGrenadeBoostTrait": "Your Igneus Eden Hellfire radiates ? damage in a larger area.",
+ "GunLoadedGrenadeBoostTrait": {
+  "text": "Your Igneus Eden Hellfire radiates {0} damage in a larger area.",
+  "values": {
+   "default": [
+    "250%"
+   ]
+  }
+ },
  "GunLoadedGrenadeInfiniteAmmoTrait": "Your Igneus Eden Attack has ∞ Cells, but its damage no longer ramps.",
- "GunLoadedGrenadeLaserTrait": "Your Igneus Eden Attack damage to a foe ramps up ? faster.",
- "GunLoadedGrenadeSpeedTrait": "Your Igneus Eden Attack starts firing ? faster with ? range.",
+ "GunLoadedGrenadeLaserTrait": {
+  "text": "Your Igneus Eden Attack damage to a foe ramps up {0} faster.",
+  "values": {
+   "default": [
+    "100%"
+   ]
+  }
+ },
+ "GunLoadedGrenadeSpeedTrait": {
+  "text": "Your Igneus Eden Attack starts firing {0} faster with {1} range.",
+  "values": {
+   "default": [
+    "50%",
+    "15%"
+   ]
+  }
+ },
  "GunLoadedGrenadeTrait": "You have Igneus Eden, which launches volatile Hellfire.",
- "GunLoadedGrenadeWideTrait": "Your Igneus Eden Attack fires ? beams in a spread pattern.",
+ "GunLoadedGrenadeWideTrait": {
+  "text": "Your Igneus Eden Attack fires {0} beams in a spread pattern.",
+  "values": {
+   "default": [
+    "3"
+   ]
+  }
+ },
  "GunManualReloadTrait": "After you manually Reload, your next shot is empowered.",
- "GunMinigunTrait": "Your Attack is faster and more accurate; gain +? Rounds.",
- "GunShotgunTrait": "Your Attack deals ? base damage in a short spread; you have ? Rounds.",
- "GunSlowGrenade": "Foes targeted by your Special move slower and take ? damage.",
- "HarvestBoonTrait": "Your Boons become Common, then gain Rarity every ? Encounter(s).",
+ "GunMinigunTrait": {
+  "text": "Your Attack is faster and more accurate; gain +{0} Rounds.",
+  "values": {
+   "default": [
+    "6"
+   ]
+  }
+ },
+ "GunShotgunTrait": {
+  "text": "Your Attack deals {0} base damage in a short spread; you have {1} Rounds.",
+  "values": {
+   "default": [
+    "40",
+    "-6"
+   ]
+  }
+ },
+ "GunSlowGrenade": {
+  "text": "Foes targeted by your Special move slower and take {0} damage.",
+  "values": {
+   "default": [
+    "30%"
+   ]
+  }
+ },
+ "HarvestBoonTrait": {
+  "text": "Your Boons become Common, then gain Rarity every {0} Encounter(s).",
+  "values": {
+   "default": [
+    "3"
+   ]
+  }
+ },
  "HealingPotencyTrait": "Any Healing effects are more potent.",
  "HealthRewardBonusTrait": "Any Max Life chamber rewards are worth more.",
  "HeartsickCritDamageTrait": "Your Critical effects deal even more damage to Weak foes.",
  "HermesPlannedRushTrait": "Hold to aim your Dash. During this, time moves ?% slower.",
  "HermesRushAreaSlow": "Your Dash makes nearby foes ?% slower for ? Sec.",
  "HermesSecondaryTrait": "Your Special is faster.",
- "HermesShoutDodge": "After using Call, gain Dodge chance and move speed for ? Sec.",
+ "HermesShoutDodge": {
+  "text": "After using Call, gain Dodge chance and move speed for {0} Sec.",
+  "values": {
+   "default": [
+    "10"
+   ]
+  }
+ },
  "HermesWeaponTrait": "Your Attack is faster.",
  "HomingLaserTrait": "Your Cast is stronger and tracks foes more effectively.",
  "IceStrikeArrayTrait": "Your Cast blasts an area with freezing Festive Fog that inflicts Chill.",
  "ImpactBoltTrait": "When you knock foes away, they are struck by lightning.",
  "ImprovedPomTrait": "Any Poms of Power you find are more potent.",
  "IncreasedDamageTrait": "Your Attack, Special, and Cast deal more damage.",
- "InstantChillKill": "Chill-afflicted foes shatter at ?% Life, inflicting Chill nearby.",
+ "InstantChillKill": {
+  "text": "Chill-afflicted foes shatter at {0}% Life, inflicting Chill nearby.",
+  "values": {
+   "default": [
+    "10"
+   ]
+  }
+ },
  "JoltDurationTrait": "Your Jolted effects do not expire when foes attack.",
  "LastStandDamageBonusTrait": "After using Death Defiance, deal more damage that Encounter.",
  "LastStandDurationTrait": "Death Defiance makes you Impervious longer.",
  "LastStandHealTrait": "Death Defiance restores more Life than usual.",
  "LightningCloudTrait": "Your Festive Fog effects also deal lightning damage periodically.",
- "LowHealthDefenseTrait": "You take less damage while at ?% Life or below.",
+ "LowHealthDefenseTrait": {
+  "text": "You take less damage while at {0}% Life or below.",
+  "values": {
+   "default": [
+    "40"
+   ]
+  }
+ },
  "MagnetismTrait": "Your Bloodstone return to you automatically.",
  "MarkedDropGoldTrait": "You earn Charon's Obol for the first Marked foe you slay in each Encounter.",
  "MaximumChillBlast": "Applying ? stacks of Chill causes a blast, clearing the effect.",
@@ -222,7 +1004,14 @@
  "MoveSpeedTrait": "You move faster.",
  "NoLastStandRegenerationTrait": "If you have no Death Defiance, your Life slowly recovers.",
  "OnEnemyDeathDamageInstanceBuffTrait": "After slaying a foe, your next Attack or Special deals more damage.",
- "OnWrathDamageBuffTrait": "After using Call, you deal more damage for ? Sec.",
+ "OnWrathDamageBuffTrait": {
+  "text": "After using Call, you deal more damage for {0} Sec.",
+  "values": {
+   "default": [
+    "15"
+   ]
+  }
+ },
  "PerfectDashBoltTrait": "After you Dash just before getting hit, a bolt strikes a nearby foe.",
  "PoisonCritVulnerabilityTrait": "Hangover-afflicted foes are more likely to take Critical damage.",
  "PoisonTickRateTrait": "Your Hangover effects deal damage faster.",
@@ -231,7 +1020,14 @@
  "PoseidonRushTrait": "Your Dash damages foes in an area and knocks them away.",
  "PoseidonSecondaryTrait": "Your Special deals more damage and knocks foes away.",
  "PoseidonShoutDurationTrait": "Your Call pulls in foes and the effect lasts longer.",
- "PoseidonShoutTrait": "Your Call makes you surge into foes while Impervious for ? Sec.",
+ "PoseidonShoutTrait": {
+  "text": "Your Call makes you surge into foes while Impervious for {0} Sec.",
+  "values": {
+   "default": [
+    "1.2"
+   ]
+  }
+ },
  "PoseidonWeaponTrait": "Your Attack deals more damage and knocks foes away.",
  "PreloadSuperGenerationTrait": "You begin each Encounter with your God Gauge partly full.",
  "ProximityArmorTrait": "Resist some damage from nearby foes' attacks.",
@@ -243,118 +1039,587 @@
  "RetaliateWeaponTrait": "After you take damage, your foe is struck by lightning.",
  "RoomRewardBonusTrait": "Any Gemstones, Darkness and Charon's Obol chamber rewards are worth more.",
  "RushRallyTrait": "After taking damage, quickly Dash to recover some Life you just lost.",
- "RushSpeedBoostTrait": "After you Dash, briefly become Sturdy and move ? faster.",
- "SelfLaserTrait": "Your Cast crystal fires its beam directly at you for +? Sec.",
+ "RushSpeedBoostTrait": {
+  "text": "After you Dash, briefly become Sturdy and move {0} faster.",
+  "values": {
+   "default": [
+    "100%"
+   ]
+  }
+ },
+ "SelfLaserTrait": {
+  "text": "Your Cast crystal fires its beam directly at you for +{0} Sec.",
+  "values": {
+   "default": [
+    "4"
+   ]
+  }
+ },
  "ShieldBaseUpgradeTrait": "The form in which the shield of chaos first revealed itself.",
  "ShieldBashDamageTrait": "Your Attack hits twice, but does not knock foes away.",
  "ShieldBashReflectTrait": "Your Attack deals ?% damage when you Deflect.",
- "ShieldBlockEmpowerTrait": "After blocking a foe, gain ? damage and move speed for ? Sec.",
- "ShieldChargeHealthBufferTrait": "Your Bull Rush deals ? damage to Armor.",
+ "ShieldBlockEmpowerTrait": {
+  "text": "After blocking a foe, gain {0} damage and move speed for {1} Sec.",
+  "values": {
+   "default": [
+    "20%",
+    "10"
+   ]
+  }
+ },
+ "ShieldChargeHealthBufferTrait": {
+  "text": "Your Bull Rush deals {0} damage to Armor.",
+  "values": {
+   "default": [
+    "400%"
+   ]
+  }
+ },
  "ShieldChargeSpeedTrait": "Your Bull Rush charges up faster.",
  "ShieldDamageBarrierTrait": "After you take damage, briefly Deflect in all directions.",
- "ShieldDamageReductionTrait": "You take ?% less damage.",
- "ShieldDashAOETrait": "Your Dash-Strike deals ? damage in a larger area.",
+ "ShieldDamageReductionTrait": {
+  "text": "You take {0}% less damage.",
+  "values": {
+   "default": [
+    "20"
+   ]
+  }
+ },
+ "ShieldDashAOETrait": {
+  "text": "Your Dash-Strike deals {0} damage in a larger area.",
+  "values": {
+   "default": [
+    "50%"
+   ]
+  }
+ },
  "ShieldHitTrait": "You have a barrier that negates an instance of damage.",
- "ShieldLoadAmmoBoostTrait": "After using your Naegling's Board Cast, you are Sturdy for ? Sec.",
- "ShieldLoadAmmoTrait": "You have Naegling's Board, but take ? damage.",
+ "ShieldLoadAmmoBoostTrait": {
+  "text": "After using your Naegling's Board Cast, you are Sturdy for {0} Sec.",
+  "values": {
+   "default": [
+    "3"
+   ]
+  }
+ },
+ "ShieldLoadAmmoTrait": {
+  "text": "You have Naegling's Board, but take {0} damage.",
+  "values": {
+   "default": [
+    "10%"
+   ]
+  }
+ },
  "ShieldLoadAmmo_AphroditeRangedTrait": "Your Cast damages foes around you and inflicts Weak.",
  "ShieldLoadAmmo_AresRangedTrait": "Your Cast sends a large Blade Rift hurtling ahead for a brief time.",
- "ShieldLoadAmmo_ArtemisRangedTrait": "Your Cast damages foes around you, with a ? Critical chance.",
+ "ShieldLoadAmmo_ArtemisRangedTrait": {
+  "text": "Your Cast damages foes around you, with a {0} Critical chance.",
+  "values": {
+   "default": [
+    "10%"
+   ]
+  }
+ },
  "ShieldLoadAmmo_AthenaRangedTrait": "Your Cast damages foes around you, and can Deflect.",
  "ShieldLoadAmmo_DemeterRangedTrait": "Your Cast damages foes around you and inflicts Chill.",
  "ShieldLoadAmmo_DionysusRangedTrait": "Your Cast damages foes around you, leaving behind Festive Fog.",
  "ShieldLoadAmmo_PoseidonRangedTrait": "Your Cast damages foes around you and knocks them away.",
  "ShieldLoadAmmo_ZeusRangedTrait": "Your Cast causes a lightning bolt to strike nearby foes.",
- "ShieldPerfectRushTrait": "Your Bull Rush gains a Power Rush that deals ? damage.",
+ "ShieldPerfectRushTrait": {
+  "text": "Your Bull Rush gains a Power Rush that deals {0} damage.",
+  "values": {
+   "default": [
+    "500%"
+   ]
+  }
+ },
  "ShieldRushBonusProjectileTrait": "After your Bull Rush, your next Special throws multiple Shields.",
- "ShieldRushProjectileTrait": "Your Bull Rush instead fires a piercing shot that deals ? damage.",
- "ShieldRushPunchTrait": "Your Bull Rush becomes a close hit that deals ? damage.",
+ "ShieldRushProjectileTrait": {
+  "text": "Your Bull Rush instead fires a piercing shot that deals {0} damage.",
+  "values": {
+   "default": [
+    "80"
+   ]
+  }
+ },
+ "ShieldRushPunchTrait": {
+  "text": "Your Bull Rush becomes a close hit that deals {0} damage.",
+  "values": {
+   "default": [
+    "70"
+   ]
+  }
+ },
  "ShieldSlowChargeDamage": "Your Bull Rush deals +200% damage, but charges up slower.",
- "ShieldThrowCatchExplode": "Your Special deals ? damage to foes around you when you catch it.",
- "ShieldThrowElectiveCharge": "Hold Special to charge your throw for up to ? base damage.",
- "ShieldThrowEmpowerTrait": "After your Special hits, your next ? Attacks deal ? damage.",
- "ShieldThrowFastTrait": "Your Special can strike up to ? additional foes before returning.",
- "ShieldThrowJumpDamageTrait": "Your Special deals ? damage after each bounce during flight.",
- "ShieldThrowRushTrait": "During your Dash, your Special is faster and deals ? damage.",
+ "ShieldThrowCatchExplode": {
+  "text": "Your Special deals {0} damage to foes around you when you catch it.",
+  "values": {
+   "default": [
+    "50"
+   ]
+  }
+ },
+ "ShieldThrowElectiveCharge": {
+  "text": "Hold Special to charge your throw for up to {0} base damage.",
+  "values": {
+   "default": [
+    "200%"
+   ]
+  }
+ },
+ "ShieldThrowEmpowerTrait": {
+  "text": "After your Special hits, your next {0} Attacks deal {1} damage.",
+  "values": {
+   "default": [
+    "2",
+    "80%"
+   ]
+  }
+ },
+ "ShieldThrowFastTrait": {
+  "text": "Your Special can strike up to {0} additional foes before returning.",
+  "values": {
+   "default": [
+    "4"
+   ]
+  }
+ },
+ "ShieldThrowJumpDamageTrait": {
+  "text": "Your Special deals {0} damage after each bounce during flight.",
+  "values": {
+   "default": [
+    "100%"
+   ]
+  }
+ },
+ "ShieldThrowRushTrait": {
+  "text": "During your Dash, your Special is faster and deals {0} damage.",
+  "values": {
+   "default": [
+    "200%"
+   ]
+  }
+ },
  "ShieldThrowSingleTargetTrait": "Hold Special to throw rapidly, dealing area damage on impact.",
  "ShieldTwoShieldTrait": "Your Special becomes Blitz Disc.",
- "SisyphusAssistTrait": "Your Summon deals ? damage in an area, and drops a smattering of Healing, Darkness, and Charon's Obol.",
- "SkellyAssistTrait": "Your Summon creates a distraction with ? Life, provoking your foes to attack it until it dies.",
+ "SisyphusAssistTrait": {
+  "text": "Your Summon deals {0} damage in an area, and drops a smattering of Healing, Darkness, and Charon's Obol.",
+  "values": {
+   "default": [
+    "1000"
+   ]
+  }
+ },
+ "SkellyAssistTrait": {
+  "text": "Your Summon creates a distraction with {0} Life, provoking your foes to attack it until it dies.",
+  "values": {
+   "default": [
+    "250"
+   ]
+  }
+ },
  "SlamExplosionTrait": "Slamming foes into barriers creates a watery blast in the area.",
  "SlipperyTrait": "Your Boons with knock-away effects also Rupture foes.",
  "SlowProjectileTrait": "Your foes' ranged-attack projectiles are slower.",
  "SpearAttackPhalanxTrait": "Your Attack strikes 3 times in a spread pattern.",
  "SpearAutoAttack": "Hold Attack to strike rapidly, but you cannot Spin Attack.",
  "SpearBaseUpgradeTrait": "The form in which the eternal spear first revealed itself.",
- "SpearDashMultiStrike": "Your Dash-Strike hits ? times, but your Dash has -?% range.",
- "SpearReachAttack": "Your Attack has more range and deals ? damage to distant foes.",
+ "SpearDashMultiStrike": {
+  "text": "Your Dash-Strike hits {0} times, but your Dash has -{1}% range.",
+  "values": {
+   "default": [
+    "3",
+    "25"
+   ]
+  }
+ },
+ "SpearReachAttack": {
+  "text": "Your Attack has more range and deals {0} damage to distant foes.",
+  "values": {
+   "default": [
+    "40%"
+   ]
+  }
+ },
  "SpearSpinAura": "Your Spin Attack continues dealing damage in the area for 1.2 Sec.",
- "SpearSpinChargeAreaDamageTrait": "Charging your Spin Attack makes you Sturdy and pulse ? damage.",
+ "SpearSpinChargeAreaDamageTrait": {
+  "text": "Charging your Spin Attack makes you Sturdy and pulse {0} damage.",
+  "values": {
+   "default": [
+    "40"
+   ]
+  }
+ },
  "SpearSpinChargeLevelTime": "Your Spin Attack charges up and recovers much faster.",
- "SpearSpinDamageRadius": "Your Spin Attack deals ? damage and hits a larger area.",
+ "SpearSpinDamageRadius": {
+  "text": "Your Spin Attack deals {0} damage and hits a larger area.",
+  "values": {
+   "default": [
+    "125%"
+   ]
+  }
+ },
  "SpearSpinTravel": "You have the Frost Fair Blade, but your Max Life and Healing are reduced.",
- "SpearSpinTravelDurationTrait": "Your Frost Fair Blade Spin Attack travels for ? longer.",
+ "SpearSpinTravelDurationTrait": {
+  "text": "Your Frost Fair Blade Spin Attack travels for {0} longer.",
+  "values": {
+   "default": [
+    "80%"
+   ]
+  }
+ },
  "SpearTeleportTrait": "After your Special, you can retrieve your Spear with Raging Rush.",
- "SpearThrowBounce": "Your Special hits up to ? foes, dealing ? base damage for each.",
- "SpearThrowCritical": "Your Special deals ? damage; ? Critical chance on recovery.",
- "SpearThrowElectiveCharge": "Hold Special for up to ? base damage; minimum range reduced.",
- "SpearThrowExplode": "Your Special becomes a shot that deals ? base damage in an area.",
- "SpearThrowFarRangeDamage": "Your Special deals up to ?% damage to distant foes.",
- "SpearThrowObjectAOETrait": "Your Special repeatedly deals ? damage around it, until you recall.",
- "SpearThrowPenetrate": "Your Special deals ? damage to Armor.",
+ "SpearThrowBounce": {
+  "text": "Your Special hits up to {0} foes, dealing {1} base damage for each.",
+  "values": {
+   "default": [
+    "7",
+    "30%"
+   ]
+  }
+ },
+ "SpearThrowCritical": {
+  "text": "Your Special deals {0} damage; {1} Critical chance on recovery.",
+  "values": {
+   "default": [
+    "50%",
+    "50%"
+   ]
+  }
+ },
+ "SpearThrowElectiveCharge": {
+  "text": "Hold Special for up to {0} base damage; minimum range reduced.",
+  "values": {
+   "default": [
+    "200%"
+   ]
+  }
+ },
+ "SpearThrowExplode": {
+  "text": "Your Special becomes a shot that deals {0} base damage in an area.",
+  "values": {
+   "default": [
+    "50"
+   ]
+  }
+ },
+ "SpearThrowFarRangeDamage": {
+  "text": "Your Special deals up to {0}% damage to distant foes.",
+  "values": {
+   "default": [
+    "150"
+   ]
+  }
+ },
+ "SpearThrowObjectAOETrait": {
+  "text": "Your Special repeatedly deals {0} damage around it, until you recall.",
+  "values": {
+   "default": [
+    "40"
+   ]
+  }
+ },
+ "SpearThrowPenetrate": {
+  "text": "Your Special deals {0} damage to Armor.",
+  "values": {
+   "default": [
+    "400%"
+   ]
+  }
+ },
  "SpearWeaveTrait": "Your Spin Attack becomes Punishing Sweep.",
  "SpeedDamageTrait": "You deal bonus damage based on any bonus move speed.",
  "StationaryRiftTrait": "Your Cast inflicts Chill, but is smaller and moves slower.",
  "StatusImmunityTrait": "You cannot be stunned, and resist some damage from Bosses.",
  "SuperGenerationTrait": "Your God Gauge charges up faster when you deal or take damage.",
  "SuperTemporaryBoonRarityTrait": "The next several Boons you find have upgraded Rarity.",
- "SwordBackstabTrait": "Your Attack deals ? damage striking foes from behind.",
+ "SwordBackstabTrait": {
+  "text": "Your Attack deals {0} damage striking foes from behind.",
+  "values": {
+   "default": [
+    "200%"
+   ]
+  }
+ },
  "SwordBaseUpgradeTrait": "The form in which the blade of the underworld first revealed itself.",
- "SwordBlinkTrait": "Your Special makes you lunge ahead, then become Sturdy for ? Sec.",
- "SwordConsecrationBoostTrait": "Your Holy Excalibur aura is ? larger; makes foes ? slower.",
- "SwordConsecrationTrait": "You have Holy Excalibur, and +? Max Life to your Life Total.",
+ "SwordBlinkTrait": {
+  "text": "Your Special makes you lunge ahead, then become Sturdy for {0} Sec.",
+  "values": {
+   "default": [
+    "1"
+   ]
+  }
+ },
+ "SwordConsecrationBoostTrait": {
+  "text": "Your Holy Excalibur aura is ? larger; makes foes {0} slower.",
+  "values": {
+   "default": [
+    "10%"
+   ]
+  }
+ },
+ "SwordConsecrationTrait": {
+  "text": "You have Holy Excalibur, and +{0} Max Life to your Life Total.",
+  "values": {
+   "default": [
+    "50"
+   ]
+  }
+ },
  "SwordConsecutiveFirstStrikeTrait": "Your Slash deals +10 damage for each consecutive hit to a foe.",
- "SwordCriticalParryTrait": "For ? Sec. after your Special, your Attack may deal Critical damage.",
- "SwordCriticalTrait": "Your Thrust deals ? damage and has a ? Critical chance.",
- "SwordCursedLifeStealTrait": "Your Attack restores ? Healing per hit, but you have -?% Max Life.",
- "SwordDoubleDashAttackTrait": "Your Dash-Strike hits twice and deals ? damage.",
- "SwordGoldDamageTrait": "Your Attack deals bonus damage equal to ?% of your current Charon's Obol.",
- "SwordHealthBufferDamageTrait": "Your Attack deals ? damage to Armor.",
- "SwordHeavySecondStrikeTrait": "Your Attack becomes a big chop that deals ? base damage.",
- "SwordRandomExplosionTrait": "Your Attack creates a miniblast nearby that deals ? damage.",
- "SwordSecondaryAreaDamageTrait": "Your Special hits a wider area and deals ? damage.",
+ "SwordCriticalParryTrait": {
+  "text": "For {0} Sec. after your Special, your Attack may deal Critical damage.",
+  "values": {
+   "default": [
+    "3"
+   ]
+  }
+ },
+ "SwordCriticalTrait": {
+  "text": "Your Thrust deals {0} damage and has a {1} Critical chance.",
+  "values": {
+   "default": [
+    "200%",
+    "40%"
+   ]
+  }
+ },
+ "SwordCursedLifeStealTrait": {
+  "text": "Your Attack restores {0} Healing per hit, but you have -{1}% Max Life.",
+  "values": {
+   "default": [
+    "2",
+    "60"
+   ]
+  }
+ },
+ "SwordDoubleDashAttackTrait": {
+  "text": "Your Dash-Strike hits twice and deals {0} damage.",
+  "values": {
+   "default": [
+    "20%"
+   ]
+  }
+ },
+ "SwordGoldDamageTrait": {
+  "text": "Your Attack deals bonus damage equal to {0}% of your current Charon's Obol.",
+  "values": {
+   "default": [
+    "5"
+   ]
+  }
+ },
+ "SwordHealthBufferDamageTrait": {
+  "text": "Your Attack deals {0} damage to Armor.",
+  "values": {
+   "default": [
+    "300%"
+   ]
+  }
+ },
+ "SwordHeavySecondStrikeTrait": {
+  "text": "Your Attack becomes a big chop that deals {0} base damage.",
+  "values": {
+   "default": [
+    "90"
+   ]
+  }
+ },
+ "SwordRandomExplosionTrait": {
+  "text": "Your Attack creates a miniblast nearby that deals {0} damage.",
+  "values": {
+   "default": [
+    "30"
+   ]
+  }
+ },
+ "SwordSecondaryAreaDamageTrait": {
+  "text": "Your Special hits a wider area and deals {0} damage.",
+  "values": {
+   "default": [
+    "20%"
+   ]
+  }
+ },
  "SwordSecondaryBlinkTrait": "Your Special is very quick, and can be used repeatedly.",
  "SwordSecondaryDoubleAttackTrait": "Your Special hits twice, but no longer knocks foes away.",
  "SwordThirdStrikeChargeTrait": "Your Thrust deals +200% damage, but is slower.",
- "SwordThrustWaveTrait": "Your Attack fires a wave that pierces foes, dealing ? damage.",
- "SwordTwoComboTrait": "Hold Attack to strike rapidly, dealing ? base damage per hit.",
- "TemporaryAlphaStrikeTrait": "Passive: You deal ? damage striking undamaged foes.",
- "TemporaryArmorDamageTrait": "Passive: You deal ? damage to Armor.",
- "TemporaryBackstabTrait": "Passive: You deal ? damage striking foes from behind.",
+ "SwordThrustWaveTrait": {
+  "text": "Your Attack fires a wave that pierces foes, dealing {0} damage.",
+  "values": {
+   "default": [
+    "30"
+   ]
+  }
+ },
+ "SwordTwoComboTrait": {
+  "text": "Hold Attack to strike rapidly, dealing {0} base damage per hit.",
+  "values": {
+   "default": [
+    "25"
+   ]
+  }
+ },
+ "TemporaryAlphaStrikeTrait": {
+  "text": "Passive: You deal {0} damage striking undamaged foes.",
+  "values": {
+   "default": [
+    "50%"
+   ]
+  }
+ },
+ "TemporaryArmorDamageTrait": {
+  "text": "Passive: You deal {0} damage to Armor.",
+  "values": {
+   "default": [
+    "50%"
+   ]
+  }
+ },
+ "TemporaryBackstabTrait": {
+  "text": "Passive: You deal {0} damage striking foes from behind.",
+  "values": {
+   "default": [
+    "50%"
+   ]
+  }
+ },
  "TemporaryBlockExplodingChariotsTrait": "Passive: Prevent ? foes from appearing in Encounter(s).",
  "TemporaryBoonRarityTrait": "Passive: The next Boon you find has upgraded Rarity.",
- "TemporaryDoorHealTrait": "Passive: Restore ?% Life when you enter a chamber.",
+ "TemporaryDoorHealTrait": {
+  "text": "Passive: Restore {0}% Life when you enter a chamber.",
+  "values": {
+   "default": [
+    "10"
+   ]
+  }
+ },
  "TemporaryForcedChallengeSwitchTrait": "Passive: Ensure an Infernal Trove will spawn ahead (where possible).",
  "TemporaryForcedFishingPointTrait": "Passive: Ensure a Fishing Point will spawn ahead (where possible).",
  "TemporaryForcedSecretDoorTrait": "Passive: Ensure a Chaos Gate will spawn ahead (where possible).",
- "TemporaryImprovedRangedTrait": "Passive: Your Cast deals ? damage.",
- "TemporaryImprovedSecondaryTrait": "Passive: Your Special deals ? damage.",
- "TemporaryImprovedTrapDamageTrait": "Passive: Traps deal ? damage to your foes.",
- "TemporaryImprovedWeaponTrait": "Passive: Your Attack deals ? damage.",
- "TemporaryImprovedWeaponTrait_Patroclus": "Passive: Your Attack deals ? damage.",
- "TemporaryLastStandHealTrait": "Passive: Stubborn Defiance restores ? more Healing than usual.",
- "TemporaryMoreAmmoTrait": "Passive: Gain +? Bloodstone for your Cast.",
- "TemporaryMoveSpeedTrait": "Passive: Gain ?% move speed.",
- "TemporaryPreloadSuperGenerationTrait": "Passive: You start Encounter(s) with your God Gauge ?% full.",
- "TemporaryWeaponLifeOnKillTrait": "Passive: Slain foes have a ? chance to drop Healing items.",
- "ThanatosAssistTrait": "Your Summon deals ? damage in an area in front of you, after a brief delay.",
+ "TemporaryImprovedRangedTrait": {
+  "text": "Passive: Your Cast deals {0} damage.",
+  "values": {
+   "default": [
+    "50%"
+   ]
+  }
+ },
+ "TemporaryImprovedSecondaryTrait": {
+  "text": "Passive: Your Special deals {0} damage.",
+  "values": {
+   "default": [
+    "40%"
+   ]
+  }
+ },
+ "TemporaryImprovedTrapDamageTrait": {
+  "text": "Passive: Traps deal {0} damage to your foes.",
+  "values": {
+   "default": [
+    "500%"
+   ]
+  }
+ },
+ "TemporaryImprovedWeaponTrait": {
+  "text": "Passive: Your Attack deals {0} damage.",
+  "values": {
+   "default": [
+    "30%"
+   ]
+  }
+ },
+ "TemporaryImprovedWeaponTrait_Patroclus": {
+  "text": "Passive: Your Attack deals {0} damage.",
+  "values": {
+   "default": [
+    "60%"
+   ]
+  }
+ },
+ "TemporaryLastStandHealTrait": {
+  "text": "Passive: Stubborn Defiance restores {0} more Healing than usual.",
+  "values": {
+   "default": [
+    "10%"
+   ]
+  }
+ },
+ "TemporaryMoreAmmoTrait": {
+  "text": "Passive: Gain +{0} Bloodstone for your Cast.",
+  "values": {
+   "default": [
+    "1"
+   ]
+  }
+ },
+ "TemporaryMoveSpeedTrait": {
+  "text": "Passive: Gain {0}% move speed.",
+  "values": {
+   "default": [
+    "20"
+   ]
+  }
+ },
+ "TemporaryPreloadSuperGenerationTrait": {
+  "text": "Passive: You start Encounter(s) with your God Gauge {0}% full.",
+  "values": {
+   "default": [
+    "15"
+   ]
+  }
+ },
+ "TemporaryWeaponLifeOnKillTrait": {
+  "text": "Passive: Slain foes have a {0} chance to drop Healing items.",
+  "values": {
+   "default": [
+    "15%"
+   ]
+  }
+ },
+ "ThanatosAssistTrait": {
+  "text": "Your Summon deals {0} damage in an area in front of you, after a brief delay.",
+  "values": {
+   "default": [
+    "3500"
+   ]
+  }
+ },
  "TrapDamageTrait": "Resist damage from Traps.",
  "TriggerCurseTrait": "Your abilities that can Deflect immediately activate Doom effects.",
  "UnstoredAmmoDamageTrait": "Your Cast deals bonus damage to foes without Bloodstone in them.",
- "UnusedWeaponBonusTrait": "Whenever you find Darkness, gain +?%.",
- "UnusedWeaponBonusTraitAddGems": "Whenever you find Darkness or Gemstones, gain +?%.",
- "UpgradedTemporaryLastStandHealTrait": "Passive: Stubborn Defiance restores ? more Healing than usual.",
- "ZeroAmmoBonusTrait": "When you have no Bloodstone, take ?% less damage and deal more.",
+ "UnusedWeaponBonusTrait": {
+  "text": "Whenever you find Darkness, gain +{0}%.",
+  "values": {
+   "default": [
+    "20"
+   ]
+  }
+ },
+ "UnusedWeaponBonusTraitAddGems": {
+  "text": "Whenever you find Darkness or Gemstones, gain +{0}%.",
+  "values": {
+   "default": [
+    "20"
+   ]
+  }
+ },
+ "UpgradedTemporaryLastStandHealTrait": {
+  "text": "Passive: Stubborn Defiance restores {0} more Healing than usual.",
+  "values": {
+   "default": [
+    "50%"
+   ]
+  }
+ },
+ "ZeroAmmoBonusTrait": {
+  "text": "When you have no Bloodstone, take {0}% less damage and deal more.",
+  "values": {
+   "default": [
+    "10"
+   ]
+  }
+ },
  "ZeusBoltAoETrait": "Your lightning bolt effects deal damage in a larger area.",
  "ZeusBonusBoltTrait": "Your lightning bolt effects have a chance to strike twice.",
  "ZeusBonusBounceTrait": "Your chain-lightning effects bounce more times before expiring.",
@@ -363,6 +1628,13 @@
  "ZeusRangedTrait": "Your Cast is a burst of chain-lightning that bounces between foes.",
  "ZeusRushTrait": "Your Dash causes a lightning bolt to strike nearby foes.",
  "ZeusSecondaryTrait": "Your Special causes a lightning bolt to strike nearby foes.",
- "ZeusShoutTrait": "Your Call makes lightning rapidly strike nearby foes for ? Sec.",
+ "ZeusShoutTrait": {
+  "text": "Your Call makes lightning rapidly strike nearby foes for {0} Sec.",
+  "values": {
+   "default": [
+    "1.5"
+   ]
+  }
+ },
  "ZeusWeaponTrait": "Your Attack emits chain-lightning when you damage a foe."
 }

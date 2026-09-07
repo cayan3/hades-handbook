@@ -1,4 +1,4 @@
-import type { Element, GodId, KeepsakeId, SlotId, TalentId, TraitId, WeaponId } from "@repo/core";
+import type { Element, GodId, KeepsakeId, Rarity, SlotId, TalentId, TraitId, WeaponId } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
 import { hammersFor } from "./hammers.js";
 import { keepsakesFor } from "./keepsakes.js";
@@ -243,6 +243,17 @@ const SLOT_ICONS: Readonly<Record<GameKey, Readonly<Record<string, string>>>> = 
 };
 
 /**
+ * An entry that had at least one of its numbers recovered: the sentence with a
+ * `{n}` where each goes, and the row of values to splice in per rarity.
+ */
+interface DescriptionEntry {
+  readonly text: string;
+  readonly values: Readonly<Record<string, readonly string[]>>;
+}
+
+const SLOT = /\{(\d+)\}/g;
+
+/**
  * Codex text for a description key.
  *
  * The bundle it was waiting for ships now, and returning `ref` again is what a
@@ -253,15 +264,25 @@ const SLOT_ICONS: Readonly<Record<GameKey, Readonly<Record<string, string>>>> = 
  * a record in both games and all five carry different prose — the two
  * Temporary* families read as Hades I passives and Hades II blessings — so a
  * flat bundle would hand one game the other's sentence.
+ *
+ * `rarity` is the rarity the run holds this boon at. Without one — a boon on a
+ * god page nobody has taken — the sentence reads at the ladder's floor, which
+ * is the number the game shows when it first offers the boon. A rarity the
+ * record has no row for falls to the same place rather than to the mark: the
+ * row is missing because the value does not change there.
  */
-export function textFor(game: GameKey, ref: string): string | null {
-  // A hammer's own prose wins: the extraction resolves its numbers at runtime
-  // and writes `?` where they go, and a hammer's do not vary, so these are the
-  // values written out. The ref is the trait id for every record that has one.
+export function textFor(game: GameKey, ref: string, rarity?: Rarity): string | null {
+  // A hammer's own prose wins: it carries the Rank II values as well, which are
+  // not in the record the extraction reads. The ref is the trait id for every
+  // record that has one.
   const hammer = hammersFor(game)[ref];
   if (hammer !== undefined) return hammer.description;
-  const bundle = dataFor(game).descriptions as Record<string, string>;
-  return bundle[ref] ?? null;
+  const entry = (dataFor(game).descriptions as Record<string, string | DescriptionEntry>)[ref];
+  if (entry === undefined) return null;
+  if (typeof entry === "string") return entry;
+  const values = (rarity !== undefined ? entry.values[rarity] : undefined) ?? entry.values.default;
+  if (values === undefined) return entry.text;
+  return entry.text.replace(SLOT, (whole, index: string) => values[Number(index)] ?? whole);
 }
 
 /**

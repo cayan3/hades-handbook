@@ -223,12 +223,67 @@ describe("textFor", () => {
 
   it("carries no markup through to a caller", () => {
     // The games write descriptions as display markup and this renders text, so
-    // a surviving brace is a construction the extractor did not resolve.
+    // a surviving brace is a construction the extractor did not resolve. Read
+    // through `textFor` rather than off the bundle: half the entries are a
+    // template plus its values now, and a regex run over one of those matches
+    // nothing and passes for the wrong reason.
     for (const game of ["hades1", "hades2"] as const) {
-      const bundle = dataFor(game).descriptions as Record<string, string>;
-      const withMarkup = Object.entries(bundle).filter(([, text]) => /[{}]/.test(text));
+      const bundle = dataFor(game).descriptions as Record<string, unknown>;
+      const withMarkup = Object.keys(bundle).filter((ref) => /[{}]/.test(textFor(game, ref) ?? ""));
       expect(withMarkup).toEqual([]);
     }
+  });
+
+  it("says the number for the rarity the run holds", () => {
+    // The Hades II costume grants a flat 30 Armor at every rarity and scales
+    // only the channel speed, which is the pairing that makes reading the
+    // ladder onto both look right and be wrong.
+    expect(textFor("hades2", "AgilityCostume", "Common")).toBe(
+      "Don a +30 Armor Outfit that makes you Channel 40% faster.",
+    );
+    expect(textFor("hades2", "AgilityCostume", "Heroic")).toBe(
+      "Don a +30 Armor Outfit that makes you Channel 60% faster.",
+    );
+  });
+
+  it("reads an unheld boon at the ladder's floor", () => {
+    // A boon on a god page has no rarity, and the floor is the number the game
+    // shows when it first offers one.
+    expect(textFor("hades2", "AgilityCostume")).toBe(
+      textFor("hades2", "AgilityCostume", "Common"),
+    );
+  });
+
+  it("falls to the floor for a rarity the entry has no row of its own for", () => {
+    // A row is absent because the value does not move there, so falling back is
+    // the answer rather than a gap — and `Duo` is a rarity this record never has.
+    expect(textFor("hades2", "AgilityCostume", "Duo")).toBe(
+      textFor("hades2", "AgilityCostume", "Common"),
+    );
+  });
+
+  it("still keeps the mark where the number could not be recovered", () => {
+    // Sixty-one Hades II sentences and nine Hades I ones name a value that
+    // needs the run, and a mark reading in all three positions is why it is a
+    // question mark rather than a dash.
+    const marked = Object.keys(dataFor("hades2").descriptions as Record<string, unknown>).filter(
+      (ref) => (textFor("hades2", ref) ?? "").includes("?"),
+    );
+    expect(marked.length).toBeGreaterThan(0);
+  });
+
+  it("leaves a sentence with no numbers in it alone at every rarity", () => {
+    const plain = "Your Attacks deal more damage to nearby foes.";
+    expect(textFor("hades2", "AphroditeWeaponBoon")).toBe(plain);
+    expect(textFor("hades2", "AphroditeWeaponBoon", "Heroic")).toBe(plain);
+  });
+
+  it("lets a hammer's own prose win over the extracted sentence", () => {
+    // A hammer's table carries the Rank II values as well, which are not in the
+    // record the extraction reads.
+    expect(textFor("hades1", "BowChainShotTrait")).toBe(
+      "Your Attack hits up to 3 foes, dealing +15% base damage for each.",
+    );
   });
 });
 

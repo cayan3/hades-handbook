@@ -541,6 +541,8 @@
  ],
  "descriptionRefsWithNoProseCount": 2,
  "descriptionsCarryingMarkup": [],
+ "descriptionsWithMalformedValues": [],
+ "descriptionsWithValues": 164,
  "duoBoonCount": 28,
  "duoBoons": [
   "AmmoBoltTrait",
