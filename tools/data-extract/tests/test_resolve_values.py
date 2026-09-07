@@ -1,0 +1,255 @@
+"""Tests for the numbers a description leaves to the engine.
+
+Everything here is a claim about what the games' own code does with a record,
+so the records are written the way the games write them. The pass that matters
+most is the one that refuses: a value this cannot reach has to come back as
+nothing, because the alternative is a number on a card that nobody can check.
+"""
+
+import sys
+from pathlib import Path
+
+TOOL = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(TOOL / "src"))
+
+from resolve_values import Resolver, extracted_for  # noqa: E402
+
+
+LADDER = {
+    "Common": {"Multiplier": 1.0},
+    "Rare": {"Multiplier": 1.5},
+    "Epic": {"Multiplier": 2.0},
+}
+
+
+def values(defs, trait_id, rarity, game="hades2"):
+    _, resolved, why = extracted_for(defs, trait_id, rarity, game)
+    return resolved, why
+
+
+def test_a_wrapped_value_climbs_the_ladder():
+    defs = {
+        "Boon": {
+            "RarityLevels": LADDER,
+            "Damage": {"BaseValue": 20},
+            "ExtractValues": [{"ExtractAs": "Shown", "Key": "Damage"}],
+        }
+    }
+    assert str(values(defs, "Boon", "Common")[0]["Shown"]) == "20"
+    assert str(values(defs, "Boon", "Rare")[0]["Shown"]) == "30"
+    assert str(values(defs, "Boon", "Epic")[0]["Shown"]) == "40"
+
+
+def test_a_bare_number_does_not_climb_it():
+    # The authors decide what scales by wrapping it. Reading the ladder onto a
+    # plain field is how a costume that grants a flat 30 Armor at every rarity
+    # comes to claim 45 at Heroic.
+    defs = {
+        "Boon": {
+            "RarityLevels": LADDER,
+            "Setup": {"Amount": 30, "ReportValues": {"Reported": "Amount"}},
+            "ExtractValues": [{"ExtractAs": "Shown", "Key": "Reported"}],
+        }
+    }
+    assert str(values(defs, "Boon", "Common")[0]["Shown"]) == "30"
+    assert str(values(defs, "Boon", "Epic")[0]["Shown"]) == "30"
+
+
+def test_a_rarity_the_game_rolls_inside_comes_back_as_a_band():
+    # Hades I gives most of its rarities a pair rather than a multiplier, so
+    # there is no single number the game will show for one of them.
+    defs = {
+        "Boon": {
+            "RarityLevels": {"Rare": {"MinMultiplier": 1.3, "MaxMultiplier": 1.5}},
+            "Damage": {"BaseValue": 20},
+            "ExtractValues": [{"ExtractAs": "Shown", "Key": "Damage"}],
+        }
+    }
+    band = values(defs, "Boon", "Rare")[0]["Shown"]
+    assert (band.lo, band.hi) == (26, 30)
+    assert not band.exact
+
+
+def test_a_value_with_its_own_range_comes_back_as_a_band():
+    defs = {
+        "Boon": {
+            "Damage": {"BaseMin": 10, "BaseMax": 15},
+            "ExtractValues": [{"ExtractAs": "Shown", "Key": "Damage"}],
+        }
+    }
+    assert str(values(defs, "Boon", None)[0]["Shown"]) == "10-15"
+
+
+def test_a_format_is_applied_over_the_whole_band():
+    defs = {
+        "Boon": {
+            "RarityLevels": {"Rare": {"MinMultiplier": 1.0, "MaxMultiplier": 2.0}},
+            "Speed": {"BaseValue": 0.6, "SourceIsMultiplier": True},
+            "ExtractValues": [
+                {"ExtractAs": "Shown", "Format": "NegativePercentDelta", "Key": "Speed"}
+            ],
+        }
+    }
+    # A decreasing format swaps the ends rather than reporting them backwards.
+    assert str(values(defs, "Boon", "Rare")[0]["Shown"]) == "40-80"
+
+
+def test_an_extracted_value_is_rounded_to_a_whole_number_by_default():
+    # Every branch of the games' formatter falls through to a round at
+    # DecimalPlaces, which is zero unless the entry says otherwise.
+    defs = {
+        "Boon": {
+            "Regen": {"BaseValue": 6},
+            "RarityLevels": {"Epic": {"Multiplier": 1.67}},
+            "ExtractValues": [
+                {"ExtractAs": "Whole", "Key": "Regen"},
+                {"ExtractAs": "Fine", "DecimalPlaces": 2, "Key": "Regen"},
+            ],
+        }
+    }
+    resolved = values(defs, "Boon", "Epic")[0]
+    assert str(resolved["Whole"]) == "10"
+    assert str(resolved["Fine"]) == "10.02"
+
+
+def test_a_value_read_from_outside_the_record_is_refused():
+    defs = {
+        "Boon": {
+            "ExtractValues": [
+                {
+                    "ExtractAs": "Shown",
+                    "External": True,
+                    "BaseType": "EffectData",
+                    "BaseName": "WeakEffect",
+                    "BaseProperty": "Duration",
+                }
+            ]
+        }
+    }
+    resolved, why = values(defs, "Boon", None)
+    assert "Shown" not in resolved
+    assert why["Shown"].startswith("external")
+
+
+def test_a_later_entry_that_cannot_resolve_drops_the_earlier_one():
+    # The game overwrites by name, so an earlier value is not this name's
+    # answer once a later entry claims it -- keeping it prints the number the
+    # game replaced.
+    defs = {
+        "Boon": {
+            "Duration": 5,
+            "ExtractValues": [
+                {"ExtractAs": "Shown", "Key": "Duration"},
+                {
+                    "ExtractAs": "Shown",
+                    "External": True,
+                    "BaseType": "EffectData",
+                    "BaseName": "ClearCast",
+                    "BaseProperty": "Duration",
+                },
+            ],
+        }
+    }
+    resolved, why = values(defs, "Boon", None)
+    assert "Shown" not in resolved
+    assert why["Shown"].startswith("external")
+
+
+def test_a_nested_value_is_reported_up_to_the_top_of_the_record():
+    defs = {
+        "Boon": {
+            "Setup": {
+                "Args": {
+                    "Charge": {"BaseValue": 2},
+                    "ReportValues": {"Reported": "Charge"},
+                }
+            },
+            "ExtractValues": [{"ExtractAs": "Shown", "Key": "Reported"}],
+        }
+    }
+    assert str(values(defs, "Boon", None)[0]["Shown"]) == "2"
+
+
+def test_a_field_the_record_inherits_is_read():
+    defs = {
+        "Base": {"Damage": {"BaseValue": 12}},
+        "Boon": {
+            "InheritFrom": ["Base"],
+            "ExtractValues": [{"ExtractAs": "Shown", "Key": "Damage"}],
+        },
+    }
+    assert str(values(defs, "Boon", None)[0]["Shown"]) == "12"
+
+
+def test_a_base_written_as_a_string_is_read_as_a_number():
+    # Lua coerces it in the arithmetic, and three shipped records rely on that.
+    defs = {
+        "Boon": {
+            "RarityLevels": {"Legendary": {"Multiplier": 2}},
+            "PropertyChanges": [
+                {
+                    "BaseValue": "300",
+                    "ReportValues": {"Reported": "ChangeValue"},
+                }
+            ],
+            "ExtractValues": [{"ExtractAs": "Shown", "Key": "Reported"}],
+        }
+    }
+    assert str(values(defs, "Boon", "Legendary")[0]["Shown"]) == "600"
+
+
+def test_hades_one_reads_an_entry_from_the_table_it_sits_in():
+    # There is no report step in Hades I: an entry reads its own table and the
+    # result merges back over the record, so a bare name finds it.
+    defs = {
+        "Boon": {
+            "PropertyChanges": [
+                {
+                    "BaseMin": 70,
+                    "BaseMax": 70,
+                    "ExtractValue": {"ExtractAs": "TooltipDamage"},
+                }
+            ],
+        }
+    }
+    resolver = Resolver(defs, "hades1")
+    assert resolver.value("Boon", None, "TooltipData.TooltipDamage") == "70"
+
+
+def test_a_percent_suffix_is_the_engines_sign_rather_than_the_values():
+    defs = {
+        "Boon": {
+            "Chance": {"BaseValue": 0.1},
+            "ExtractValues": [
+                {"ExtractAs": "Shown", "Format": "Percent", "Key": "Chance"}
+            ],
+        }
+    }
+    resolver = Resolver(defs, "hades2")
+    assert resolver.value("Boon", None, "TooltipData.ExtractData.Shown") == "10"
+    assert resolver.value("Boon", None, "TooltipData.ExtractData.Shown:P") == "10%"
+
+
+def test_a_path_into_another_records_table_is_followed():
+    defs = {
+        "Other": {"DamagePercent": 200},
+        "Boon": {},
+    }
+    resolver = Resolver(defs, "hades2")
+    assert resolver.value("Boon", None, "TraitData.Other.DamagePercent") == "200"
+
+
+def test_a_path_indexes_a_list_from_one():
+    defs = {
+        "Other": {"Changes": [{"Count": 3}, {"Count": 7}]},
+        "Boon": {},
+    }
+    resolver = Resolver(defs, "hades2")
+    assert resolver.value("Boon", None, "TraitData.Other.Changes.[2].Count") == "7"
+    assert resolver.value("Boon", None, "TraitData.Other.Changes.2.Count") == "7"
+
+
+def test_a_spec_naming_nothing_answers_nothing():
+    resolver = Resolver({"Boon": {}}, "hades2")
+    assert resolver.value("Boon", None, "TooltipData.ExtractData.Missing") is None
+    assert resolver.value("Boon", None, "GameState.CauseOfDeathDisplay") is None
