@@ -18,15 +18,15 @@ export const SAVE_SLOTS: readonly SaveSlot[] = [1, 2, 3];
 export type LegacySlot = "active" | "last";
 
 /**
- * Which record this is.
+ * Which record this is: one of the numbered slots, or one of the two keys the
+ * earlier build wrote.
  *
- * The numbered slots are runs. `unreadable` is not: it holds a record that
- * could not be decoded, kept because the alternative is deleting the only copy
- * of somebody's run on the word of the build that could not read it. Nothing
- * loads it and no view shows it; it exists so that a later build has something
- * to try.
+ * There was a third kind, `unreadable`, holding a record this build could not
+ * decode so that a later one might make something of it. Nothing ever read it,
+ * and the case it was written for — a store version bump this build got wrong —
+ * has not come up, so a load now starts fresh in the slot and says why.
  */
-export type RunSlot = SaveSlot | LegacySlot | "unreadable";
+export type RunSlot = SaveSlot | LegacySlot;
 
 /**
  * Where persisted runs live, as an interface so that the browser is not the

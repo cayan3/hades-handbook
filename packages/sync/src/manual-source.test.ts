@@ -1258,6 +1258,25 @@ describe("what the slots hold", () => {
   });
 
   /**
+   * The same containment for a record that decodes and then fails somewhere in
+   * the pass behind it. Only the decoder was guarded, so a run belonging to the
+   * other game — which the migration refuses outright — threw out of the read
+   * and took every other slot's row with it.
+   */
+  it("reports a record the migration refuses in that slot alone", async () => {
+    const store = createMemoryStore();
+    const source = await open(store);
+    const wrongGame = emptyRun("hades1", "build-1");
+    wrongGame.facts.held.set("HeraAttack", { rarity: "Common", level: 1 });
+    await store.save("hades2", 3, toPersisted({ state: wrongGame, quarantine: [] }));
+
+    const slots = await source.slots();
+
+    expect(slots[2]?.contents.kind).toBe("unreadable");
+    expect(slots[0]?.contents.kind).toBe("empty");
+  });
+
+  /**
    * The run as it really was. The session hands the overlay back before the
    * record is written, so a hand-held field is not part of what is stored.
    */
@@ -1837,14 +1856,23 @@ describe("a stored run this build cannot read", () => {
     expect(source.unreadableRun?.message).toMatch(/store version/);
   });
 
-  it("sets the record aside rather than writing over it", async () => {
-    const store = await unreadableRecord();
+  it("puts the fresh run in the slot the bad record was in and writes nowhere else", async () => {
+    const inner = await unreadableRecord();
+    const written: RunSlot[] = [];
+    const store: RunStore = {
+      ...inner,
+      save: (game, slot, run) => {
+        written.push(slot);
+        return inner.save(game, slot, run);
+      },
+    };
 
     await open(store);
 
-    // Kept, in full and unread. Whatever a later build can make of it, this one
-    // must not be the reason it stopped existing.
-    expect(await store.load("hades2", "unreadable")).not.toBeNull();
+    // No copy is kept anywhere. Nothing ever read one back, and the case it was
+    // for — a store version this build got wrong — has not arisen once.
+    expect(written).toEqual([1]);
+    expect((await store.load("hades2", 1))?.storeVersion).toBe(STORE_VERSION);
   });
 
   it("does the same for a record that fails any other decoder check", async () => {
@@ -1863,21 +1891,6 @@ describe("a stored run this build cannot read", () => {
 
     expect(reopened.getFacts().held.has("HeraAttack")).toBe(true);
     expect(reopened.unreadableRun).toBeNull();
-  });
-
-  it("refuses to start when the record it cannot read also cannot be preserved", async () => {
-    const inner = await unreadableRecord();
-    const store: RunStore = {
-      ...inner,
-      save: (game, slot, run) =>
-        slot === "unreadable"
-          ? Promise.reject(new Error("quota exceeded"))
-          : inner.save(game, slot, run),
-    };
-
-    // Starting fresh over a record that could not be copied is the loss this
-    // whole path exists to avoid, so the failure is the honest answer.
-    await expect(open(store)).rejects.toThrow(/quota/);
   });
 
   it("reports nothing on an ordinary load", async () => {

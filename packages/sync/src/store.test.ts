@@ -9,7 +9,6 @@ describe("the key a record sits under", () => {
     expect(recordKey("hades1", "active")).toBe("hades1:active");
     expect(recordKey("hades2", "active")).toBe("hades2:active");
     expect(recordKey("hades2", "last")).toBe("hades2:last");
-    expect(recordKey("hades2", "unreadable")).toBe("hades2:unreadable");
   });
 });
 

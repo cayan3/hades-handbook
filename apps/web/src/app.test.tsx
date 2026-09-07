@@ -581,14 +581,13 @@ describe("what a load could not carry", () => {
     return store;
   }
 
-  it("explains a run set aside because this build could not read it", async () => {
+  it("explains a run this build could not read", async () => {
     const store = await storeHolding({ storeVersion: STORE_VERSION + 9, facts: {}, intent: {} });
     await mount(store);
 
-    expect(texts(".notice__title")).toContain("Your saved run couldn't be opened.");
-    // Set aside rather than deleted, which is the half that decides whether a
+    // Said rather than swallowed, which is the half that decides whether a
     // player closes the tab in a panic.
-    expect(await store.load("hades2", "unreadable")).not.toBeNull();
+    expect(texts(".notice__title")).toContain("Your saved run couldn't be opened.");
   });
 
   it("owes a migration notice until it is accepted, not until the next tap", async () => {

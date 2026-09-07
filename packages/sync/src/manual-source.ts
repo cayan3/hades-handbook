@@ -370,17 +370,16 @@ export async function openManualSource(
        *
        * Nothing clears the record, so a decoder that throws on the way in
        * throws again on every load after it, for as long as it exists — and
-       * the player's only way out is clearing site data, which takes both runs
-       * with it. So the record is set aside and a fresh run starts over the
-       * top, which is the same bargain the id-level quarantine makes: keep
-       * what cannot be understood, and let the rest of the product work.
+       * the player's only way out is clearing site data, which takes every run
+       * with it. So a fresh run starts over the top and the cause is reported,
+       * which is the same bargain the id-level quarantine makes: say what could
+       * not be understood, and let the rest of the product work.
        *
-       * Set aside *first*. Starting fresh over a record that could not be
-       * copied would be this build deleting the only version of a run on the
-       * strength of not being able to read it, so a failure here fails the
-       * load rather than being absorbed.
+       * The raw record used to be copied to a slot of its own first, so that a
+       * later build could try again. Nothing ever read it back, and the case it
+       * was for is a store version bump that has not happened once, so the copy
+       * was a key per game holding a run nobody would open.
        */
-      await store.save(game, "unreadable", loaded);
       unreadable = cause instanceof Error ? cause : new Error(String(cause));
       stored = fresh();
     }
@@ -824,16 +823,20 @@ function createSource(seed: SourceSeed): ManualSource & { persistNow(): void } {
    */
   function contentsOf(record: PersistedRun | null): SlotContents {
     if (record === null) return { kind: "empty" };
-    let decoded: StoredRun;
+    let run: RunState;
+    let setAside: readonly QuarantinedEntry[];
     try {
-      decoded = fromPersisted(record);
+      // The pass runs inside the guard too. Only the decoder was guarded at
+      // first, so a record naming the other game — which the migration refuses
+      // rather than scanning — threw out of the read and cost every other slot
+      // its row along with this one.
+      ({ state: run, quarantine: setAside } = broughtForward(fromPersisted(record)));
     } catch (cause) {
       return {
         kind: "unreadable",
         cause: cause instanceof Error ? cause : new Error(String(cause)),
       };
     }
-    const { state: run, quarantine: setAside } = broughtForward(decoded);
     // Quarantined entries hold the slot too: a run whose every id the catalog
     // has forgotten still has something in it, and it is still recoverable.
     return holdsSomething(run) || setAside.length > 0
