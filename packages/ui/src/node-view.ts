@@ -451,7 +451,12 @@ export function deriveNodeDetail(
   const needed = status.kind === "pending" ? neededLines(status.residual, naming) : [];
 
   return {
-    description: record?.descriptionRef == null ? null : textFor(source.game, record.descriptionRef),
+    description:
+      record?.descriptionRef == null
+        ? null
+        : // The rarity the run holds it at, so the sentence says the number the
+          // player will actually see. An unheld boon reads at the ladder's floor.
+          textFor(source.game, record.descriptionRef, facts.held.get(view.trait)?.rarity),
     needed,
     rows: requirementRows(source, prereq, facts, status.kind === "unsatisfiable"),
     activation:

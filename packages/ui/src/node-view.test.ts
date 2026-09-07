@@ -1,5 +1,5 @@
 import { type TraitRecord, textFor, traitsFor } from "@repo/catalog";
-import type { Requirement, TraitId } from "@repo/core";
+import type { Rarity, Requirement, TraitId } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import { POOL_FULL_BODY } from "./describe.js";
 import { createNodeSource, deriveNodeDetail, deriveNodeView } from "./node-view.js";
@@ -28,11 +28,17 @@ const TIER_TWO = "AphroditeWeakenTrait" as TraitId;
 
 /** Self Healing: obtainable at 2 Fire, and inert until 3. */
 const SELF_HEALING = "ElementalRallyBoon" as TraitId;
+/** Lavender Dress: a flat 30 Armor at every rarity, and a speed that climbs. */
+const COSTUME = "AgilityCostume" as TraitId;
 /** Flame Strike: Hestia's attack, and one of the 190 records with an affinity. */
 const FLAME_STRIKE = "HestiaWeaponBoon" as TraitId;
 
 function h1(rules = stubRules(), records = H1) {
   return createNodeSource("hades1", rules, stubLookups(), records);
+}
+
+function h2Source() {
+  return createNodeSource("hades2", stubRules(), stubLookups(), H2);
 }
 
 function h1Facts(talent: "selected" | "notSelected" | null, ...traits: TraitId[]) {
@@ -243,6 +249,30 @@ describe("deriveNodeDetail", () => {
     expect(detail.description).toBe(textFor("hades1", H1[LIGHTNING_ROD]?.descriptionRef ?? ""));
     expect(detail.description).not.toBe(H1[LIGHTNING_ROD]?.descriptionRef);
     expect(detail.description).toMatch(/lightning/i);
+  });
+
+  it("says the numbers for the rarity the run holds it at", () => {
+    // The rarity is on the run rather than on the record, so a sentence that
+    // ignored it would say the same number for a Common and a Heroic and be
+    // wrong for one of them without looking wrong for either.
+    const source = h2Source();
+    const view = deriveNodeView(source, COSTUME, makeFacts({ game: "hades2" }));
+    const at = (rarity: Rarity) => {
+      const facts = makeFacts({ game: "hades2", held: held([COSTUME, rarity]) });
+      return deriveNodeDetail(source, view, facts).description;
+    };
+    expect(at("Common")).toBe(textFor("hades2", COSTUME, "Common"));
+    expect(at("Heroic")).toBe(textFor("hades2", COSTUME, "Heroic"));
+    expect(at("Common")).not.toBe(at("Heroic"));
+  });
+
+  it("reads a boon the run does not hold at the ladder's floor", () => {
+    const source = h2Source();
+    const facts = makeFacts({ game: "hades2" });
+    const view = deriveNodeView(source, COSTUME, facts);
+    expect(deriveNodeDetail(source, view, facts).description).toBe(
+      textFor("hades2", COSTUME, "Common"),
+    );
   });
 });
 
