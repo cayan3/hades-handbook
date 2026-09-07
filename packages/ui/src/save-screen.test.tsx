@@ -51,6 +51,8 @@ function slots(...states: SlotState[]): readonly SlotView[] {
   }));
 }
 
+const noops = { onStart: () => {}, onOpen: () => {}, onLeave: () => {} };
+
 function screen(
   states: readonly SlotView[],
   onStart: (slot: SaveSlot) => void = () => {},
@@ -166,6 +168,25 @@ describe("a screen with every slot taken", () => {
   });
 });
 
+describe("a game whose stored runs could not be read", () => {
+  /**
+   * Three empty slots is what the screen draws either way, and on its own it
+   * says the player has no saved runs — which is a claim this screen is in no
+   * position to make when the store never opened.
+   */
+  it("says so rather than letting the empty slots speak for it", () => {
+    render(<SaveScreen slots={slots("empty", "empty", "empty")} {...noops} unsaved />);
+
+    expect(container.querySelector(".saves__unsaved")?.textContent).toContain("Saved runs can\u2019t be read here");
+  });
+
+  it("says nothing of the kind on an ordinary screen", () => {
+    render(screen(slots("open", "empty", "empty")));
+
+    expect(container.querySelector(".saves__unsaved")).toBeNull();
+  });
+});
+
 describe("the slots themselves", () => {
   it("names the open one Continue run and the rest saved runs", () => {
     render(screen(slots("saved", "open", "unreadable")));
@@ -245,5 +266,22 @@ describe("the slots themselves", () => {
     press("Replace this run", 2);
 
     expect(onStart).toHaveBeenCalledWith(3);
+  });
+
+  /**
+   * There is nothing behind a damaged save to open, so it is not a control —
+   * the same answer an empty slot gets. Drawn as one it dismissed the screen
+   * and put nothing in its place, and the row said what it was for in a note
+   * nobody could act on until the screen filled up.
+   */
+  it("does not make a damaged save pressable outside the asking", () => {
+    const onOpen = vi.fn();
+    render(screen(slots("open", "empty", "unreadable"), () => {}, onOpen));
+
+    expect(labels()).toContain("Damaged save");
+    expect(
+      [...container.querySelectorAll<HTMLElement>(".saves__slot")].at(-1)?.querySelector("button"),
+    ).toBeNull();
+    expect(onOpen).not.toHaveBeenCalled();
   });
 });

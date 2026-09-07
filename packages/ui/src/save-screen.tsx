@@ -39,9 +39,17 @@ export interface SaveScreenProps {
   readonly onStart: (slot: SaveSlot) => void;
   /** Back out of the game entirely, which is what the games' own arrow does. */
   readonly onLeave: () => void;
+  /**
+   * Whether this game's stored runs could not be read at all.
+   *
+   * The slots draw empty either way, and left to speak for themselves they tell
+   * the player they have no saved runs — which is a different thing from the
+   * store never having opened, and the one case where it is wrong.
+   */
+  readonly unsaved?: boolean;
 }
 
-export function SaveScreen({ slots, onOpen, onStart, onLeave }: SaveScreenProps) {
+export function SaveScreen({ slots, onOpen, onStart, onLeave, unsaved = false }: SaveScreenProps) {
   const game = useGame();
   const { ref, onKeyDown } = useDialog(onLeave);
   const titleId = useId();
@@ -71,6 +79,12 @@ export function SaveScreen({ slots, onOpen, onStart, onLeave }: SaveScreenProps)
         <h2 className="saves__title" id={titleId}>
           {asking ? "Choose a run to replace" : "Choose a save slot to begin"}
         </h2>
+
+        {unsaved ? (
+          <p className="saves__unsaved">
+            Saved runs can&rsquo;t be read here, and a run started now won&rsquo;t be kept.
+          </p>
+        ) : null}
 
         {/* The game's own slot frame, on the list rather than on each slot: one
             declaration inherits to all three, and a slot that is only ever
@@ -152,6 +166,22 @@ function Slot({
       <li className="saves__slot" data-empty="true">
         <span className="saves__ordinal">Slot {slot}</span>
         <span className="saves__empty">( Empty Save Slot )</span>
+      </li>
+    );
+  }
+
+  /* A damaged save is not a control either, for the plainer reason that there
+     is nothing behind it to open. It keeps its slot and says what it is, and
+     the only thing that can be done with it — replacing it — is the asking
+     below, which is where every other slot is replaced too. */
+  if (state === "unreadable" && !asking) {
+    return (
+      <li className="saves__slot" data-filed="true" data-damaged="true">
+        <span className="saves__ordinal">Slot {slot}</span>
+        <span className="saves__what">Damaged save</span>
+        <p className="saves__note">
+          This build could not read it. Starting a run here replaces it.
+        </p>
       </li>
     );
   }

@@ -2671,6 +2671,16 @@ kbd {
   letter-spacing: 0.06em;
 }
 
+/* Under the title, because it is about the whole screen rather than any one
+   slot — the slots below it are drawn empty and would otherwise be read as an
+   answer about this player's runs. */
+.saves__unsaved {
+  margin: -0.4rem 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
 /* Which slot this is, quiet and above the label: the order is fixed, so the
    number is what tells two saved runs apart before their counts do. */
 .saves__ordinal {
@@ -2699,6 +2709,15 @@ kbd {
    the run behind you, and the two live choices are beside it. */
 .saves__slot[data-filed="true"] {
   opacity: 0.85;
+}
+
+/* A damaged save has no button to lay its contents out, being nothing a player
+   can press. It keeps a filled slot's shape rather than an empty one's, since
+   there is something in this slot and the row says so. */
+.saves__slot[data-damaged="true"] {
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1rem;
 }
 
 /* Centred under the row, where both games put the arrow out. */
