@@ -11,6 +11,7 @@
 import { traitsFor } from "@repo/catalog";
 import { STORAGE_ERROR_TITLE } from "@repo/ui";
 import {
+  type PersistedRun,
   type RunSlot,
   type RunStore,
   type TabPresence,
@@ -622,15 +623,21 @@ describe("a field the user is holding by hand", () => {
    * overlay stored with the run and handed back at load — rather than through a
    * control that would have nothing to do.
    */
+  /** A run with a pin in it, so the slot is taken by what the record holds. */
+  function heldByHand(): PersistedRun {
+    const state = emptyRun("hades2", currentBuild());
+    state.intent.pins.add("AllCloseBoon");
+    return {
+      ...toPersisted({ state, quarantine: [] }),
+      overrides: [
+        { path: "held", key: APHRODITE_MELEE, value: { rarity: "Epic", level: 1 } },
+      ],
+    };
+  }
+
   it("shows the marker and hands the field back", async () => {
-    const stored = toPersisted({ state: emptyRun("hades2", ""), quarantine: [] });
     const store = createMemoryStore();
-    await store.save("hades2", "active", {
-      ...stored,
-      // Stamped with the shipped build so the load has nothing to migrate.
-      facts: { ...stored.facts, dataVersion: currentBuild() },
-      overrides: [{ path: "held", key: APHRODITE_MELEE, value: { rarity: "Epic", level: 1 } }],
-    });
+    await store.save("hades2", "active", heldByHand());
 
     await mount(store);
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
@@ -641,6 +648,35 @@ describe("a field the user is holding by hand", () => {
     // Handed back, the source has nothing to repopulate it with — which is the
     // honest answer for a source that only ever reported what was typed.
     expect(container.querySelector(".loadout__empty")).not.toBeNull();
+  });
+
+  /**
+   * A slot is taken by what its record holds, and a hand-held field is not in
+   * the record — the session takes the overlay back before any slot boundary
+   * writes. Read through the merged facts, an override that takes a field away
+   * made the slot the run was in draw as empty, and the row that starts a run
+   * allocated it and wrote over the run.
+   */
+  it("does not let a hand-held field decide whether a slot is taken", async () => {
+    const state = emptyRun("hades2", currentBuild());
+    state.facts.held.set(APHRODITE_MELEE, { rarity: "Common", level: 1 });
+    state.facts.godPool.add("Aphrodite");
+    const store = createMemoryStore();
+    await store.save("hades2", 1, {
+      ...toPersisted({ state, quarantine: [] }),
+      overrides: [
+        { path: "held", key: APHRODITE_MELEE, value: null },
+        { path: "godPool", god: "Aphrodite", present: false },
+      ],
+    });
+    await store.setOpenSlot("hades2", 1);
+    await mount(store);
+
+    toTheDoor();
+    expect(slotLabels()[0]).toBe("Continue run");
+
+    await takeSlot("Start a new run");
+    expect((await store.load("hades2", 1))?.facts.held).toHaveLength(1);
   });
 });
 
@@ -1012,19 +1048,27 @@ describe("another tab of the same run", () => {
 });
 
 describe("a store that will not take a write", () => {
-  function failing(): RunStore {
-    const memory = createMemoryStore();
-    return { ...memory, save: () => Promise.reject(new Error("quota exceeded")) };
-  }
-
   /**
    * The difference between a run that is not being saved and one that looks
    * fine. Nothing awaits a tap, so this arrives with no gesture behind it —
    * which is why it needed a subscription of its own before it could be shown
    * at all.
+   *
+   * The store works until the door has been answered and fails after it. Failing
+   * from the start, the notice was already up from the door's own write and this
+   * would have passed with the tap deleted.
    */
   it("says so, after a tap that nothing awaited", async () => {
-    await mount(failing());
+    const memory = createMemoryStore();
+    let refuse = false;
+    await mount({
+      ...memory,
+      save: (game, slot, run) =>
+        refuse ? Promise.reject(new Error("quota exceeded")) : memory.save(game, slot, run),
+    });
+    expect(texts(".notice__title")).not.toContain(STORAGE_ERROR_TITLE);
+
+    refuse = true;
     tap(APHRODITE_MELEE);
     await act(async () => {
       await Promise.resolve();
@@ -1252,6 +1296,46 @@ describe("the run overview", () => {
     expect(await store.openSlot("hades2")).toBe(2);
   });
 
+  /**
+   * The same rule the door follows for a run arriving: the screen changes when
+   * the record has really gone. Going back first, the door redrew from the
+   * slots as they stood a moment ago — the deleted run still on it and every
+   * row still pressable, so a full screen would arm rather than allocate and
+   * the next press would drop a second run for nothing.
+   */
+  it("waits for the record to go before it puts the door back up", async () => {
+    const memory = createMemoryStore();
+    let release: (() => void) | null = null;
+    const store: RunStore = {
+      ...memory,
+      clear: (game, slot) =>
+        new Promise<void>((resolve) => {
+          release = () => void memory.clear(game, slot).then(resolve);
+        }),
+    };
+    await mount(store);
+    tap(APHRODITE_MELEE);
+    click("Overview");
+    click("Delete this run");
+    await act(async () => {
+      control("Delete this run permanently").click();
+    });
+
+    expect(container.querySelector(".saves")).toBeNull();
+
+    await act(async () => {
+      release?.();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    expect(container.querySelector(".saves")).not.toBeNull();
+    expect(slotLabels()).toEqual([
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+      "( Empty Save Slot )",
+    ]);
+  });
+
   /** Survives the tab closing, which is the only reason it is a record. */
   it("is still there after a reload", async () => {
     const store = createMemoryStore();
@@ -1391,6 +1475,23 @@ describe("starting a new run", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     });
     expect(container.querySelector(".saves")).toBeNull();
+  });
+
+  /**
+   * Waiting for the write is right; waiting forever is not. A store that will
+   * not take a write left the door as the only thing on screen and the only two
+   * things on it were a row that failed and the way back to Home, so a browser
+   * with no room left could not be played in at all.
+   */
+  it("lets the player in when the run cannot be stored", async () => {
+    const memory = createMemoryStore();
+    const store: RunStore = { ...memory, save: () => Promise.reject(new Error("quota exceeded")) };
+    await mount(store);
+
+    expect(container.querySelector(".saves")).toBeNull();
+    expect(container.querySelector(".app__godbar")).not.toBeNull();
+    // Told, rather than left to find out at the next reload.
+    expect(texts(".notice__title")).toContain(STORAGE_ERROR_TITLE);
   });
 
   it("takes the first free slot, and the row says only what it is", async () => {

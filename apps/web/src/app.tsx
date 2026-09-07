@@ -411,17 +411,25 @@ function Run({
    *
    * The door stays up until the verb lands. Closed first, a tap made while the
    * write was in flight would be wiped by the run arriving behind it.
+   *
+   * It opens on a refusal too, which is not the same thing. A write that failed
+   * puts no run behind the door, so there is nothing to wipe a tap — and left
+   * shut, a browser that will not take a write could not be played in at all:
+   * the door was the only screen and the only ways off it were a row that kept
+   * failing and the way back to Home. The storage notice says what happened.
    */
   const intoRun = useCallback(
     (verb: Promise<void>) => {
-      afterSlot(
-        verb.then(() => {
-          onCurated(NO_TABS);
-          setSelected(HUB);
-          setReviewing(null);
-          onChosen();
-        }),
-      );
+      const enter = () => {
+        onCurated(NO_TABS);
+        setSelected(HUB);
+        setReviewing(null);
+        onChosen();
+      };
+      afterSlot(verb.then(enter, (cause: unknown) => {
+        enter();
+        throw cause;
+      }));
     },
     [afterSlot, onCurated, onChosen],
   );
@@ -753,16 +761,22 @@ function Run({
   const openedView = opened === null ? null : view(opened);
 
   /**
-   * The three slots as the door draws them. The open one is read through the
-   * merged facts, which is the rule everywhere — a field held by hand belongs in
-   * the counts beside the run it is held over; the rest are their records.
+   * The three slots as the door draws them.
+   *
+   * The open one's **counts** are the merged facts, which is the rule
+   * everywhere — a field held by hand belongs in the counts beside the run it is
+   * held over. Whether the slot is **taken** is a different question and is
+   * asked of the record, the way it is asked of every other slot: the session
+   * hands the overlay back before any slot boundary writes, so a hand-held field
+   * is not part of what the slot holds. Asked of the merged facts, an override
+   * that took a field away drew the run's own slot as empty and the row that
+   * starts a run allocated it.
    */
   const slotViews: readonly SlotView[] = SAVE_SLOTS.map((slot) => {
     if (slot === condition.slot) {
       /* Quarantined entries hold the slot too: a run whose every id the catalog
          has forgotten still has something in it, and it is still recoverable. */
-      const live = { facts, intent };
-      return holdsSomething(live) || condition.quarantine.length > 0
+      return holdsSomething(session.source.getState()) || condition.quarantine.length > 0
         ? {
             slot,
             state: "open" as const,
@@ -1106,14 +1120,22 @@ function Run({
                less about what is being dropped than the run itself does. */
             onDelete={() => {
               const target = reviewedSlot ?? condition.slot;
-              afterSlot(session.deleteRun(target));
-              // Only the open slot's deletion empties the run in play, and the
-              // bar was built for that run.
-              if (target === condition.slot) {
-                onCurated(NO_TABS);
-                setSelected(HUB);
-              }
-              toTheDoor();
+              // The door goes back up once the record has gone, on the same
+              // rule a run arriving follows. Put up first it drew the slots as
+              // they stood a moment before, the deleted run still among them
+              // and every row still pressable — so a full screen armed instead
+              // of allocating, and the next press dropped a run for nothing.
+              afterSlot(
+                session.deleteRun(target).then(() => {
+                  // Only the open slot's deletion empties the run in play, and
+                  // the bar was built for that run.
+                  if (target === condition.slot) {
+                    onCurated(NO_TABS);
+                    setSelected(HUB);
+                  }
+                  toTheDoor();
+                }),
+              );
             }}
             onSaveSlots={toTheDoor}
           />
@@ -1140,6 +1162,10 @@ function Run({
             onLeave={() => {
               window.location.hash = HOME_HASH;
             }}
+            /* Where the store never opened, every slot draws empty and says on
+               its own that this player has no saved runs — which is the one
+               case where that is not what happened. */
+            unsaved={!persistent}
           />
         )}
 
