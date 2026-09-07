@@ -30,6 +30,9 @@ from config import out_dir, raw_dir, scripts_dir
 
 UNRESOLVED_PREFIX = "<unresolved:"
 
+# The placeholder an entry writes where a recovered number goes.
+SLOT = re.compile(r"\{(\d+)\}")
+
 # Records already known to ship an unresolved sentinel, exempted from the leak
 # check so that a genuinely new one isn't lost in the noise of an old one.
 # Both are Chaos boons whose prereq reaches `G.LootData.TrialUpgrade
@@ -568,10 +571,31 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
     # this text is looked at.
     if descriptions is not None:
         report["descriptionCount"] = len(descriptions)
-        with_markup = sorted(k for k, v in descriptions.items() if "{" in v or "}" in v)
+        # An entry that recovered a number is a sentence with a `{n}` per slot
+        # plus a row of values per rarity, so the braces are checked with those
+        # taken out -- anything left is a construction nobody has read.
+        with_markup, malformed = [], []
+        with_values = 0
+        for ref, entry in sorted(descriptions.items()):
+            text = entry if isinstance(entry, str) else entry["text"]
+            if "{" in SLOT.sub("", text) or "}" in SLOT.sub("", text):
+                with_markup.append(ref)
+            if isinstance(entry, str):
+                continue
+            with_values += 1
+            slots = len(set(SLOT.findall(text)))
+            if "default" not in entry["values"]:
+                malformed.append(ref)
+            elif any(len(row) != slots for row in entry["values"].values()):
+                malformed.append(ref)
+        report["descriptionsWithValues"] = with_values
         report["descriptionsCarryingMarkup"] = with_markup
+        report["descriptionsWithMalformedValues"] = malformed
         for ref in with_markup:
             fatal.append("%s the description for %s still carries markup: %r"
+                         % (game_key, ref, descriptions[ref]))
+        for ref in malformed:
+            fatal.append("%s the description for %s has a slot with no value: %r"
                          % (game_key, ref, descriptions[ref]))
         # A record naming a ref with nothing behind it is not a defect: roughly a
         # fifth of each game's entries are debug and cut content with no text at

@@ -165,3 +165,119 @@ def test_a_ref_with_no_text_behind_it_is_absent_rather_than_empty():
     """Roughly a fifth of each game's entries are debug and cut content with no
     description at all, and an empty string on a card is a gap with no reason."""
     assert descriptions_for(["Bare"], {"Bare": {}}, KEYWORDS) == {}
+
+
+# ---------------------------------------------------------------------------
+# The numbers, where the resolver could recover them
+# ---------------------------------------------------------------------------
+# A recovered entry is a sentence with a `{n}` per slot plus a row of values per
+# rarity, so what these pin is the split: which sentences gain one, which stay
+# strings, and that a slot nobody could answer keeps the mark beside one that
+# somebody could.
+
+DEFS = {
+    "Scaling": {
+        "RarityLevels": {"Common": {"Multiplier": 1.0}, "Epic": {"Multiplier": 2.0}},
+        "Amount": 30,
+        "Speed": {"BaseValue": 0.6, "SourceIsMultiplier": True},
+        "ExtractValues": [
+            {"ExtractAs": "Flat", "Key": "Amount"},
+            {"ExtractAs": "Faster", "Format": "NegativePercentDelta", "Key": "Speed"},
+        ],
+    },
+    "Partly": {
+        "Amount": 30,
+        "ExtractValues": [
+            {"ExtractAs": "Known", "Key": "Amount"},
+            {
+                "ExtractAs": "Unknown",
+                "External": True,
+                "BaseType": "EffectData",
+                "BaseName": "WeakEffect",
+                "BaseProperty": "Duration",
+            },
+        ],
+    },
+}
+
+
+def resolver():
+    from resolve_values import Resolver
+
+    return Resolver(DEFS, "hades2")
+
+
+def test_a_sentence_whose_numbers_resolve_becomes_a_template_and_its_values():
+    bundle = {
+        "Scaling": {
+            "description": "Gain +{$TooltipData.ExtractData.Flat} Armor and move"
+            " {$TooltipData.ExtractData.Faster}% faster."
+        }
+    }
+    out = descriptions_for(["Scaling"], bundle, KEYWORDS, resolver(), {"Scaling": ["Common", "Epic"]})
+    assert out["Scaling"]["text"] == "Gain +{0} Armor and move {1}% faster."
+    assert out["Scaling"]["values"] == {"default": ["30", "40"], "Epic": ["30", "80"]}
+
+
+def test_a_rarity_whose_row_matches_the_floor_is_not_written_out():
+    """Most values do not move with the rarity, so a row per rarity would be the
+    same row four times in the file every reader downloads."""
+    bundle = {"Scaling": {"description": "Gain +{$TooltipData.ExtractData.Flat} Armor."}}
+    out = descriptions_for(["Scaling"], bundle, KEYWORDS, resolver(), {"Scaling": ["Common", "Epic"]})
+    assert out["Scaling"]["values"] == {"default": ["30"]}
+
+
+def test_a_slot_nobody_could_answer_keeps_the_mark_beside_one_that_could():
+    bundle = {
+        "Partly": {
+            "description": "Gain +{$TooltipData.ExtractData.Known} Armor for"
+            " {$TooltipData.ExtractData.Unknown} Sec."
+        }
+    }
+    out = descriptions_for(["Partly"], bundle, KEYWORDS, resolver(), {"Partly": []})
+    assert out["Partly"]["text"] == "Gain +{0} Armor for %s Sec." % VALUE
+    assert out["Partly"]["values"] == {"default": ["30"]}
+
+
+def test_a_sentence_with_nothing_to_recover_stays_a_string():
+    """The bundle only grows where it gained something, so an entry that
+    recovered nothing reads exactly as it did before any of this."""
+    bundle = {"Partly": {"description": "Lasts {$TooltipData.ExtractData.Unknown} Sec."}}
+    out = descriptions_for(["Partly"], bundle, KEYWORDS, resolver(), {"Partly": []})
+    assert out["Partly"] == "Lasts %s Sec." % VALUE
+
+
+def test_no_resolver_marks_every_substitution():
+    bundle = {"Scaling": {"description": "Gain +{$TooltipData.ExtractData.Flat} Armor."}}
+    assert descriptions_for(["Scaling"], bundle, KEYWORDS) == {"Scaling": "Gain +%s Armor." % VALUE}
+
+
+SPLITTING = {
+    # One rarity drives the value to zero, which is the only thing a format can
+    # divide by. Every other reason a value cannot be reached is structural and
+    # so holds at every rarity, which is why this is the shape that tests the
+    # rule rather than a more ordinary record.
+    "Splitting": {
+        "RarityLevels": {"Common": {"Multiplier": 1.0}, "Epic": {"Multiplier": 4.0}},
+        "Rate": {"BaseValue": 0.5, "SourceIsNegativeMultiplier": True},
+        "ExtractValues": [
+            {"ExtractAs": "Shown", "Format": "PercentReciprocalDelta", "Key": "Rate"}
+        ],
+    }
+}
+
+
+def test_a_slot_only_some_rarities_can_answer_keeps_the_mark_at_all_of_them():
+    """A sentence reading `?` at one rarity and a number at another would look
+    like the boon does nothing there, so the slot is not written out at all."""
+    from resolve_values import Resolver
+
+    bundle = {"Splitting": {"description": "Recharge {$TooltipData.ExtractData.Shown}% faster."}}
+    resolver = Resolver(SPLITTING, "hades2")
+    assert resolver.value("Splitting", "Common", "TooltipData.ExtractData.Shown") is not None
+    assert resolver.value("Splitting", "Epic", "TooltipData.ExtractData.Shown") is None
+
+    out = descriptions_for(
+        ["Splitting"], bundle, KEYWORDS, resolver, {"Splitting": ["Common", "Epic"]}
+    )
+    assert out["Splitting"] == "Recharge %s%% faster." % VALUE

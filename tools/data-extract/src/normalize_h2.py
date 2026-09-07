@@ -1,6 +1,7 @@
 import glob, json, re, os, sys
 from parse_text_bundle import parse_sjson_text_bundle, resolve_display_name
 from render_text import descriptions_for, render_name
+from resolve_values import Resolver
 from line_index import index_keys_at_depth
 import build_guard
 import requirements
@@ -931,10 +932,19 @@ with open(OUT + "_clause_report.json", "w") as f:
 # All 129 keywords the shipped descriptions reference resolve out of the keyword
 # bundle read beside the trait text above.
 
+# A ref is always its own record's id, which is what lets the resolver find the
+# record a sentence belongs to. Checked rather than assumed: a patch that broke
+# it would silently read one boon's numbers into another's sentence.
+mismatched = sorted(t for t, rec in boons.items() if rec["descriptionRef"] not in (None, t))
+if mismatched:
+    sys.exit("descriptionRef is not the record id on: " + ", ".join(mismatched[:5]))
+
 descriptions = descriptions_for(
     [rec["descriptionRef"] for rec in boons.values() if rec["descriptionRef"]],
     text_bundle_raw,
     keyword_bundle,
+    Resolver(ALL_DEFS_WITH_ASPECTS, "hades2"),
+    {t: rec["rarity"] for t, rec in boons.items()},
 )
 with open(OUT + "descriptions.json", "w") as f:
     json.dump(descriptions, f, indent=1, sort_keys=True, ensure_ascii=False)

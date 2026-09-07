@@ -156,12 +156,16 @@ def render_name(raw, keywords):
     return text or None
 
 
-def render_description(raw, keywords):
+def render_description(raw, keywords, fill=None):
     """The first sentence of a Codex entry, with its markup resolved or dropped.
 
     Everything after the first line break is the tooltip's stat table -- a stat
     name and a runtime number per line -- which carries nothing a plan is made
     from, so the rendering stops at the prose.
+
+    `fill` is asked what each runtime substitution should become and answers the
+    mark where it has nothing, so a caller that passes none gets the sentence
+    every substitution marked.
     """
     if not raw:
         return ""
@@ -171,23 +175,61 @@ def render_description(raw, keywords):
     text = ICON.sub(lambda m: " %s " % (icon_word(keywords, m.group(1)) or ""), text)
     text = FORMAT.sub("", text)
     text = ANY_ICON.sub("", text)
-    text = SUBSTITUTION.sub(VALUE, text)
+    text = SUBSTITUTION.sub((lambda m: fill(m.group(0))) if fill else VALUE, text)
     text = BUTTON.sub("", text)
     text = text.replace("\\n", " ")
     text = re.sub(r"\s+", " ", text).strip()
     return BEFORE_PUNCTUATION.sub(r"\1", text)
 
 
-def descriptions_for(refs, bundle, keywords):
+def _entry(raw, keywords, resolver, trait_id, rarities):
+    """One sentence, plus the numbers each rarity fills it with where they exist.
+
+    A slot becomes a placeholder only when every rarity can answer it. The
+    reasons one cannot are structural rather than per-rarity, so a slot that
+    splits is a sign the record is being read wrong rather than a mixed answer
+    worth shipping.
+    """
+    slots = []
+    keys = list(rarities) or [None]
+
+    def fill(spec):
+        answers = {key: resolver.value(trait_id, key, spec[2:-1]) for key in keys}
+        if any(answer is None for answer in answers.values()):
+            return VALUE
+        slots.append(answers)
+        return "{%d}" % (len(slots) - 1)
+
+    text = render_description(raw, keywords, fill)
+    if not text or not slots:
+        return text
+    fallback = "Common" if "Common" in keys else keys[0]
+    values = {"default": [slot[fallback] for slot in slots]}
+    for key in keys:
+        row = [slot[key] for slot in slots]
+        if key is not None and row != values["default"]:
+            values[key] = row
+    return {"text": text, "values": values}
+
+
+def descriptions_for(refs, bundle, keywords, resolver=None, rarities=None):
     """The rendered bundle, keyed by the ref a record names.
 
     Only the refs some shipped record points at: a description nothing can reach
     is game text carried for nothing, which is the exposure this pipeline is
     supposed to keep to a minimum.
+
+    An entry whose numbers were all recovered carries a template and a row of
+    values per rarity instead of a sentence; one where none were stays a string,
+    so the bundle only grows where it gained something.
     """
     out = {}
     for ref in sorted(set(refs)):
-        rendered = render_description((bundle.get(ref) or {}).get("description"), keywords)
+        raw = (bundle.get(ref) or {}).get("description")
+        if resolver is None:
+            rendered = render_description(raw, keywords)
+        else:
+            rendered = _entry(raw, keywords, resolver, ref, (rarities or {}).get(ref) or [])
         if rendered:
             out[ref] = rendered
     return out
