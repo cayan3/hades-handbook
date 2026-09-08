@@ -886,3 +886,55 @@ def test_the_weapon_checks_are_skipped_where_no_table_was_emitted():
     report, fatal = check({"Hammer": boon(id="Hammer", weapon="GlaiveWeapon")})
     assert "weaponCount" not in report
     assert fatal == []
+
+
+# ---------------------------------------------------------------------------
+# Descriptions: the sentence, and the rows a rarity splices into it
+# ---------------------------------------------------------------------------
+# A description reaches a card verbatim, so these are the last thing between a
+# construction the extractor did not resolve and a reader. All of them ran
+# untested until a mutation pass deleted each in turn and nothing went red.
+
+
+def test_a_row_shorter_than_the_sentence_needs_is_fatal():
+    """A slot with no value in the row leaves a literal `{1}` on the card."""
+    _, fatal = check({}, descriptions={
+        "A": {"text": "Gain +{0} Armor for {1} Sec.", "values": {"default": ["30"]}},
+    })
+    assert any("has a slot with no value" in message for message in fatal)
+
+
+def test_an_entry_with_no_default_row_is_fatal():
+    """`default` is what an unheld boon reads and what a rarity with no row of
+    its own falls back to, so an entry without one has no answer at all."""
+    _, fatal = check({}, descriptions={
+        "A": {"text": "Gain +{0} Armor.", "values": {"Rare": ["45"]}},
+    })
+    assert any("has a slot with no value" in message for message in fatal)
+
+
+def test_a_sentence_still_carrying_markup_is_fatal():
+    _, fatal = check({}, descriptions={"A": "Gain {$TooltipData.Amount} Armor."})
+    assert any("still carries markup" in message for message in fatal)
+
+
+def test_markup_in_a_rarity_row_is_fatal_the_same_way():
+    """One format answers a word as the game's own keyword markup, so a row is
+    somewhere markup can reach a card -- and only the row a given reading
+    splices would ever show it."""
+    _, fatal = check({}, descriptions={
+        "A": {"text": "Rarify her {0} blessings.",
+              "values": {"default": ["Common"], "Rare": ["{$Keywords.Rare}"]}},
+    })
+    assert any("still carries markup" in message for message in fatal)
+
+
+def test_a_well_formed_entry_passes_and_is_counted():
+    report, fatal = check({}, descriptions={
+        "A": {"text": "Gain +{0} Armor.", "values": {"default": ["30"], "Rare": ["45"]}},
+        "B": "Your Attacks deal more damage to nearby foes.",
+    })
+    assert fatal == []
+    assert report["descriptionCount"] == 2
+    assert report["descriptionsWithValues"] == 1
+    assert report["descriptionsWithMalformedValues"] == []

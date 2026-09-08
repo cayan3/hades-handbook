@@ -255,6 +255,71 @@ def test_a_spec_naming_nothing_answers_nothing():
     assert resolver.value("Boon", None, "GameState.CauseOfDeathDisplay") is None
 
 
+def test_a_ramped_value_is_rounded_before_a_dotted_path_reads_it():
+    # Both games round every ramped value to two places on the way out, before
+    # anything reads it. An extract entry rounds again on its own tail, so the
+    # only reading that shows this one is a path straight into the record --
+    # and one shipped value moves without it: a Chaos blessing reads 25-37
+    # rather than 25-38.
+    defs = {
+        "Boon": {
+            "RarityLevels": {"Rare": {"Multiplier": 1.0}},
+            "Speed": {"BaseMin": 0.3333, "BaseMax": 0.6667},
+        }
+    }
+    resolver = Resolver(defs, "hades2")
+    assert resolver.value("Boon", "Rare", "TooltipData.Speed") == "0.33-0.67"
+
+
+def test_a_format_that_reads_the_run_is_refused():
+    # The list of them is the guard, and it is the only guard once a format is
+    # answerable at all: `Rarity` sat on this list for being run-dependent and
+    # is not, so what is left here has to be checked rather than assumed.
+    defs = {
+        "Boon": {
+            "Taken": 4,
+            "ExtractValues": [
+                {"ExtractAs": "Shown", "Format": "TotalDamageTaken", "Key": "Taken"}
+            ],
+        }
+    }
+    resolved, why = values(defs, "Boon", None)
+    assert "Shown" not in resolved
+    assert why["Shown"] == "run-format:TotalDamageTaken"
+
+
+def test_a_child_field_wins_over_the_one_it_would_inherit():
+    # Child-first is what the games' own loader does, and it decides 221 of the
+    # shipped values -- a parent's damage standing in for a child's is a number
+    # that looks entirely reasonable.
+    defs = {
+        "Base": {"Damage": {"BaseValue": 12}},
+        "Boon": {
+            "InheritFrom": ["Base"],
+            "Damage": {"BaseValue": 30},
+            "ExtractValues": [{"ExtractAs": "Shown", "Key": "Damage"}],
+        },
+    }
+    assert str(values(defs, "Boon", None)[0]["Shown"]) == "30"
+
+
+def test_a_stat_line_counts_only_the_entries_the_tooltip_lists():
+    # StatDisplayN is the Nth line the tooltip draws automatically, so an entry
+    # marked SkipAutoExtract is not one of them and must not be counted.
+    defs = {
+        "Boon": {
+            "Hidden": 5,
+            "Listed": 9,
+            "ExtractValues": [
+                {"ExtractAs": "First", "Key": "Hidden", "SkipAutoExtract": True},
+                {"ExtractAs": "Second", "Key": "Listed"},
+            ],
+        }
+    }
+    resolver = Resolver(defs, "hades2")
+    assert resolver.value("Boon", None, "TooltipData.StatDisplay1") == "9"
+
+
 # ---------------------------------------------------------------------------
 # The one format that answers a word
 # ---------------------------------------------------------------------------

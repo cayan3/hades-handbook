@@ -578,12 +578,22 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
         with_values = 0
         for ref, entry in sorted(descriptions.items()):
             text = entry if isinstance(entry, str) else entry["text"]
-            if "{" in SLOT.sub("", text) or "}" in SLOT.sub("", text):
+            # The rows are read alongside the sentence. One format answers a
+            # word rather than a number and the game answers it as its own
+            # `{$Keywords.Rare}` markup, so a row is somewhere markup can reach
+            # a card -- and only the row a reading happens to splice would show.
+            parts = [text]
+            if isinstance(entry, dict):
+                parts += [value for row in entry["values"].values() for value in row]
+            if any("{" in SLOT.sub("", part) or "}" in SLOT.sub("", part) for part in parts):
                 with_markup.append(ref)
             if isinstance(entry, str):
                 continue
             with_values += 1
-            slots = len(set(SLOT.findall(text)))
+            # The highest slot the sentence names rather than how many it names:
+            # a row is indexed by the number in the brace, so `{0}` and `{2}`
+            # with a two-value row leaves a literal `{2}` on the card.
+            slots = max((int(index) for index in SLOT.findall(text)), default=-1) + 1
             if "default" not in entry["values"]:
                 malformed.append(ref)
             elif any(len(row) != slots for row in entry["values"].values()):

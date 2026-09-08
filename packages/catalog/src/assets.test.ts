@@ -1,3 +1,4 @@
+import type { Rarity } from "@repo/core";
 import { describe, expect, it } from "vitest";
 import {
   type ChromePart,
@@ -17,6 +18,18 @@ import { type GameKey, dataFor } from "./data.js";
 import { keepsakesFor } from "./keepsakes.js";
 import { talentsFor } from "./talents.js";
 import { traitsFor } from "./traits.js";
+
+/** Every rarity a run can hold, so a check over "the text" reaches every row. */
+const RARITIES: readonly Rarity[] = [
+  "Common",
+  "Rare",
+  "Epic",
+  "Heroic",
+  "Legendary",
+  "Duo",
+  "Elemental",
+  "Perfect",
+];
 
 /**
  * The withdrawal path, which had no test at all until it had three arms.
@@ -221,16 +234,36 @@ describe("textFor", () => {
     expect(h1).not.toBe(h2);
   });
 
-  it("carries no markup through to a caller", () => {
+  it("carries no markup through to a caller, at every rarity", () => {
     // The games write descriptions as display markup and this renders text, so
     // a surviving brace is a construction the extractor did not resolve. Read
     // through `textFor` rather than off the bundle: half the entries are a
     // template plus its values now, and a regex run over one of those matches
-    // nothing and passes for the wrong reason.
+    // nothing and passes for the wrong reason. Every rarity rather than the
+    // default row, because one format answers a word and a word arrives as the
+    // game's own markup — so a row is somewhere markup can reach a card.
     for (const game of ["hades1", "hades2"] as const) {
       const bundle = dataFor(game).descriptions as Record<string, unknown>;
-      const withMarkup = Object.keys(bundle).filter((ref) => /[{}]/.test(textFor(game, ref) ?? ""));
+      const withMarkup = Object.keys(bundle).filter((ref) =>
+        [undefined, ...RARITIES].some((rarity) => /[{}]/.test(textFor(game, ref, rarity) ?? "")),
+      );
       expect(withMarkup).toEqual([]);
+    }
+  });
+
+  it("keeps the brace where a row has no value for the slot", () => {
+    // Nothing shipped is short of a value — the extractor refuses to emit one
+    // — so this is about which way it fails if that ever stops being true. A
+    // stray `{1}` reads as a defect; the word "undefined" reads as a number
+    // that happens to be missing.
+    const entry = { text: "Gain +{0} Armor for {1} Sec.", values: { default: ["30"] } };
+    const bundle = dataFor("hades2").descriptions as Record<string, unknown>;
+    const ref = "__short_row__";
+    bundle[ref] = entry;
+    try {
+      expect(textFor("hades2", ref)).toBe("Gain +30 Armor for {1} Sec.");
+    } finally {
+      delete bundle[ref];
     }
   });
 
