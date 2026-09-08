@@ -98,6 +98,14 @@ def _bare(name):
     return re.sub(r"\s+", " ", ANY_ICON.sub("", name)).strip()
 
 
+# A title that opens with a glyph and a space is written to sit after something:
+# `{!Icons.PomLevel_NoTooltip} Lv.` follows a number. Dropping the glyph took the
+# separator with it, which is where "+3Lv." and "at least 2Elements" came from.
+# Seven of the thirteen icon-carrying titles a shipped description quotes are
+# this shape; the other six open with the Omega, which stays and separates.
+LEADING_GLYPH = re.compile(r"\s*\{!Icons\.([A-Za-z0-9_]+)\}\s")
+
+
 def keyword_word(keywords, key):
     """The word the game shows for a keyword reference, or nothing."""
     name = resolve_display_name(keywords, key)
@@ -105,7 +113,11 @@ def keyword_word(keywords, key):
         return ""
     # One nested hop: a few titles quote another keyword rather than a word.
     name = KEYWORD.sub(lambda m: resolve_display_name(keywords, m.group(1)) or "", name)
-    return _bare(name)
+    word = _bare(name)
+    opening = LEADING_GLYPH.match(name)
+    if word and opening and _glyph(opening.group(1)) is None:
+        return " " + word
+    return word
 
 
 def icon_word(keywords, key):

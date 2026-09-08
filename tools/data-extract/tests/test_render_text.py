@@ -281,3 +281,33 @@ def test_a_slot_only_some_rarities_can_answer_keeps_the_mark_at_all_of_them():
         ["Splitting"], bundle, KEYWORDS, resolver, {"Splitting": ["Common", "Epic"]}
     )
     assert out["Splitting"] == "Recharge %s%% faster." % VALUE
+
+
+# ---------------------------------------------------------------------------
+# Words rather than numbers, and the space a stripped glyph carried
+# ---------------------------------------------------------------------------
+
+SEPARATOR_KEYWORDS = {
+    # Two titles written to sit after a number. The first opens with a glyph
+    # that is dropped and the second with the Omega, which stays.
+    "PomLevel": {"displayName": "{!Icons.PomLevel_NoTooltip} Lv."},
+    "AttackEX": {"displayName": "{!Icons.Omega_NoTooltip} Attack"},
+    "Omega": {"displayName": "{!Icons.Omega} Moves"},
+}
+
+
+def test_a_dropped_glyph_leaves_the_space_it_was_carrying():
+    """`{!Icons.PomLevel_NoTooltip} Lv.` follows a number, so dropping the glyph
+    without its separator gave "+3Lv." on five shipped sentences."""
+    bundle = {"Boon": {"description": "Your Attack Boon gains +3{$Keywords.PomLevel},"
+                                      " but you Prime 35 Magick."}}
+    out = descriptions_for(["Boon"], bundle, SEPARATOR_KEYWORDS)
+    assert out["Boon"] == "Your Attack Boon gains +3 Lv., but you Prime 35 Magick."
+
+
+def test_a_glyph_that_stays_does_not_gain_a_second_space():
+    """The Omega is the word rather than decoration on it, so it separates the
+    two itself and adding a space as well would double it."""
+    bundle = {"Boon": {"description": "Empowers your {$Keywords.AttackEX}."}}
+    out = descriptions_for(["Boon"], bundle, SEPARATOR_KEYWORDS)
+    assert out["Boon"] == "Empowers your Ω Attack."

@@ -1373,7 +1373,7 @@
   }
  },
  "ElementalRarityUpgradeBoon": {
-  "text": "While you have at least {0}Elements, all your Common Boons gain Rarity.",
+  "text": "While you have at least {0} Elements, all your Common Boons gain Rarity.",
   "values": {
    "default": [
     "2"
@@ -1475,7 +1475,7 @@
  "FirstHangoverBoon": "Your Ω Moves inflict Hangover the first time they strike foes.",
  "FirstHitHealTrait": "Whenever you would next take damage, receive Healing in that amount instead.",
  "FocusAttackDamageTrait": {
-  "text": "Your Attack Boon gains +{0}Lv., but you Prime {1} Magick.",
+  "text": "Your Attack Boon gains +{0} Lv., but you Prime {1} Magick.",
   "values": {
    "Heroic": [
     "5",
@@ -1521,7 +1521,7 @@
   }
  },
  "FocusSpecialDamageTrait": {
-  "text": "Your Special Boon gains +{0}Lv., but you Prime {1} Magick.",
+  "text": "Your Special Boon gains +{0} Lv., but you Prime {1} Magick.",
   "values": {
    "Heroic": [
     "5",
@@ -1577,7 +1577,7 @@
  },
  "GoodStuffBoon": "Your Boon(s) in the leftmost column gain Lv. spread across however many you have.",
  "HadesAndPersephoneKeepsake": {
-  "text": "While at the Fates' Whim, gain a random Hades blessing and most Boons have +{0}Lv.",
+  "text": "While at the Fates' Whim, gain a random Hades blessing and most Boons have +{0} Lv.",
   "values": {
    "Epic": [
     "3"
@@ -2011,7 +2011,7 @@
   }
  },
  "LobAmmoTrait": {
-  "text": "Gain +{0}Shells.",
+  "text": "Gain +{0} Shells.",
   "values": {
    "Legendary": [
     "3"
