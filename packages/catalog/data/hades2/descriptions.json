@@ -128,7 +128,23 @@
    ]
   }
  },
- "AthenaEncounterKeepsake": "While you have no Death Defiance, Athena may appear once this night with at least ? Boons.",
+ "AthenaEncounterKeepsake": {
+  "text": "While you have no Death Defiance, Athena may appear once this night with at least {0} Boons.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Heroic": [
+    "Heroic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
  "AthenaProjectileBoon": {
   "text": "Your Specials also launch a projectile ahead that can Deflect, rearming after {0} Sec.",
   "values": {
@@ -1541,20 +1557,146 @@
    ]
   }
  },
- "ForceAphroditeBoonKeepsake": "A Boon of Aphrodite is likely. You can Rarify her ? blessings once this night.",
- "ForceApolloBoonKeepsake": "A Boon of Apollo is likely. You can Rarify his ? blessings once this night.",
- "ForceAresBoonKeepsake": "A Boon of Ares is likely. You can Rarify his ? blessings once this night.",
- "ForceDemeterBoonKeepsake": "A Boon of Demeter is likely. You can Rarify her ? blessings once this night.",
- "ForceHephaestusBoonKeepsake": "A Boon of Hephaestus is likely. You can Rarify his ? blessings once this night.",
- "ForceHeraBoonKeepsake": "A Boon of Hera is likely. You can Rarify her ? blessings once this night.",
- "ForceHestiaBoonKeepsake": "A Boon of Hestia is likely. You can Rarify her ? blessings once this night.",
- "ForcePoseidonBoonKeepsake": "A Boon of Poseidon is likely. You can Rarify his ? blessings once this night.",
- "ForceZeusBoonKeepsake": "A Boon of Zeus is likely. You can Rarify his ? blessings once this night.",
- "FountainRarityKeepsake": {
-  "text": "Fountains restore {0} Life. The next turns 1 random Common Boon of yours ?.",
+ "ForceAphroditeBoonKeepsake": {
+  "text": "A Boon of Aphrodite is likely. You can Rarify her {0} blessings once this night.",
   "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
    "default": [
-    "20%"
+    "Common"
+   ]
+  }
+ },
+ "ForceApolloBoonKeepsake": {
+  "text": "A Boon of Apollo is likely. You can Rarify his {0} blessings once this night.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
+ "ForceAresBoonKeepsake": {
+  "text": "A Boon of Ares is likely. You can Rarify his {0} blessings once this night.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
+ "ForceDemeterBoonKeepsake": {
+  "text": "A Boon of Demeter is likely. You can Rarify her {0} blessings once this night.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
+ "ForceHephaestusBoonKeepsake": {
+  "text": "A Boon of Hephaestus is likely. You can Rarify his {0} blessings once this night.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
+ "ForceHeraBoonKeepsake": {
+  "text": "A Boon of Hera is likely. You can Rarify her {0} blessings once this night.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
+ "ForceHestiaBoonKeepsake": {
+  "text": "A Boon of Hestia is likely. You can Rarify her {0} blessings once this night.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
+ "ForcePoseidonBoonKeepsake": {
+  "text": "A Boon of Poseidon is likely. You can Rarify his {0} blessings once this night.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
+ "ForceZeusBoonKeepsake": {
+  "text": "A Boon of Zeus is likely. You can Rarify his {0} blessings once this night.",
+  "values": {
+   "Epic": [
+    "Epic"
+   ],
+   "Rare": [
+    "Rare"
+   ],
+   "default": [
+    "Common"
+   ]
+  }
+ },
+ "FountainRarityKeepsake": {
+  "text": "Fountains restore {0} Life. The next turns 1 random Common Boon of yours {1}.",
+  "values": {
+   "Epic": [
+    "20%",
+    "Heroic"
+   ],
+   "Rare": [
+    "20%",
+    "Epic"
+   ],
+   "default": [
+    "20%",
+    "Rare"
    ]
   }
  },
@@ -2400,9 +2542,11 @@
   }
  },
  "MoneyDamageBoon": {
-  "text": "Your effects from ? and ? have a chance to fire {0} times.",
+  "text": "Your effects from {0} and {1} have a chance to fire {2} times.",
   "values": {
    "default": [
+    "Fine Line",
+    "Ocean Swell",
     "2"
    ]
   }
@@ -2899,9 +3043,22 @@
   }
  },
  "RandomBlessingKeepsake": {
-  "text": "Gain a random ? Chaos blessing. Every {0} Encounters, replace it.",
+  "text": "Gain a random {0} Chaos blessing. Every {1} Encounters, replace it.",
   "values": {
+   "Epic": [
+    "Epic",
+    "8"
+   ],
+   "Heroic": [
+    "Heroic",
+    "8"
+   ],
+   "Rare": [
+    "Rare",
+    "8"
+   ],
    "default": [
+    "Common",
     "8"
    ]
   }
@@ -3404,7 +3561,14 @@
    ]
   }
  },
- "SuitHexAspect": "You start with ?, a hidden Hex that strikes multiple foes and applies Shine.",
+ "SuitHexAspect": {
+  "text": "You start with {0}, a hidden Hex that strikes multiple foes and applies Shine.",
+  "values": {
+   "default": [
+    "Sky Fall"
+   ]
+  }
+ },
  "SuitMarkCritAspect": "You have Ω Boost, which lets you produce Nightspawn after you activate it.",
  "SuitPowershotTrait": {
   "text": "Your Ω Attack gains a Power Shot that deals {0} damage.",

@@ -311,3 +311,54 @@ def test_a_glyph_that_stays_does_not_gain_a_second_space():
     bundle = {"Boon": {"description": "Empowers your {$Keywords.AttackEX}."}}
     out = descriptions_for(["Boon"], bundle, SEPARATOR_KEYWORDS)
     assert out["Boon"] == "Empowers your Ω Attack."
+
+
+NAMED = {
+    "Other": {"displayName": "Ocean Swell"},
+    "Boon": {"description": "Your effects from {$TraitData.Other.Name} fire twice."},
+    "Missing": {"description": "You start with {$TraitData.Nowhere.Name}, a Hex."},
+}
+
+
+def test_a_substitution_naming_another_record_reads_its_display_name():
+    """The record carries no name -- the game's text engine looks one up -- so
+    a mark here reads as a hole in the sentence rather than a missing number."""
+    out = descriptions_for(["Boon"], NAMED, KEYWORDS, resolver(), {"Boon": []})
+    assert out["Boon"]["text"] == "Your effects from {0} fire twice."
+    assert out["Boon"]["values"] == {"default": ["Ocean Swell"]}
+
+
+def test_a_name_the_bundle_does_not_carry_keeps_the_mark():
+    out = descriptions_for(["Missing"], NAMED, KEYWORDS, resolver(), {"Missing": []})
+    assert out["Missing"] == "You start with %s, a Hex." % VALUE
+
+
+RARIFY = {
+    "Keepsake": {
+        "RarityLevels": {"Common": {"Multiplier": 1.0}, "Rare": {"Multiplier": 2.0}},
+        "Upgrade": {
+            "MaxRarity": {"BaseValue": 1},
+            "ReportValues": {"Reported": "MaxRarity"},
+        },
+        "ExtractValues": [
+            {"ExtractAs": "Level", "Format": "Rarity", "Key": "Reported"}
+        ],
+    }
+}
+
+RARITY_WORDS = {"Common": {"displayName": "Common"},
+                "Rare": {"displayName": "{#RareFormat}Rare{#Prev}"}}
+
+
+def test_a_value_the_game_answers_as_markup_is_resolved_before_it_ships():
+    """The Rarity format answers `{$Keywords.Rare}`, which is the game's own
+    answer -- so the row carries the word, and the colour directive around it
+    goes the way every other one does."""
+    from resolve_values import Resolver
+
+    bundle = {"Keepsake": {"description": "You can Rarify her {$TooltipData.ExtractData"
+                                          ".Level} blessings."}}
+    out = descriptions_for(["Keepsake"], bundle, RARITY_WORDS,
+                           Resolver(RARIFY, "hades2"), {"Keepsake": ["Common", "Rare"]})
+    assert out["Keepsake"]["text"] == "You can Rarify her {0} blessings."
+    assert out["Keepsake"]["values"] == {"default": ["Common"], "Rare": ["Rare"]}

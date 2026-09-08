@@ -253,3 +253,69 @@ def test_a_spec_naming_nothing_answers_nothing():
     resolver = Resolver({"Boon": {}}, "hades2")
     assert resolver.value("Boon", None, "TooltipData.ExtractData.Missing") is None
     assert resolver.value("Boon", None, "GameState.CauseOfDeathDisplay") is None
+
+
+# ---------------------------------------------------------------------------
+# The one format that answers a word
+# ---------------------------------------------------------------------------
+
+# The shape the Rarify keepsakes use, and a demonstration of the wrapped/bare
+# rule in one record: the rarity index is on the ladder and the use count is
+# not, so the keepsake reaches Rare while still granting one use.
+RARIFY = {
+    "Keepsake": {
+        "RarityLevels": {"Common": {"Multiplier": 1.0}, "Rare": {"Multiplier": 2.0}},
+        "Upgrade": {
+            "MaxRarity": {"BaseValue": 1},
+            "Uses": 1,
+            "ReportValues": {"Reported": "MaxRarity", "ReportedUses": "Uses"},
+        },
+        "ExtractValues": [
+            {"ExtractAs": "Level", "Format": "Rarity", "Key": "Reported"},
+            {"ExtractAs": "Uses", "Key": "ReportedUses"},
+        ],
+    }
+}
+
+
+def test_the_rarity_format_answers_the_keyword_the_game_answers():
+    # `GetRarityKey` indexes a table of rarity names, which is record data and
+    # not the run -- and the game hands back the keyword reference rather than
+    # the word, leaving its text engine to resolve it. So does this.
+    resolver = Resolver(RARIFY, "hades2")
+    assert resolver.value("Keepsake", "Common", "TooltipData.ExtractData.Level") == \
+        "{$Keywords.Common}"
+    assert resolver.value("Keepsake", "Rare", "TooltipData.ExtractData.Level") == \
+        "{$Keywords.Rare}"
+    # And the use count beside it stays where it was written.
+    assert resolver.value("Keepsake", "Rare", "TooltipData.ExtractData.Uses") == "1"
+
+
+def test_a_rarity_index_past_the_ladder_answers_nothing():
+    defs = {
+        "Keepsake": {
+            "Reported": 9,
+            "ExtractValues": [
+                {"ExtractAs": "Level", "Format": "Rarity", "Key": "Reported"}
+            ],
+        }
+    }
+    resolved, why = values(defs, "Keepsake", None)
+    assert "Level" not in resolved
+    assert why["Level"] == "rarity-index:9"
+
+
+def test_a_rarity_the_game_rolls_between_answers_nothing():
+    """Two rarities is two different words, and there is no band of a word."""
+    defs = {
+        "Keepsake": {
+            "RarityLevels": {"Rare": {"MinMultiplier": 1.0, "MaxMultiplier": 2.0}},
+            "Reported": {"BaseValue": 1},
+            "ExtractValues": [
+                {"ExtractAs": "Level", "Format": "Rarity", "Key": "Reported"}
+            ],
+        }
+    }
+    resolved, why = values(defs, "Keepsake", "Rare")
+    assert "Level" not in resolved
+    assert why["Level"] == "rarity-band"

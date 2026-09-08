@@ -319,9 +319,32 @@ RUN_FORMATS = frozenset({
     "ResourceAmount", "TotalMetaUpgradeChangeValue", "ExistingAmmoDropDelay",
     "ExistingAmmoReloadDelay", "ExistingWrathStocks", "EXWrathDuration", "MaxHealth",
     "MaxHealthIgnoreCap", "MaxMana", "PercentPlayerHealth", "PercentPlayerHealthFountain",
-    "UniqueGodPercentDelta", "RemainingBiomes", "Rarity", "CardRarity",
+    "UniqueGodPercentDelta", "RemainingBiomes", "CardRarity",
     "AmmoDelayDivisor", "AmmoReloadDivisor", "WrathStocks", "HealingDrop",
 })
+
+# The ladder the game indexes for `Format: "Rarity"`, transcribed from
+# `TraitRarityData.RarityUpgradeOrder`. The dump does not carry that table, so
+# the oracle calls the game's own `GetRarityKey` over the game's own copy and
+# the check fails if this and it ever disagree.
+RARITY_ORDER = ("Common", "Rare", "Epic", "Heroic")
+
+
+def _rarity_keyword(band):
+    """`Format: "Rarity"` answers a word, and the game answers it as markup.
+
+    `GetRarityKey` is a plain index into a record-data table, so this needs
+    nothing from the run -- but the game returns `{$Keywords.<Rarity>}` and
+    leaves its text engine to resolve the reference, so this returns the same
+    thing and the renderer does that hop.
+    """
+    if not band.exact:
+        raise Unresolved("rarity-band")
+    index = int(_round(band.lo))
+    if not 1 <= index <= len(RARITY_ORDER):
+        raise Unresolved("rarity-index:%d" % index)
+    return "{$Keywords.%s}" % RARITY_ORDER[index - 1]
+
 
 RUN_MULTIPLIERS = (
     "MultiplyByMissingHealth", "MultiplyByOlympianBoonCount",
@@ -335,6 +358,8 @@ def _format_extracted(band, entry, game):
         if entry.get(flag):
             raise Unresolved("run-multiplier")
     fmt = entry.get("Format")
+    if fmt == "Rarity":
+        return _rarity_keyword(band)
     if fmt is not None:
         if fmt in PURE_FORMATS:
             band = band.map(PURE_FORMATS[fmt])
@@ -425,7 +450,7 @@ def _combine(values, why, top):
         if not isinstance(entry, dict):
             continue
         name = entry.get("ExtractAs")
-        if name not in values:
+        if name not in values or not isinstance(values[name], Band):
             continue
         try:
             if entry.get("Subtractor"):
@@ -565,6 +590,10 @@ class Resolver:
         band, percent = self._band(trait_id, rarity, parts)
         if band is None:
             return None
+        if isinstance(band, str):
+            # A word rather than a measurement, so the engine's percent sign
+            # would be nonsense on it.
+            return band
         return format_band(band) + ("%" if percent or suffix in ("P", "F") else "")
 
     def _band(self, trait_id, rarity, parts):

@@ -194,7 +194,28 @@ def render_description(raw, keywords, fill=None):
     return BEFORE_PUNCTUATION.sub(r"\1", text)
 
 
-def _entry(raw, keywords, resolver, trait_id, rarities):
+# A substitution naming another record's display name rather than a number.
+# The record does not carry one -- the game's text engine looks it up -- so the
+# resolver cannot answer it and this does, off the bundle already in hand.
+NAME_SPEC = re.compile(r"^TraitData\.([A-Za-z0-9_]+)\.Name$")
+
+
+def _prose(value, keywords):
+    """A filled value with any markup the game's own answer carried resolved.
+
+    The `Rarity` format answers `{$Keywords.Rare}` and not a number, because
+    that is what the game returns for it and its text engine resolves the
+    reference afterwards. Everything else arrives as digits and passes through.
+    """
+    if "{" not in value:
+        return value
+    value = KEYWORD.sub(lambda m: keyword_word(keywords, m.group(1)), value)
+    value = FORMAT.sub("", value)
+    value = ANY_ICON.sub("", value)
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def _entry(raw, bundle, keywords, resolver, trait_id, rarities):
     """One sentence, plus the numbers each rarity fills it with where they exist.
 
     A slot becomes a placeholder only when every rarity can answer it. The
@@ -205,9 +226,16 @@ def _entry(raw, keywords, resolver, trait_id, rarities):
     slots = []
     keys = list(rarities) or [None]
 
+    def answer(spec, rarity):
+        named = NAME_SPEC.match(spec)
+        if named:
+            return render_name(resolve_display_name(bundle, named.group(1)), keywords)
+        found = resolver.value(trait_id, rarity, spec)
+        return None if found is None else _prose(found, keywords)
+
     def fill(spec):
-        answers = {key: resolver.value(trait_id, key, spec[2:-1]) for key in keys}
-        if any(answer is None for answer in answers.values()):
+        answers = {key: answer(spec[2:-1], key) for key in keys}
+        if any(found is None for found in answers.values()):
             return VALUE
         slots.append(answers)
         return "{%d}" % (len(slots) - 1)
@@ -241,7 +269,8 @@ def descriptions_for(refs, bundle, keywords, resolver=None, rarities=None):
         if resolver is None:
             rendered = render_description(raw, keywords)
         else:
-            rendered = _entry(raw, keywords, resolver, ref, (rarities or {}).get(ref) or [])
+            rendered = _entry(raw, bundle, keywords, resolver, ref,
+                              (rarities or {}).get(ref) or [])
         if rendered:
             out[ref] = rendered
     return out
