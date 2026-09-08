@@ -7,21 +7,31 @@
 -- looking. So this loads the shipped logic and calls it, and the checker beside
 -- it diffs the two.
 --
--- `RandomFloat` is pinned rather than seeded: both games roll inside a band, so
--- one run at each end gives the two draws the game can make, which is exactly
--- what the resolver reports.
+-- `RandomFloat` is pinned rather than seeded, and pinned in two places rather
+-- than one. A record can roll twice for one value -- once for the rarity
+-- multiplier and once for the base -- and those rolls are independent, so
+-- pinning both to the same end samples the diagonal of the box the game can
+-- reach instead of its corners. Dionysus's damage reduction is the record that
+-- showed it: pinned together it reads 30 and 25, while the game can roll
+-- anywhere in 20 to 37.5, which is the band the resolver reports. The rarity
+-- multiplier is always the first roll a record makes, so the mode pins that one
+-- and every later one separately and the checker runs all four combinations.
 --
--- Usage: lua oracle.lua <lua dir> <scripts dir> hades1|hades2 min|max <out>
+-- Usage: lua oracle.lua <lua dir> <scripts dir> hades1|hades2 <min|max>-<min|max> <out>
 
 local TOOL, SCRIPTS, GAME, WHICH, OUTFILE = arg[1], arg[2], arg[3], arg[4], arg[5]
 
 dofile(TOOL .. "engine_stub.lua")
 dofile(TOOL .. "json_encode.lua")
 
+local FIRST, REST = WHICH:match("^(%a+)-(%a+)$")
+local rollIndex = 0
 function RandomFloat(a, b)
 	if a == nil then return 0 end
 	if b == nil then return a end
-	if WHICH == "max" then return b end
+	rollIndex = rollIndex + 1
+	local end_ = (rollIndex == 1) and FIRST or REST
+	if end_ == "max" then return b end
 	return a
 end
 function RandomInt(a, b) return RandomFloat(a, b) end
@@ -73,7 +83,14 @@ function CalculateHealingMultiplier() return 1 end
 function GetResourceAmount() return 0 end
 function IsGodTrait() return false end
 function GetUpgradedRarity() return nil end
-function GetRarityKey() return nil end
+-- Not stubbed: `Format = "Rarity"` answers a word rather than a number, and
+-- the resolver transcribes the table this indexes. Two lines lifted from
+-- UpgradeChoiceLogic.lua, which is not loaded here, over the game's own
+-- TraitRarityData -- so the table is theirs even though the body is copied.
+function GetRarityKey( index, customTable )
+	local rarityTable = customTable or TraitRarityData.RarityUpgradeOrder
+	return rarityTable[index]
+end
 function GetNumMetaUpgrades() return 0 end
 function GetTotalStatChange() return 0 end
 function CalcEasyModeMultiplier() return 1 end
@@ -89,7 +106,11 @@ function thread() end
 function wait() end
 
 CurrentRun = {
-	Hero = { ObjectId = 0, Traits = {}, HeroTraitValuesCache = {}, MaxHealth = 50, Elements = {} },
+	Hero = {
+		ObjectId = 0, Traits = {}, TraitDictionary = {}, HeroTraitValuesCache = {},
+		Health = 50, MaxHealth = 50, Elements = {}, SlottedTraits = {},
+		OlympianBoonCount = 0, UniqueGodCount = 0, LastStands = {},
+	},
 	ResourcesGained = {},
 	TotalDamageTaken = 0,
 }
@@ -132,6 +153,10 @@ local function resolveInheritance(id, seen)
 	seen[id] = true
 	local record = TraitData[id]
 	if type(record) ~= "table" then return end
+	-- The loader names each record before inheriting, and several text paths
+	-- concatenate that name while reporting a value. Without it they throw and
+	-- the pcall below reads the record as having nothing to check.
+	record.Name = id
 	for _, parent in ipairs(record.InheritFrom or {}) do
 		if type(parent) == "string" and TraitData[parent] then
 			resolveInheritance(parent, seen)
@@ -142,6 +167,26 @@ local function resolveInheritance(id, seen)
 end
 for id in pairs(TraitData) do resolveInheritance(id) end
 
+-- The engine stub answers an unresolved global with a proxy whose every field
+-- is another proxy, so GetProcessedValue finds a BaseValue on one and the
+-- game's own arithmetic throws on it -- which the pcall below then reads as a
+-- record with nothing to check. The dump writes these as the string
+-- `<unresolved:...>` and so does this, which is what the resolver reads too.
+local function flattenProxies(node, depth)
+	if type(node) ~= "table" or depth > 12 then return end
+	for key, value in pairs(node) do
+		if type(value) == "table" then
+			local ref = rawget(value, "__UNRESOLVED_REF__")
+			if ref then
+				node[key] = "<unresolved:" .. ref .. ">"
+			else
+				flattenProxies(value, depth + 1)
+			end
+		end
+	end
+end
+for id in pairs(TraitData) do flattenProxies(TraitData[id], 0) end
+
 if not load(GAME == "hades2" and "TraitLogic.lua" or "TraitScripts.lua") then
 	error("the game's trait logic would not load, so there is nothing to check against")
 end
@@ -150,6 +195,11 @@ end
 -- over the record itself, so both are dumped flat and the checker knows which
 -- names to look for from the record's own ExtractValues.
 local out = {}
+-- A record whose logic throws is dropped by the pcall below, which looks
+-- exactly like a record with nothing to check. Not hypothetical: a
+-- `GetRarityKey` stub returning nil made SetTraitTextData throw on twelve
+-- keepsakes, and fifty (record, rarity) pairs went unchecked in silence.
+local skipped = {}
 local ids = {}
 for id in pairs(TraitData) do ids[#ids + 1] = id end
 table.sort(ids)
@@ -162,6 +212,9 @@ for _, id in ipairs(ids) do
 			table.sort(rarities)
 		end
 		for _, rarity in ipairs(rarities) do
+			-- The rarity multiplier is the first roll of the record, so the
+			-- count restarts here rather than at the top of the run.
+			rollIndex = 0
 			local args = { Unit = CurrentRun.Hero, TraitName = id, ForBoonInfo = true }
 			if rarity ~= "__none__" then args.Rarity = rarity end
 			local ok, trait = pcall(GetProcessedTraitData, args)
@@ -169,19 +222,29 @@ for _, id in ipairs(ids) do
 				local flat = {}
 				if type(trait.ExtractData) == "table" then
 					for k, v in pairs(trait.ExtractData) do
-						if type(v) == "number" then flat["ExtractData." .. k] = v end
+						-- A word as readily as a number: the Rarity format answers
+						-- `{$Keywords.<Rarity>}`, and a string the checker cannot
+						-- see is a value nothing holds the resolver to.
+						if type(v) == "number" or type(v) == "string" then
+							flat["ExtractData." .. k] = v
+						end
 					end
 				end
 				for k, v in pairs(trait) do
 					if type(v) == "number" then flat[k] = v end
 				end
 				out[id .. "|" .. rarity] = flat
+			else
+				skipped[#skipped + 1] = id .. "|" .. rarity
 			end
 		end
 	end
 end
 
+out["__skipped__"] = skipped
+
 local f = assert(io.open(OUTFILE, "w"))
 f:write(json_encode_object(out), "\n")
 f:close()
-print(GAME .. " " .. WHICH .. ": " .. tostring(#ids) .. " records")
+print(GAME .. " " .. WHICH .. ": " .. tostring(#ids) .. " records, "
+	.. tostring(#skipped) .. " the logic would not process")

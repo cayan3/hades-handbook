@@ -68,26 +68,34 @@ def extract_names(node, found):
 
 def check(game, workdir):
     defs = json.load(open(raw_dir() + GAMES[game], encoding="utf-8"))
-    low = run_oracle(game, "min", workdir / ("%s_min.json" % game))
-    high = run_oracle(game, "max", workdir / ("%s_max.json" % game))
+    # Four passes rather than two: the rarity multiplier and the base are
+    # separate rolls, so the ends of one value's band are corners of a box the
+    # oracle has to visit rather than the two runs where everything rolls the
+    # same way. Dionysus's damage reduction is 20-37 and the diagonal is 25-30.
+    passes = [run_oracle(game, "%s-%s" % (a, b), workdir / ("%s_%s_%s.json" % (game, a, b)))
+              for a in ("min", "max") for b in ("min", "max")]
+    low = passes[0]
 
     agree = silent = 0
     wrong, invented = [], []
     for key in sorted(low):
-        if not isinstance(low.get(key), dict) or not isinstance(high.get(key), dict):
+        if not isinstance(low.get(key), dict):
             continue
         trait_id, rarity = key.split("|")
         rarity = None if rarity == "__none__" else rarity
         record = merged_record(defs, trait_id)
-        # Only the rarities the record itself declares, which is the set the
-        # catalog ships and the only one the shallow merge above agrees on.
-        levels = (defs.get(trait_id) or {}).get("RarityLevels")
+        # The rarities the merged record declares, which is the set `boons.json`
+        # ships and so the set the catalog resolves values at. Reading the
+        # unmerged record here skipped 305 Hades I pairs and 524 Hades II ones
+        # -- every record that inherits its whole ladder, god boons included.
+        levels = record.get("RarityLevels")
         if rarity is not None and not (isinstance(levels, dict) and rarity in levels):
             continue
         _, mine, _ = extracted_for(defs, trait_id, rarity, game)
         for name in sorted(extract_names(record, set())):
-            theirs = low[key].get(PREFIX[game] + name)
-            if theirs is None:
+            drawn = [p[key][PREFIX[game] + name] for p in passes
+                     if isinstance(p.get(key), dict) and PREFIX[game] + name in p[key]]
+            if not drawn:
                 if name in mine:
                     invented.append((key, name, str(mine[name])))
                 continue
@@ -95,13 +103,30 @@ def check(game, workdir):
                 silent += 1
                 continue
             band = mine[name]
-            other = high[key].get(PREFIX[game] + name, theirs)
-            if abs(band.lo - min(theirs, other)) < 1e-6 and abs(band.hi - max(theirs, other)) < 1e-6:
+            # A word compares by equality across every pass: the Rarity format
+            # answers the keyword reference itself, so there is no band to widen
+            # and no rounding to allow for.
+            if isinstance(band, str) or any(isinstance(drew, str) for drew in drawn):
+                if all(drew == band for drew in drawn):
+                    agree += 1
+                else:
+                    wrong.append((key, name, repr(band), repr(sorted(set(drawn)))))
+                continue
+            theirs, other = min(drawn), max(drawn)
+            if abs(band.lo - theirs) < 1e-6 and abs(band.hi - other) < 1e-6:
                 agree += 1
             else:
                 wrong.append((key, name, str(band), "%s..%s" % (theirs, other)))
 
-    print("%s: %d agree, %d the resolver leaves to the mark" % (game, agree, silent))
+    # A record the game's own logic threw on is reported rather than counted as
+    # nothing to check: a stub that makes the shipped code raise looks exactly
+    # like a record with no values, and the pcall around it swallows the
+    # difference. Not fatal -- a handful genuinely need a run to process.
+    dropped = low.get("__skipped__") or []
+    print("%s: %d agree, %d the resolver leaves to the mark, %d the game's own "
+          "logic would not process" % (game, agree, silent, len(dropped)))
+    for key in dropped[:10]:
+        print("    NOT PROCESSED %s" % key)
     for key, name, mine_text, theirs_text in wrong[:20]:
         print("  DISAGREE %s %s: resolver %s, game %s" % (key, name, mine_text, theirs_text))
     for key, name, mine_text in invented[:20]:
