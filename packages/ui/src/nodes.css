@@ -959,6 +959,225 @@
   white-space: nowrap;
 }
 
+/*
+ * The Adder — the `+` at the end of the god bar and everything under it. It
+ * keeps the measurements of the god-only picker it replaced, so it reads as
+ * that control widened rather than a new one in its place.
+ */
+
+.adder {
+  position: relative;
+  display: inline-block;
+}
+
+.adder__open {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: 0.4rem;
+  border: 1px dashed rgb(255 255 255 / 35%);
+  border-radius: 0.35rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.adder__open[aria-expanded="true"] {
+  border-style: solid;
+  border-color: rgb(255 255 255 / 60%);
+}
+
+/* An L beside the control, lifted by its own search header so the row level
+   with the `+` is the first option. The component measures the lift. */
+.adder__panel {
+  position: absolute;
+  top: calc(-1 * var(--adder-lift, 0px));
+  left: 100%;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 0.35rem;
+  background: #1b1815;
+  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
+}
+
+.adder__search {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid rgb(255 255 255 / 14%);
+}
+
+.adder__glass {
+  font-size: 1.1rem;
+  opacity: 0.6;
+}
+
+.adder__field {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+}
+
+.adder__field:focus {
+  outline: none;
+}
+
+.adder__levels {
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Each level is as wide as its own widest row, so a list of god names and a
+   list of category names are spaced for themselves. */
+.adder__list {
+  width: max-content;
+  min-width: 11rem;
+  max-height: min(70vh, 26rem);
+  margin: 0;
+  padding: 0.25rem 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.adder__levels .adder__list + .adder__list {
+  border-left: 1px solid rgb(255 255 255 / 14%);
+}
+
+.adder__results {
+  min-width: 20rem;
+  max-width: 30rem;
+}
+
+/* The deepest list takes the leftover width, or the search header makes the
+   panel wider than the list and the chevrons sit in from the edge. */
+.adder__levels .adder__list:last-child {
+  flex: 1 1 auto;
+}
+
+/* Full width: a row you can only press over its text reads as a link. */
+.adder__row,
+.adder__branch {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.adder__branch .adder__name {
+  flex: 1;
+}
+
+.adder__chevron {
+  opacity: 0.55;
+}
+
+/* The outline takes the god's colour and the fill stays neutral, as the God
+   Tabs do. A row with no god lights in the neutral rather than borrowing a hue
+   that would read as identity. */
+.adder__row:hover,
+.adder__row:focus-visible,
+.adder__branch:hover,
+.adder__branch:focus-visible,
+.adder__branch[aria-expanded="true"] {
+  outline: none;
+  border-color: var(--god, rgb(255 255 255 / 45%));
+  background: rgb(255 255 255 / 8%);
+}
+
+.adder__art,
+.adder__row img {
+  flex: 0 0 auto;
+  width: 1.6rem;
+  height: 1.6rem;
+  object-fit: contain;
+}
+
+.adder__name {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Beside the name, so the column to its right stays a straight edge. */
+.adder__state {
+  flex: 0 0 auto;
+  opacity: 0.55;
+  font-size: 0.85rem;
+}
+
+/* Whose boon it is, pinned right by the auto margin so a state word appearing
+   beside a name does not shift it. */
+.adder__meta {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-left: 1.5rem;
+  opacity: 0.55;
+  font-size: 0.85rem;
+}
+
+/* Focus stays in the field, so this is the only mark saying what Enter takes. */
+.adder__row[data-active] {
+  border-color: var(--god, rgb(255 255 255 / 45%));
+  background: rgb(255 255 255 / 8%);
+}
+
+.adder__none {
+  padding: 0.6rem 0.75rem;
+  opacity: 0.6;
+  font-size: 0.9rem;
+}
+
+/* On a phone the panel is a sheet along the bottom and the levels stack. Every
+   level opens on a tap, which is what let the native select go. */
+@media (hover: none) {
+  .adder__panel {
+    position: fixed;
+    inset: auto 0 0;
+    width: auto;
+    max-height: 78vh;
+    overflow-y: auto;
+    border-radius: 0.6rem 0.6rem 0 0;
+  }
+
+  .adder__levels {
+    flex-direction: column;
+  }
+
+  .adder__list {
+    width: auto;
+    max-height: none;
+  }
+
+  .adder__levels .adder__list + .adder__list {
+    border-top: 1px solid rgb(255 255 255 / 14%);
+    border-left: 0;
+  }
+}
+
+
 /* Gated on `hover` rather than on a width: a touch screen has no way to open a
    list by hovering whatever size it is, and the native select beside this one
    covers that case. `display: none` rather than a visual trick, so exactly one

@@ -31,6 +31,8 @@ export { BoonNode } from "./boon-node.js";
 export type { BoonNodeProps } from "./boon-node.js";
 export { BoonArt, GodArt, MarkerArt, WeaponArt, artUrl } from "./boon-art.js";
 export type { BoonArtProps } from "./boon-art.js";
+export { Adder } from "./adder.js";
+export type { AddItem, AdderProps, Arrangement, Category, Entry } from "./adder.js";
 export { GodPicker } from "./god-picker.js";
 export type { GodPickerProps } from "./god-picker.js";
 export { useHoverDisclosure } from "./hover-disclosure.js";
