@@ -187,6 +187,36 @@ describe("a tile's card", () => {
   });
 
   /**
+   * The column a name is charged against follows the card, and the card follows
+   * the window: below about 1244px it is `45vw` rather than 35rem, so the same
+   * name wraps where the default says it does not. The panel measures nothing
+   * and never will — the caller says how wide the column is.
+   */
+  it("charges a name against the column the caller says it has", () => {
+    // 19 characters: one line in a 27-column default, two in the 15 columns the
+    // card actually has at 48rem. 65 of 356 Hades I names and 103 of 581 Hades
+    // II ones are this long or longer, so this is the ordinary case, not an edge.
+    const long = entry("Blitz Disposition x");
+    const twoOf = { entries: [...ENTRIES, long], capacity: 2 } as const;
+
+    render(panel(twoOf));
+    click(long.view.trait);
+    click("a");
+    // One line each at the default, so both fit.
+    expect(cards()).toEqual([long.view.trait, "a"]);
+  });
+
+  it("refuses the second card once the caller says the column is narrow", () => {
+    const long = entry("Blitz Disposition x");
+
+    render(panel({ entries: [...ENTRIES, long], capacity: 2, nameColumns: 15 }));
+    click(long.view.trait);
+    click("a");
+    // Two lines for the long one now, so `a` has nowhere to be drawn.
+    expect(cards()).toEqual([long.view.trait]);
+  });
+
+  /**
    * The room a card takes is its **name's** lines, not one card. The cards
    * split the panel's height between them, so what a further one costs is the
    * strip the ones already open need to show their names — and a name that

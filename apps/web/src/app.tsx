@@ -193,6 +193,47 @@ const KIND_WORD: Readonly<Record<string, string | null>> = {
   none: null,
 };
 
+/**
+ * How many characters of a boon's name fit on one line of a card's title column.
+ *
+ * The card is `min(35rem, 45vw)`, so under about 1244px the window bounds it and
+ * the column is far narrower than at full width. Measured on the shipped card:
+ * 180.6px at 48rem, 227.2 at 900, 269.3 at 1000, 314.3 at 1100, 359.3 at 1200
+ * and 379.1 once it stops growing. Charging every name against the widest of
+ * those let one card too many open on a narrow window.
+ */
+const TITLE_COLUMNS: readonly (readonly [number, number])[] = [
+  [768, 15],
+  [900, 19],
+  [1000, 22],
+  [1100, 26],
+  [1200, 30],
+  [1244, 31],
+];
+
+/** The measured step at or below this width; the narrowest below them all. */
+function titleColumns(width: number): number {
+  let columns = TITLE_COLUMNS[0]![1];
+  for (const [at, fits] of TITLE_COLUMNS) if (width >= at) columns = fits;
+  return columns;
+}
+
+/**
+ * The window's width, for the one caller that needs it: the Loadout owns no
+ * layout, so how wide a card's title column is has to be answered out here.
+ */
+function useViewportWidth(): number {
+  const [width, setWidth] = useState(() =>
+    typeof window === "undefined" ? 1280 : window.innerWidth,
+  );
+  useEffect(() => {
+    const measure = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+  return width;
+}
+
 /* One bar name to the tab it stands for. */
 function tabFor(name: string, weapon: boolean): Selection {
   return weapon ? { kind: "weapon", weapon: name } : { kind: "god", god: name };
@@ -612,6 +653,7 @@ function Run({
   // is a property of the layer below, and is written down there.
   const cache = useMemo(() => createNodeCache(source), [source]);
   const view = useCallback((trait: TraitId) => cache.viewOf(trait, facts), [cache, facts]);
+  const viewport = useViewportWidth();
 
   /* The Adder's tree, and the set its search may find. */
   const adderSearchable = useMemo(() => {
@@ -1110,6 +1152,8 @@ function Run({
             expanded={loadoutOpen}
             onExpanded={setLoadoutOpen}
             detailOf={(trait) => deriveNodeDetail(source, view(trait), facts, intent.pins)}
+            // The card's width follows the window's, and the panel cannot ask.
+            nameColumns={titleColumns(viewport)}
             actions={actions}
           />
 

@@ -48,19 +48,18 @@ export interface LoadoutEntry {
 type Cell = LoadoutEntry | { readonly slot: SlotId; readonly view: null };
 
 /**
- * How wide a card's title column is, in characters of the display face.
+ * How wide a card's title column is, in characters of the display face. Counted
+ * rather than measured, so the no-room rule below still has a test: the runner
+ * has no layout and returns zero for every box.
  *
- * Counted rather than measured, which is the point: the runner has no layout,
- * so a capacity read off the DOM would leave the no-room rule with no test.
- * Measured on the shipped card at its full width — a 369.7px column beside the
- * rarity word over a 13.5px mean glyph. A card bounded by the viewport instead
- * is narrower than this, so there it over-estimates and admits one sooner.
+ * This default is the card at its full 35rem and is too generous anywhere
+ * narrower — the caller passes the real figure, as it does `capacity`.
  */
 const NAME_COLUMNS = 27;
 
 /** What one card costs the stack: a name that wraps hides twice as much. */
-function nameLines(name: string): number {
-  return Math.max(1, Math.ceil(name.length / NAME_COLUMNS));
+function nameLines(name: string, columns: number): number {
+  return Math.max(1, Math.ceil(name.length / columns));
 }
 
 export interface LoadoutProps {
@@ -114,6 +113,13 @@ export interface LoadoutProps {
    * and eleven leaves 35.9.
    */
   readonly capacity?: number;
+  /**
+   * How many characters of a name fit on one line of a card's title column.
+   *
+   * The caller's for `capacity`'s reason: the column follows the card, the card
+   * follows the window, and this panel owns no layout to ask.
+   */
+  readonly nameColumns?: number;
   /** The edits a card offers — the two removals and the rarity. */
   readonly actions?: BoonActions;
 }
@@ -127,6 +133,7 @@ export function Loadout({
   onExpanded,
   detailOf,
   capacity = 10,
+  nameColumns = NAME_COLUMNS,
   actions,
 }: LoadoutProps) {
   // The element symbols are the game's own art, and the two games' sets differ.
@@ -168,7 +175,7 @@ export function Loadout({
    * with nowhere to be drawn.
    */
   const cost = (trait: TraitId) =>
-    nameLines(entries.find((entry) => entry.view.trait === trait)?.view.name ?? "");
+    nameLines(entries.find((entry) => entry.view.trait === trait)?.view.name ?? "", nameColumns);
   const spent = open.reduce((lines, trait) => lines + cost(trait), 0);
   const roomFor = (trait: TraitId) => spent + cost(trait) <= capacity;
 
