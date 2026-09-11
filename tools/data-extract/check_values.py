@@ -33,6 +33,8 @@ from config import raw_dir, scripts_dir  # noqa: E402
 from resolve_values import extracted_for, merged_record  # noqa: E402
 
 GAMES = {"hades1": "h1_TraitData.json", "hades2": "h2_TraitData.json"}
+# Hades I has no such dump and needs none: its logic has no weapon-cost branch.
+WEAPONS = {"hades1": "h1_WeaponData.json", "hades2": "h2_WeaponData.json"}
 # Hades I merges what it extracts back over the record; Hades II collects it.
 PREFIX = {"hades1": "", "hades2": "ExtractData."}
 
@@ -68,6 +70,12 @@ def extract_names(node, found):
 
 def check(game, workdir):
     defs = json.load(open(raw_dir() + GAMES[game], encoding="utf-8"))
+    # The weapon table, where a spell's Magick cost is: the resolver reads it
+    # there and so does the game, so leaving it out here would compare two
+    # silences and report the pair as nothing to check.
+    weapons = {}
+    if os.path.exists(raw_dir() + WEAPONS[game]):
+        weapons = json.load(open(raw_dir() + WEAPONS[game], encoding="utf-8"))
     # Four passes rather than two: the rarity multiplier and the base are
     # separate rolls, so the ends of one value's band are corners of a box the
     # oracle has to visit rather than the two runs where everything rolls the
@@ -91,7 +99,7 @@ def check(game, workdir):
         levels = record.get("RarityLevels")
         if rarity is not None and not (isinstance(levels, dict) and rarity in levels):
             continue
-        _, mine, _ = extracted_for(defs, trait_id, rarity, game)
+        _, mine, _ = extracted_for(defs, trait_id, rarity, game, weapons)
         for name in sorted(extract_names(record, set())):
             drawn = [p[key][PREFIX[game] + name] for p in passes
                      if isinstance(p.get(key), dict) and PREFIX[game] + name in p[key]]

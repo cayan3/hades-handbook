@@ -128,6 +128,13 @@ if not ok then print("ERROR loading KeepsakeData.lua: " .. tostring(err)) end
 ok, err = pcall(dofile_stripbom, SCRIPTS .. "WeaponUpgradeData.lua")
 if not ok then print("ERROR loading WeaponUpgradeData.lua: " .. tostring(err)) end
 
+-- 7. WeaponData.lua, for the Magick a spell costs. A Hex's cost is not on its
+-- own record: the tooltip reads it off the weapon the Hex casts, and all nine
+-- of those weapons plus the one aspect that adjusts them are in this file, so
+-- the per-enemy WeaponData_*.lua files are not needed for it.
+ok, err = pcall(dofile_stripbom, SCRIPTS .. "WeaponData.lua")
+if not ok then print("ERROR loading WeaponData.lua: " .. tostring(err)) end
+
 print("== Dumping ==")
 writeFile("h2_TraitData.json", json_encode_object(TraitData))
 writeFile("h2_TraitSetData.json", json_encode_object(TraitSetData or {}))
@@ -136,6 +143,7 @@ writeFile("h2_Color.json", json_encode_object(Color or {}))
 writeFile("h2_LinkedTraitData.json", json_encode_object(LinkedTraitData or {}))
 writeFile("h2_TraitRequirements.json", json_encode_object(TraitRequirements or {}))
 writeFile("h2_GiftData.json", json_encode_object(GiftData or {}))
+writeFile("h2_WeaponData.json", json_encode_object(WeaponData or {}))
 -- The two fields of that screen that say anything about the game rather than
 -- about its presentation. Dumping the whole screen would carry a few hundred
 -- keys of layout and a proxy for every sibling screen it borrows text from.

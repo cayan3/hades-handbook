@@ -76,6 +76,9 @@ function GetTotalHeroTraitValue(_, args)
 	return 0
 end
 function GetHeroTraitValues() return {} end
+-- Rank 1 is an aspect nobody has upgraded, which is the state a static catalog
+-- can mean -- the same reasoning as the empty table above.
+function GetWeaponUpgradeLevel() return 1 end
 function HeroHasTrait() return false end
 function GetTraitCount() return 0 end
 function GetRunDepth() return 1 end
@@ -125,6 +128,9 @@ end
 
 load("UIData.lua")
 load("ColorData.lua")
+-- The weapon table, so the Magick-cost branch reads the game's own numbers
+-- rather than a proxy. Loaded for both games; Hades I simply has no such branch.
+load("WeaponData.lua")
 local base = loadfile_stripbom(SCRIPTS .. "TraitData.lua")
 if base then base() end
 local pipe = io.popen('ls "' .. SCRIPTS .. '" 2>/dev/null')
@@ -218,6 +224,12 @@ for _, id in ipairs(ids) do
 			local args = { Unit = CurrentRun.Hero, TraitName = id, ForBoonInfo = true }
 			if rarity ~= "__none__" then args.Rarity = rarity end
 			local ok, trait = pcall(GetProcessedTraitData, args)
+			-- Set on the record and not only in the args, which is what the
+			-- game's own boon-info screen does and for the same reason: the
+			-- extraction reads it off the record. Without it the Magick-cost
+			-- branch takes its in-run arm, which sums modifiers over the traits
+			-- a run holds and answers 0 here -- a fake number to check against.
+			if ok and type(trait) == "table" then trait.ForBoonInfo = true end
 			if ok and type(trait) == "table" and pcall(SetTraitTextData, trait) then
 				local flat = {}
 				if type(trait.ExtractData) == "table" then

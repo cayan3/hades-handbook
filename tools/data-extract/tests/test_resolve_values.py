@@ -384,3 +384,75 @@ def test_a_rarity_the_game_rolls_between_answers_nothing():
     resolved, why = values(defs, "Keepsake", "Rare")
     assert "Level" not in resolved
     assert why["Level"] == "rarity-band"
+
+
+# --- a spell's Magick cost --------------------------------------------------
+# The game's branch forks on whether it is drawing a boon-info panel. That arm
+# reads the weapon table and the record; the other sums modifiers over the
+# traits a run holds, which is why the pair was filed as run-dependent.
+
+HEX = {
+    "SpellLaserTrait": {
+        "ExtractValues": [
+            {"ExtractAs": "ManaCost", "Format": "ManaSpendCost",
+             "WeaponName": "WeaponSpellLaser"}
+        ]
+    },
+    "Aspect": {
+        "RarityLevels": {"Common": {"Multiplier": 0}, "Rare": {"Multiplier": 1}},
+        "ManaSpendCostModifiers": {"Add": {"BaseValue": -10}},
+    },
+}
+
+WEAPONS = {
+    "WeaponSpellLaser": {"ManaSpendCost": 30},
+    "WeaponSpellMoonBeam": {"ManaSpendCost": 100,
+                            "LinkedTraitManaSpendAdjustment": "Aspect"},
+}
+
+
+def _cost(defs, trait_id, weapons=WEAPONS, rarity=None):
+    _, resolved, why = extracted_for(defs, trait_id, rarity, "hades2", weapons)
+    return resolved, why
+
+
+def test_a_spell_cost_is_read_off_the_weapon_rather_than_the_run():
+    resolved, _ = _cost(HEX, "SpellLaserTrait")
+    assert str(resolved["ManaCost"]) == "30"
+
+
+def test_the_linked_aspect_adjustment_is_computed_rather_than_assumed_zero():
+    """It is zero on the shipped data -- the only aspect declaring one
+    multiplies it by its un-upgraded rank, which is 0 -- but that is a number in
+    the game's data rather than a property of the mechanic."""
+    defs = dict(HEX)
+    defs["Beam"] = {"ExtractValues": [
+        {"ExtractAs": "ManaCost", "Format": "ManaSpendCost",
+         "WeaponName": "WeaponSpellMoonBeam"}
+    ]}
+    assert str(_cost(defs, "Beam")[0]["ManaCost"]) == "100"
+
+    # Move the un-upgraded rank's multiplier and the adjustment lands.
+    moved = dict(defs)
+    moved["Aspect"] = dict(defs["Aspect"],
+                           RarityLevels={"Common": {"Multiplier": 1}})
+    assert str(_cost(moved, "Beam")[0]["ManaCost"]) == "90"
+
+
+def test_an_aspect_adds_its_own_reported_adjustment_to_the_weapon_base():
+    defs = {"Aspect": {
+        "ManaSpendCostModifiers": {"Add": {"BaseValue": -10},
+                                   "ReportValues": {"Reported": "Add"}},
+        "ExtractValues": [
+            {"ExtractAs": "ManaCost", "Format": "AdjustedBaseManaSpendCost",
+             "Key": "Reported", "WeaponName": "WeaponSpellMoonBeam"}
+        ],
+    }}
+    assert str(_cost(defs, "Aspect")[0]["ManaCost"]) == "90"
+
+
+def test_a_cost_with_no_weapon_table_stays_external_rather_than_guessing():
+    """An older raw dump has no weapon table, and the Hexes stay marked."""
+    resolved, why = _cost(HEX, "SpellLaserTrait", weapons={})
+    assert "ManaCost" not in resolved
+    assert why["ManaCost"] == "external:WeaponData"

@@ -313,8 +313,12 @@ BASELINE_FORMATS = {
 }
 
 # Formats read off the run itself rather than off a trait it scales.
+# `ManaSpendCost` and `AdjustedBaseManaSpendCost` used to sit here and do not
+# belong: the game's branch for them forks on whether it is drawing a boon-info
+# panel, and that arm reads the weapon table and the record rather than the run.
+# Only the other arm sums modifiers over the traits a run holds.
 RUN_FORMATS = frozenset({
-    "TotalDamageTaken", "EasyModeMultiplier", "ManaSpendCost", "AdjustedBaseManaSpendCost",
+    "TotalDamageTaken", "EasyModeMultiplier",
     "SlottedBoon", "FinalBoss", "TotalHeroTraitValuePercent", "TotalHeroTraitValue",
     "ResourceAmount", "TotalMetaUpgradeChangeValue", "ExistingAmmoDropDelay",
     "ExistingAmmoReloadDelay", "ExistingWrathStocks", "EXWrathDuration", "MaxHealth",
@@ -346,6 +350,56 @@ def _rarity_keyword(band):
     return "{$Keywords.%s}" % RARITY_ORDER[index - 1]
 
 
+# An un-upgraded aspect is rank 1, and rank 1 of `TraitRarityData
+# .WeaponRarityUpgradeOrder` is Common. Transcribed rather than dumped, like the
+# boon ladder beside it, and held honest the same way: the oracle runs the
+# game's own lookup over the game's own table, so the check fails if the two
+# ever disagree.
+WEAPON_BASE_RANK = "Common"
+
+# Formats that say which table the value comes out of rather than how to shape
+# it. `_read_value` has already done the work by the time the format branch runs.
+READ_FORMATS = frozenset({"ManaSpendCost", "AdjustedBaseManaSpendCost"})
+
+
+def _mana_spend_cost(weapons, defs, table, entry):
+    """What a spell costs, the way the game's own boon-info panel works it out.
+
+    The game forks here on whether it is drawing that panel. This is the arm it
+    takes there, which reads the weapon's own cost and the linked aspect's
+    record; the other arm sums modifiers over the traits a run holds and is the
+    reason this pair was filed as run-dependent to begin with.
+
+    The adjustment is computed rather than assumed zero. It is zero today --
+    the only aspect that declares one multiplies it by its Common rank, which
+    is 0 -- but that is a number in the game's data, not a property of the
+    mechanic, so reading it is what keeps a patch from moving it silently.
+    """
+    weapon = (weapons or {}).get(entry.get("WeaponName"))
+    if not isinstance(weapon, dict):
+        raise Unresolved("external:WeaponData")
+    if weapon.get("ManaSpendCost") is None:
+        raise Unresolved("no-source")
+    cost = _as_number(weapon["ManaSpendCost"])
+    if entry.get("Format") == "AdjustedBaseManaSpendCost":
+        # The record's own reported adjustment, already on the rarity ladder.
+        key = entry.get("Key") or "ChangeValue"
+        if table.get(key) is None:
+            raise Unresolved("no-source")
+        reported = table[key]
+        reported = reported if isinstance(reported, Band) else Band(_as_number(reported))
+        return reported.map(lambda v: cost + v)
+    linked = weapon.get("LinkedTraitManaSpendAdjustment")
+    if linked:
+        record = merged_record(defs, linked)
+        rank = (record.get("RarityLevels") or {}).get(WEAPON_BASE_RANK) or {}
+        add = ((record.get("ManaSpendCostModifiers") or {}).get("Add") or {}).get("BaseValue")
+        if rank.get("Multiplier") is None or add is None:
+            raise Unresolved("no-source")
+        cost += _as_number(add) * _as_number(rank["Multiplier"])
+    return Band(cost)
+
+
 RUN_MULTIPLIERS = (
     "MultiplyByMissingHealth", "MultiplyByOlympianBoonCount",
     "MultiplyByMissingLastStands", "MultiplyBySpentLastStands",
@@ -360,6 +414,10 @@ def _format_extracted(band, entry, game):
     fmt = entry.get("Format")
     if fmt == "Rarity":
         return _rarity_keyword(band)
+    if fmt in READ_FORMATS:
+        # Named where to read the value, not what to do to it afterwards; the
+        # tail below still applies.
+        fmt = None
     if fmt is not None:
         if fmt in PURE_FORMATS:
             band = band.map(PURE_FORMATS[fmt])
@@ -375,10 +433,12 @@ def _format_extracted(band, entry, game):
     return band.map(lambda v: _round(v, places))
 
 
-def _read_value(table, entry):
+def _read_value(table, entry, weapons=None, defs=None):
     """The value an extract entry names, from the table it reads."""
     if entry.get("External"):
         raise Unresolved("external:%s" % entry.get("BaseType"))
+    if entry.get("Format") in ("ManaSpendCost", "AdjustedBaseManaSpendCost"):
+        return _mana_spend_cost(weapons, defs, table, entry)
     if entry.get("Format") in RUN_FORMATS:
         raise Unresolved("run-format:%s" % entry.get("Format"))
     value = table.get(entry.get("Key") or "ChangeValue")
@@ -398,7 +458,7 @@ def _read_value(table, entry):
     raise Unresolved("non-numeric")
 
 
-def _take(values, why, table, entry, game):
+def _take(values, why, table, entry, game, weapons=None, defs=None):
     """Record one extract entry's answer, or why there isn't one.
 
     A later entry writing the same name overwrites an earlier one, so when the
@@ -409,14 +469,14 @@ def _take(values, why, table, entry, game):
     if not name:
         return
     try:
-        values[name] = _format_extracted(_read_value(table, entry), entry, game)
+        values[name] = _format_extracted(_read_value(table, entry, weapons, defs), entry, game)
         why.pop(name, None)
     except Unresolved as unresolved:
         why[name] = unresolved.why
         values.pop(name, None)
 
 
-def _extract_hades2(top):
+def _extract_hades2(top, weapons=None, defs=None):
     """Report nested values up to the top of the record, then read them off it."""
     def walk(node, depth):
         if isinstance(node, dict):
@@ -439,7 +499,7 @@ def _extract_hades2(top):
     values, why = {}, {}
     for entry in top.get("ExtractValues") or []:
         if isinstance(entry, dict):
-            _take(values, why, top, entry, "hades2")
+            _take(values, why, top, entry, "hades2", weapons, defs)
     _combine(values, why, top)
     return values, why
 
@@ -468,7 +528,7 @@ def _combine(values, why, top):
             values.pop(name, None)
 
 
-def _extract_hades1(top):
+def _extract_hades1(top, weapons=None, defs=None):
     """Hades I has no report step: an entry reads the table it sits in."""
     values, why = {}, {}
 
@@ -494,10 +554,10 @@ def _extract_hades1(top):
 EXTRACT = {"hades1": _extract_hades1, "hades2": _extract_hades2}
 
 
-def extracted_for(defs, trait_id, rarity, game):
+def extracted_for(defs, trait_id, rarity, game, weapons=None):
     """Every value a description could ask this record for, at one rarity."""
     top = process_trait(merged_record(defs, trait_id), rarity, game)
-    values, why = EXTRACT[game](top)
+    values, why = EXTRACT[game](top, weapons, defs)
     return top, values, why
 
 
@@ -572,15 +632,16 @@ class Resolver:
     attached here where the two are both in hand.
     """
 
-    def __init__(self, defs, game):
+    def __init__(self, defs, game, weapons=None):
         self.defs = defs
         self.game = game
+        self.weapons = weapons
         self._cache = {}
 
     def _state(self, trait_id, rarity):
         key = (trait_id, rarity)
         if key not in self._cache:
-            self._cache[key] = extracted_for(self.defs, trait_id, rarity, self.game)
+            self._cache[key] = extracted_for(self.defs, trait_id, rarity, self.game, self.weapons)
         return self._cache[key]
 
     def value(self, trait_id, rarity, spec):

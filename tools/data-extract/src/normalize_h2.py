@@ -38,6 +38,9 @@ GiftData = load("h2_GiftData.json")
 # Absent from a dump taken before that screen was loaded, so an older raw tree
 # still normalizes -- it just emits no weapons and no weapon on any record.
 WeaponAspects = load("h2_WeaponAspects.json") if os.path.exists(RAW + "h2_WeaponAspects.json") else {}
+# Absent from a dump taken before the Magick-cost branch existed, for the same
+# reason: an older raw tree still normalizes, it just leaves the nine Hexes marked.
+WeaponData = load("h2_WeaponData.json") if os.path.exists(RAW + "h2_WeaponData.json") else {}
 
 REL_SCRIPTS = "Scripts/"  # cited paths are relative to the game's Scripts dir, per prior convention
 
@@ -943,7 +946,7 @@ descriptions = descriptions_for(
     [rec["descriptionRef"] for rec in boons.values() if rec["descriptionRef"]],
     text_bundle_raw,
     keyword_bundle,
-    Resolver(ALL_DEFS_WITH_ASPECTS, "hades2"),
+    Resolver(ALL_DEFS_WITH_ASPECTS, "hades2", WeaponData),
     {t: rec["rarity"] for t, rec in boons.items()},
     ALL_DEFS_WITH_ASPECTS,
     "hades2",
