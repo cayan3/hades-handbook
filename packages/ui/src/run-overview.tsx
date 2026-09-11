@@ -476,6 +476,7 @@ function Detail({ boon }: { readonly boon: FinishedBoon }) {
       <BoonRow
         view={boon.view}
         description={boon.detail.description}
+        stats={boon.detail.stats}
         showElement={false}
         title={<h4 className="boonrow__title">{boon.view.name}</h4>}
       >

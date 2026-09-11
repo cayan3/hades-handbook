@@ -72,7 +72,7 @@ function goal(name: string, met: number, of: number): Goal {
 
   return {
     view: view(name),
-    detail: { description: null, needed: [], rows, activation: [], displaces: null },
+    detail: { description: null, stats: [], needed: [], rows, activation: [], displaces: null },
   };
 }
 

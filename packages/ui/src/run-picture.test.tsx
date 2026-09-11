@@ -118,6 +118,7 @@ function boon(name: string): FinishedBoon {
     view: view(name),
     detail: {
       description: `What ${name} does.`,
+      stats: [],
       needed: [],
       rows: [],
       activation: [],

@@ -58,7 +58,7 @@ function view(over: Partial<NodeView> = {}): NodeView {
 }
 
 function detail(over: Partial<NodeDetail> = {}): NodeDetail {
-  return { description: null, needed: [], rows: [], activation: [], displaces: null, ...over };
+  return { description: null, stats: [], needed: [], rows: [], activation: [], displaces: null, ...over };
 }
 
 const noop = () => {};
@@ -222,6 +222,50 @@ describe("ActionSheet", () => {
     const description = container.querySelector(".boonrow__desc")!;
     expect(description.textContent).toBe(hostile);
     expect(description.children).toHaveLength(0);
+  });
+
+  /**
+   * In the sentence's own paragraph rather than a table of its own: for most
+   * boons this is the only number on the card, the games leaving the figure out
+   * of the prose, so splitting the two would put a sentence and its number in
+   * different places.
+   */
+  it("draws the stat row inside the description, label and value both", () => {
+    render(
+      <ActionSheet
+        view={view()}
+        detail={detail({
+          description: "Your Attacks deal more damage to nearby foes.",
+          stats: [{ label: "Close-Up Damage:", value: "140%" }],
+        })}
+        onClose={noop}
+      />,
+    );
+    const description = container.querySelector(".boonrow__desc")!;
+    expect(description.textContent).toBe(
+      "Your Attacks deal more damage to nearby foes. Close-Up Damage: 140%",
+    );
+    expect(description.querySelector(".boonrow__statlabel")?.textContent).toBe(
+      "Close-Up Damage:",
+    );
+  });
+
+  it("draws the stat row for a boon whose sentence was withdrawn", () => {
+    // The row is not hung off the sentence: a withdrawn description leaves the
+    // number, which is the half a player is reading the card for.
+    render(
+      <ActionSheet
+        view={view()}
+        detail={detail({ description: null, stats: [{ label: "Life:", value: "20%" }] })}
+        onClose={noop}
+      />,
+    );
+    expect(container.querySelector(".boonrow__desc")?.textContent).toBe(" Life: 20%");
+  });
+
+  it("draws no paragraph at all where there is neither", () => {
+    render(<ActionSheet view={view()} detail={detail({ description: null })} onClose={noop} />);
+    expect(container.querySelector(".boonrow__desc")).toBeNull();
   });
 
   it("names the rarity beside the boon, only when the derivation gave it one", () => {

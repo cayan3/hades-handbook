@@ -705,6 +705,7 @@ function BoonCard({
       <BoonRow
         view={view}
         description={detail.description}
+        stats={detail.stats}
         // The panel counts each element once over the whole run, so a card
         // inside it does not mark one; and a Goal never touches this panel.
         showElement={false}

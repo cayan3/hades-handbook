@@ -266,6 +266,40 @@ describe("deriveNodeDetail", () => {
     expect(at("Common")).not.toBe(at("Heroic"));
   });
 
+  /**
+   * The rarity control's whole point. A god boon's sentence carries no number
+   * in either game, so the sentence above says the same thing at every rarity
+   * — the stat row is the only thing on the card a rarity change can move.
+   */
+  it("moves a god boon's stat row with the rarity, where its sentence cannot", () => {
+    const source = h2Source();
+    const boon = "AphroditeWeaponBoon" as TraitId;
+    const view = deriveNodeView(source, boon, makeFacts({ game: "hades2" }));
+    const at = (rarity: Rarity) => {
+      const facts = makeFacts({ game: "hades2", held: held([boon, rarity]) });
+      return deriveNodeDetail(source, view, facts);
+    };
+    expect(at("Common").stats).toEqual([{ label: "Close-Up Damage:", value: "80%" }]);
+    expect(at("Heroic").stats).toEqual([{ label: "Close-Up Damage:", value: "140%" }]);
+    // The sentence is the same one at both, which is why the row is needed.
+    expect(at("Common").description).toBe(at("Heroic").description);
+  });
+
+  it("gives an unheld boon the stat row at the ladder's floor, and none where there is none", () => {
+    const source = h2Source();
+    const facts = makeFacts({ game: "hades2" });
+    const boon = "AphroditeWeaponBoon" as TraitId;
+    const unheld = deriveNodeView(source, boon, facts);
+    expect(deriveNodeDetail(source, unheld, facts).stats).toEqual([
+      { label: "Close-Up Damage:", value: "80%" },
+    ]);
+    // Its row needs a projectile stat the dump does not carry, so it is absent
+    // rather than drawn with a mark in it.
+    const marked = "ZeusWeaponBoon" as TraitId;
+    const view = deriveNodeView(source, marked, facts);
+    expect(deriveNodeDetail(source, view, facts).stats).toEqual([]);
+  });
+
   it("reads a boon the run does not hold at the ladder's floor", () => {
     const source = h2Source();
     const facts = makeFacts({ game: "hades2" });

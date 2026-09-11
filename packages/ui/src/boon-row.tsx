@@ -1,3 +1,4 @@
+import type { StatLine } from "@repo/catalog";
 import { type CSSProperties, type ReactNode } from "react";
 import { NodeBox } from "./boon-node.js";
 import { RarityMark } from "./chrome.js";
@@ -23,6 +24,13 @@ export interface BoonRowProps {
   readonly view: NodeView;
   /** Codex text, already resolved. */
   readonly description: string | null;
+  /**
+   * The games' own stat rows for this boon at the rarity it is held at. Drawn
+   * as a clause after the sentence rather than as a table: a player wants the
+   * one number for the rarity they set, and the rarity control is what shows
+   * them the rest.
+   */
+  readonly stats?: readonly StatLine[];
   /** The heading element, since one surface labels a dialog with it. */
   readonly title: ReactNode;
   /**
@@ -43,6 +51,7 @@ export interface BoonRowProps {
 export function BoonRow({
   view,
   description,
+  stats = [],
   title,
   pinned = false,
   showElement = true,
@@ -84,10 +93,22 @@ export function BoonRow({
           <RarityMark view={view} />
         </div>
 
-        {description === null ? null : (
+        {description === null && stats.length === 0 ? null : (
           // Extracted game text, through the resolver that can withdraw it, as
           // text rather than markup.
-          <p className="boonrow__desc">{description}</p>
+          <p className="boonrow__desc">
+            {description}
+            {/* In the sentence's own paragraph, because for most boons it is
+                the only number there is: the games leave the figure out of the
+                prose and put it in this row. Marked up as its own span so a
+                stylesheet can hold it back without moving it. */}
+            {stats.map((stat) => (
+              <span className="boonrow__stat" key={stat.label}>
+                {" "}
+                <span className="boonrow__statlabel">{stat.label}</span> {stat.value}
+              </span>
+            ))}
+          </p>
         )}
 
         {children}

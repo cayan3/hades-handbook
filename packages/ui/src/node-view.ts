@@ -3,6 +3,8 @@ import {
   type TraitRecord,
   forcingKeepsakes,
   iconFor,
+  type StatLine,
+  statLinesFor,
   textFor,
   traitsFor,
 } from "@repo/catalog";
@@ -114,6 +116,13 @@ export interface NodeView {
 export interface NodeDetail {
   /** Codex text, through the resolver that can withdraw it. */
   readonly description: string | null;
+  /**
+   * The stat rows the games draw under that text, at the rarity the run holds
+   * the boon at. Where a god boon's number actually is: its sentence usually
+   * has none, and the ones that do have one do not move with the rarity, so
+   * this is what a rarity change has to change. Empty where nothing resolved.
+   */
+  readonly stats: readonly StatLine[];
   /** What the requirement still asks for, one line per thing to go and get. */
   readonly needed: readonly string[];
   /**
@@ -450,13 +459,20 @@ export function deriveNodeDetail(
   const status = evaluate(prereq, facts, rules, lookups);
   const needed = status.kind === "pending" ? neededLines(status.residual, naming) : [];
 
+  // Read once: both the sentence and the stat rows are drawn at it.
+  const rarity = facts.held.get(view.trait)?.rarity;
+
   return {
     description:
       record?.descriptionRef == null
         ? null
         : // The rarity the run holds it at, so the sentence says the number the
           // player will actually see. An unheld boon reads at the ladder's floor.
-          textFor(source.game, record.descriptionRef, facts.held.get(view.trait)?.rarity),
+          textFor(source.game, record.descriptionRef, rarity),
+    stats:
+      record?.descriptionRef == null
+        ? []
+        : statLinesFor(source.game, record.descriptionRef, rarity),
     needed,
     rows: requirementRows(source, prereq, facts, status.kind === "unsatisfiable"),
     activation:

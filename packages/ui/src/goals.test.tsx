@@ -82,6 +82,7 @@ function row(over: Partial<RequirementRow> = {}): RequirementRow {
 function detail(over: Partial<NodeDetail> = {}): NodeDetail {
   return {
     description: null,
+    stats: [],
     needed: [],
     rows: [row()],
     activation: [],

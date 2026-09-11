@@ -119,6 +119,7 @@ export function ActionSheet({
         <BoonRow
           view={view}
           description={detail.description}
+          stats={detail.stats}
           pinned={pinned}
           title={
             <h2 className="boonrow__title" id={titleId}>

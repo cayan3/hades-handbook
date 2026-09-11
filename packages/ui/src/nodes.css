@@ -840,6 +840,24 @@
   line-height: 1.4;
 }
 
+/* The games' own stat row, kept in the description's paragraph rather than
+   given one of its own. For most boons it is the only number on the card: the
+   prose leaves the figure out and this is where it goes, so separating the two
+   would put the sentence and its number in different places. Held back by
+   dimming and not by size, the surface having a 0.85rem floor.
+
+   The label's 0.8 nests inside the clause's 0.9 and draws at 0.72, which is
+   the dimmest thing on this surface and is meant to be: "Damage:" before a
+   number is self-evident, so it needs to be there without being read. It was
+   bold as well for a while and that was too much of both. */
+.boonrow__stat {
+  opacity: 0.9;
+}
+
+.boonrow__statlabel {
+  opacity: 0.8;
+}
+
 .boonrow__state {
   margin: 0.35rem 0 0;
   opacity: 0.75;

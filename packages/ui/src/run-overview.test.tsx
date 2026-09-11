@@ -69,6 +69,7 @@ function boon(name: string, over: Partial<FinishedBoon> = {}): FinishedBoon {
     view: view(name),
     detail: {
       description: `What ${name} does.`,
+      stats: [],
       needed: [],
       rows: [],
       activation: [],

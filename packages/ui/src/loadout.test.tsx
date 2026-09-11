@@ -67,6 +67,7 @@ function entry(trait: TraitId, slot: string | null = null): LoadoutEntry {
 
 const detail = (trait: TraitId): NodeDetail => ({
   description: `about ${trait}`,
+  stats: [],
   needed: [],
   rows: [],
   activation: [],
