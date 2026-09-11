@@ -967,7 +967,7 @@ def test_markup_left_in_a_stat_line_is_fatal_like_a_sentence():
 
 
 def test_an_entry_carrying_only_stat_lines_is_well_formed():
-    """The common shape rather than the odd one: 153 of Hades II's 218 god-page
+    """The common shape rather than the odd one: 160 of Hades II's 218 god-page
     sentences carry no number, so their entry has stat lines and no values."""
     report, fatal = check({}, descriptions={
         "A": {"text": "Your Attacks deal more damage to nearby foes.",

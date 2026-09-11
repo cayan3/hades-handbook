@@ -289,7 +289,7 @@ def _stat_entry(raw, record, bundle, keywords, resolver, trait_id, rarities, gam
 
     All or nothing per record, and the shape of the data makes that cheap rather
     than a compromise: every Hades II god-page record declares exactly one stat
-    line, and each either resolves at every rarity or at none -- 157 and 52, no
+    line, and each either resolves at every rarity or at none -- 155 and 54, no
     record splitting. A line that cannot be answered is dropped rather than
     marked, because the label is a field name and the value is the whole of what
     the row says, so a marked one reads as a row that says nothing. That is the
@@ -363,7 +363,7 @@ def descriptions_for(refs, bundle, keywords, resolver=None, rarities=None,
     so the bundle only grows where it gained something.
 
     A record's stat lines ride on the same entry under `stats`, which is where
-    a god boon's number actually is: 153 of Hades II's 218 god-page sentences
+    a god boon's number actually is: 160 of Hades II's 218 god-page sentences
     carry no number at all, and none of the 58 that do moves with the rarity.
     An entry that gained only stat lines is promoted from a bare string to an
     object so there is somewhere to put them.

@@ -260,7 +260,7 @@ describe("statLinesFor", () => {
   });
 
   it("leaves a sentence readable that gained a stat line and no slot", () => {
-    // The common shape: 153 of Hades II's 218 god-page sentences carry no
+    // The common shape: 160 of Hades II's 218 god-page sentences carry no
     // number, so their entry has `stats` and no `values` at all. Reading a
     // rarity row off one of those used to be a dereference of nothing.
     expect(textFor("hades2", "AphroditeWeaponBoon", "Heroic")).toBe(

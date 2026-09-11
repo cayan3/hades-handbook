@@ -321,7 +321,7 @@ function rowFor(
  * A record's stat lines at one rarity — the row the games' own Codex draws
  * under the description, and where a god boon's number actually is.
  *
- * The sentence usually has no number in it: 153 of Hades II's 218 god-page
+ * The sentence usually has no number in it: 160 of Hades II's 218 god-page
  * descriptions carry none, and not one of the 58 that do moves with the rarity,
  * so without this a player changing a boon's rarity sees nothing change.
  *
