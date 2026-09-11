@@ -20,21 +20,225 @@
    ]
   }
  },
- "AllCloseBoon": "You take less damage from nearby foes. Boons of Aphrodite treat all foes as nearby.",
- "AllElementalBoon": "Gain Elements, and 1 Infusion Boon for each.",
- "AloneDamageBoon": "You deal more damage to foes that are nowhere near other foes.",
- "AmplifyConeBoon": "Your splash effects from Poseidon are larger, and deal more damage to Guardians.",
- "AntiArmorBoon": "Your Attacks and Specials deal more damage to Armor.",
+ "AllCloseBoon": {
+  "stats": {
+   "labels": [
+    "Damage Resistance:"
+   ],
+   "values": {
+    "default": [
+     "15%"
+    ]
+   }
+  },
+  "text": "You take less damage from nearby foes. Boons of Aphrodite treat all foes as nearby."
+ },
+ "AllElementalBoon": {
+  "stats": {
+   "labels": [
+    "Essences Gained per Element:"
+   ],
+   "values": {
+    "default": [
+     "+1"
+    ]
+   }
+  },
+  "text": "Gain Elements, and 1 Infusion Boon for each."
+ },
+ "AloneDamageBoon": {
+  "stats": {
+   "labels": [
+    "Damage to Isolated Foes:"
+   ],
+   "values": {
+    "Epic": [
+     "21%"
+    ],
+    "Heroic": [
+     "24%"
+    ],
+    "Rare": [
+     "18%"
+    ],
+    "default": [
+     "15%"
+    ]
+   }
+  },
+  "text": "You deal more damage to foes that are nowhere near other foes."
+ },
+ "AmplifyConeBoon": {
+  "stats": {
+   "labels": [
+    "Splash Damage vs. Guardians:"
+   ],
+   "values": {
+    "default": [
+     "200%"
+    ]
+   }
+  },
+  "text": "Your splash effects from Poseidon are larger, and deal more damage to Guardians."
+ },
+ "AntiArmorBoon": {
+  "stats": {
+   "labels": [
+    "Damage vs. Armor:"
+   ],
+   "values": {
+    "Epic": [
+     "80%"
+    ],
+    "Heroic": [
+     "100%"
+    ],
+    "Rare": [
+     "60%"
+    ],
+    "default": [
+     "40%"
+    ]
+   }
+  },
+  "text": "Your Attacks and Specials deal more damage to Armor."
+ },
  "AphroditeCastBoon": "Your Casts inflict Weak, and damage foes while dragging them toward the center.",
- "AphroditeManaBoon": "You automatically inflict Weak on nearby foes and gradually restore Magick near them.",
- "AphroditeSpecialBoon": "Your Specials deal more damage to nearby foes.",
+ "AphroditeManaBoon": {
+  "stats": {
+   "labels": [
+    "Magick Restoration:"
+   ],
+   "values": {
+    "Epic": [
+     "10 (every 1 Sec.)"
+    ],
+    "Heroic": [
+     "12 (every 1 Sec.)"
+    ],
+    "Rare": [
+     "8 (every 1 Sec.)"
+    ],
+    "default": [
+     "6 (every 1 Sec.)"
+    ]
+   }
+  },
+  "text": "You automatically inflict Weak on nearby foes and gradually restore Magick near them."
+ },
+ "AphroditeSpecialBoon": {
+  "stats": {
+   "labels": [
+    "Close-Up Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "200%"
+    ],
+    "Heroic": [
+     "250%"
+    ],
+    "Rare": [
+     "150%"
+    ],
+    "default": [
+     "100%"
+    ]
+   }
+  },
+  "text": "Your Specials deal more damage to nearby foes."
+ },
  "AphroditeSprintBoon": "Rushing damages surrounding foes and inflicts Weak, and again once you stop.",
- "AphroditeWeaponBoon": "Your Attacks deal more damage to nearby foes.",
- "ApolloBlindBoon": "Foes with Daze take more damage if struck from behind.",
- "ApolloCastAreaBoon": "Your Casts expand in size until they expire.",
+ "AphroditeWeaponBoon": {
+  "stats": {
+   "labels": [
+    "Close-Up Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "120%"
+    ],
+    "Heroic": [
+     "140%"
+    ],
+    "Rare": [
+     "100%"
+    ],
+    "default": [
+     "80%"
+    ]
+   }
+  },
+  "text": "Your Attacks deal more damage to nearby foes."
+ },
+ "ApolloBlindBoon": {
+  "stats": {
+   "labels": [
+    "Backstab Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "100%"
+    ],
+    "Heroic": [
+     "125%"
+    ],
+    "Rare": [
+     "75%"
+    ],
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "Foes with Daze take more damage if struck from behind."
+ },
+ "ApolloCastAreaBoon": {
+  "stats": {
+   "labels": [
+    "Max Cast Size:"
+   ],
+   "values": {
+    "Epic": [
+     "60%"
+    ],
+    "Heroic": [
+     "70%"
+    ],
+    "Rare": [
+     "50%"
+    ],
+    "default": [
+     "40%"
+    ]
+   }
+  },
+  "text": "Your Casts expand in size until they expire."
+ },
  "ApolloCastBoon": "Your Casts inflict Daze, and deal a burst of damage before they expire.",
  "ApolloExCastBoon": "After your Ω Cast expires, rapidly deal damage in the area for ? Sec.",
- "ApolloManaBoon": "Whenever your Casts expire, restore Magick.",
+ "ApolloManaBoon": {
+  "stats": {
+   "labels": [
+    "Magick Restored:"
+   ],
+   "values": {
+    "Epic": [
+     "80"
+    ],
+    "Heroic": [
+     "100"
+    ],
+    "Rare": [
+     "60"
+    ],
+    "default": [
+     "40"
+    ]
+   }
+  },
+  "text": "Whenever your Casts expire, restore Magick."
+ },
  "ApolloRetaliateBoon": "After you take damage, automatically damage and Daze all foes in the vicinity.",
  "ApolloSecondStageCastBoon": {
   "text": "You can Channel +{0} Magick into your Ω Cast to repeatedly strike foes with lightning bolts.",
@@ -44,9 +248,51 @@
    ]
   }
  },
- "ApolloSpecialBoon": "Your Specials deal more damage in a larger area.",
+ "ApolloSpecialBoon": {
+  "stats": {
+   "labels": [
+    "Special Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "100%"
+    ],
+    "Heroic": [
+     "120%"
+    ],
+    "Rare": [
+     "80%"
+    ],
+    "default": [
+     "60%"
+    ]
+   }
+  },
+  "text": "Your Specials deal more damage in a larger area."
+ },
  "ApolloSprintBoon": "Your Sprint is faster and inflicts Daze on surrounding foes.",
- "ApolloWeaponBoon": "Your Attacks deal more damage in a larger area.",
+ "ApolloWeaponBoon": {
+  "stats": {
+   "labels": [
+    "Attack Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "80%"
+    ],
+    "Heroic": [
+     "100%"
+    ],
+    "Rare": [
+     "60%"
+    ],
+    "default": [
+     "40%"
+    ]
+   }
+  },
+  "text": "Your Attacks deal more damage in a larger area."
+ },
  "ArcanaRarityTrait": {
   "text": "Randomly draw {0} of your active Arcana and upgrade them this night.",
   "values": {
@@ -64,6 +310,25 @@
  "AresCastBoon": "Your Casts create a falling blade over each foe in the binding circle.",
  "AresExCastBoon": "Your Ω Cast also creates a Blade Rift in the binding circle.",
  "AresManaBoon": {
+  "stats": {
+   "labels": [
+    "Magick Restored per Plasma:"
+   ],
+   "values": {
+    "Epic": [
+     "25"
+    ],
+    "Heroic": [
+     "30"
+    ],
+    "Rare": [
+     "20"
+    ],
+    "default": [
+     "15"
+    ]
+   }
+  },
   "text": "Striking foes with your Weapon has {0} chance to spill Plasma, which can restore Magick.",
   "values": {
    "default": [
@@ -71,9 +336,49 @@
    ]
   }
  },
- "AresSpecialBoon": "Your Specials deal more damage and inflict Wounds.",
+ "AresSpecialBoon": {
+  "stats": {
+   "labels": [
+    "Special Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "50%"
+    ],
+    "Heroic": [
+     "60%"
+    ],
+    "Rare": [
+     "40%"
+    ],
+    "default": [
+     "30%"
+    ]
+   }
+  },
+  "text": "Your Specials deal more damage and inflict Wounds."
+ },
  "AresSprintBoon": "Your Dash creates a row of falling blades along your path.",
  "AresStatusDoubleDamageBoon": {
+  "stats": {
+   "labels": [
+    "Double Damage Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "16%"
+    ],
+    "Heroic": [
+     "19%"
+    ],
+    "Rare": [
+     "13%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
   "text": "Foes with Wounds may suffer {0} damage when struck.",
   "values": {
    "default": [
@@ -81,8 +386,48 @@
    ]
   }
  },
- "AresWeaponBoon": "Your Attacks deal more damage and inflict Wounds.",
+ "AresWeaponBoon": {
+  "stats": {
+   "labels": [
+    "Attack Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "40%"
+    ],
+    "Heroic": [
+     "50%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "Your Attacks deal more damage and inflict Wounds."
+ },
  "ArmorBoon": {
+  "stats": {
+   "labels": [
+    "Starting Armor:"
+   ],
+   "values": {
+    "Epic": [
+     "20"
+    ],
+    "Heroic": [
+     "25"
+    ],
+    "Rare": [
+     "15"
+    ],
+    "default": [
+     "10"
+    ]
+   }
+  },
   "text": "Whenever you enter a Location, gain Armor for that Location, but you Prime {0} Magick.",
   "values": {
    "default": [
@@ -153,8 +498,47 @@
    ]
   }
  },
- "AutoRevengeBoon": "Inflicting Wounds also can inflict all your 'after you take damage' effects.",
- "AxeArmCastAspect": "Your Cast erupts like a stronger Ω Cast if struck by your Ω Special.",
+ "AutoRevengeBoon": {
+  "stats": {
+   "labels": [
+    "Recharge Time per Foe:"
+   ],
+   "values": {
+    "default": [
+     "6 Sec."
+    ]
+   }
+  },
+  "text": "Inflicting Wounds also can inflict all your 'after you take damage' effects."
+ },
+ "AxeArmCastAspect": {
+  "stats": {
+   "labels": [
+    "Cleave-Cast Size & Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Legendary": [
+     "30%"
+    ],
+    "Perfect": [
+     "45%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Your Cast erupts like a stronger Ω Cast if struck by your Ω Special."
+ },
  "AxeArmorTrait": {
   "text": "Each hit from your Special deals +{0} damage to Armor.",
   "values": {
@@ -214,8 +598,62 @@
    ]
   }
  },
- "AxePerfectCriticalAspect": "Your Attack is faster, and each strike grants Mortality until you take damage.",
- "AxeRallyAspect": "You have the Rock Lion Mace, and become Berserk after you strike enough foes.",
+ "AxePerfectCriticalAspect": {
+  "stats": {
+   "labels": [
+    "Attack Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "35%"
+    ],
+    "Legendary": [
+     "40%"
+    ],
+    "Perfect": [
+     "55%"
+    ],
+    "Rare": [
+     "25%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "Your Attack is faster, and each strike grants Mortality until you take damage."
+ },
+ "AxeRallyAspect": {
+  "stats": {
+   "labels": [
+    "Berserk After:"
+   ],
+   "values": {
+    "Epic": [
+     "15 Strikes"
+    ],
+    "Heroic": [
+     "12 Strikes"
+    ],
+    "Legendary": [
+     "9 Strikes"
+    ],
+    "Perfect": [
+     "4 Strikes"
+    ],
+    "Rare": [
+     "18 Strikes"
+    ],
+    "default": [
+     "21 Strikes"
+    ]
+   }
+  },
+  "text": "You have the Rock Lion Mace, and become Berserk after you strike enough foes."
+ },
  "AxeRallyFirstStrikeTrait": {
   "text": "Your Attack hits {0} times, but the {1}-strike sequence becomes only the first slam.",
   "values": {
@@ -235,7 +673,34 @@
   }
  },
  "AxeRangedWhirlwindTrait": "Your Attacks also deal ? damage to surrounding foes, for each and every strike.",
- "AxeRecoveryAspect": "Gain bonus Attack Power and Max Life.",
+ "AxeRecoveryAspect": {
+  "stats": {
+   "labels": [
+    "Attack Power & Max Life:"
+   ],
+   "values": {
+    "Epic": [
+     "35"
+    ],
+    "Heroic": [
+     "40"
+    ],
+    "Legendary": [
+     "50"
+    ],
+    "Perfect": [
+     "60"
+    ],
+    "Rare": [
+     "30"
+    ],
+    "default": [
+     "0"
+    ]
+   }
+  },
+  "text": "Gain bonus Attack Power and Max Life."
+ },
  "AxeSecondStageTrait": {
   "text": "Your Ω Special fires {0} times in succession, but uses +{1} Magick.",
   "values": {
@@ -282,11 +747,119 @@
    ]
   }
  },
- "BankBoon": "Give up all your Gold Crowns now. After vanquishing the next Guardian, gain that much and more.",
- "BaseStaffAspect": "Gain Max Magick and greater Power for your Specials.",
- "BaseSuitAspect": "Your Attacks, Sprint, and move speed are faster.",
- "BlindChanceBoon": "Your Attacks may inflict Daze.",
- "BlindClearBoon": "Your blast effects from Hephaestus clear Daze and deal more damage if they do.",
+ "BankBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Gold Earned, Soon:"
+   ],
+   "values": {
+    "Epic": [
+     "+500"
+    ],
+    "Heroic": [
+     "+600"
+    ],
+    "Rare": [
+     "+400"
+    ],
+    "default": [
+     "+300"
+    ]
+   }
+  },
+  "text": "Give up all your Gold Crowns now. After vanquishing the next Guardian, gain that much and more."
+ },
+ "BaseStaffAspect": {
+  "stats": {
+   "labels": [
+    "Max Magick & Specials Power:"
+   ],
+   "values": {
+    "Epic": [
+     "20"
+    ],
+    "Heroic": [
+     "30"
+    ],
+    "Legendary": [
+     "40"
+    ],
+    "Perfect": [
+     "50"
+    ],
+    "Rare": [
+     "10"
+    ],
+    "default": [
+     "0"
+    ]
+   }
+  },
+  "text": "Gain Max Magick and greater Power for your Specials."
+ },
+ "BaseSuitAspect": {
+  "stats": {
+   "labels": [
+    "Bonus Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "10%"
+    ],
+    "Heroic": [
+     "15%"
+    ],
+    "Legendary": [
+     "20%"
+    ],
+    "Perfect": [
+     "35%"
+    ],
+    "Rare": [
+     "5%"
+    ],
+    "default": [
+     "0%"
+    ]
+   }
+  },
+  "text": "Your Attacks, Sprint, and move speed are faster."
+ },
+ "BlindChanceBoon": {
+  "stats": {
+   "labels": [
+    "Daze Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Your Attacks may inflict Daze."
+ },
+ "BlindClearBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Blast Damage:"
+   ],
+   "values": {
+    "default": [
+     "300"
+    ]
+   }
+  },
+  "text": "Your blast effects from Hephaestus clear Daze and deal more damage if they do."
+ },
  "BlockDeathKeepsake": {
   "text": "When first you fall to 0 Life in an Encounter, become Doomed. Clear it in time for {0} Healing.",
   "values": {
@@ -304,9 +877,54 @@
    ]
   }
  },
- "BloodDropRevengeBoon": "After you take damage or a foe is slain, spill Plasma, sometimes twice.",
- "BloodManaBurstBoon": "Whenever you collect Plasma, you may create a Heartthrob.",
- "BloodRetentionBoon": "Whenever you exit a Location, keep some of your Plasma bonuses.",
+ "BloodDropRevengeBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Plasma Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "35%"
+    ],
+    "Heroic": [
+     "40%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "25%"
+    ]
+   }
+  },
+  "text": "After you take damage or a foe is slain, spill Plasma, sometimes twice."
+ },
+ "BloodManaBurstBoon": {
+  "stats": {
+   "labels": [
+    "Chance of Heartthrob:"
+   ],
+   "values": {
+    "default": [
+     "35%"
+    ]
+   }
+  },
+  "text": "Whenever you collect Plasma, you may create a Heartthrob."
+ },
+ "BloodRetentionBoon": {
+  "stats": {
+   "labels": [
+    "Max Plasma Bonus Retained:"
+   ],
+   "values": {
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "Whenever you exit a Location, keep some of your Plasma bonuses."
+ },
  "BoltRetaliateBoon": {
   "text": "After you take damage, your foe is struck by lightning, and again {0}% of the time.",
   "values": {
@@ -332,8 +950,50 @@
    ]
   }
  },
- "BoonDecayBoon": "Make 1 random Boon become Heroic and give it Lv.",
- "BoonGrowthBoon": "Whenever you clear enough Encounters, a random Boon you have gains Rarity.",
+ "BoonDecayBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Lv.:"
+   ],
+   "values": {
+    "Epic": [
+     "3"
+    ],
+    "Heroic": [
+     "4"
+    ],
+    "Rare": [
+     "2"
+    ],
+    "default": [
+     "1"
+    ]
+   }
+  },
+  "text": "Make 1 random Boon become Heroic and give it Lv."
+ },
+ "BoonGrowthBoon": {
+  "stats": {
+   "labels": [
+    "Encounters per Rarity Upgrade:"
+   ],
+   "values": {
+    "Epic": [
+     "4"
+    ],
+    "Heroic": [
+     "3"
+    ],
+    "Rare": [
+     "5"
+    ],
+    "default": [
+     "6"
+    ]
+   }
+  },
+  "text": "Whenever you clear enough Encounters, a random Boon you have gains Rarity."
+ },
  "BossMetaUpgradeKeepsake": {
   "text": "After the next Guardian, activate {0} random inactive ? Arcana Cards.",
   "values": {
@@ -384,14 +1044,134 @@
    ]
   }
  },
- "BurnArmorBoon": "Gain a chance to Dodge, which is doubled against Scorch-afflicted foes.",
- "BurnConsumeBoon": "Whenever you inflict Freeze on a foe with Scorch, deal damage and remove Scorch.",
+ "BurnArmorBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Dodge Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "6%"
+    ],
+    "Heroic": [
+     "7%"
+    ],
+    "Rare": [
+     "5%"
+    ],
+    "default": [
+     "4%"
+    ]
+   }
+  },
+  "text": "Gain a chance to Dodge, which is doubled against Scorch-afflicted foes."
+ },
+ "BurnConsumeBoon": {
+  "stats": {
+   "labels": [
+    "Damage from Scorch:"
+   ],
+   "values": {
+    "default": [
+     "200%"
+    ]
+   }
+  },
+  "text": "Whenever you inflict Freeze on a foe with Scorch, deal damage and remove Scorch."
+ },
  "BurnExplodeBoon": "Your foes perish in a blast that damages any surrounding foes.",
- "BurnRefreshBoon": "While foes are Weak, any Scorch they have does not diminish as it deals damage.",
- "BurnSprintBoon": "Your Casts destroy many foes' ranged shots, and inflict Scorch on the attacking foes.",
- "BurnStackBoon": "Your Scorch effects deal damage faster.",
- "CastAnywhereBoon": "Hold Cast to aim where the binding circle appears. Foes within are struck by lightning.",
- "CastAttachBoon": "Your Ω Cast deals more damage. If you are in the binding circle, the bonus is doubled.",
+ "BurnRefreshBoon": {
+  "stats": {
+   "labels": [
+    "Scorch Duration on Weak Foes:"
+   ],
+   "values": {
+    "default": [
+     "∞"
+    ]
+   }
+  },
+  "text": "While foes are Weak, any Scorch they have does not diminish as it deals damage."
+ },
+ "BurnSprintBoon": {
+  "stats": {
+   "labels": [
+    "Scorch Damage:"
+   ],
+   "values": {
+    "default": [
+     "400 (every 3 Sec.)"
+    ]
+   }
+  },
+  "text": "Your Casts destroy many foes' ranged shots, and inflict Scorch on the attacking foes."
+ },
+ "BurnStackBoon": {
+  "stats": {
+   "labels": [
+    "Scorch Damage Rate:"
+   ],
+   "values": {
+    "Epic": [
+     "100%"
+    ],
+    "Heroic": [
+     "125%"
+    ],
+    "Rare": [
+     "75%"
+    ],
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "Your Scorch effects deal damage faster."
+ },
+ "CastAnywhereBoon": {
+  "stats": {
+   "labels": [
+    "Bolt Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "90"
+    ],
+    "Heroic": [
+     "110"
+    ],
+    "Rare": [
+     "70"
+    ],
+    "default": [
+     "50"
+    ]
+   }
+  },
+  "text": "Hold Cast to aim where the binding circle appears. Foes within are struck by lightning."
+ },
+ "CastAttachBoon": {
+  "stats": {
+   "labels": [
+    "Omega Cast Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "40%"
+    ],
+    "Heroic": [
+     "50%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "Your Ω Cast deals more damage. If you are in the binding circle, the bonus is doubled."
+ },
  "CastDamageCostume": {
   "text": "Don a +{0} Armor Outfit that makes your Casts deal {1} damage.",
   "values": {
@@ -421,9 +1201,51 @@
    ]
   }
  },
- "CastLobBoon": "Hold Cast to lob a large explosive. The binding circle forms there.",
+ "CastLobBoon": {
+  "stats": {
+   "labels": [
+    "Blast Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "600"
+    ],
+    "Heroic": [
+     "750"
+    ],
+    "Rare": [
+     "450"
+    ],
+    "default": [
+     "300"
+    ]
+   }
+  },
+  "text": "Hold Cast to lob a large explosive. The binding circle forms there."
+ },
  "CastNovaBoon": "Your Casts also create a Gust around the binding circle.",
- "CastProjectileBoon": "Hold Cast to aim a fireball that explodes on impact. The binding circle forms there.",
+ "CastProjectileBoon": {
+  "stats": {
+   "labels": [
+    "Fireball Blast Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "120"
+    ],
+    "Heroic": [
+     "150"
+    ],
+    "Rare": [
+     "90"
+    ],
+    "default": [
+     "60"
+    ]
+   }
+  },
+  "text": "Hold Cast to aim a fireball that explodes on impact. The binding circle forms there."
+ },
  "ChaosCastBlessing": {
   "text": "Afterward, your Casts deal {0} damage.",
   "values": {
@@ -831,7 +1653,19 @@
    ]
   }
  },
- "CharmCrowdBoon": "As long as multiple foes are in an Encounter, automatically inflict Charm on 1 of them.",
+ "CharmCrowdBoon": {
+  "stats": {
+   "labels": [
+    "Min Foes for Auto-Charm:"
+   ],
+   "values": {
+    "default": [
+     "2"
+    ]
+   }
+  },
+  "text": "As long as multiple foes are in an Encounter, automatically inflict Charm on 1 of them."
+ },
  "CirceEnlargeTrait": {
   "text": "Grow in size so that you have {0} Max Life and deal {1} damage with your Weapon.",
   "values": {
@@ -880,10 +1714,76 @@
    ]
   }
  },
- "ClearCastTalent": "After using your Hex, your Ω Moves make you restore any Magick you use for ? Sec.",
- "ClearRootBoon": "Your blast effects from Hephaestus deal more damage to Freeze-afflicted foes.",
- "CombatEncounterHealBoon": "After each Encounter, restore some Life if you took any damage in that Encounter.",
- "CommonGlobalDamageBoon": "While none of your other Boons are Common, deal more damage.",
+ "ClearCastTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+20"
+    ]
+   }
+  },
+  "text": "After using your Hex, your Ω Moves make you restore any Magick you use for ? Sec."
+ },
+ "ClearRootBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Blast Damage:"
+   ],
+   "values": {
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "Your blast effects from Hephaestus deal more damage to Freeze-afflicted foes."
+ },
+ "CombatEncounterHealBoon": {
+  "stats": {
+   "labels": [
+    "Lost Life Restored:"
+   ],
+   "values": {
+    "Epic": [
+     "70%"
+    ],
+    "Heroic": [
+     "80%"
+    ],
+    "Rare": [
+     "60%"
+    ],
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "After each Encounter, restore some Life if you took any damage in that Encounter."
+ },
+ "CommonGlobalDamageBoon": {
+  "stats": {
+   "labels": [
+    "Common-Less Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "While none of your other Boons are Common, deal more damage."
+ },
  "CooldownDamageTalent": {
   "text": "After using your Hex, you deal {0} damage this Encounter.",
   "values": {
@@ -918,8 +1818,41 @@
    ]
   }
  },
- "CoverRegenerationBoon": "Whenever you Dodge or Daze causes a foe to miss, restore some Life.",
- "CritBonusBoon": "Any damage you deal may be Critical.",
+ "CoverRegenerationBoon": {
+  "stats": {
+   "labels": [
+    "Life Restored per Evasion:"
+   ],
+   "values": {
+    "default": [
+     "10"
+    ]
+   }
+  },
+  "text": "Whenever you Dodge or Daze causes a foe to miss, restore some Life."
+ },
+ "CritBonusBoon": {
+  "stats": {
+   "labels": [
+    "Critical Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "5%"
+    ],
+    "Heroic": [
+     "6%"
+    ],
+    "Rare": [
+     "4%"
+    ],
+    "default": [
+     "3%"
+    ]
+   }
+  },
+  "text": "Any damage you deal may be Critical."
+ },
  "CurrencyUseTalent": {
   "text": "Whenever you use your Hex, gain +{0} Gold Crowns.",
   "values": {
@@ -951,7 +1884,34 @@
    ]
   }
  },
- "DaggerBackstabAspect": "Your Attacks and Specials deal more damage by striking foes from behind.",
+ "DaggerBackstabAspect": {
+  "stats": {
+   "labels": [
+    "Backstab Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "60%"
+    ],
+    "Heroic": [
+     "80%"
+    ],
+    "Legendary": [
+     "100%"
+    ],
+    "Perfect": [
+     "200%"
+    ],
+    "Rare": [
+     "40%"
+    ],
+    "default": [
+     "0%"
+    ]
+   }
+  },
+  "text": "Your Attacks and Specials deal more damage by striking foes from behind."
+ },
  "DaggerBackstabTrait": {
   "text": "Your Attacks deal {0} damage striking foes from behind.",
   "values": {
@@ -976,7 +1936,34 @@
    ]
   }
  },
- "DaggerBlockAspect": "While you Channel your Ω Attack, you occasionally Parry, then Riposte right after.",
+ "DaggerBlockAspect": {
+  "stats": {
+   "labels": [
+    "Omega Attack Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "40%"
+    ],
+    "Heroic": [
+     "50%"
+    ],
+    "Legendary": [
+     "60%"
+    ],
+    "Perfect": [
+     "90%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "While you Channel your Ω Attack, you occasionally Parry, then Riposte right after."
+ },
  "DaggerChargeStageSkipTrait": {
   "text": "You Channel your Ω Special {0}% faster.",
   "values": {
@@ -1007,7 +1994,34 @@
    ]
   }
  },
- "DaggerHomingThrowAspect": "Your Specials seek foes in your Casts, and fire more shots if you Channel longer.",
+ "DaggerHomingThrowAspect": {
+  "stats": {
+   "labels": [
+    "Omega Special Max Shots:"
+   ],
+   "values": {
+    "Epic": [
+     "3"
+    ],
+    "Heroic": [
+     "4"
+    ],
+    "Legendary": [
+     "5"
+    ],
+    "Perfect": [
+     "8"
+    ],
+    "Rare": [
+     "2"
+    ],
+    "default": [
+     "1"
+    ]
+   }
+  },
+  "text": "Your Specials seek foes in your Casts, and fire more shots if you Channel longer."
+ },
  "DaggerRapidAttackTrait": {
   "text": "Your Attacks are {0} faster.",
   "values": {
@@ -1125,6 +2139,25 @@
   }
  },
  "DamageSharePotencyBoon": {
+  "stats": {
+   "labels": [
+    "Hitch Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
   "text": "Your Hitch effects deal more damage and last +{0} Sec.",
   "values": {
    "default": [
@@ -1132,7 +2165,28 @@
    ]
   }
  },
- "DamageShareRetaliateBoon": "Your damaging effects from Olympians are stronger for each Boon-giver you have.",
+ "DamageShareRetaliateBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Effect Damage per God(dess):"
+   ],
+   "values": {
+    "Epic": [
+     "5%"
+    ],
+    "Heroic": [
+     "6%"
+    ],
+    "Rare": [
+     "4%"
+    ],
+    "default": [
+     "3%"
+    ]
+   }
+  },
+  "text": "Your damaging effects from Olympians are stronger for each Boon-giver you have."
+ },
  "DamagedDamageBoostKeepsake": {
   "text": "After you take {0} damage, your Ω Moves deal {1} damage. Currently: ?",
   "values": {
@@ -1155,6 +2209,25 @@
   }
  },
  "DashOmegaBuffBoon": {
+  "stats": {
+   "labels": [
+    "Omega Critical Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "14%"
+    ],
+    "Heroic": [
+     "16%"
+    ],
+    "Rare": [
+     "12%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
   "text": "After you Dash, your Ω Moves may deal Critical damage for {0} Sec.",
   "values": {
    "default": [
@@ -1162,7 +2235,28 @@
    ]
   }
  },
- "DeathDefianceRefillBoon": "Replenish all spent uses of Death Defiance now, and improve their potency.",
+ "DeathDefianceRefillBoon": {
+  "stats": {
+   "labels": [
+    "Life Restoration When Used:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Replenish all spent uses of Death Defiance now, and improve their potency."
+ },
  "DeathDefianceRetaliateCurse": {
   "text": "Whenever a foe makes you use Death Defiance, it loses {0}% Life.",
   "values": {
@@ -1220,6 +2314,25 @@
  },
  "DemeterCastBoon": "Your Casts inflict Freeze and repeatedly deal damage to foes in the binding circle.",
  "DemeterManaBoon": {
+  "stats": {
+   "labels": [
+    "Magick Restoration:"
+   ],
+   "values": {
+    "Epic": [
+     "100% (every 1 Sec.)"
+    ],
+    "Heroic": [
+     "125% (every 1 Sec.)"
+    ],
+    "Rare": [
+     "75% (every 1 Sec.)"
+    ],
+    "default": [
+     "50% (every 1 Sec.)"
+    ]
+   }
+  },
   "text": "After remaining inactive for {0} Sec., rapidly restore Magick until you act.",
   "values": {
    "default": [
@@ -1227,9 +2340,51 @@
    ]
   }
  },
- "DemeterSpecialBoon": "Your Specials deal more damage and inflict Freeze.",
+ "DemeterSpecialBoon": {
+  "stats": {
+   "labels": [
+    "Special Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "80%"
+    ],
+    "Heroic": [
+     "100%"
+    ],
+    "Rare": [
+     "60%"
+    ],
+    "default": [
+     "40%"
+    ]
+   }
+  },
+  "text": "Your Specials deal more damage and inflict Freeze."
+ },
  "DemeterSprintBoon": "Your Sprint forms a Gust around you that lingers after you stop.",
- "DemeterWeaponBoon": "Your Attacks deal more damage and inflict Freeze.",
+ "DemeterWeaponBoon": {
+  "stats": {
+   "labels": [
+    "Attack Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "60%"
+    ],
+    "Heroic": [
+     "75%"
+    ],
+    "Rare": [
+     "45%"
+    ],
+    "default": [
+     "30%"
+    ]
+   }
+  },
+  "text": "Your Attacks deal more damage and inflict Freeze."
+ },
  "DiminishingDodgeBoon": {
   "text": "Gain {0} Dodge chance, but lose {1}% of this each time you Dodge.",
   "values": {
@@ -1256,7 +2411,28 @@
    ]
   }
  },
- "DodgeChanceBoon": "Gain Dodge chance and move speed that increase the more Boons you have.",
+ "DodgeChanceBoon": {
+  "stats": {
+   "labels": [
+    "Bonus per Boon:"
+   ],
+   "values": {
+    "Epic": [
+     "1%"
+    ],
+    "Heroic": [
+     "1.25%"
+    ],
+    "Rare": [
+     "0.75%"
+    ],
+    "default": [
+     "0.5%"
+    ]
+   }
+  },
+  "text": "Gain Dodge chance and move speed that increase the more Boons you have."
+ },
  "DoorHealReserveKeepsake": {
   "text": "Whenever you exit a Location, fully restore your Life, up to a total of {0} Healing this night.",
   "values": {
@@ -1275,6 +2451,25 @@
   }
  },
  "DoorHealToFullBoon": {
+  "stats": {
+   "labels": [
+    "Min Life for Full Recovery:"
+   ],
+   "values": {
+    "Epic": [
+     "60%"
+    ],
+    "Heroic": [
+     "50%"
+    ],
+    "Rare": [
+     "70%"
+    ],
+    "default": [
+     "80%"
+    ]
+   }
+  },
   "text": "Whenever you exit a Location, restore {0}% Life if you have not lost too much.",
   "values": {
    "default": [
@@ -1282,8 +2477,39 @@
    ]
   }
  },
- "DoubleBloodDropBoon": "You inflict Wounds with greater Power, and spilled Plasma is drawn to you automatically.",
+ "DoubleBloodDropBoon": {
+  "stats": {
+   "labels": [
+    "Wounds Bonus Power:"
+   ],
+   "values": {
+    "default": [
+     "100"
+    ]
+   }
+  },
+  "text": "You inflict Wounds with greater Power, and spilled Plasma is drawn to you automatically."
+ },
  "DoubleBoltBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Bolt Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
   "text": "Your lightning bolt effects may strike {0} times.",
   "values": {
    "default": [
@@ -1292,6 +2518,16 @@
   }
  },
  "DoubleExManaBoon": {
+  "stats": {
+   "labels": [
+    "Omega Move Cost:"
+   ],
+   "values": {
+    "default": [
+     "+30"
+    ]
+   }
+  },
   "text": "Your Ω Attack and Ω Special fire {0} times, but use more Magick.",
   "values": {
    "default": [
@@ -1301,6 +2537,16 @@
  },
  "DoubleFamiliarTrait": "The spiritual benefit your Animal Familiar provides is stronger this night.",
  "DoubleMassiveAttackBoon": {
+  "stats": {
+   "labels": [
+    "Double Blast Timing:"
+   ],
+   "values": {
+    "default": [
+     "2 Sec."
+    ]
+   }
+  },
   "text": "If you use your blast effects from Hephaestus just after they recharge, they fire {0} times.",
   "values": {
    "default": [
@@ -1308,8 +2554,39 @@
    ]
   }
  },
- "DoubleRewardBoon": "Whenever you claim rewards other than Boons, Daedalus Hammer, or rare resources, a copy may appear.",
+ "DoubleRewardBoon": {
+  "stats": {
+   "labels": [
+    "Double Reward Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "35%"
+    ],
+    "Heroic": [
+     "40%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "25%"
+    ]
+   }
+  },
+  "text": "Whenever you claim rewards other than Boons, Daedalus Hammer, or rare resources, a copy may appear."
+ },
  "DoubleSplashBoon": {
+  "stats": {
+   "labels": [
+    "Double Splash Chance:"
+   ],
+   "values": {
+    "default": [
+     "25%"
+    ]
+   }
+  },
   "text": "Your splash effects from Poseidon may hit {0} times (and take the color of the River Styx).",
   "values": {
    "default": [
@@ -1318,6 +2595,25 @@
   }
  },
  "DoubleStrikeChanceBoon": {
+  "stats": {
+   "labels": [
+    "Double Strike Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "10%"
+    ],
+    "Heroic": [
+     "13%"
+    ],
+    "Rare": [
+     "8%"
+    ],
+    "default": [
+     "5%"
+    ]
+   }
+  },
   "text": "Your Attack has a chance to hit {0} times.",
   "values": {
    "default": [
@@ -1325,8 +2621,32 @@
    ]
   }
  },
- "DoubleSwordBoon": "Your falling blades from Ares drop +1 time in succession and deal damage in a larger area.",
- "EchoBurnBoon": "Your Blitz effects also inflict Scorch whenever they deal damage.",
+ "DoubleSwordBoon": {
+  "stats": {
+   "labels": [
+    "Blade Area of Effect:"
+   ],
+   "values": {
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "Your falling blades from Ares drop +1 time in succession and deal damage in a larger area."
+ },
+ "EchoBurnBoon": {
+  "stats": {
+   "labels": [
+    "Scorch Damage:"
+   ],
+   "values": {
+    "default": [
+     "160"
+    ]
+   }
+  },
+  "text": "Your Blitz effects also inflict Scorch whenever they deal damage."
+ },
  "EchoDeathDefianceRefill": {
   "text": "Replace all spent uses of Death Defiance with ones that restore {0}% Life and Magick, then less and less.",
   "values": {
@@ -1340,7 +2660,28 @@
  },
  "EchoDoubleLevelBoon": "Double the Lv. of a random one of your Boons whose Lv. is higher than the rest.",
  "EchoDoubleShop": "After your next purchase from Charon, gain another at no extra charge (in most cases).",
- "EchoExpirationBoon": "Damage from Ω Moves immediately activates Blitz effects and makes them stronger.",
+ "EchoExpirationBoon": {
+  "stats": {
+   "labels": [
+    "Omega-Blitz Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "50%"
+    ],
+    "Heroic": [
+     "60%"
+    ],
+    "Rare": [
+     "40%"
+    ],
+    "default": [
+     "30%"
+    ]
+   }
+  },
+  "text": "Damage from Ω Moves immediately activates Blitz effects and makes them stronger."
+ },
  "EchoLastReward": "Manifest a copy of your most recently claimed Reward: ?",
  "EchoLastRunBoon": {
   "text": "Choose 1 of {0} random Boons from the previous night.",
@@ -1351,9 +2692,43 @@
   }
  },
  "EchoRepeatKeepsakeBoon": "After you switch Keepsakes, also gain the basic effect of: ?",
- "ElementalBaseDamageBoon": "Your Attacks and Specials gain Power the more Fire you have.",
- "ElementalDamageBoon": "Your Attack and Special deal more damage for each Earth you have.",
+ "ElementalBaseDamageBoon": {
+  "stats": {
+   "labels": [
+    "Power per Fire Boon:"
+   ],
+   "values": {
+    "default": [
+     "+2"
+    ]
+   }
+  },
+  "text": "Your Attacks and Specials gain Power the more Fire you have."
+ },
+ "ElementalDamageBoon": {
+  "stats": {
+   "labels": [
+    "Damage per Earth Boon:"
+   ],
+   "values": {
+    "default": [
+     "5%"
+    ]
+   }
+  },
+  "text": "Your Attack and Special deal more damage for each Earth you have."
+ },
  "ElementalDamageCapBoon": {
+  "stats": {
+   "labels": [
+    "Heavy Damage Reduction:"
+   ],
+   "values": {
+    "default": [
+     "-10"
+    ]
+   }
+  },
   "text": "While you have at least {0} Water, whenever you would take at least {1} damage, take less.",
   "values": {
    "default": [
@@ -1363,6 +2738,16 @@
   }
  },
  "ElementalDamageFloorBoon": {
+  "stats": {
+   "labels": [
+    "Min Damage per Hit:"
+   ],
+   "values": {
+    "default": [
+     "50"
+    ]
+   }
+  },
   "text": "While you have at least {0} Air, you can never deal less damage than the limit.",
   "values": {
    "default": [
@@ -1370,9 +2755,43 @@
    ]
   }
  },
- "ElementalDodgeBoon": "Gain a chance to Dodge for each Air you have.",
- "ElementalHealthBoon": "Gain Max Life for each Water you have.",
+ "ElementalDodgeBoon": {
+  "stats": {
+   "labels": [
+    "Dodge Chance per Air Boon:"
+   ],
+   "values": {
+    "default": [
+     "2%"
+    ]
+   }
+  },
+  "text": "Gain a chance to Dodge for each Air you have."
+ },
+ "ElementalHealthBoon": {
+  "stats": {
+   "labels": [
+    "Max Life per Water Boon:"
+   ],
+   "values": {
+    "default": [
+     "+15"
+    ]
+   }
+  },
+  "text": "Gain Max Life for each Water you have."
+ },
  "ElementalOlympianDamageBoon": {
+  "stats": {
+   "labels": [
+    "Olympian Bonus Damage:"
+   ],
+   "values": {
+    "default": [
+     "50%"
+    ]
+   }
+  },
   "text": "While you have at least {0} Earth, any of your damaging effects from Olympians are stronger.",
   "values": {
    "default": [
@@ -1381,6 +2800,16 @@
   }
  },
  "ElementalRallyBoon": {
+  "stats": {
+   "labels": [
+    "Damage Recovered:"
+   ],
+   "values": {
+    "default": [
+     "30% (over 5 Sec.)"
+    ]
+   }
+  },
   "text": "While you have at least {0} Fire, whenever you take damage, restore some Life.",
   "values": {
    "default": [
@@ -1389,6 +2818,16 @@
   }
  },
  "ElementalRarityUpgradeBoon": {
+  "stats": {
+   "labels": [
+    "Rarity Gained:"
+   ],
+   "values": {
+    "default": [
+     "Rare"
+    ]
+   }
+  },
   "text": "While you have at least {0} Elements, all your Common Boons gain Rarity.",
   "values": {
    "default": [
@@ -1397,6 +2836,16 @@
   }
  },
  "ElementalUnifiedBoon": {
+  "stats": {
+   "labels": [
+    "Infused Damage:"
+   ],
+   "values": {
+    "default": [
+     "25%"
+    ]
+   }
+  },
   "text": "While you have at least {0} Earth, {1} Water, {2} Air, or {3} Elements, you deal more damage.",
   "values": {
    "default": [
@@ -1408,6 +2857,25 @@
   }
  },
  "EncounterStartDefenseBuffBoon": {
+  "stats": {
+   "labels": [
+    "Temporary Starting Armor:"
+   ],
+   "values": {
+    "Epic": [
+     "125"
+    ],
+    "Heroic": [
+     "150"
+    ],
+    "Rare": [
+     "100"
+    ],
+    "default": [
+     "75"
+    ]
+   }
+  },
   "text": "At the start of each Encounter, gain Armor that lasts for {0} Sec.",
   "values": {
    "default": [
@@ -1415,7 +2883,28 @@
    ]
   }
  },
- "EncounterStartOffenseBuffBoon": "At the start of each Encounter, your Attacks and Specials are stronger for ? Sec.",
+ "EncounterStartOffenseBuffBoon": {
+  "stats": {
+   "labels": [
+    "Initial Damage Bonus:"
+   ],
+   "values": {
+    "Epic": [
+     "150%"
+    ],
+    "Heroic": [
+     "175%"
+    ],
+    "Rare": [
+     "125%"
+    ],
+    "default": [
+     "100%"
+    ]
+   }
+  },
+  "text": "At the start of each Encounter, your Attacks and Specials are stronger for ? Sec."
+ },
  "EscalatingCostume": {
   "text": "Don a +{0} Armor Outfit that makes you deal more damage and {1} after each Encounter.",
   "values": {
@@ -1487,9 +2976,33 @@
    ]
   }
  },
- "FireballRendBoon": "Your fireball effects from Hestia inflict Wounds with even greater Power.",
+ "FireballRendBoon": {
+  "stats": {
+   "labels": [
+    "Fireball Wounds Bonus Power:"
+   ],
+   "values": {
+    "default": [
+     "250"
+    ]
+   }
+  },
+  "text": "Your fireball effects from Hestia inflict Wounds with even greater Power."
+ },
  "FirstHangoverBoon": "Your Ω Moves inflict Hangover the first time they strike foes.",
- "FirstHitHealTrait": "Whenever you would next take damage, receive Healing in that amount instead.",
+ "FirstHitHealTrait": {
+  "stats": {
+   "labels": [
+    "Expires After:"
+   ],
+   "values": {
+    "default": [
+     "1 Hit(s)"
+    ]
+   }
+  },
+  "text": "Whenever you would next take damage, receive Healing in that amount instead."
+ },
  "FocusAttackDamageTrait": {
   "text": "Your Attack Boon gains +{0} Lv., but you Prime {1} Magick.",
   "values": {
@@ -1504,6 +3017,25 @@
   }
  },
  "FocusCritBoon": {
+  "stats": {
+   "labels": [
+    "Critical Specials Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "14%"
+    ],
+    "Heroic": [
+     "16%"
+    ],
+    "Rare": [
+     "12%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
   "text": "Your Specials may deal Critical damage, but you Prime {0} Magick.",
   "values": {
    "default": [
@@ -1519,7 +3051,28 @@
    ]
   }
  },
- "FocusLastStandBoon": "Gain +1 Death Defiance that replenishes in each Location, but you Prime Magick.",
+ "FocusLastStandBoon": {
+  "stats": {
+   "labels": [
+    "Magick Primed:"
+   ],
+   "values": {
+    "Epic": [
+     "100"
+    ],
+    "Heroic": [
+     "75"
+    ],
+    "Rare": [
+     "125"
+    ],
+    "default": [
+     "150"
+    ]
+   }
+  },
+  "text": "Gain +1 Death Defiance that replenishes in each Location, but you Prime Magick."
+ },
  "FocusLightningBoon": {
   "text": "Your strikes emit chain-lightning that bounces up to ? times, but you Prime {0} Magick.",
   "values": {
@@ -1529,6 +3082,25 @@
   }
  },
  "FocusRawDamageBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Power:"
+   ],
+   "values": {
+    "Epic": [
+     "9"
+    ],
+    "Heroic": [
+     "11"
+    ],
+    "Rare": [
+     "7"
+    ],
+    "default": [
+     "5"
+    ]
+   }
+  },
   "text": "Your Attacks gain Power, but you Prime {0} Magick.",
   "values": {
    "default": [
@@ -1550,6 +3122,25 @@
   }
  },
  "FogDamageBonusBoon": {
+  "stats": {
+   "labels": [
+    "In-Fog Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "50%"
+    ],
+    "Heroic": [
+     "60%"
+    ],
+    "Rare": [
+     "40%"
+    ],
+    "default": [
+     "30%"
+    ]
+   }
+  },
   "text": "Every {0} Sec. in each Encounter, Festive Fog appears, making you stronger while in it.",
   "values": {
    "default": [
@@ -1717,7 +3308,19 @@
    ]
   }
  },
- "GoodStuffBoon": "Your Boon(s) in the leftmost column gain Lv. spread across however many you have.",
+ "GoodStuffBoon": {
+  "stats": {
+   "labels": [
+    "Total Bonus Lv. for Main Boon(s):"
+   ],
+   "values": {
+    "default": [
+     "+8"
+    ]
+   }
+  },
+  "text": "Your Boon(s) in the leftmost column gain Lv. spread across however many you have."
+ },
  "HadesAndPersephoneKeepsake": {
   "text": "While at the Fates' Whim, gain a random Hades blessing and most Boons have +{0} Lv.",
   "values": {
@@ -1735,12 +3338,76 @@
    ]
   }
  },
- "HadesCastProjectileBoon": "Your Casts launch a projectile that seeks foes. The binding circle forms where it hits.",
+ "HadesCastProjectileBoon": {
+  "stats": {
+   "labels": [
+    "Direct-Hit Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "400"
+    ],
+    "Heroic": [
+     "500"
+    ],
+    "Rare": [
+     "300"
+    ],
+    "default": [
+     "200"
+    ]
+   }
+  },
+  "text": "Your Casts launch a projectile that seeks foes. The binding circle forms where it hits."
+ },
  "HadesChronosDebuffBoon": "In your confrontation, ? summons fewer reinforcements.",
  "HadesDashSweepBoon": "Your Dash strikes surrounding foes with a punishing sweep that inflicts Scorn.",
- "HadesDeathDefianceDamageBoon": "Deal more damage based on how many times you used Death Defiance this night.",
- "HadesInvisibilityRetaliateBoon": "After you take damage, go Dark and deal more damage for the duration.",
+ "HadesDeathDefianceDamageBoon": {
+  "stats": {
+   "labels": [
+    "Damage per Death Defiance:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Deal more damage based on how many times you used Death Defiance this night."
+ },
+ "HadesInvisibilityRetaliateBoon": {
+  "stats": {
+   "labels": [
+    "Damage While Dark:"
+   ],
+   "values": {
+    "default": [
+     "70%"
+    ]
+   }
+  },
+  "text": "After you take damage, go Dark and deal more damage for the duration."
+ },
  "HadesLifestealBoon": {
+  "stats": {
+   "labels": [
+    "Max Total Life Restored:"
+   ],
+   "values": {
+    "default": [
+     "150"
+    ]
+   }
+  },
   "text": "Restore Life for {0}% of damage you deal, until you reach the limit.",
   "values": {
    "default": [
@@ -1811,6 +3478,16 @@
   }
  },
  "HealRetaliateTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+20"
+    ]
+   }
+  },
   "text": "Your Hex activates any 'after you take damage' effects from Boons, {0} times in succession.",
   "values": {
    "default": [
@@ -1866,6 +3543,25 @@
  },
  "HealthRewardBonusBoon": "Gain Max Life and Max Magick now and for the rest of this night.",
  "HeavyArmorBoon": {
+  "stats": {
+   "labels": [
+    "Armor Gained:"
+   ],
+   "values": {
+    "Epic": [
+     "+100"
+    ],
+    "Heroic": [
+     "+125"
+    ],
+    "Rare": [
+     "+75"
+    ],
+    "default": [
+     "+50"
+    ]
+   }
+  },
   "text": "Your Weapon deals more damage based on {0} of your Armor, and you gain some now.",
   "values": {
    "default": [
@@ -1882,6 +3578,25 @@
   }
  },
  "HephaestusManaBoon": {
+  "stats": {
+   "labels": [
+    "Damage per Hit:"
+   ],
+   "values": {
+    "Epic": [
+     "-3"
+    ],
+    "Heroic": [
+     "-4"
+    ],
+    "Rare": [
+     "-2"
+    ],
+    "default": [
+     "-1"
+    ]
+   }
+  },
   "text": "Whenever you take damage, shrug some of it off and restore {0} Magick.",
   "values": {
    "default": [
@@ -1889,20 +3604,272 @@
    ]
   }
  },
- "HephaestusSpecialBoon": "Your Specials can cause a blast that deals ? damage in the area.",
- "HephaestusSprintBoon": "If a foe is near after you Dash, you can cause a blast that deals ? damage in the area.",
- "HephaestusWeaponBoon": "Your Attacks can cause a blast that deals ? damage in the area.",
+ "HephaestusSpecialBoon": {
+  "stats": {
+   "labels": [
+    "Blast Recharge Time:"
+   ],
+   "values": {
+    "Epic": [
+     "10 Sec."
+    ],
+    "Heroic": [
+     "8 Sec."
+    ],
+    "Rare": [
+     "12 Sec."
+    ],
+    "default": [
+     "14 Sec."
+    ]
+   }
+  },
+  "text": "Your Specials can cause a blast that deals ? damage in the area."
+ },
+ "HephaestusSprintBoon": {
+  "stats": {
+   "labels": [
+    "Blast Recharge Time:"
+   ],
+   "values": {
+    "Epic": [
+     "8 Sec."
+    ],
+    "Heroic": [
+     "7 Sec."
+    ],
+    "Rare": [
+     "9 Sec."
+    ],
+    "default": [
+     "10 Sec."
+    ]
+   }
+  },
+  "text": "If a foe is near after you Dash, you can cause a blast that deals ? damage in the area."
+ },
+ "HephaestusWeaponBoon": {
+  "stats": {
+   "labels": [
+    "Blast Recharge Time:"
+   ],
+   "values": {
+    "Epic": [
+     "8 Sec."
+    ],
+    "Heroic": [
+     "6 Sec."
+    ],
+    "Rare": [
+     "10 Sec."
+    ],
+    "default": [
+     "12 Sec."
+    ]
+   }
+  },
+  "text": "Your Attacks can cause a blast that deals ? damage in the area."
+ },
  "HeraCastBoon": "Your Casts inflict Hitch and immediately deal damage based on foes in the binding circle.",
- "HeraManaBoon": "Whenever you run out of Magick, Prime until the next Location to restore all Magick.",
- "HeraSpecialBoon": "Your Specials deal more damage and inflict Hitch.",
+ "HeraManaBoon": {
+  "stats": {
+   "labels": [
+    "Magick Primed:"
+   ],
+   "values": {
+    "Epic": [
+     "16"
+    ],
+    "Heroic": [
+     "14"
+    ],
+    "Rare": [
+     "18"
+    ],
+    "default": [
+     "20"
+    ]
+   }
+  },
+  "text": "Whenever you run out of Magick, Prime until the next Location to restore all Magick."
+ },
+ "HeraSpecialBoon": {
+  "stats": {
+   "labels": [
+    "Special Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "80%"
+    ],
+    "Heroic": [
+     "90%"
+    ],
+    "Rare": [
+     "70%"
+    ],
+    "default": [
+     "60%"
+    ]
+   }
+  },
+  "text": "Your Specials deal more damage and inflict Hitch."
+ },
  "HeraSprintBoon": "Your Sprint inflicts Hitch on surrounding foes, and deals damage when it does.",
- "HeraWeaponBoon": "Your Attacks deal more damage and inflict Hitch.",
- "HermesCastDiscountBoon": "You Channel your Ω Cast faster, and your Casts deal damage and expire faster.",
- "HermesSpecialBoon": "Your Ω Moves are faster.",
- "HermesWeaponBoon": "Your Attack, Special, and Cast are faster.",
- "HestiaCastBoon": "Your Casts repeatedly inflict Scorch on foes in the binding circle.",
- "HestiaManaBoon": "Whenever your Attack or Special deal damage, restore Magick.",
- "HestiaSpecialBoon": "Your Specials inflict Scorch.",
+ "HeraWeaponBoon": {
+  "stats": {
+   "labels": [
+    "Attack Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "70%"
+    ],
+    "Heroic": [
+     "80%"
+    ],
+    "Rare": [
+     "60%"
+    ],
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "Your Attacks deal more damage and inflict Hitch."
+ },
+ "HermesCastDiscountBoon": {
+  "stats": {
+   "labels": [
+    "Cast Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "60%"
+    ],
+    "Heroic": [
+     "70%"
+    ],
+    "Rare": [
+     "50%"
+    ],
+    "default": [
+     "40%"
+    ]
+   }
+  },
+  "text": "You Channel your Ω Cast faster, and your Casts deal damage and expire faster."
+ },
+ "HermesSpecialBoon": {
+  "stats": {
+   "labels": [
+    "Omega Move Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "25%"
+    ],
+    "Heroic": [
+     "30%"
+    ],
+    "Rare": [
+     "20%"
+    ],
+    "default": [
+     "15%"
+    ]
+   }
+  },
+  "text": "Your Ω Moves are faster."
+ },
+ "HermesWeaponBoon": {
+  "stats": {
+   "labels": [
+    "Strike Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Your Attack, Special, and Cast are faster."
+ },
+ "HestiaCastBoon": {
+  "stats": {
+   "labels": [
+    "Scorch Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "80 (every 1 Sec.)"
+    ],
+    "Heroic": [
+     "100 (every 1 Sec.)"
+    ],
+    "Rare": [
+     "60 (every 1 Sec.)"
+    ],
+    "default": [
+     "40 (every 1 Sec.)"
+    ]
+   }
+  },
+  "text": "Your Casts repeatedly inflict Scorch on foes in the binding circle."
+ },
+ "HestiaManaBoon": {
+  "stats": {
+   "labels": [
+    "Magick Restored per Strike:"
+   ],
+   "values": {
+    "Epic": [
+     "8"
+    ],
+    "Heroic": [
+     "10"
+    ],
+    "Rare": [
+     "6"
+    ],
+    "default": [
+     "4"
+    ]
+   }
+  },
+  "text": "Whenever your Attack or Special deal damage, restore Magick."
+ },
+ "HestiaSpecialBoon": {
+  "stats": {
+   "labels": [
+    "Scorch Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "55"
+    ],
+    "Heroic": [
+     "65"
+    ],
+    "Rare": [
+     "45"
+    ],
+    "default": [
+     "35"
+    ]
+   }
+  },
+  "text": "Your Specials inflict Scorch."
+ },
  "HestiaSprintBoon": {
   "text": "Your Sprint leaves a cinder trail, and any damage you take from burning is reduced to {0}.",
   "values": {
@@ -1911,8 +3878,50 @@
    ]
   }
  },
- "HestiaWeaponBoon": "Your Attacks inflict Scorch.",
- "HiddenMaxHealthBoon": "Gain a random amount of Max Life, but how much you have becomes a mystery.",
+ "HestiaWeaponBoon": {
+  "stats": {
+   "labels": [
+    "Scorch Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "60"
+    ],
+    "Heroic": [
+     "75"
+    ],
+    "Rare": [
+     "45"
+    ],
+    "default": [
+     "30"
+    ]
+   }
+  },
+  "text": "Your Attacks inflict Scorch."
+ },
+ "HiddenMaxHealthBoon": {
+  "stats": {
+   "labels": [
+    "Max Life Range:"
+   ],
+   "values": {
+    "Epic": [
+     "+90 ~ 120"
+    ],
+    "Heroic": [
+     "+110 ~ 140"
+    ],
+    "Rare": [
+     "+70 ~ 100"
+    ],
+    "default": [
+     "+50 ~ 80"
+    ]
+   }
+  },
+  "text": "Gain a random amount of Max Life, but how much you have becomes a mystery."
+ },
  "HighArmorCostume": {
   "text": "Don a +{0} Armor Outfit that creates +{1} Fate Fabric now.",
   "values": {
@@ -1935,6 +3944,25 @@
   }
  },
  "HighHealthCritBoon": {
+  "stats": {
+   "labels": [
+    "Critical Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "38%"
+    ],
+    "Rare": [
+     "22%"
+    ],
+    "default": [
+     "15%"
+    ]
+   }
+  },
   "text": "Foes with at least {0}% Life or {1}% Armor may take Critical damage.",
   "values": {
    "default": [
@@ -1944,6 +3972,25 @@
   }
  },
  "HighHealthOffenseBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "9%"
+    ],
+    "Heroic": [
+     "11%"
+    ],
+    "Rare": [
+     "7%"
+    ],
+    "default": [
+     "5%"
+    ]
+   }
+  },
   "text": "You deal more damage. While you have at least {0}% Life, the bonus is doubled.",
   "values": {
    "default": [
@@ -1972,7 +4019,28 @@
    ]
   }
  },
- "InsideCastCritBoon": "Foes in your Casts may take Critical damage from your Attacks.",
+ "InsideCastCritBoon": {
+  "stats": {
+   "labels": [
+    "Critical Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "16%"
+    ],
+    "Heroic": [
+     "19%"
+    ],
+    "Rare": [
+     "13%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Foes in your Casts may take Critical damage from your Attacks."
+ },
  "InstantRootKill": {
   "text": "Freeze-afflicted foes shatter at {0}% Life, dealing damage in the area.",
   "values": {
@@ -1982,11 +4050,56 @@
   }
  },
  "InvulnerabilityCastBoon": "Your Casts also deal a burst of damage in the area and momentarily make you Deflect.",
- "InvulnerabilityDashBoon": "Your Dash deals damage to foes in your path and can momentarily Deflect.",
- "KeepsakeLevelBoon": "Your Keepsakes are stronger this night (if possible).",
+ "InvulnerabilityDashBoon": {
+  "stats": {
+   "labels": [
+    "Dash Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "20"
+    ],
+    "Heroic": [
+     "25"
+    ],
+    "Rare": [
+     "15"
+    ],
+    "default": [
+     "10"
+    ]
+   }
+  },
+  "text": "Your Dash deals damage to foes in your path and can momentarily Deflect."
+ },
+ "KeepsakeLevelBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Keepsake Ranks:"
+   ],
+   "values": {
+    "default": [
+     "1"
+    ]
+   }
+  },
+  "text": "Your Keepsakes are stronger this night (if possible)."
+ },
  "LaserAoETalent": "Your Hex deals damage in an area at the end point.",
  "LaserApolloTalent": "Your Hex can be Godsent: Fire a bigger solar-infused ray with +? Power.",
- "LaserCrystalTalent": "Your Hex continually aims and fires on its own from wherever you use it.",
+ "LaserCrystalTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+60"
+    ]
+   }
+  },
+  "text": "Your Hex continually aims and fires on its own from wherever you use it."
+ },
  "LaserDamageTalent": "Your Hex has +? Power over the course of every 1 Sec.",
  "LaserDefenseTalent": {
   "text": "Whenever you use your Hex, gain +{0} Armor that lasts for the duration of the effect.",
@@ -2027,6 +4140,16 @@
  "LaserPenetrationTalent": "Your Hex pierces through foes.",
  "LaserStartAoETalent": "Your Hex also deals ? damage every ? Sec. in an area around you.",
  "LaserTripleTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+90"
+    ]
+   }
+  },
   "text": "Your Hex fires {0} beams in a fan pattern.",
   "values": {
    "default": [
@@ -2106,6 +4229,16 @@
  "LeapHephaestusTalent": "Your Hex can be Godsent: Cause a blast that deals ? damage where you land.",
  "LeapLaunchAoETalent": "Your Hex also deals damage before you rise up.",
  "LeapShieldTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+30"
+    ]
+   }
+  },
   "text": "After using your Hex, gain +{0} Armor that lasts for {1} Sec.",
   "values": {
    "default": [
@@ -2123,6 +4256,16 @@
   }
  },
  "LeapTwiceTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+15"
+    ]
+   }
+  },
   "text": "After using your Hex, you can use it 1 more time during the next {0} Sec.",
   "values": {
    "default": [
@@ -2131,6 +4274,25 @@
   }
  },
  "LightningDebuffGeneratorBoon": {
+  "stats": {
+   "labels": [
+    "Chain-Lightning Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "35%"
+    ],
+    "Rare": [
+     "25%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
   "text": "Your chain-lightning deals more damage and bounces up to +{0} times.",
   "values": {
    "default": [
@@ -2138,9 +4300,69 @@
    ]
   }
  },
- "LightningVulnerabilityBoon": "Your lightning deals more damage to Froth-afflicted foes.",
- "LinkedDeathDamageBoon": "Whenever Hitch-afflicted foes are slain, damage all other Hitch-afflicted foes.",
- "LobAmmoBoostAspect": "Your Attacks have more Power for each Shell fired and not yet retrieved.",
+ "LightningVulnerabilityBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Lightning Damage:"
+   ],
+   "values": {
+    "default": [
+     "30%"
+    ]
+   }
+  },
+  "text": "Your lightning deals more damage to Froth-afflicted foes."
+ },
+ "LinkedDeathDamageBoon": {
+  "stats": {
+   "labels": [
+    "Death Blast Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "80"
+    ],
+    "Heroic": [
+     "100"
+    ],
+    "Rare": [
+     "60"
+    ],
+    "default": [
+     "40"
+    ]
+   }
+  },
+  "text": "Whenever Hitch-afflicted foes are slain, damage all other Hitch-afflicted foes."
+ },
+ "LobAmmoBoostAspect": {
+  "stats": {
+   "labels": [
+    "Power per Spent Shell:"
+   ],
+   "values": {
+    "Epic": [
+     "6"
+    ],
+    "Heroic": [
+     "9"
+    ],
+    "Legendary": [
+     "12"
+    ],
+    "Perfect": [
+     "21"
+    ],
+    "Rare": [
+     "3"
+    ],
+    "default": [
+     "0"
+    ]
+   }
+  },
+  "text": "Your Attacks have more Power for each Shell fired and not yet retrieved."
+ },
  "LobAmmoMagnetismTrait": {
   "text": "Your Shells fly back to you automatically and {0} faster.",
   "values": {
@@ -2164,6 +4386,31 @@
   }
  },
  "LobCloseAttackAspect": {
+  "stats": {
+   "labels": [
+    "Attack & Special Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "60%"
+    ],
+    "Heroic": [
+     "75%"
+    ],
+    "Legendary": [
+     "90%"
+    ],
+    "Perfect": [
+     "135%"
+    ],
+    "Rare": [
+     "45%"
+    ],
+    "default": [
+     "30%"
+    ]
+   }
+  },
   "text": "Your Attack stays within reach, and explodes after landing your Specials or {0} Sec.",
   "values": {
    "default": [
@@ -2184,7 +4431,34 @@
    ]
   }
  },
- "LobGunAspect": "You have Frost Mane, which grants the way of the Valkyrie after your Ω Special.",
+ "LobGunAspect": {
+  "stats": {
+   "labels": [
+    "Valkyrie Attack Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "15%"
+    ],
+    "Heroic": [
+     "20%"
+    ],
+    "Legendary": [
+     "25%"
+    ],
+    "Perfect": [
+     "35%"
+    ],
+    "Rare": [
+     "10%"
+    ],
+    "default": [
+     "5%"
+    ]
+   }
+  },
+  "text": "You have Frost Mane, which grants the way of the Valkyrie after your Ω Special."
+ },
  "LobGunAttackDoublerTrait": {
   "text": "Your Ω Attack fires +{0} times in succession.",
   "values": {
@@ -2239,7 +4513,34 @@
    ]
   }
  },
- "LobImpulseAspect": "Your Ω Special is Sprouted, and lets you change direction; Boons start with Lv.",
+ "LobImpulseAspect": {
+  "stats": {
+   "labels": [
+    "Max Random Bonus Lv. for Boons:"
+   ],
+   "values": {
+    "Epic": [
+     "4"
+    ],
+    "Heroic": [
+     "5"
+    ],
+    "Legendary": [
+     "6"
+    ],
+    "Perfect": [
+     "9"
+    ],
+    "Rare": [
+     "3"
+    ],
+    "default": [
+     "2"
+    ]
+   }
+  },
+  "text": "Your Ω Special is Sprouted, and lets you change direction; Boons start with Lv."
+ },
  "LobInOutSpecialExTrait": "After your Ω Special projectiles fire outward, they fire inward.",
  "LobOneSideTrait": {
   "text": "Your Specials launch you ahead faster and deal {0} damage.",
@@ -2340,6 +4641,25 @@
   }
  },
  "LowHealthLifestealBoon": {
+  "stats": {
+   "labels": [
+    "Life Restored per Hit:"
+   ],
+   "values": {
+    "Epic": [
+     "3"
+    ],
+    "Heroic": [
+     "4"
+    ],
+    "Rare": [
+     "2"
+    ],
+    "default": [
+     "1"
+    ]
+   }
+  },
   "text": "While you have less than {0} Life, your Attacks and Specials restore Life.",
   "values": {
    "default": [
@@ -2347,7 +4667,28 @@
    ]
   }
  },
- "LuckyBoon": "Your chance-based effects are more likely to occur, except for Dodge or Daze.",
+ "LuckyBoon": {
+  "stats": {
+   "labels": [
+    "Greater Chances:"
+   ],
+   "values": {
+    "Epic": [
+     "50%"
+    ],
+    "Heroic": [
+     "60%"
+    ],
+    "Rare": [
+     "40%"
+    ],
+    "default": [
+     "30%"
+    ]
+   }
+  },
+  "text": "Your chance-based effects are more likely to occur, except for Dodge or Daze."
+ },
  "ManaBurstBoon": {
   "text": "Whenever you use {0} Magick, create a Heartthrob.",
   "values": {
@@ -2356,7 +4697,19 @@
    ]
   }
  },
- "ManaBurstCountBoon": "Whenever you create Heartthrobs, create more.",
+ "ManaBurstCountBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Heartthrobs:"
+   ],
+   "values": {
+    "default": [
+     "+2"
+    ]
+   }
+  },
+  "text": "Whenever you create Heartthrobs, create more."
+ },
  "ManaCostume": {
   "text": "Don a +{0} Armor Outfit that makes you restore {1} Magick every 1 Sec.",
   "values": {
@@ -2412,8 +4765,30 @@
    ]
   }
  },
- "ManaRestoreDamageBoon": "Whenever you restore Magick during Encounters, damage all Hitch-afflicted foes.",
+ "ManaRestoreDamageBoon": {
+  "stats": {
+   "labels": [
+    "Damage from Magick Restored:"
+   ],
+   "values": {
+    "default": [
+     "500% (every 0.2 Sec.)"
+    ]
+   }
+  },
+  "text": "Whenever you restore Magick during Encounters, damage all Hitch-afflicted foes."
+ },
  "ManaShieldBoon": {
+  "stats": {
+   "labels": [
+    "Magick Cost per Damage Point:"
+   ],
+   "values": {
+    "default": [
+     "10 Magick"
+    ]
+   }
+  },
   "text": "Automatically use Magick to resist up to {0}% of any damage.",
   "values": {
    "default": [
@@ -2430,9 +4805,61 @@
    ]
   }
  },
- "ManaToHealthBoon": "Gain bonus Max Life based on your Magick limit.",
- "MassiveCastBoon": "Any Boon effects that recharge over time recharge faster.",
+ "ManaToHealthBoon": {
+  "stats": {
+   "labels": [
+    "Max Life from Magick:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "35%"
+    ],
+    "Rare": [
+     "25%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "Gain bonus Max Life based on your Magick limit."
+ },
+ "MassiveCastBoon": {
+  "stats": {
+   "labels": [
+    "Recharge Speed:"
+   ],
+   "values": {
+    "default": [
+     "35%"
+    ]
+   }
+  },
+  "text": "Any Boon effects that recharge over time recharge faster."
+ },
  "MassiveDamageBoon": {
+  "stats": {
+   "labels": [
+    "Blast Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "125"
+    ],
+    "Heroic": [
+     "150"
+    ],
+    "Rare": [
+     "100"
+    ],
+    "default": [
+     "75"
+    ]
+   }
+  },
   "text": "Your blast effects from Hephaestus deal more damage and are {0} larger.",
   "values": {
    "default": [
@@ -2440,8 +4867,41 @@
    ]
   }
  },
- "MassiveKnockupBoon": "Your blast effects from Hephaestus also inflict Glow on foes.",
- "MaxHealthDamageBoon": "You deal more damage with your Weapon the more Max Life you have.",
+ "MassiveKnockupBoon": {
+  "stats": {
+   "labels": [
+    "Glow Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "25%"
+    ],
+    "Heroic": [
+     "30%"
+    ],
+    "Rare": [
+     "20%"
+    ],
+    "default": [
+     "15%"
+    ]
+   }
+  },
+  "text": "Your blast effects from Hephaestus also inflict Glow on foes."
+ },
+ "MaxHealthDamageBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Damage per 100 Life:"
+   ],
+   "values": {
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "You deal more damage with your Weapon the more Max Life you have."
+ },
  "MeteorChargeTalent": {
   "text": "Whenever your Hex strikes a Guardian, your next Hex charges up by {0} Magick.",
   "values": {
@@ -2471,6 +4931,16 @@
   }
  },
  "MeteorDoubleTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+50"
+    ]
+   }
+  },
   "text": "Your Hex fires +1 blast, {0} Sec. after the first.",
   "values": {
    "default": [
@@ -2478,9 +4948,31 @@
    ]
   }
  },
- "MeteorExCastTalent": "Your Hex also fires your Ω Cast in the target area immediately after the blast.",
+ "MeteorExCastTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+20"
+    ]
+   }
+  },
+  "text": "Your Hex also fires your Ω Cast in the target area immediately after the blast."
+ },
  "MeteorHestiaTalent": "Your Hex can be Godsent: Rapidly inflict Scorch on all foes until the blast.",
  "MeteorInvulnerableChargeTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+50"
+    ]
+   }
+  },
   "text": "Whenever you use your Hex, gain +{0} Armor until the blast.",
   "values": {
    "default": [
@@ -2534,6 +5026,25 @@
   }
  },
  "MissingHealthCritBoon": {
+  "stats": {
+   "labels": [
+    "Chance per Missing Life Point:"
+   ],
+   "values": {
+    "Epic": [
+     "0.14%"
+    ],
+    "Heroic": [
+     "0.16%"
+    ],
+    "Rare": [
+     "0.12%"
+    ],
+    "default": [
+     "0.1%"
+    ]
+   }
+  },
   "text": "Gain a chance to deal {0} damage that increases the less Life you have remaining.",
   "values": {
    "default": [
@@ -2542,6 +5053,16 @@
   }
  },
  "MoneyDamageBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Fire Chance:"
+   ],
+   "values": {
+    "default": [
+     "30%"
+    ]
+   }
+  },
   "text": "Your effects from {0} and {1} have a chance to fire {2} times.",
   "values": {
    "default": [
@@ -2551,7 +5072,28 @@
    ]
   }
  },
- "MoneyMultiplierBoon": "Any Gold Crowns you gain is worth more. Receive +? Gold Crowns now, plus the bonus!",
+ "MoneyMultiplierBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Gold:"
+   ],
+   "values": {
+    "Epic": [
+     "40%"
+    ],
+    "Heroic": [
+     "50%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "Any Gold Crowns you gain is worth more. Receive +? Gold Crowns now, plus the bonus!"
+ },
  "MoneyOnDeathCurse": {
   "text": "After a foe is slain, you have {0}% chance to find +{1} Gold Crowns, up to {2} times per Location.",
   "values": {
@@ -2631,7 +5173,19 @@
    ]
   }
  },
- "MoonBeamExBeamBonusTalent": "Whenever you use Ω Moves, 1 random nearby foe is struck by the effect of your Hex.",
+ "MoonBeamExBeamBonusTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+30"
+    ]
+   }
+  },
+  "text": "Whenever you use Ω Moves, 1 random nearby foe is struck by the effect of your Hex."
+ },
  "MoonBeamPrimaryTalent": {
   "text": "Your Hex deals {0} damage to Guardians.",
   "values": {
@@ -2641,6 +5195,16 @@
   }
  },
  "MoonBeamTargetTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+30"
+    ]
+   }
+  },
   "text": "Your Hex also strikes +{0} foes each time.",
   "values": {
    "default": [
@@ -2790,7 +5354,28 @@
    ]
   }
  },
- "OlympianSpellCountBoon": "If your Hex is Godsent, that effect may activate multiple times in each Location.",
+ "OlympianSpellCountBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Godsent Uses:"
+   ],
+   "values": {
+    "Epic": [
+     "+3"
+    ],
+    "Heroic": [
+     "+4"
+    ],
+    "Rare": [
+     "+2"
+    ],
+    "default": [
+     "+1"
+    ]
+   }
+  },
+  "text": "If your Hex is Godsent, that effect may activate multiple times in each Location."
+ },
  "OlympianSpellCountTalent": {
   "text": "Your Hex can be Godsent +{0} time when used in Guardian Encounters.",
   "values": {
@@ -2832,8 +5417,48 @@
    ]
   }
  },
- "OmegaZeroBurnBoon": "Whenever you inflict Scorch on a foe for the first time, inflict more.",
+ "OmegaZeroBurnBoon": {
+  "stats": {
+   "labels": [
+    "First-Time Scorch Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "160"
+    ],
+    "Heroic": [
+     "200"
+    ],
+    "Rare": [
+     "120"
+    ],
+    "default": [
+     "80"
+    ]
+   }
+  },
+  "text": "Whenever you inflict Scorch on a foe for the first time, inflict more."
+ },
  "PerfectDamageBonusBoon": {
+  "stats": {
+   "labels": [
+    "No-Hit Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
   "text": "You deal more damage until you take damage. If you take no more for {0} Sec., regain this.",
   "values": {
    "default": [
@@ -2842,7 +5467,28 @@
   }
  },
  "PersistentDionysusSkipKeepsake": "A single Encounter in this Region may be blissfully free from foes.",
- "PlantHealthBoon": "Whenever you gather resources from a Location, restore some Life. Gain +1 Mystery Seeds now.",
+ "PlantHealthBoon": {
+  "stats": {
+   "labels": [
+    "Life Restored from Gathering:"
+   ],
+   "values": {
+    "Epic": [
+     "14%"
+    ],
+    "Heroic": [
+     "16%"
+    ],
+    "Rare": [
+     "12%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Whenever you gather resources from a Location, restore some Life. Gain +1 Mystery Seeds now."
+ },
  "PolymorphBossDamageTalent": {
   "text": "Your Hex deals +{0} damage to Guardians.",
   "values": {
@@ -2851,7 +5497,19 @@
    ]
   }
  },
- "PolymorphCurseTalent": "Your Hex also inflicts every Curse you can inflict using other abilities.",
+ "PolymorphCurseTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+20"
+    ]
+   }
+  },
+  "text": "Your Hex also inflicts every Curse you can inflict using other abilities."
+ },
  "PolymorphDamageTalent": {
   "text": "You deal {0} damage to Morph-afflicted foes.",
   "values": {
@@ -2887,6 +5545,16 @@
   }
  },
  "PolymorphSandwichTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+20"
+    ]
+   }
+  },
   "text": "Your Hex has {0}% chance to turn {1} foe per Location into an item that restores {2} Life.",
   "values": {
    "Epic": [
@@ -2927,8 +5595,48 @@
  "PolymorphTeleportCastTalent": "Your Casts cause all Morph-afflicted foes to appear within the binding circle.",
  "PolymorphZeusTalent": "Your Hex can be Godsent: Lightning bolts repeatedly deal ? damage near your shot.",
  "PoseidonCastBoon": "Your Casts also immediately hit foes with a powerful splash that inflicts Froth.",
- "PoseidonExCastBoon": "Your Ω Cast gains Power and knocks foes away.",
+ "PoseidonExCastBoon": {
+  "stats": {
+   "labels": [
+    "Omega Cast Power:"
+   ],
+   "values": {
+    "Epic": [
+     "250"
+    ],
+    "Heroic": [
+     "300"
+    ],
+    "Rare": [
+     "200"
+    ],
+    "default": [
+     "150"
+    ]
+   }
+  },
+  "text": "Your Ω Cast gains Power and knocks foes away."
+ },
  "PoseidonManaBoon": {
+  "stats": {
+   "labels": [
+    "Magick Flood Duration:"
+   ],
+   "values": {
+    "Epic": [
+     "6 Sec."
+    ],
+    "Heroic": [
+     "7 Sec."
+    ],
+    "Rare": [
+     "5 Sec."
+    ],
+    "default": [
+     "4 Sec."
+    ]
+   }
+  },
   "text": "Your Ω Moves make you briefly restore any Magick you use, repeatable after {0} Sec.",
   "values": {
    "default": [
@@ -2939,9 +5647,40 @@
  "PoseidonSpecialBoon": "Your Specials hit foes with a splash that knocks other foes away.",
  "PoseidonSplashSprintBoon": "Your Sprint creates a watery globe behind you, which surges ahead once you stop.",
  "PoseidonSprintBoon": "Whenever you Sprint, hit the first foe you run into with a blast that knocks foes away.",
- "PoseidonStatusBoon": "Your splash effects from Poseidon also inflict Froth, and Froth deals more damage.",
+ "PoseidonStatusBoon": {
+  "stats": {
+   "labels": [
+    "Froth Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "80%"
+    ],
+    "Heroic": [
+     "110%"
+    ],
+    "Rare": [
+     "50%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "Your splash effects from Poseidon also inflict Froth, and Froth deals more damage."
+ },
  "PoseidonWeaponBoon": "Your Attacks hit foes with a splash that knocks other foes away.",
  "PotionExCastTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+20"
+    ]
+   }
+  },
   "text": "Your Hex also fires your Ω Cast with {0} chance to deal Critical damage.",
   "values": {
    "default": [
@@ -2999,7 +5738,28 @@
    ]
   }
  },
- "PowerDrinkBoon": "In each Encounter, Grape Juice appears in the area and grants Power when collected.",
+ "PowerDrinkBoon": {
+  "stats": {
+   "labels": [
+    "Reappearance Time:"
+   ],
+   "values": {
+    "Epic": [
+     "8 Sec."
+    ],
+    "Heroic": [
+     "7 Sec."
+    ],
+    "Rare": [
+     "9 Sec."
+    ],
+    "default": [
+     "10 Sec."
+    ]
+   }
+  },
+  "text": "In each Encounter, Grape Juice appears in the area and grants Power when collected."
+ },
  "PreChargeTalent": {
   "text": "Whenever you enter a Location, your Hex starts {0} charged.",
   "values": {
@@ -3017,7 +5777,19 @@
    ]
   }
  },
- "RaiseDeadBoon": "In each Encounter, the first foe you slay returns to fight for you.",
+ "RaiseDeadBoon": {
+  "stats": {
+   "labels": [
+    "Servant Damage:"
+   ],
+   "values": {
+    "default": [
+     "200%"
+    ]
+   }
+  },
+  "text": "In each Encounter, the first foe you slay returns to fight for you."
+ },
  "RandomArcanaTrait": {
   "text": "Randomly draw {0} of your inactive Arcana, and activate it this night.",
   "values": {
@@ -3033,6 +5805,25 @@
   }
  },
  "RandomBaseDamageBoon": {
+  "stats": {
+   "labels": [
+    "Chance for Max Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "9%"
+    ],
+    "Heroic": [
+     "11%"
+    ],
+    "Rare": [
+     "7%"
+    ],
+    "default": [
+     "5%"
+    ]
+   }
+  },
   "text": "Your Attacks randomly deal exactly {0}, {1}, or {2} damage whenever they hit.",
   "values": {
    "default": [
@@ -3063,8 +5854,32 @@
    ]
   }
  },
- "RandomStatusBoon": "Whenever you inflict Weak, also randomly inflict Curses from other Olympians.",
- "RapidSwordBoon": "Your falling blades from Ares fall immediately and deal more damage.",
+ "RandomStatusBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Random Curses:"
+   ],
+   "values": {
+    "default": [
+     "3"
+    ]
+   }
+  },
+  "text": "Whenever you inflict Weak, also randomly inflict Curses from other Olympians."
+ },
+ "RapidSwordBoon": {
+  "stats": {
+   "labels": [
+    "Blade Bonus Damage:"
+   ],
+   "values": {
+    "default": [
+     "25"
+    ]
+   }
+  },
+  "text": "Your falling blades from Ares fall immediately and deal more damage."
+ },
  "RarifyKeepsake": {
   "text": "While at the Fates' Whim, you can Rarify Olympian blessings up to {0} time(s) this night.",
   "values": {
@@ -3082,7 +5897,19 @@
    ]
   }
  },
- "ReboundingSparkBoon": "Your chain-lightning can bounce off of you and deals increasing damage to foes.",
+ "ReboundingSparkBoon": {
+  "stats": {
+   "labels": [
+    "Damage per Bounce:"
+   ],
+   "values": {
+    "default": [
+     "15%"
+    ]
+   }
+  },
+  "text": "Your chain-lightning can bounce off of you and deals increasing damage to foes."
+ },
  "ReincarnationKeepsake": {
   "text": "After you fall to 0 Life, automatically restore {0} Life once this night.",
   "values": {
@@ -3102,9 +5929,70 @@
  },
  "RemoveShrineTrait": "Randomly draw 1 of your active Vows, and remove its effect this night.",
  "RendBloodDropBoon": "Whenever you inflict Wounds or collect Plasma, create a falling blade over a surrounding foe.",
- "ReserveManaHitShieldBoon": "Gain a barrier that stops 1 instance of damage in each Location, but you Prime Magick.",
- "RestockBoon": "Your first purchase in each Location costs less Gold Crowns, and another item appears afterward.",
+ "ReserveManaHitShieldBoon": {
+  "stats": {
+   "labels": [
+    "Magick Primed:"
+   ],
+   "values": {
+    "Epic": [
+     "15"
+    ],
+    "Heroic": [
+     "10"
+    ],
+    "Rare": [
+     "20"
+    ],
+    "default": [
+     "25"
+    ]
+   }
+  },
+  "text": "Gain a barrier that stops 1 instance of damage in each Location, but you Prime Magick."
+ },
+ "RestockBoon": {
+  "stats": {
+   "labels": [
+    "First-Purchase Discount:"
+   ],
+   "values": {
+    "Epic": [
+     "-15%"
+    ],
+    "Heroic": [
+     "-20%"
+    ],
+    "Rare": [
+     "-10%"
+    ],
+    "default": [
+     "-5%"
+    ]
+   }
+  },
+  "text": "Your first purchase in each Location costs less Gold Crowns, and another item appears afterward."
+ },
  "RetaliateInvulnerabilityBoon": {
+  "stats": {
+   "labels": [
+    "Recharge Time Between Uses:"
+   ],
+   "values": {
+    "Epic": [
+     "9 Sec."
+    ],
+    "Heroic": [
+     "7 Sec."
+    ],
+    "Rare": [
+     "11 Sec."
+    ],
+    "default": [
+     "13 Sec."
+    ]
+   }
+  },
   "text": "After you take damage, become Impervious for {0} Sec.",
   "values": {
    "default": [
@@ -3120,10 +6008,64 @@
    ]
   }
  },
- "RoomRewardBonusBoon": "Any Minor Finds and Gold Crowns are worth more, and you receive Gold Crowns, Healing, and Bones now.",
- "RootDurationBoon": "Your Freeze effects last longer.",
+ "RoomRewardBonusBoon": {
+  "stats": {
+   "labels": [
+    "Reward Value:"
+   ],
+   "values": {
+    "Epic": [
+     "100%"
+    ],
+    "Heroic": [
+     "125%"
+    ],
+    "Rare": [
+     "75%"
+    ],
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "Any Minor Finds and Gold Crowns are worth more, and you receive Gold Crowns, Healing, and Bones now."
+ },
+ "RootDurationBoon": {
+  "stats": {
+   "labels": [
+    "Freeze Duration:"
+   ],
+   "values": {
+    "Epic": [
+     "4 Sec."
+    ],
+    "Heroic": [
+     "5 Sec."
+    ],
+    "Rare": [
+     "3 Sec."
+    ],
+    "default": [
+     "2 Sec."
+    ]
+   }
+  },
+  "text": "Your Freeze effects last longer."
+ },
  "RootStrikeBoon": "Your Freeze effects also cause lightning bolts to repeatedly strike afflicted foes.",
- "SelfCastBoon": "Your Ω Cast is stronger and follows you, even as you start to Channel it.",
+ "SelfCastBoon": {
+  "stats": {
+   "labels": [
+    "Omega Cast Damage:"
+   ],
+   "values": {
+    "default": [
+     "100%"
+    ]
+   }
+  },
+  "text": "Your Ω Cast is stronger and follows you, even as you start to Channel it."
+ },
  "ShieldTalent": {
   "text": "Your Hex makes you Impervious for {0} Sec.",
   "values": {
@@ -3151,6 +6093,25 @@
  },
  "SlamManaBurstBoon": "Your blast effects from Hephaestus also create a Heartthrob.",
  "SlowExAttackBoon": {
+  "stats": {
+   "labels": [
+    "Omega Attack Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "80%"
+    ],
+    "Heroic": [
+     "95%"
+    ],
+    "Rare": [
+     "65%"
+    ],
+    "default": [
+     "50%"
+    ]
+   }
+  },
   "text": "Your Ω Attack deals more damage, but uses +{0} Magick.",
   "values": {
    "default": [
@@ -3158,7 +6119,28 @@
    ]
   }
  },
- "SlowProjectileBoon": "Most foes' ranged shots are slower.",
+ "SlowProjectileBoon": {
+  "stats": {
+   "labels": [
+    "Foe Projectile Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "-50%"
+    ],
+    "Heroic": [
+     "-60%"
+    ],
+    "Rare": [
+     "-40%"
+    ],
+    "default": [
+     "-30%"
+    ]
+   }
+  },
+  "text": "Most foes' ranged shots are slower."
+ },
  "SlowProjectileCurse": {
   "text": "Foes' ranged shots have -{0}% travel speed.",
   "values": {
@@ -3176,8 +6158,50 @@
    ]
   }
  },
- "SorceryCritBoon": "Your Hex may deal Critical damage.",
- "SorcerySpeedBoon": "You can Dash more frequently.",
+ "SorceryCritBoon": {
+  "stats": {
+   "labels": [
+    "Hex Critical Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "40%"
+    ],
+    "Heroic": [
+     "45%"
+    ],
+    "Rare": [
+     "35%"
+    ],
+    "default": [
+     "30%"
+    ]
+   }
+  },
+  "text": "Your Hex may deal Critical damage."
+ },
+ "SorcerySpeedBoon": {
+  "stats": {
+   "labels": [
+    "Dash Recovery Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "35%"
+    ],
+    "Heroic": [
+     "40%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "25%"
+    ]
+   }
+  },
+  "text": "You can Dash more frequently."
+ },
  "SpawnCastDamageBoon": "Your Casts damage any foes as they join the Encounter, wherever they appear.",
  "SpawnDamageCurse": {
   "text": "After a foe joins the Encounter, it randomly takes from {0} to {1} damage.",
@@ -3200,7 +6224,19 @@
    ]
   }
  },
- "SpawnKillBoon": "Whenever you first deal damage to susceptible foes, you may destroy them outright.",
+ "SpawnKillBoon": {
+  "stats": {
+   "labels": [
+    "Instant Destruction Chance:"
+   ],
+   "values": {
+    "default": [
+     "25%"
+    ]
+   }
+  },
+  "text": "Whenever you first deal damage to susceptible foes, you may destroy them outright."
+ },
  "SpellCostume": {
   "text": "Don a +{0} Armor Outfit that makes you use {1} Magick less than before to recharge your Hex.",
   "values": {
@@ -3222,8 +6258,30 @@
    ]
   }
  },
- "SpellLaserTrait": "Your Hex fires a beam that deals up to ? damage over ? Sec.",
+ "SpellLaserTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "30 Magick"
+    ]
+   }
+  },
+  "text": "Your Hex fires a beam that deals up to ? damage over ? Sec."
+ },
  "SpellLeapTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "50 Magick"
+    ]
+   }
+  },
   "text": "Your Hex makes you rise up then crash down in the target area for {0} damage.",
   "values": {
    "default": [
@@ -3232,6 +6290,16 @@
   }
  },
  "SpellMeteorTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "90 Magick"
+    ]
+   }
+  },
   "text": "Your Hex blasts a large target area for {0} damage after {1} Sec.",
   "values": {
    "default": [
@@ -3240,9 +6308,43 @@
    ]
   }
  },
- "SpellMoonBeamTrait": "Your Hex inflicts Shine and deals ? damage to a random surrounding foe, ? times.",
- "SpellPolymorphTrait": "Your Hex launches a seeking projectile that inflicts Morph on up to ? susceptible foes.",
+ "SpellMoonBeamTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "100 Magick"
+    ]
+   }
+  },
+  "text": "Your Hex inflicts Shine and deals ? damage to a random surrounding foe, ? times."
+ },
+ "SpellPolymorphTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "40 Magick"
+    ]
+   }
+  },
+  "text": "Your Hex launches a seeking projectile that inflicts Morph on up to ? susceptible foes."
+ },
  "SpellPotionTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "70 Magick"
+    ]
+   }
+  },
   "text": "Your Hex restores ? Life up to {0} times, which replenish whenever you use Fountains.",
   "values": {
    "default": [
@@ -3250,7 +6352,19 @@
    ]
   }
  },
- "SpellSummonTrait": "Your Hex raises the last susceptible foe slain this Encounter to fight for you for ? Sec.",
+ "SpellSummonTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "60 Magick"
+    ]
+   }
+  },
+  "text": "Your Hex raises the last susceptible foe slain this Encounter to fight for you for ? Sec."
+ },
  "SpellTalentKeepsake": {
   "text": "A reward from Selene is likely. The next Path of Stars you find grants +{0} upgrades.",
   "values": {
@@ -3268,10 +6382,67 @@
    ]
   }
  },
- "SpellTimeSlowTrait": "Your Hex makes everything else move ?% slower for ? Sec.",
- "SpellTransformTrait": "Your Hex turns you into an Impervious living nightmare with her own abilities for ? Sec.",
- "SprintEchoBoon": "Rushing into foes with Blitz immediately activates the effect and makes it stronger.",
- "SprintShieldBoon": "Your Sprint is ?% faster and gives you a barrier that ignores instances of damage.",
+ "SpellTimeSlowTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "130 Magick"
+    ]
+   }
+  },
+  "text": "Your Hex makes everything else move ?% slower for ? Sec."
+ },
+ "SpellTransformTrait": {
+  "stats": {
+   "labels": [
+    "Ready After:"
+   ],
+   "values": {
+    "default": [
+     "110 Magick"
+    ]
+   }
+  },
+  "text": "Your Hex turns you into an Impervious living nightmare with her own abilities for ? Sec."
+ },
+ "SprintEchoBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Blitz Damage:"
+   ],
+   "values": {
+    "default": [
+     "+80%"
+    ]
+   }
+  },
+  "text": "Rushing into foes with Blitz immediately activates the effect and makes it stronger."
+ },
+ "SprintShieldBoon": {
+  "stats": {
+   "labels": [
+    "Hits Blocked per Encounter:"
+   ],
+   "values": {
+    "Epic": [
+     "3"
+    ],
+    "Heroic": [
+     "4"
+    ],
+    "Rare": [
+     "2"
+    ],
+    "default": [
+     "1"
+    ]
+   }
+  },
+  "text": "Your Sprint is ?% faster and gives you a barrier that ignores instances of damage."
+ },
  "StaffAttackRecoveryTrait": {
   "text": "Your Attacks are {0} faster.",
   "values": {
@@ -3406,7 +6577,34 @@
    ]
   }
  },
- "StaffRaiseDeadAspect": "You have the Ankh Scepter, which raises Lone Shades wherever you slay foes.",
+ "StaffRaiseDeadAspect": {
+  "stats": {
+   "labels": [
+    "Omega Move Speed & Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Legendary": [
+     "30%"
+    ],
+    "Perfect": [
+     "45%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "You have the Ankh Scepter, which raises Lone Shades wherever you slay foes."
+ },
  "StaffRaiseDeadBigTrait": {
   "text": "Your Attacks have +{0} Power and hit a larger area.",
   "values": {
@@ -3431,6 +6629,31 @@
   }
  },
  "StaffSelfHitAspect": {
+  "stats": {
+   "labels": [
+    "Delay Between Omega Bursts:"
+   ],
+   "values": {
+    "Epic": [
+     "3 Sec."
+    ],
+    "Heroic": [
+     "2.5 Sec."
+    ],
+    "Legendary": [
+     "2 Sec."
+    ],
+    "Perfect": [
+     "1 Sec."
+    ],
+    "Rare": [
+     "3.5 Sec."
+    ],
+    "default": [
+     "4 Sec."
+    ]
+   }
+  },
   "text": "Whenever you use Ω Moves, each fires in place up to {0} times until you use it again.",
   "values": {
    "default": [
@@ -3497,7 +6720,34 @@
    ]
   }
  },
- "SuitComboAspect": "You have Purifying Grace, which absorbs Ω Special blasts to grow Destructive.",
+ "SuitComboAspect": {
+  "stats": {
+   "labels": [
+    "Max Destructive Ranks:"
+   ],
+   "values": {
+    "Epic": [
+     "4"
+    ],
+    "Heroic": [
+     "5"
+    ],
+    "Legendary": [
+     "6"
+    ],
+    "Perfect": [
+     "8"
+    ],
+    "Rare": [
+     "3"
+    ],
+    "default": [
+     "2"
+    ]
+   }
+  },
+  "text": "You have Purifying Grace, which absorbs Ω Special blasts to grow Destructive."
+ },
  "SuitComboBlockBuffTrait": {
   "text": "After blocking with your Ω Attack, become Destructive by up to {0} ranks.",
   "values": {
@@ -3562,6 +6812,31 @@
   }
  },
  "SuitHexAspect": {
+  "stats": {
+   "labels": [
+    "Hex Ready After:"
+   ],
+   "values": {
+    "Epic": [
+     "80 Magick"
+    ],
+    "Heroic": [
+     "70 Magick"
+    ],
+    "Legendary": [
+     "60 Magick"
+    ],
+    "Perfect": [
+     "40 Magick"
+    ],
+    "Rare": [
+     "90 Magick"
+    ],
+    "default": [
+     "100 Magick"
+    ]
+   }
+  },
   "text": "You start with {0}, a hidden Hex that strikes multiple foes and applies Shine.",
   "values": {
    "default": [
@@ -3569,7 +6844,34 @@
    ]
   }
  },
- "SuitMarkCritAspect": "You have Ω Boost, which lets you produce Nightspawn after you activate it.",
+ "SuitMarkCritAspect": {
+  "stats": {
+   "labels": [
+    "Nightspawn Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "45%"
+    ],
+    "Heroic": [
+     "60%"
+    ],
+    "Legendary": [
+     "75%"
+    ],
+    "Perfect": [
+     "105%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "15%"
+    ]
+   }
+  },
+  "text": "You have Ω Boost, which lets you produce Nightspawn after you activate it."
+ },
  "SuitPowershotTrait": {
   "text": "Your Ω Attack gains a Power Shot that deals {0} damage.",
   "values": {
@@ -3645,6 +6947,16 @@
   }
  },
  "SummonDamageSplitTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+30"
+    ]
+   }
+  },
   "text": "Your raised servants take {0}% of any damage you would have otherwise taken.",
   "values": {
    "default": [
@@ -3670,6 +6982,16 @@
   }
  },
  "SummonExplodeTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+10"
+    ]
+   }
+  },
   "text": "Your raised servants deal +{0} damage the first time they hit.",
   "values": {
    "default": [
@@ -3709,8 +7031,32 @@
   }
  },
  "SummonTeleportTalent": "Your Casts cause your raised servants to appear within the binding circle.",
- "SuperSacrificeBoonHera": "Give up all your Boons of Zeus. For each, raise Lv. for all your Boons of Hera.",
- "SuperSacrificeBoonZeus": "Give up all your Boons of Hera. For each, raise Lv. for all your Boons of Zeus.",
+ "SuperSacrificeBoonHera": {
+  "stats": {
+   "labels": [
+    "Bonus Lv. per Zeus Boon:"
+   ],
+   "values": {
+    "default": [
+     "+4"
+    ]
+   }
+  },
+  "text": "Give up all your Boons of Zeus. For each, raise Lv. for all your Boons of Hera."
+ },
+ "SuperSacrificeBoonZeus": {
+  "stats": {
+   "labels": [
+    "Bonus Lv. per Hera Boon:"
+   ],
+   "values": {
+    "default": [
+     "+4"
+    ]
+   }
+  },
+  "text": "Give up all your Boons of Hera. For each, raise Lv. for all your Boons of Zeus."
+ },
  "SupplyDropBoon": {
   "text": "Whenever you clear {0} Encounters, receive a delivery of +? Healing and {1} Pom Slice.",
   "values": {
@@ -3744,6 +7090,16 @@
  },
  "TemporaryBoonRarityTrait": "Ensure the next Boon you find includes blessings with greater Rarity.",
  "TemporaryDiscountTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Ensure any goods offered by Charon cost {0}% less.",
   "values": {
    "default": [
@@ -3752,6 +7108,16 @@
   }
  },
  "TemporaryDoorHealTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "3 Location(s)"
+    ]
+   }
+  },
   "text": "Restore {0}% Life whenever you enter a Location.",
   "values": {
    "default": [
@@ -3760,6 +7126,16 @@
   }
  },
  "TemporaryEmptySlotDamageTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Your Attacks and Specials deal {0} damage while not empowered by Boons.",
   "values": {
    "default": [
@@ -3769,6 +7145,16 @@
  },
  "TemporaryForcedSecretDoorTrait": "Ensure a Chaos Gate spawns ahead as soon as possible. It costs 0 Life to enter.",
  "TemporaryHealExpirationTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "4 Encounter(s)"
+    ]
+   }
+  },
   "text": "After the duration, restore {0}% of your Max Life.",
   "values": {
    "default": [
@@ -3777,6 +7163,16 @@
   }
  },
  "TemporaryImprovedCastTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "5 Encounter(s)"
+    ]
+   }
+  },
   "text": "Your Casts deal {0} damage.",
   "values": {
    "default": [
@@ -3785,6 +7181,16 @@
   }
  },
  "TemporaryImprovedDefenseTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "5 Encounter(s)"
+    ]
+   }
+  },
   "text": "You take -{0}% damage.",
   "values": {
    "default": [
@@ -3793,6 +7199,16 @@
   }
  },
  "TemporaryImprovedExTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Your Ω Moves deal {0} damage.",
   "values": {
    "default": [
@@ -3801,6 +7217,16 @@
   }
  },
  "TemporaryImprovedSecondaryTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "5 Encounter(s)"
+    ]
+   }
+  },
   "text": "Your Specials deal {0} damage.",
   "values": {
    "default": [
@@ -3809,6 +7235,16 @@
   }
  },
  "TemporaryMoveSpeedTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "8 Encounter(s)"
+    ]
+   }
+  },
   "text": "You move {0}% faster.",
   "values": {
    "default": [
@@ -3837,6 +7273,16 @@
   }
  },
  "TimeSlowCritTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+50"
+    ]
+   }
+  },
   "text": "During your Hex, you have {0} chance to deal Critical damage.",
   "values": {
    "default": [
@@ -3855,6 +7301,16 @@
  "TimeSlowDemeterTalent": "Your Hex can be Godsent: All foes take ? damage every ? Sec. during the effect.",
  "TimeSlowDestroyProjectilesTalent": "Whenever you use your Hex, most foes' ranged shots are instantly destroyed.",
  "TimeSlowFreezeTimeTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+30"
+    ]
+   }
+  },
   "text": "Your Hex makes everything else move {0}% slower.",
   "values": {
    "default": [
@@ -3871,7 +7327,19 @@
    ]
   }
  },
- "TimeStopLastStandBoon": "Whenever you take damage, you lose Gold Crowns before you lose Life.",
+ "TimeStopLastStandBoon": {
+  "stats": {
+   "labels": [
+    "Cost per Damage Point:"
+   ],
+   "values": {
+    "default": [
+     "-3"
+    ]
+   }
+  },
+  "text": "Whenever you take damage, you lose Gold Crowns before you lose Life."
+ },
  "TimedBuffKeepsake": {
   "text": "You move, strike, and Channel {0}% faster for the next {1} Sec.",
   "values": {
@@ -3893,8 +7361,48 @@
    ]
   }
  },
- "TimedCritVulnerabilityBoon": "A random foe occasionally becomes Marked. If it takes Critical damage, this repeats.",
+ "TimedCritVulnerabilityBoon": {
+  "stats": {
+   "labels": [
+    "Time Between Marks:"
+   ],
+   "values": {
+    "Epic": [
+     "16 Sec."
+    ],
+    "Heroic": [
+     "14 Sec."
+    ],
+    "Rare": [
+     "18 Sec."
+    ],
+    "default": [
+     "20 Sec."
+    ]
+   }
+  },
+  "text": "A random foe occasionally becomes Marked. If it takes Critical damage, this repeats."
+ },
  "TimedKillBuffBoon": {
+  "stats": {
+   "labels": [
+    "Bonus Damage per Slain Foe:"
+   ],
+   "values": {
+    "Epic": [
+     "2%"
+    ],
+    "Heroic": [
+     "2.5%"
+    ],
+    "Rare": [
+     "1.5%"
+    ],
+    "default": [
+     "1%"
+    ]
+   }
+  },
   "text": "Whenever you slay a foe, deal more damage with your Weapon for the next {0} Sec.",
   "values": {
    "default": [
@@ -3913,7 +7421,34 @@
    ]
   }
  },
- "TorchAutofireAspect": "You have the Devil Sparks, which also enhance your Rush Boon.",
+ "TorchAutofireAspect": {
+  "stats": {
+   "labels": [
+    "Rush Boon Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Legendary": [
+     "30%"
+    ],
+    "Perfect": [
+     "45%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "You have the Devil Sparks, which also enhance your Rush Boon."
+ },
  "TorchAutofireSprintTrait": {
   "text": "As long as you Sprint, your Attacks and Specials have +{0} Power.",
   "values": {
@@ -3925,7 +7460,34 @@
    ]
   }
  },
- "TorchDetonateAspect": "Your Attacks linger for ? Sec., and explode in a blast if struck by your Specials.",
+ "TorchDetonateAspect": {
+  "stats": {
+   "labels": [
+    "Blast Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "45%"
+    ],
+    "Legendary": [
+     "60%"
+    ],
+    "Perfect": [
+     "105%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "0%"
+    ]
+   }
+  },
+  "text": "Your Attacks linger for ? Sec., and explode in a blast if struck by your Specials."
+ },
  "TorchDiscountExAttackTrait": {
   "text": "You Channel your Ω Attack {0}% faster, and it uses {1} Magick.",
   "values": {
@@ -3986,7 +7548,34 @@
    ]
   }
  },
- "TorchSpecialDurationAspect": "Your Attacks and Specials may deal Critical damage.",
+ "TorchSpecialDurationAspect": {
+  "stats": {
+   "labels": [
+    "Critical Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "6%"
+    ],
+    "Heroic": [
+     "8%"
+    ],
+    "Legendary": [
+     "10%"
+    ],
+    "Perfect": [
+     "16%"
+    ],
+    "Rare": [
+     "4%"
+    ],
+    "default": [
+     "0%"
+    ]
+   }
+  },
+  "text": "Your Attacks and Specials may deal Critical damage."
+ },
  "TorchSpecialImpactTrait": {
   "text": "Your Ω Special lasts +{0} Sec.",
   "values": {
@@ -4116,9 +7705,45 @@
    ]
   }
  },
- "TransformExCastTalent": "During your Hex, your Cast has the same effect as your Ω Cast.",
- "TransformPrimaryTalent": "During your Hex, your Attack gains the bonuses of your Attack Boon.",
- "TransformSpecialCritTalent": "During your Hex, your Special deals Critical damage to distant foes.",
+ "TransformExCastTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+10"
+    ]
+   }
+  },
+  "text": "During your Hex, your Cast has the same effect as your Ω Cast."
+ },
+ "TransformPrimaryTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+20"
+    ]
+   }
+  },
+  "text": "During your Hex, your Attack gains the bonuses of your Attack Boon."
+ },
+ "TransformSpecialCritTalent": {
+  "stats": {
+   "labels": [
+    "Magick Recharge Cost:"
+   ],
+   "values": {
+    "default": [
+     "+20"
+    ]
+   }
+  },
+  "text": "During your Hex, your Special deals Critical damage to distant foes."
+ },
  "TransformSpecialTalent": "During your Hex, your Special gains the bonuses of your Special Boon.",
  "UnpickedBoonKeepsake": {
   "text": "After choosing a Boon, {0}% of the time randomly take 1 more, once this night.",
@@ -4169,12 +7794,87 @@
    ]
   }
  },
- "WeakPotencyBoon": "Your Weak effects are more potent.",
- "WeakVulnerabilityBoon": "Weak-afflicted foes take more damage.",
- "WeaponUpgradeBoon": "Your Aspect of the Nocturnal Arms is even stronger.",
+ "WeakPotencyBoon": {
+  "stats": {
+   "labels": [
+    "Weak Damage Reduction:"
+   ],
+   "values": {
+    "Epic": [
+     "14%"
+    ],
+    "Heroic": [
+     "16%"
+    ],
+    "Rare": [
+     "12%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Your Weak effects are more potent."
+ },
+ "WeakVulnerabilityBoon": {
+  "stats": {
+   "labels": [
+    "Damage vs. Weak:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Weak-afflicted foes take more damage."
+ },
+ "WeaponUpgradeBoon": {
+  "stats": {
+   "labels": [
+    "Aspect Bonus Ranks:"
+   ],
+   "values": {
+    "default": [
+     "1"
+    ]
+   }
+  },
+  "text": "Your Aspect of the Nocturnal Arms is even stronger."
+ },
  "ZeusCastBoon": "Your Casts cause lightning bolts to repeatedly strike 1 foe at a time in the binding circle.",
  "ZeusManaBoltBoon": "Whenever you use Magick, a random surrounding foe is struck by lightning.",
- "ZeusManaBoon": "In each Encounter, an Aether Font appears in the area and restores all Magick when used.",
+ "ZeusManaBoon": {
+  "stats": {
+   "labels": [
+    "Reappearance Time:"
+   ],
+   "values": {
+    "Epic": [
+     "8 Sec."
+    ],
+    "Heroic": [
+     "7 Sec."
+    ],
+    "Rare": [
+     "9 Sec."
+    ],
+    "default": [
+     "10 Sec."
+    ]
+   }
+  },
+  "text": "In each Encounter, an Aether Font appears in the area and restores all Magick when used."
+ },
  "ZeusSpecialBoon": "Your Specials inflict Blitz.",
  "ZeusSprintBoon": "Rushing causes surrounding foes to be struck by lightning bolts.",
  "ZeusWeaponBoon": "Your Attacks inflict Blitz."

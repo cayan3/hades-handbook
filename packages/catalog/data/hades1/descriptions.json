@@ -29,7 +29,19 @@
  "AphroditeWeakenTrait": "Weak-afflicted foes are also more susceptible to damage.",
  "AphroditeWeaponTrait": "Your Attack deals more damage and inflicts Weak.",
  "AresAoETrait": "Your Blade Rift effects deal damage in a wider area.",
- "AresCursedRiftTrait": "Your Blade Rift effects deal more damage for each consecutive hit.",
+ "AresCursedRiftTrait": {
+  "stats": {
+   "labels": [
+    "Damage Increase per Hit:"
+   ],
+   "values": {
+    "default": [
+     "+2"
+    ]
+   }
+  },
+  "text": "Your Blade Rift effects deal more damage for each consecutive hit."
+ },
  "AresDragTrait": "Your Blade Rift effects last longer and pull foes in.",
  "AresHomingTrait": "Your Cast creates a faster Blade Rift that seeks the nearest foe.",
  "AresLoadCurseTrait": "Your Doom effects deal more damage when applied multiple times.",
@@ -107,21 +119,114 @@
  "AthenaShieldTrait": "When you Deflect attacks, it deals more damage.",
  "AthenaShoutTrait": "Your Call briefly makes you Impervious and Deflect all attacks.",
  "AthenaWeaponTrait": "Your Attack is stronger, and can Deflect.",
- "AutoRetaliateTrait": "Your Revenge effects sometimes occur without taking damage.",
+ "AutoRetaliateTrait": {
+  "stats": {
+   "labels": [
+    "Auto-Revenge Rate:"
+   ],
+   "values": {
+    "default": [
+     "3 Sec."
+    ]
+   }
+  },
+  "text": "Your Revenge effects sometimes occur without taking damage."
+ },
  "BlizzardOrbTrait": "Your Cast moves slowly, piercing foes and firing shards around it.",
  "BonusCollisionTrait": "You deal more damage when slamming foes into barriers.",
- "BonusDashTrait": "You can Dash more times in a row.",
+ "BonusDashTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Dash Charges:"
+   ],
+   "values": {
+    "Epic": [
+     "+3"
+    ],
+    "Heroic": [
+     "+4"
+    ],
+    "Rare": [
+     "+2"
+    ],
+    "default": [
+     "+1"
+    ]
+   }
+  },
+  "text": "You can Dash more times in a row."
+ },
  "BossDamageTrait": "Your Boons with knock-away effects deal bonus damage to Bosses.",
  "BouldyBlessing_Armor": "You believe in Bouldy, and Bouldy believes in you.",
  "BouldyBlessing_Attack": "You believe in Bouldy, and Bouldy believes in you.",
  "BouldyBlessing_Money": "You believe in Bouldy, and Bouldy believes in you.",
- "BouldyBlessing_None": "You do not know if you believe in Bouldy...",
+ "BouldyBlessing_None": {
+  "stats": {
+   "labels": [
+    "Ambiguity Bonus:"
+   ],
+   "values": {
+    "default": [
+     "+2%"
+    ]
+   }
+  },
+  "text": "You do not know if you believe in Bouldy..."
+ },
  "BouldyBlessing_Ranged": "You believe in Bouldy, and Bouldy believes in you.",
  "BouldyBlessing_Special": "You believe in Bouldy, and Bouldy believes in you.",
  "BouldyBlessing_Speed": "You believe in Bouldy, and Bouldy believes in you.",
- "BowBaseUpgradeTrait": "The form in which the heart-seeking bow first revealed itself.",
+ "BowBaseUpgradeTrait": {
+  "stats": {
+   "labels": [
+    "Critical Attack Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "9%"
+    ],
+    "Heroic": [
+     "12%"
+    ],
+    "Legendary": [
+     "15%"
+    ],
+    "Rare": [
+     "6%"
+    ],
+    "default": [
+     "3%"
+    ]
+   }
+  },
+  "text": "The form in which the heart-seeking bow first revealed itself."
+ },
  "BowBondBoostTrait": "Your Celestial Sharanga Attack creates a Blast Wave around you.",
- "BowBondTrait": "You have Celestial Sharanga, which can cause Shared Suffering.",
+ "BowBondTrait": {
+  "stats": {
+   "labels": [
+    "Shared Suffering Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "45% of Attack"
+    ],
+    "Heroic": [
+     "53% of Attack"
+    ],
+    "Legendary": [
+     "60% of Attack"
+    ],
+    "Rare": [
+     "38% of Attack"
+    ],
+    "default": [
+     "30% of Attack"
+    ]
+   }
+  },
+  "text": "You have Celestial Sharanga, which can cause Shared Suffering."
+ },
  "BowChainShotTrait": {
   "text": "Your Attack hits up to {0} foes, dealing {1} base damage for each.",
   "values": {
@@ -235,7 +340,28 @@
  },
  "CastBackstabTrait": "Your Cast gains any bonuses you have for striking foes from behind.",
  "CastNovaTrait": "Whenever you Cast, damage foes around you and inflict Chill.",
- "ChamberGoldTrait": "Each time you enter a Chamber, gain a bit of wealth.",
+ "ChamberGoldTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Wealth per Chamber:"
+   ],
+   "values": {
+    "Epic": [
+     "+16 Charon's Obol"
+    ],
+    "Heroic": [
+     "+19 Charon's Obol"
+    ],
+    "Rare": [
+     "+13 Charon's Obol"
+    ],
+    "default": [
+     "+10 Charon's Obol"
+    ]
+   }
+  },
+  "text": "Each time you enter a Chamber, gain a bit of wealth."
+ },
  "ChaosBlessingAlphaStrikeTrait": {
   "text": "Afterward, you deal {0} damage striking undamaged foes.",
   "values": {
@@ -657,10 +783,67 @@
    ]
   }
  },
- "DislodgeAmmoTrait": "Your Special dislodges Bloodstone from foes.",
- "DodgeChanceTrait": "Whenever you are hit, you have a chance to Dodge automatically.",
+ "DislodgeAmmoTrait": {
+  "stats": {
+   "labels": [
+    "Cast Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "40%"
+    ],
+    "Legendary": [
+     "50%"
+    ],
+    "Rare": [
+     "20%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Your Special dislodges Bloodstone from foes."
+ },
+ "DodgeChanceTrait": {
+  "stats": {
+   "labels": [
+    "Dodge Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "20%"
+    ],
+    "Heroic": [
+     "25%"
+    ],
+    "Rare": [
+     "15%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Whenever you are hit, you have a chance to Dodge automatically."
+ },
  "DoorHealTrait": "If your Life is low after Encounters, restore to the threshold.",
- "DoubleCollisionTrait": "Your Boons with knock-away effects shove foes multiple times.",
+ "DoubleCollisionTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Knock-Away Effects:"
+   ],
+   "values": {
+    "default": [
+     "+1"
+    ]
+   }
+  },
+  "text": "Your Boons with knock-away effects shove foes multiple times."
+ },
  "DusaAssistTrait": {
   "text": "Your Summon joins you for {0} Sec., repeatedly firing shots that petrify foes and deal 70 damage.",
   "values": {
@@ -678,7 +861,19 @@
   }
  },
  "EnemyDamageTrait": "Resist damage from foes' attacks.",
- "FishingTrait": "You have a greater chance to find a Fishing Point in each Chamber.",
+ "FishingTrait": {
+  "stats": {
+   "labels": [
+    "Fish Spawn Chance:"
+   ],
+   "values": {
+    "default": [
+     "+20%"
+    ]
+   }
+  },
+  "text": "You have a greater chance to find a Fishing Point in each Chamber."
+ },
  "FistAttackDefenseTrait": "While using your Attack or Special, you are Sturdy.",
  "FistAttackFinisherTrait": {
   "text": "Your Dash-Strike deals +{0}% damage; added to Attack sequence.",
@@ -688,7 +883,31 @@
    ]
   }
  },
- "FistBaseUpgradeTrait": "The form in which the twin fists first revealed themselves.",
+ "FistBaseUpgradeTrait": {
+  "stats": {
+   "labels": [
+    "Dodge Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "10%"
+    ],
+    "Heroic": [
+     "13%"
+    ],
+    "Legendary": [
+     "15%"
+    ],
+    "Rare": [
+     "8%"
+    ],
+    "default": [
+     "5%"
+    ]
+   }
+  },
+  "text": "The form in which the twin fists first revealed themselves."
+ },
  "FistChargeAttackTrait": "Hold Attack for a blow that can Power Strike for +50% damage.",
  "FistChargeSpecialTrait": {
   "text": "Hold Special for longer range and up to {0} base damage.",
@@ -723,7 +942,31 @@
    ]
   }
  },
- "FistDetonateTrait": "You have the Claws of Enkidu, whose Dash-Upper can Maim foes.",
+ "FistDetonateTrait": {
+  "stats": {
+   "labels": [
+    "Maim Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "250"
+    ],
+    "Heroic": [
+     "325"
+    ],
+    "Legendary": [
+     "400"
+    ],
+    "Rare": [
+     "175"
+    ],
+    "default": [
+     "100"
+    ]
+   }
+  },
+  "text": "You have the Claws of Enkidu, whose Dash-Upper can Maim foes."
+ },
  "FistDoubleDashSpecialTrait": {
   "text": "Your Dash-Upper deals {0} damage in an area.",
   "values": {
@@ -781,6 +1024,28 @@
   }
  },
  "FistVacuumTrait": {
+  "stats": {
+   "labels": [
+    "Magnetized Attack & Cast Bonus:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "40%"
+    ],
+    "Legendary": [
+     "50%"
+    ],
+    "Rare": [
+     "20%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
   "text": "Your Special becomes Magnetic Cutter; its pull deals {0} damage.",
   "values": {
    "default": [
@@ -788,7 +1053,31 @@
    ]
   }
  },
- "FistWeaveTrait": "After landing ? strikes, your next Special hits more times.",
+ "FistWeaveTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Special Hits:"
+   ],
+   "values": {
+    "Epic": [
+     "3"
+    ],
+    "Heroic": [
+     "4"
+    ],
+    "Legendary": [
+     "5"
+    ],
+    "Rare": [
+     "2"
+    ],
+    "default": [
+     "1"
+    ]
+   }
+  },
+  "text": "After landing ? strikes, your next Special hits more times."
+ },
  "FountainDamageBonusTrait": "Using a Fountain restores all Life and gives you bonus damage.",
  "FuryAssistTrait": {
   "text": "Your Summon deals {0} damage in an area near your closest foe, then continually down the line.",
@@ -808,7 +1097,31 @@
    ]
   }
  },
- "GunBaseUpgradeTrait": "The form in which the adamant rail first revealed itself.",
+ "GunBaseUpgradeTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Ammo Capacity:"
+   ],
+   "values": {
+    "Epic": [
+     "+8"
+    ],
+    "Heroic": [
+     "+10"
+    ],
+    "Legendary": [
+     "+12"
+    ],
+    "Rare": [
+     "+6"
+    ],
+    "default": [
+     "+4"
+    ]
+   }
+  },
+  "text": "The form in which the adamant rail first revealed itself."
+ },
  "GunChainShotTrait": {
   "text": "Your Attack bounces to {0} additional foe.",
   "values": {
@@ -875,7 +1188,31 @@
    ]
   }
  },
- "GunGrenadeSelfEmpowerTrait": "For 4 Sec. after absorbing your Special's blast, deal more damage.",
+ "GunGrenadeSelfEmpowerTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "45%"
+    ],
+    "Heroic": [
+     "60%"
+    ],
+    "Legendary": [
+     "75%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "15%"
+    ]
+   }
+  },
+  "text": "For 4 Sec. after absorbing your Special's blast, deal more damage."
+ },
  "GunHeavyBulletTrait": "Your Attack deals damage in an area and briefly slows foes.",
  "GunHomingBulletTrait": {
   "text": "Your Attack seeks the nearest foe and deals {0} damage.",
@@ -912,7 +1249,31 @@
    ]
   }
  },
- "GunLoadedGrenadeTrait": "You have Igneus Eden, which launches volatile Hellfire.",
+ "GunLoadedGrenadeTrait": {
+  "stats": {
+   "labels": [
+    "Hellfire Blast Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "75"
+    ],
+    "Heroic": [
+     "88"
+    ],
+    "Legendary": [
+     "100"
+    ],
+    "Rare": [
+     "63"
+    ],
+    "default": [
+     "50"
+    ]
+   }
+  },
+  "text": "You have Igneus Eden, which launches volatile Hellfire."
+ },
  "GunLoadedGrenadeWideTrait": {
   "text": "Your Igneus Eden Attack fires {0} beams in a spread pattern.",
   "values": {
@@ -921,7 +1282,31 @@
    ]
   }
  },
- "GunManualReloadTrait": "After you manually Reload, your next shot is empowered.",
+ "GunManualReloadTrait": {
+  "stats": {
+   "labels": [
+    "Empowered Shot Base Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "100"
+    ],
+    "Heroic": [
+     "125"
+    ],
+    "Legendary": [
+     "150"
+    ],
+    "Rare": [
+     "75"
+    ],
+    "default": [
+     "50"
+    ]
+   }
+  },
+  "text": "After you manually Reload, your next shot is empowered."
+ },
  "GunMinigunTrait": {
   "text": "Your Attack is faster and more accurate; gain +{0} Rounds.",
   "values": {
@@ -957,10 +1342,43 @@
  },
  "HealingPotencyTrait": "Any Healing effects are more potent.",
  "HealthRewardBonusTrait": "Any Max Life chamber rewards are worth more.",
- "HeartsickCritDamageTrait": "Your Critical effects deal even more damage to Weak foes.",
+ "HeartsickCritDamageTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Critical Damage vs. Weak:"
+   ],
+   "values": {
+    "default": [
+     "150%"
+    ]
+   }
+  },
+  "text": "Your Critical effects deal even more damage to Weak foes."
+ },
  "HermesPlannedRushTrait": "Hold to aim your Dash. During this, time moves ?% slower.",
  "HermesRushAreaSlow": "Your Dash makes nearby foes ?% slower for ? Sec.",
- "HermesSecondaryTrait": "Your Special is faster.",
+ "HermesSecondaryTrait": {
+  "stats": {
+   "labels": [
+    "Special Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "40%"
+    ],
+    "Rare": [
+     "20%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Your Special is faster."
+ },
  "HermesShoutDodge": {
   "text": "After using Call, gain Dodge chance and move speed for {0} Sec.",
   "values": {
@@ -969,13 +1387,80 @@
    ]
   }
  },
- "HermesWeaponTrait": "Your Attack is faster.",
- "HomingLaserTrait": "Your Cast is stronger and tracks foes more effectively.",
- "IceStrikeArrayTrait": "Your Cast blasts an area with freezing Festive Fog that inflicts Chill.",
+ "HermesWeaponTrait": {
+  "stats": {
+   "labels": [
+    "Attack Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "40%"
+    ],
+    "Rare": [
+     "20%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Your Attack is faster."
+ },
+ "HomingLaserTrait": {
+  "stats": {
+   "labels": [
+    "Beam Damage:"
+   ],
+   "values": {
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "Your Cast is stronger and tracks foes more effectively."
+ },
+ "IceStrikeArrayTrait": {
+  "stats": {
+   "labels": [
+    "Blast Damage:"
+   ],
+   "values": {
+    "default": [
+     "30%"
+    ]
+   }
+  },
+  "text": "Your Cast blasts an area with freezing Festive Fog that inflicts Chill."
+ },
  "ImpactBoltTrait": "When you knock foes away, they are struck by lightning.",
- "ImprovedPomTrait": "Any Poms of Power you find are more potent.",
+ "ImprovedPomTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Lv. from Poms:"
+   ],
+   "values": {
+    "default": [
+     "+1"
+    ]
+   }
+  },
+  "text": "Any Poms of Power you find are more potent."
+ },
  "IncreasedDamageTrait": "Your Attack, Special, and Cast deal more damage.",
  "InstantChillKill": {
+  "stats": {
+   "labels": [
+    "Shatter Area Damage:"
+   ],
+   "values": {
+    "default": [
+     "50"
+    ]
+   }
+  },
   "text": "Chill-afflicted foes shatter at {0}% Life, inflicting Chill nearby.",
   "values": {
    "default": [
@@ -996,13 +1481,70 @@
    ]
   }
  },
- "MagnetismTrait": "Your Bloodstone return to you automatically.",
- "MarkedDropGoldTrait": "You earn Charon's Obol for the first Marked foe you slay in each Encounter.",
+ "MagnetismTrait": {
+  "stats": {
+   "labels": [
+    "Bloodstone Return Delay:"
+   ],
+   "values": {
+    "default": [
+     "0 Sec."
+    ]
+   }
+  },
+  "text": "Your Bloodstone return to you automatically."
+ },
+ "MarkedDropGoldTrait": {
+  "stats": {
+   "labels": [
+    "Marked Kill Reward:"
+   ],
+   "values": {
+    "default": [
+     "20 Charon's Obol"
+    ]
+   }
+  },
+  "text": "You earn Charon's Obol for the first Marked foe you slay in each Encounter."
+ },
  "MaximumChillBlast": "Applying ? stacks of Chill causes a blast, clearing the effect.",
  "MaximumChillBonusSlow": "When all foes are Chill-afflicted, they are ? slower and decay.",
  "MoreAmmoTrait": "Gain extra Bloodstone for your Cast.",
- "MoveSpeedTrait": "You move faster.",
- "NoLastStandRegenerationTrait": "If you have no Death Defiance, your Life slowly recovers.",
+ "MoveSpeedTrait": {
+  "stats": {
+   "labels": [
+    "Move Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "40%"
+    ],
+    "Heroic": [
+     "50%"
+    ],
+    "Rare": [
+     "30%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "You move faster."
+ },
+ "NoLastStandRegenerationTrait": {
+  "stats": {
+   "labels": [
+    "Life Regeneration During Battle:"
+   ],
+   "values": {
+    "default": [
+     "1 Healing (every 0.8 Sec.)"
+    ]
+   }
+  },
+  "text": "If you have no Death Defiance, your Life slowly recovers."
+ },
  "OnEnemyDeathDamageInstanceBuffTrait": "After slaying a foe, your next Attack or Special deals more damage.",
  "OnWrathDamageBuffTrait": {
   "text": "After using Call, you deal more damage for {0} Sec.",
@@ -1013,9 +1555,33 @@
   }
  },
  "PerfectDashBoltTrait": "After you Dash just before getting hit, a bolt strikes a nearby foe.",
- "PoisonCritVulnerabilityTrait": "Hangover-afflicted foes are more likely to take Critical damage.",
+ "PoisonCritVulnerabilityTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Critical Chance per Hangover :"
+   ],
+   "values": {
+    "default": [
+     "1.5%"
+    ]
+   }
+  },
+  "text": "Hangover-afflicted foes are more likely to take Critical damage."
+ },
  "PoisonTickRateTrait": "Your Hangover effects deal damage faster.",
- "PoseidonAresProjectileTrait": "Your Flood Shot becomes a pulse that damages foes around you.",
+ "PoseidonAresProjectileTrait": {
+  "stats": {
+   "labels": [
+    "Pulses per Cast:"
+   ],
+   "values": {
+    "default": [
+     "3"
+    ]
+   }
+  },
+  "text": "Your Flood Shot becomes a pulse that damages foes around you."
+ },
  "PoseidonRangedTrait": "Your Cast damages foes in an area and knocks them away.",
  "PoseidonRushTrait": "Your Dash damages foes in an area and knocks them away.",
  "PoseidonSecondaryTrait": "Your Special deals more damage and knocks foes away.",
@@ -1031,15 +1597,133 @@
  "PoseidonWeaponTrait": "Your Attack deals more damage and knocks foes away.",
  "PreloadSuperGenerationTrait": "You begin each Encounter with your God Gauge partly full.",
  "ProximityArmorTrait": "Resist some damage from nearby foes' attacks.",
- "RapidCastTrait": "Hold Cast to fire in rapid succession.",
- "RaritySuperBoost": "Any Boons you find are more potent.",
- "ReboundingAthenaCastTrait": "Your Phalanx Shot Cast bounces between nearby foes.",
- "RegeneratingCappedSuperTrait": "Your God Gauge charges up automatically, but is capped at 25%.",
- "RegeneratingSuperTrait": "Your God Gauge charges up automatically.",
+ "RapidCastTrait": {
+  "stats": {
+   "labels": [
+    "Cast Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "60%"
+    ],
+    "Heroic": [
+     "80%"
+    ],
+    "Rare": [
+     "40%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
+  "text": "Hold Cast to fire in rapid succession."
+ },
+ "RaritySuperBoost": {
+  "stats": {
+   "labels": [
+    "Minimum Boon Rarity:"
+   ],
+   "values": {
+    "default": [
+     "Epic"
+    ]
+   }
+  },
+  "text": "Any Boons you find are more potent."
+ },
+ "ReboundingAthenaCastTrait": {
+  "stats": {
+   "labels": [
+    "Max Bounces:"
+   ],
+   "values": {
+    "default": [
+     "3"
+    ]
+   }
+  },
+  "text": "Your Phalanx Shot Cast bounces between nearby foes."
+ },
+ "RegeneratingCappedSuperTrait": {
+  "stats": {
+   "labels": [
+    "Auto Gauge Gain:"
+   ],
+   "values": {
+    "default": [
+     "1% (every 0.2 Sec.)"
+    ]
+   }
+  },
+  "text": "Your God Gauge charges up automatically, but is capped at 25%."
+ },
+ "RegeneratingSuperTrait": {
+  "stats": {
+   "labels": [
+    "Auto Gauge Gain:"
+   ],
+   "values": {
+    "Epic": [
+     "+1% (every 1 Sec.)"
+    ],
+    "Heroic": [
+     "+1% (every 0.5 Sec.)"
+    ],
+    "Rare": [
+     "+1% (every 1.5 Sec.)"
+    ],
+    "default": [
+     "+1% (every 2 Sec.)"
+    ]
+   }
+  },
+  "text": "Your God Gauge charges up automatically."
+ },
  "RetaliateWeaponTrait": "After you take damage, your foe is struck by lightning.",
  "RoomRewardBonusTrait": "Any Gemstones, Darkness and Charon's Obol chamber rewards are worth more.",
- "RushRallyTrait": "After taking damage, quickly Dash to recover some Life you just lost.",
+ "RushRallyTrait": {
+  "stats": {
+   "labels": [
+    "Life Recovered:"
+   ],
+   "values": {
+    "Epic": [
+     "50% of damage taken"
+    ],
+    "Heroic": [
+     "60% of damage taken"
+    ],
+    "Rare": [
+     "40% of damage taken"
+    ],
+    "default": [
+     "30% of damage taken"
+    ]
+   }
+  },
+  "text": "After taking damage, quickly Dash to recover some Life you just lost."
+ },
  "RushSpeedBoostTrait": {
+  "stats": {
+   "labels": [
+    "Sprint Duration:"
+   ],
+   "values": {
+    "Epic": [
+     "0.7 Sec."
+    ],
+    "Heroic": [
+     "0.9 Sec."
+    ],
+    "Rare": [
+     "0.6 Sec."
+    ],
+    "default": [
+     "0.5 Sec."
+    ]
+   }
+  },
   "text": "After you Dash, briefly become Sturdy and move {0} faster.",
   "values": {
    "default": [
@@ -1048,6 +1732,16 @@
   }
  },
  "SelfLaserTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Cast Damage:"
+   ],
+   "values": {
+    "default": [
+     "30%"
+    ]
+   }
+  },
   "text": "Your Cast crystal fires its beam directly at you for +{0} Sec.",
   "values": {
    "default": [
@@ -1055,7 +1749,31 @@
    ]
   }
  },
- "ShieldBaseUpgradeTrait": "The form in which the shield of chaos first revealed itself.",
+ "ShieldBaseUpgradeTrait": {
+  "stats": {
+   "labels": [
+    "Attack & Dash-Strike Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "+9"
+    ],
+    "Heroic": [
+     "+12"
+    ],
+    "Legendary": [
+     "+15"
+    ],
+    "Rare": [
+     "+6"
+    ],
+    "default": [
+     "+3"
+    ]
+   }
+  },
+  "text": "The form in which the shield of chaos first revealed itself."
+ },
  "ShieldBashDamageTrait": "Your Attack hits twice, but does not knock foes away.",
  "ShieldBashReflectTrait": "Your Attack deals ?% damage when you Deflect.",
  "ShieldBlockEmpowerTrait": {
@@ -1103,6 +1821,28 @@
   }
  },
  "ShieldLoadAmmoTrait": {
+  "stats": {
+   "labels": [
+    "Dragon Rush Bonus Damage & Area:"
+   ],
+   "values": {
+    "Epic": [
+     "60%"
+    ],
+    "Heroic": [
+     "80%"
+    ],
+    "Legendary": [
+     "100%"
+    ],
+    "Rare": [
+     "40%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
   "text": "You have Naegling's Board, but take {0} damage.",
   "values": {
    "default": [
@@ -1133,7 +1873,31 @@
    ]
   }
  },
- "ShieldRushBonusProjectileTrait": "After your Bull Rush, your next Special throws multiple Shields.",
+ "ShieldRushBonusProjectileTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Shields Thrown:"
+   ],
+   "values": {
+    "Epic": [
+     "3"
+    ],
+    "Heroic": [
+     "4"
+    ],
+    "Legendary": [
+     "5"
+    ],
+    "Rare": [
+     "2"
+    ],
+    "default": [
+     "1"
+    ]
+   }
+  },
+  "text": "After your Bull Rush, your next Special throws multiple Shields."
+ },
  "ShieldRushProjectileTrait": {
   "text": "Your Bull Rush instead fires a piercing shot that deals {0} damage.",
   "values": {
@@ -1223,7 +1987,31 @@
  "SlowProjectileTrait": "Your foes' ranged-attack projectiles are slower.",
  "SpearAttackPhalanxTrait": "Your Attack strikes 3 times in a spread pattern.",
  "SpearAutoAttack": "Hold Attack to strike rapidly, but you cannot Spin Attack.",
- "SpearBaseUpgradeTrait": "The form in which the eternal spear first revealed itself.",
+ "SpearBaseUpgradeTrait": {
+  "stats": {
+   "labels": [
+    "Special Damage, Range, & Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "18%"
+    ],
+    "Heroic": [
+     "21%"
+    ],
+    "Legendary": [
+     "25%"
+    ],
+    "Rare": [
+     "14%"
+    ],
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "The form in which the eternal spear first revealed itself."
+ },
  "SpearDashMultiStrike": {
   "text": "Your Dash-Strike hits {0} times, but your Dash has -{1}% range.",
   "values": {
@@ -1259,7 +2047,31 @@
    ]
   }
  },
- "SpearSpinTravel": "You have the Frost Fair Blade, but your Max Life and Healing are reduced.",
+ "SpearSpinTravel": {
+  "stats": {
+   "labels": [
+    "Max Life & Healing:"
+   ],
+   "values": {
+    "Epic": [
+     "-60%"
+    ],
+    "Heroic": [
+     "-55%"
+    ],
+    "Legendary": [
+     "-50%"
+    ],
+    "Rare": [
+     "-65%"
+    ],
+    "default": [
+     "-70%"
+    ]
+   }
+  },
+  "text": "You have the Frost Fair Blade, but your Max Life and Healing are reduced."
+ },
  "SpearSpinTravelDurationTrait": {
   "text": "Your Frost Fair Blade Spin Attack travels for {0} longer.",
   "values": {
@@ -1268,7 +2080,31 @@
    ]
   }
  },
- "SpearTeleportTrait": "After your Special, you can retrieve your Spear with Raging Rush.",
+ "SpearTeleportTrait": {
+  "stats": {
+   "labels": [
+    "Post-Rush Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "100"
+    ],
+    "Heroic": [
+     "125"
+    ],
+    "Legendary": [
+     "150"
+    ],
+    "Rare": [
+     "75"
+    ],
+    "default": [
+     "50"
+    ]
+   }
+  },
+  "text": "After your Special, you can retrieve your Spear with Raging Rush."
+ },
  "SpearThrowBounce": {
   "text": "Your Special hits up to {0} foes, dealing {1} base damage for each.",
   "values": {
@@ -1327,12 +2163,81 @@
    ]
   }
  },
- "SpearWeaveTrait": "Your Spin Attack becomes Punishing Sweep.",
- "SpeedDamageTrait": "You deal bonus damage based on any bonus move speed.",
+ "SpearWeaveTrait": {
+  "stats": {
+   "labels": [
+    "Punishing Bonus Damage:"
+   ],
+   "values": {
+    "Epic": [
+     "90%"
+    ],
+    "Heroic": [
+     "120%"
+    ],
+    "Legendary": [
+     "150%"
+    ],
+    "Rare": [
+     "60%"
+    ],
+    "default": [
+     "30%"
+    ]
+   }
+  },
+  "text": "Your Spin Attack becomes Punishing Sweep."
+ },
+ "SpeedDamageTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Damage From Bonus Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "100%"
+    ],
+    "Heroic": [
+     "125%"
+    ],
+    "Rare": [
+     "75%"
+    ],
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "You deal bonus damage based on any bonus move speed."
+ },
  "StationaryRiftTrait": "Your Cast inflicts Chill, but is smaller and moves slower.",
- "StatusImmunityTrait": "You cannot be stunned, and resist some damage from Bosses.",
+ "StatusImmunityTrait": {
+  "stats": {
+   "labels": [
+    "Boss Damage Reduction:"
+   ],
+   "values": {
+    "default": [
+     "10%"
+    ]
+   }
+  },
+  "text": "You cannot be stunned, and resist some damage from Bosses."
+ },
  "SuperGenerationTrait": "Your God Gauge charges up faster when you deal or take damage.",
- "SuperTemporaryBoonRarityTrait": "The next several Boons you find have upgraded Rarity.",
+ "SuperTemporaryBoonRarityTrait": {
+  "stats": {
+   "labels": [
+    "Boons Remaining:"
+   ],
+   "values": {
+    "default": [
+     "3"
+    ]
+   }
+  },
+  "text": "The next several Boons you find have upgraded Rarity."
+ },
  "SwordBackstabTrait": {
   "text": "Your Attack deals {0} damage striking foes from behind.",
   "values": {
@@ -1341,7 +2246,31 @@
    ]
   }
  },
- "SwordBaseUpgradeTrait": "The form in which the blade of the underworld first revealed itself.",
+ "SwordBaseUpgradeTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Attack Speed & Move Speed:"
+   ],
+   "values": {
+    "Epic": [
+     "9%"
+    ],
+    "Heroic": [
+     "12%"
+    ],
+    "Legendary": [
+     "15%"
+    ],
+    "Rare": [
+     "6%"
+    ],
+    "default": [
+     "3%"
+    ]
+   }
+  },
+  "text": "The form in which the blade of the underworld first revealed itself."
+ },
  "SwordBlinkTrait": {
   "text": "Your Special makes you lunge ahead, then become Sturdy for {0} Sec.",
   "values": {
@@ -1359,6 +2288,28 @@
   }
  },
  "SwordConsecrationTrait": {
+  "stats": {
+   "labels": [
+    "Aura Damage Reduction:"
+   ],
+   "values": {
+    "Epic": [
+     "30%"
+    ],
+    "Heroic": [
+     "35%"
+    ],
+    "Legendary": [
+     "40%"
+    ],
+    "Rare": [
+     "25%"
+    ],
+    "default": [
+     "20%"
+    ]
+   }
+  },
   "text": "You have Holy Excalibur, and +{0} Max Life to your Life Total.",
   "values": {
    "default": [
@@ -1368,6 +2319,28 @@
  },
  "SwordConsecutiveFirstStrikeTrait": "Your Slash deals +10 damage for each consecutive hit to a foe.",
  "SwordCriticalParryTrait": {
+  "stats": {
+   "labels": [
+    "Bonus Critical Chance:"
+   ],
+   "values": {
+    "Epic": [
+     "22%"
+    ],
+    "Heroic": [
+     "26%"
+    ],
+    "Legendary": [
+     "30%"
+    ],
+    "Rare": [
+     "19%"
+    ],
+    "default": [
+     "15%"
+    ]
+   }
+  },
   "text": "For {0} Sec. after your Special, your Attack may deal Critical damage.",
   "values": {
    "default": [
@@ -1461,6 +2434,16 @@
   }
  },
  "TemporaryAlphaStrikeTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: You deal {0} damage striking undamaged foes.",
   "values": {
    "default": [
@@ -1469,6 +2452,16 @@
   }
  },
  "TemporaryArmorDamageTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: You deal {0} damage to Armor.",
   "values": {
    "default": [
@@ -1477,6 +2470,16 @@
   }
  },
  "TemporaryBackstabTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: You deal {0} damage striking foes from behind.",
   "values": {
    "default": [
@@ -1484,9 +2487,31 @@
    ]
   }
  },
- "TemporaryBlockExplodingChariotsTrait": "Passive: Prevent ? foes from appearing in Encounter(s).",
+ "TemporaryBlockExplodingChariotsTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "10 Encounter(s)"
+    ]
+   }
+  },
+  "text": "Passive: Prevent ? foes from appearing in Encounter(s)."
+ },
  "TemporaryBoonRarityTrait": "Passive: The next Boon you find has upgraded Rarity.",
  "TemporaryDoorHealTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "3 Chamber(s)"
+    ]
+   }
+  },
   "text": "Passive: Restore {0}% Life when you enter a chamber.",
   "values": {
    "default": [
@@ -1498,6 +2523,16 @@
  "TemporaryForcedFishingPointTrait": "Passive: Ensure a Fishing Point will spawn ahead (where possible).",
  "TemporaryForcedSecretDoorTrait": "Passive: Ensure a Chaos Gate will spawn ahead (where possible).",
  "TemporaryImprovedRangedTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Your Cast deals {0} damage.",
   "values": {
    "default": [
@@ -1506,6 +2541,16 @@
   }
  },
  "TemporaryImprovedSecondaryTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Your Special deals {0} damage.",
   "values": {
    "default": [
@@ -1514,6 +2559,16 @@
   }
  },
  "TemporaryImprovedTrapDamageTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Traps deal {0} damage to your foes.",
   "values": {
    "default": [
@@ -1522,6 +2577,16 @@
   }
  },
  "TemporaryImprovedWeaponTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Your Attack deals {0} damage.",
   "values": {
    "default": [
@@ -1530,6 +2595,16 @@
   }
  },
  "TemporaryImprovedWeaponTrait_Patroclus": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "10 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Your Attack deals {0} damage.",
   "values": {
    "default": [
@@ -1538,6 +2613,16 @@
   }
  },
  "TemporaryLastStandHealTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "15 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Stubborn Defiance restores {0} more Healing than usual.",
   "values": {
    "default": [
@@ -1546,6 +2631,16 @@
   }
  },
  "TemporaryMoreAmmoTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Gain +{0} Bloodstone for your Cast.",
   "values": {
    "default": [
@@ -1554,6 +2649,16 @@
   }
  },
  "TemporaryMoveSpeedTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "8 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Gain {0}% move speed.",
   "values": {
    "default": [
@@ -1562,6 +2667,16 @@
   }
  },
  "TemporaryPreloadSuperGenerationTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "6 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: You start Encounter(s) with your God Gauge {0}% full.",
   "values": {
    "default": [
@@ -1570,6 +2685,16 @@
   }
  },
  "TemporaryWeaponLifeOnKillTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "3 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Slain foes have a {0} chance to drop Healing items.",
   "values": {
    "default": [
@@ -1586,8 +2711,32 @@
   }
  },
  "TrapDamageTrait": "Resist damage from Traps.",
- "TriggerCurseTrait": "Your abilities that can Deflect immediately activate Doom effects.",
- "UnstoredAmmoDamageTrait": "Your Cast deals bonus damage to foes without Bloodstone in them.",
+ "TriggerCurseTrait": {
+  "stats": {
+   "labels": [
+    "Doom Combo Damage:"
+   ],
+   "values": {
+    "default": [
+     "40"
+    ]
+   }
+  },
+  "text": "Your abilities that can Deflect immediately activate Doom effects."
+ },
+ "UnstoredAmmoDamageTrait": {
+  "stats": {
+   "labels": [
+    "First-Shot Damage:"
+   ],
+   "values": {
+    "default": [
+     "50%"
+    ]
+   }
+  },
+  "text": "Your Cast deals bonus damage to foes without Bloodstone in them."
+ },
  "UnusedWeaponBonusTrait": {
   "text": "Whenever you find Darkness, gain +{0}%.",
   "values": {
@@ -1605,6 +2754,16 @@
   }
  },
  "UpgradedTemporaryLastStandHealTrait": {
+  "stats": {
+   "labels": [
+    "Duration:"
+   ],
+   "values": {
+    "default": [
+     "15 Encounter(s)"
+    ]
+   }
+  },
   "text": "Passive: Stubborn Defiance restores {0} more Healing than usual.",
   "values": {
    "default": [
