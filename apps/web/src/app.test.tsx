@@ -155,6 +155,16 @@ function click(label: string): void {
   act(() => control(label).click());
 }
 
+/**
+ * Opens a weapon's page, putting its tab up first where the run has not.
+ *
+ * The same path a god takes: the six weapons stood on the bar permanently until
+ * there was a control that could reach their pages, and there is one now.
+ */
+function showWeapon(name: string): void {
+  showGod(name);
+}
+
 /** The header's menu control, which is where Escape leads too. */
 function openMenu(): void {
   const menu = container.querySelector<HTMLElement>(".app__menu");
@@ -1557,7 +1567,7 @@ describe("starting a new run", () => {
    */
   it("gives a fresh run to a player whose old one carried only a weapon", async () => {
     await mount();
-    click("Witch's Staff");
+    showWeapon("Witch's Staff");
 
     await startNewRun();
 
@@ -2164,9 +2174,6 @@ describe("the page-wide keys", () => {
     const before = current();
     expect(texts(".app__godtab").length).toBeGreaterThan(1);
 
-    // Backwards, because the tab just selected is the last one and forwards
-    // clamps to where it already is — which is the same test passing for the
-    // wrong reason one step further along.
     // The Adder's search box is the field this guard exists for: `[` and `]`
     // are brackets rather than letters precisely so a search can spell things,
     // and a bracket typed into it must reach the box rather than the bar.
@@ -2867,12 +2874,38 @@ describe("the weapon tabs", () => {
       (tab.getAttribute("title") ?? "").trim(),
     );
 
-  it("carries all six, in the order the game presents them", async () => {
+  it("stands on the bar only once somebody asks for one", async () => {
     await mount();
+
+    // None from the first frame: they used to stand there permanently because
+    // nothing else could reach their pages, and the Adder can.
+    expect(weaponTabs()).toEqual([]);
+
+    showWeapon("Umbral Flames");
+    expect(weaponTabs()).toEqual(["Umbral Flames"]);
+    // And it comes down the way a god's does, having arrived the same way. The
+    // × is the tab's sibling inside the slot, not its child — written as a
+    // descendant this matched nothing and the old assertion could not fail.
+    expect(container.querySelectorAll(".app__weapontab ~ .app__goddrop")).toHaveLength(1);
+  });
+
+  it("offers all six in the order the game presents them", async () => {
+    await mount();
+
+    act(() => container.querySelector<HTMLButtonElement>(".adder__open")!.click());
+    act(() =>
+      [...container.querySelectorAll<HTMLButtonElement>(".adder__branch")]
+        .find((one) => one.textContent?.includes("Weapons"))!
+        .click(),
+    );
 
     // The aspect screen's own order, not the alphabetical one the extraction's
     // sorted keys would give.
-    expect(weaponTabs()).toEqual([
+    expect(
+      [...container.querySelectorAll(".adder__row[data-kind='weapon'] .adder__name")].map(
+        (one) => one.textContent,
+      ),
+    ).toEqual([
       "Witch's Staff",
       "Sister Blades",
       "Umbral Flames",
@@ -2880,14 +2913,12 @@ describe("the weapon tabs", () => {
       "Argent Skull",
       "Black Coat",
     ]);
-    // The × belongs to a tab a player put up, and nobody put these up.
-    expect(container.querySelectorAll(".app__weapontab .app__goddrop")).toHaveLength(0);
   });
 
   it("opens a page of that weapon's forms and hammers", async () => {
     await mount();
 
-    click("Umbral Flames");
+    showWeapon("Umbral Flames");
 
     // Its heading says so: there is no boon on this page.
     expect(container.querySelector(".app__ladder h2")?.textContent).toBe("Aspects and hammers");
@@ -2913,7 +2944,7 @@ describe("the weapon tabs", () => {
     showGod("Aphrodite");
     const onGod = new Set(texts(".node__name").map((t) => t.trim()));
 
-    click("Black Coat");
+    showWeapon("Black Coat");
     const onWeapon = texts(".node__name").map((t) => t.trim());
 
     expect(onWeapon.length).toBeGreaterThan(0);
@@ -2928,7 +2959,7 @@ describe("the weapon tabs", () => {
    */
   it("equips a weapon form rather than marking it", async () => {
     await mount();
-    click("Umbral Flames");
+    showWeapon("Umbral Flames");
     const form = () =>
       container.querySelector<HTMLElement>(".godpage__band[data-kind='aspect'] .node");
     expect(form()?.dataset.state).toBe("Available");
@@ -2959,7 +2990,7 @@ describe("the weapon tabs", () => {
    */
   it("takes the form back off from its sheet", async () => {
     await mount();
-    click("Umbral Flames");
+    showWeapon("Umbral Flames");
     const form = () =>
       container.querySelector<HTMLElement>(".godpage__band[data-kind='aspect'] .node");
     act(() => form()?.querySelector<HTMLElement>(".node__control")?.click());
@@ -2989,7 +3020,7 @@ describe("the weapon tabs", () => {
    */
   it("takes the form off from the Loadout too", async () => {
     await mount();
-    click("Umbral Flames");
+    showWeapon("Umbral Flames");
     const form = () =>
       container.querySelector<HTMLElement>(".godpage__band[data-kind='aspect'] .node");
     act(() => form()?.querySelector<HTMLElement>(".node__control")?.click());
@@ -3020,7 +3051,7 @@ describe("the weapon tabs", () => {
    */
   it("sets no goal on a form, however you ask", async () => {
     await mount();
-    click("Umbral Flames");
+    showWeapon("Umbral Flames");
     const control0 = () =>
       container.querySelector<HTMLElement>(
         ".godpage__band[data-kind='aspect'] .node .node__control",
@@ -3048,7 +3079,7 @@ describe("the weapon tabs", () => {
    */
   it("offers a hammer one removal rather than two", async () => {
     await mount();
-    click("Umbral Flames");
+    showWeapon("Umbral Flames");
     const hammer = () =>
       container.querySelector<HTMLElement>(".godpage__band[data-kind='tier'] .node");
     act(() => hammer()?.querySelector<HTMLElement>(".node__control")?.click());
@@ -3067,7 +3098,7 @@ describe("the weapon tabs", () => {
    */
   it("offers no rarity on a hammer, the game forcing them Common", async () => {
     await mount();
-    click("Umbral Flames");
+    showWeapon("Umbral Flames");
     const hammer = container.querySelector<HTMLElement>(
       ".godpage__band[data-kind='tier'] .node",
     );
@@ -3079,7 +3110,7 @@ describe("the weapon tabs", () => {
 
   it("marks a hammer the way a boon is marked", async () => {
     await mount();
-    click("Umbral Flames");
+    showWeapon("Umbral Flames");
     const node = () =>
       container.querySelector<HTMLElement>(".godpage__band[data-kind='tier'] .node");
     const hammer = node();

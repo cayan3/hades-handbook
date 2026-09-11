@@ -193,6 +193,11 @@ const KIND_WORD: Readonly<Record<string, string | null>> = {
   none: null,
 };
 
+/* One bar name to the tab it stands for. */
+function tabFor(name: string, weapon: boolean): Selection {
+  return weapon ? { kind: "weapon", weapon: name } : { kind: "god", god: name };
+}
+
 function sameTab(a: Selection, b: Selection): boolean {
   if (a.kind !== b.kind) return false;
   if (a.kind === "god") return b.kind === "god" && b.god === a.god;
@@ -495,6 +500,9 @@ function Run({
           ? null
           : finishedRun(source, reviewed, CORE_SLOTS[game]);
 
+  /** Which names on the bar are weapons, one curated set holding both kinds. */
+  const weaponIds = new Set(weaponsFor(game).map((weapon) => weapon.id));
+
   /**
    * Adding a god puts the tab up and goes there, and takes them off the removed
    * set — asking for a god you dismissed is asking for the tab back.
@@ -513,9 +521,10 @@ function Run({
       const order = [...new Set([...barOrder(tabs, facts.godPool, curated), ...names])];
       onCurated({ added, removed, order });
       const only = names.length === 1 ? names[0] : undefined;
-      if (only !== undefined) setSelected({ kind: "god", god: only });
+      // One curated set holds both kinds, so the name says which this was.
+      if (only !== undefined) setSelected(tabFor(only, weaponIds.has(only)));
     },
-    [curated, onCurated, tabs, facts.godPool],
+    [curated, onCurated, tabs, facts.godPool, weaponIds],
   );
 
   /**
@@ -535,7 +544,12 @@ function Run({
       // The tab being read is held up by `showing`, so dropping it has to let
       // the selection fall back or it removes nothing. Hub rather than another
       // god: it is the one tab that is certainly still there.
-      setSelected((now) => (now.kind === "god" && now.god === name ? HUB : now));
+      setSelected((now) =>
+        (now.kind === "god" && now.god === name) ||
+        (now.kind === "weapon" && now.weapon === name)
+          ? HUB
+          : now,
+      );
     },
     [curated, onCurated],
   );
@@ -548,8 +562,17 @@ function Run({
    * nobody shows the Hub alone rather than an arbitrary god who cannot be taken
    * down and is replaced by somebody else on the first mark.
    */
-  const shownTabs = barOrder(tabs, facts.godPool, curated);
-  // The picker's list is a different question — which gods you could add — and
+  /*
+   * A weapon tab is a tab: one curated set, one arrival order, one `×`, with the
+   * run's own weapon standing where a god's pool does. They stood on the bar
+   * permanently only because nothing else could reach their pages.
+   */
+  const knownTabs = [...tabs, ...weaponIds];
+  const metTabs = new Set<string>(facts.godPool);
+  if (facts.equipped.weapon != null) metTabs.add(facts.equipped.weapon);
+
+  const shownTabs = barOrder(knownTabs, metTabs, curated);
+  // The picker's list is a different question — which tabs you could add — and
   // that one has no arrival order to be in, so it stays alphabetical.
   const unshown = tabs.filter((name) => !shownTabs.includes(name));
 
@@ -566,10 +589,14 @@ function Run({
    */
   const weapons = weaponsFor(game);
 
+
   const bar: readonly Selection[] = [
     HUB,
-    ...shownTabs.map((god) => ({ kind: "god", god }) as const),
-    ...weapons.map((weapon) => ({ kind: "weapon", weapon: weapon.id }) as const),
+    ...shownTabs.map((name) =>
+      weaponIds.has(name)
+        ? ({ kind: "weapon", weapon: name } as const)
+        : ({ kind: "god", god: name } as const),
+    ),
   ];
 
   /**
@@ -642,13 +669,23 @@ function Run({
      and the arrangement prop folds it to whichever of the four is being drawn. */
   const adderRoot: readonly AddEntry[] = useMemo(() => {
     const hexes = adderRecords.filter((row) => HEXES.includes(row.trait));
-    const others: AddEntry[] = [];
+    const others: AddEntry[] = [
+      {
+        id: "weapons",
+        label: "Weapons / Hammers",
+        entries: weapons.map((weapon) => ({
+          kind: "weapon" as const,
+          weapon: weapon.id,
+          name: weapon.name ?? weapon.id,
+        })),
+      },
+    ];
     if (hexes.length > 0) others.push({ id: "hexes", label: "Hexes", entries: hexes });
     return [
       ...unshown.map((god) => ({ kind: "god" as const, god })),
       { id: "others", label: "Others", entries: others },
     ];
-  }, [adderRecords, unshown]);
+  }, [adderRecords, unshown, weapons]);
   // The page's shape and the page's state, derived together because the
   // connectors carry path status and that is a fact about the run. Null is
   // exactly Hub, which draws no graph — keyed on the god's name rather than on
@@ -976,12 +1013,22 @@ function Run({
                 <HubGlyph className="app__godart" />
                 <span className="visually-hidden">Hub</span>
               </button>
-              {shownTabs.map((name) => (
+              {/* One loop, because a weapon tab is drawn and ordered exactly as
+                  a god's. Only the picture and what the run says about it differ:
+                  a god is in your pool, a weapon is the one you are playing. */}
+              {shownTabs.map((name) => {
+                const weapon = weapons.find((one) => one.id === name);
+                const met =
+                  weapon === undefined
+                    ? facts.godPool.has(name)
+                    : facts.equipped.weapon === name;
+                const called = weapon?.name ?? name;
+                return (
                 <span key={name} className="app__godslot">
                 <button
                   type="button"
-                  className="app__godtab"
-                  aria-current={name === showingGod ? "page" : undefined}
+                  className={weapon === undefined ? "app__godtab" : "app__godtab app__weapontab"}
+                  aria-current={sameTab(showing, tabFor(name, weapon !== undefined)) ? "page" : undefined}
                   /**
                    * In the pool is a fact about the run and shows on the tab;
                    * it never decides whether the tab is there. The glow is the
@@ -992,68 +1039,45 @@ function Run({
                    * Nothing about goals reaches this: a pinned goal, or a god
                    * added to plan with, leaves a tab exactly as it was.
                    */
-                  data-pooled={facts.godPool.has(name)}
-                  style={{ "--god": godColour(name) } as CSSProperties}
-                  title={name}
+                  data-pooled={weapon === undefined ? met : undefined}
+                  data-equipped={weapon === undefined ? undefined : met}
+                  style={weapon === undefined ? ({ "--god": godColour(name) } as CSSProperties) : undefined}
+                  title={called}
                   // The glow is the one channel a reader gets nothing of, so
-                  // being in the pool goes in the name. On the label rather than
-                  // in the hidden text below because the tab's own text is what
-                  // the picker and the bar are read by.
-                  aria-label={facts.godPool.has(name) ? `${name} — in your pool` : undefined}
-                  onClick={() => setSelected({ kind: "god", god: name })}
+                  // what the run says about this tab goes in the name. On the
+                  // label rather than in the hidden text below because the tab's
+                  // own text is what the picker and the bar are read by.
+                  aria-label={
+                    !met ? undefined : weapon === undefined ? `${name} — in your pool` : `${called} — your weapon`
+                  }
+                  onClick={() => setSelected(tabFor(name, weapon !== undefined))}
                 >
                   {/* The symbol and nothing drawn beside it, so the bar reads
                       as shapes. The name is still the control's accessible name
                       and its `title`, which is what a symbol nobody recognises —
                       or has, Hades having none in either set — falls back to. */}
-                  <GodArt game={game} god={name} className="app__godart" />
-                  <span className="visually-hidden">{name}</span>
+                  {weapon === undefined ? (
+                    <GodArt game={game} god={name} className="app__godart" />
+                  ) : (
+                    <WeaponArt game={game} weapon={name} className="app__godart" />
+                  )}
+                  <span className="visually-hidden">{called}</span>
                 </button>
                 {/* Its own control rather than a gesture on the tab, since the
-                    tab's click already means "read this god". Drawn only under
+                    tab's click already means "read this one". Drawn only under
                     the pointer, because a bar of crosses is a bar about
                     removing things. */}
                 <button
                   type="button"
                   className="app__goddrop"
-                  aria-label={`Remove the ${name} tab`}
+                  aria-label={`Remove the ${called} tab`}
                   onClick={() => dropGod(name)}
                 >
                   <span aria-hidden="true">×</span>
                 </button>
               </span>
-              ))}
-              {/* One per weapon, after the gods and never removable: the set is
-                  closed and every run is played with one of them, so there is
-                  nothing here for a player to curate and no picker to hold what
-                  is left over. No hue — a weapon is not a god, and an invented
-                  colour would read as identity. */}
-              {weapons.map((weapon) => (
-                <button
-                  key={weapon.id}
-                  type="button"
-                  className="app__godtab app__weapontab"
-                  aria-current={weapon.id === showingWeapon ? "page" : undefined}
-                  data-equipped={facts.equipped.weapon === weapon.id}
-                  title={weapon.name ?? weapon.id}
-                  // Which weapon the run is played with is a fact about the run
-                  // and shows on the tab the way the pool does on a god's, so
-                  // it goes in the name for a reader who gets no styling.
-                  aria-label={
-                    facts.equipped.weapon === weapon.id
-                      ? `${weapon.name ?? weapon.id} — your weapon`
-                      : undefined
-                  }
-                  onClick={() => setSelected({ kind: "weapon", weapon: weapon.id })}
-                >
-                  {/* The weapon drawn as its default form — the only picture
-                      of a weapon either game keeps. Same as a god tab: the
-                      shape is the control, and the name is what it is called
-                      rather than what it draws. */}
-                  <WeaponArt game={game} weapon={weapon.id} className="app__godart" />
-                  <span className="visually-hidden">{weapon.name ?? weapon.id}</span>
-                </button>
-              ))}
+                );
+              })}
               {/* Every god at once is seventeen tabs over three rows, which is
                   a list rather than navigation. The bar carries what the run has
                   met plus what the player asked for; the rest arrives here. */}
