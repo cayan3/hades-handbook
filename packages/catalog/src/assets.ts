@@ -245,10 +245,33 @@ const SLOT_ICONS: Readonly<Record<GameKey, Readonly<Record<string, string>>>> = 
 /**
  * An entry that had at least one of its numbers recovered: the sentence with a
  * `{n}` where each goes, and the row of values to splice in per rarity.
+ *
+ * `values` is absent where a record recovered no number in its sentence but did
+ * recover a stat line, which is the common case rather than the odd one — 160
+ * of Hades II's 218 god-page sentences carry no number at all.
  */
 interface DescriptionEntry {
   readonly text: string;
+  readonly values?: Readonly<Record<string, readonly string[]>>;
+  readonly stats?: StatLineEntry;
+}
+
+/**
+ * A record's stat lines: the games' own labels, and one value each per rarity.
+ *
+ * Labels do not move with the rarity and are stored once. Values follow the
+ * sentence's own shape — a `default` row, plus a row only for a rarity that
+ * differs from it.
+ */
+interface StatLineEntry {
+  readonly labels: readonly string[];
   readonly values: Readonly<Record<string, readonly string[]>>;
+}
+
+/** One stat line as a caller draws it. */
+export interface StatLine {
+  readonly label: string;
+  readonly value: string;
 }
 
 const SLOT = /\{(\d+)\}/g;
@@ -280,9 +303,43 @@ export function textFor(game: GameKey, ref: string, rarity?: Rarity): string | n
   const entry = (dataFor(game).descriptions as Record<string, string | DescriptionEntry>)[ref];
   if (entry === undefined) return null;
   if (typeof entry === "string") return entry;
-  const values = (rarity !== undefined ? entry.values[rarity] : undefined) ?? entry.values.default;
+  const values = rowFor(entry.values, rarity);
   if (values === undefined) return entry.text;
   return entry.text.replace(SLOT, (whole, index: string) => values[Number(index)] ?? whole);
+}
+
+/** The row a rarity reads, falling back to the one every other rarity shares. */
+function rowFor(
+  values: Readonly<Record<string, readonly string[]>> | undefined,
+  rarity: Rarity | undefined,
+): readonly string[] | undefined {
+  if (values === undefined) return undefined;
+  return (rarity !== undefined ? values[rarity] : undefined) ?? values.default;
+}
+
+/**
+ * A record's stat lines at one rarity — the row the games' own Codex draws
+ * under the description, and where a god boon's number actually is.
+ *
+ * The sentence usually has no number in it: 153 of Hades II's 218 god-page
+ * descriptions carry none, and not one of the 58 that do moves with the rarity,
+ * so without this a player changing a boon's rarity sees nothing change.
+ *
+ * A line the extraction could not resolve is not here at all rather than
+ * carrying the mark a description uses. A label is a field name, so the value is
+ * the whole of what the row says and a marked one reads as a row saying nothing.
+ *
+ * Empty rather than null where there are none, since every caller draws a list.
+ */
+export function statLinesFor(game: GameKey, ref: string, rarity?: Rarity): readonly StatLine[] {
+  const entry = (dataFor(game).descriptions as Record<string, string | DescriptionEntry>)[ref];
+  if (entry === undefined || typeof entry === "string" || entry.stats === undefined) return [];
+  const values = rowFor(entry.stats.values, rarity);
+  if (values === undefined) return [];
+  return entry.stats.labels.flatMap((label, index) => {
+    const value = values[index];
+    return value === undefined ? [] : [{ label, value }];
+  });
 }
 
 /**

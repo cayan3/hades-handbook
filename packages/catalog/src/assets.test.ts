@@ -12,6 +12,7 @@ import {
   slotIconFor,
   talentIconFor,
   talentNameFor,
+  statLinesFor,
   textFor,
 } from "./assets.js";
 import { type GameKey, dataFor } from "./data.js";
@@ -202,6 +203,69 @@ describe("slotIconFor", () => {
     // Not a core slot in either game: the Companion and the equipped kit.
     expect(slotIconFor("hades2", "Assist")).toBeNull();
     expect(slotIconFor("hades1", "Keepsake")).toBeNull();
+  });
+});
+
+describe("statLinesFor", () => {
+  it("gives the games' own label and the number for the rarity asked for", () => {
+    expect(statLinesFor("hades2", "AphroditeWeaponBoon", "Common")).toEqual([
+      { label: "Close-Up Damage:", value: "80%" },
+    ]);
+    expect(statLinesFor("hades1", "DodgeChanceTrait", "Rare")).toEqual([
+      { label: "Dodge Chance:", value: "15%" },
+    ]);
+  });
+
+  /**
+   * The whole reason this exists. A god boon's sentence carries no number in
+   * either game, so before this a player moving a boon's rarity saw the card
+   * say exactly what it said before.
+   */
+  it("moves with the rarity, which the sentence does not", () => {
+    const at = (rarity: Rarity) => statLinesFor("hades2", "AphroditeWeaponBoon", rarity)[0]?.value;
+    expect([at("Common"), at("Rare"), at("Epic"), at("Heroic")]).toEqual([
+      "80%",
+      "100%",
+      "120%",
+      "140%",
+    ]);
+    // The sentence is the same one at every one of them.
+    const sentence = textFor("hades2", "AphroditeWeaponBoon", "Common");
+    expect(textFor("hades2", "AphroditeWeaponBoon", "Heroic")).toBe(sentence);
+  });
+
+  it("reads the shared row where the rarity has none of its own", () => {
+    // An unheld boon asks with no rarity at all, and a Duo declares one rarity
+    // that is not in the four — both land on `default` rather than on nothing.
+    expect(statLinesFor("hades2", "AphroditeWeaponBoon")).toEqual([
+      { label: "Close-Up Damage:", value: "80%" },
+    ]);
+    expect(statLinesFor("hades2", "AllCloseBoon", "Common")).toEqual([
+      { label: "Damage Resistance:", value: "15%" },
+    ]);
+  });
+
+  /**
+   * A line whose number could not be worked out is absent rather than marked.
+   * The label is a field name, so the value is the whole of what the row says
+   * and a `?` there would draw a row that says nothing — which is the opposite
+   * call from a sentence, that still reads without its number.
+   */
+  it("is empty rather than marked where nothing resolved", () => {
+    // Its stat line needs a projectile stat the dump does not carry.
+    expect(statLinesFor("hades2", "ZeusWeaponBoon", "Common")).toEqual([]);
+    // A record whose numbers are all in its sentence has no stat line at all.
+    expect(statLinesFor("hades2", "AgilityCostume", "Common")).toEqual([]);
+    expect(statLinesFor("hades2", "NotARealRef")).toEqual([]);
+  });
+
+  it("leaves a sentence readable that gained a stat line and no slot", () => {
+    // The common shape: 153 of Hades II's 218 god-page sentences carry no
+    // number, so their entry has `stats` and no `values` at all. Reading a
+    // rarity row off one of those used to be a dereference of nothing.
+    expect(textFor("hades2", "AphroditeWeaponBoon", "Heroic")).toBe(
+      "Your Attacks deal more damage to nearby foes.",
+    );
   });
 });
 

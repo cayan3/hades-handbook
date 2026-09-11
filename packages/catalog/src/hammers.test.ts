@@ -84,8 +84,13 @@ describe.each(GAMES)("the %s hammer table", (game) => {
     const boon = Object.values(dataFor(game).boons as Record<string, TraitRecord>).find(
       (record) => record.god !== null && record.descriptionRef !== null,
     );
-    const bundle = dataFor(game).descriptions as Record<string, string>;
-    expect(textFor(game, boon!.descriptionRef!)).toBe(bundle[boon!.descriptionRef!]);
+    // An entry is a bare sentence only where nothing was recovered; one that
+    // gained a number or a stat line is an object carrying the sentence.
+    const bundle = dataFor(game).descriptions as Record<string, string | { text: string }>;
+    const entry = bundle[boon!.descriptionRef!]!;
+    expect(textFor(game, boon!.descriptionRef!)).toBe(
+      typeof entry === "string" ? entry : entry.text,
+    );
   });
 });
 

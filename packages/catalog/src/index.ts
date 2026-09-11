@@ -39,12 +39,13 @@ export {
   nameFor,
   slotIconFor,
   markerIconFor,
+  statLinesFor,
   talentIconFor,
   talentNameFor,
   textFor,
   weaponIconFor,
 } from "./assets.js";
-export type { ChromePart, MarkerKind } from "./assets.js";
+export type { ChromePart, MarkerKind, StatLine } from "./assets.js";
 export { overlayFor } from "./overlay.js";
 export type { Overlay, TraitOverlay } from "./overlay.js";
 export { mirrorRowsFor, talentsFor } from "./talents.js";
