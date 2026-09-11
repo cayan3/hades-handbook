@@ -583,11 +583,25 @@ def validate_game(game_key, boons, gods, keepsakes, clause_report=None,
             # `{$Keywords.Rare}` markup, so a row is somewhere markup can reach
             # a card -- and only the row a reading happens to splice would show.
             parts = [text]
-            if isinstance(entry, dict):
+            stats = entry.get("stats") if isinstance(entry, dict) else None
+            if isinstance(entry, dict) and "values" in entry:
                 parts += [value for row in entry["values"].values() for value in row]
+            # A stat line reaches a card the same way the sentence does, and its
+            # label is game text too, so both halves are checked rather than the
+            # value alone.
+            if stats is not None:
+                parts += list(stats["labels"])
+                parts += [value for row in stats["values"].values() for value in row]
             if any("{" in SLOT.sub("", part) or "}" in SLOT.sub("", part) for part in parts):
                 with_markup.append(ref)
-            if isinstance(entry, str):
+            if stats is not None:
+                # Every rarity row names one value per label, or a card would
+                # draw a label with nothing after it.
+                if "default" not in stats["values"] or any(
+                    len(row) != len(stats["labels"]) for row in stats["values"].values()
+                ):
+                    malformed.append(ref)
+            if isinstance(entry, str) or "values" not in entry:
                 continue
             with_values += 1
             # The highest slot the sentence names rather than how many it names:

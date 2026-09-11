@@ -788,6 +788,8 @@ descriptions = descriptions_for(
     text_bundle_raw,
     Resolver(TraitData, "hades1"),
     {t: rec["rarity"] for t, rec in boons.items()},
+    TraitData,
+    "hades1",
 )
 with open(OUT + "descriptions.json", "w") as f:
     json.dump(descriptions, f, indent=1, sort_keys=True, ensure_ascii=False)

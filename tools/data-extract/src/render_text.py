@@ -252,7 +252,106 @@ def _entry(raw, bundle, keywords, resolver, trait_id, rarities):
     return {"text": text, "values": values}
 
 
-def descriptions_for(refs, bundle, keywords, resolver=None, rarities=None):
+# A Hades I stat line is one tail segment, with the label and the value either
+# side of a column stop. Requiring exactly one is what tells a stat line from the
+# other thing that can follow the first line break: `HarvestBoonTrait` ends on a
+# bare `{$TooltipData.TraitListTextString}`, a runtime list of affected boons
+# with no label and no stop, and rendering that as a stat line would print a
+# labelled blank. 171 of the 172 god-page segments have the stop.
+COLUMN_SPLIT = re.compile(r"\\Column\s*\d+")
+
+
+def _stat_sources(raw, record, bundle, game):
+    """Each stat line as the (label, value) markup pair the game draws it from.
+
+    The two games encode the same tooltip row differently. Hades II names text
+    entries from the record and keeps the label and the value in two fields of
+    each; Hades I writes both into the description after the first line break,
+    split by a column stop.
+    """
+    if game == "hades2":
+        pairs = []
+        for line_id in (record or {}).get("StatLines") or []:
+            entry = bundle.get(line_id) or {}
+            if entry.get("displayName") and entry.get("description"):
+                pairs.append((entry["displayName"], entry["description"]))
+        return pairs
+    pairs = []
+    for segment in (raw or "").split("\\n")[1:]:
+        halves = COLUMN_SPLIT.split(segment)
+        if len(halves) == 2:
+            pairs.append((halves[0], halves[1]))
+    return pairs
+
+
+def _stat_entry(raw, record, bundle, keywords, resolver, trait_id, rarities, game):
+    """A record's stat lines, or nothing where any of them cannot be answered.
+
+    All or nothing per record, and the shape of the data makes that cheap rather
+    than a compromise: every Hades II god-page record declares exactly one stat
+    line, and each either resolves at every rarity or at none -- 157 and 52, no
+    record splitting. A line that cannot be answered is dropped rather than
+    marked, because the label is a field name and the value is the whole of what
+    the row says, so a marked one reads as a row that says nothing. That is the
+    opposite call from a description, which still carries its claim without the
+    number.
+    """
+    pairs = _stat_sources(raw, record, bundle, game)
+    if not pairs:
+        return None
+    keys = list(rarities) or [None]
+    labels, rows = [], {key: [] for key in keys}
+    for label_raw, value_raw in pairs:
+        label = render_name(label_raw, keywords)
+        if not label:
+            return None
+        # A label can carry a substitution of its own, and four Hades II records
+        # do -- the final boss's name, an inflation index, a run-state line.
+        # `render_name` leaves those markup, so they are filled here and the
+        # record is dropped where one cannot be, rather than printing a brace
+        # onto a card. The label does not vary by rarity; it is resolved at the
+        # first one and the same text used throughout.
+        if SUBSTITUTION.search(label):
+            filled = []
+
+            def label_fill(match, _filled=filled):
+                found = resolver.value(trait_id, keys[0], match.group(0)[2:-1])
+                if found is None:
+                    _filled.append(None)
+                    return ""
+                return _prose(found, keywords)
+
+            label = SUBSTITUTION.sub(label_fill, label)
+            if None in filled:
+                return None
+            label = re.sub(r"\s+", " ", label).strip()
+            if not label:
+                return None
+        for key in keys:
+            missing = []
+
+            def fill(spec, _missing=missing, _key=key):
+                found = resolver.value(trait_id, _key, spec[2:-1])
+                if found is None:
+                    _missing.append(spec)
+                    return VALUE
+                return _prose(found, keywords)
+
+            value = render_description(value_raw, keywords, fill)
+            if missing or not value:
+                return None
+            rows[key].append(value)
+        labels.append(label)
+    fallback = "Common" if "Common" in keys else keys[0]
+    values = {"default": rows[fallback]}
+    for key in keys:
+        if key is not None and rows[key] != values["default"]:
+            values[key] = rows[key]
+    return {"labels": labels, "values": values}
+
+
+def descriptions_for(refs, bundle, keywords, resolver=None, rarities=None,
+                     records=None, game=None):
     """The rendered bundle, keyed by the ref a record names.
 
     Only the refs some shipped record points at: a description nothing can reach
@@ -262,6 +361,12 @@ def descriptions_for(refs, bundle, keywords, resolver=None, rarities=None):
     An entry whose numbers were all recovered carries a template and a row of
     values per rarity instead of a sentence; one where none were stays a string,
     so the bundle only grows where it gained something.
+
+    A record's stat lines ride on the same entry under `stats`, which is where
+    a god boon's number actually is: 153 of Hades II's 218 god-page sentences
+    carry no number at all, and none of the 58 that do moves with the rarity.
+    An entry that gained only stat lines is promoted from a bare string to an
+    object so there is somewhere to put them.
     """
     out = {}
     for ref in sorted(set(refs)):
@@ -271,6 +376,13 @@ def descriptions_for(refs, bundle, keywords, resolver=None, rarities=None):
         else:
             rendered = _entry(raw, bundle, keywords, resolver, ref,
                               (rarities or {}).get(ref) or [])
+        if rendered and resolver is not None and records is not None:
+            stats = _stat_entry(raw, records.get(ref), bundle, keywords, resolver, ref,
+                                (rarities or {}).get(ref) or [], game)
+            if stats:
+                if isinstance(rendered, str):
+                    rendered = {"text": rendered}
+                rendered["stats"] = stats
         if rendered:
             out[ref] = rendered
     return out

@@ -929,6 +929,56 @@ def test_markup_in_a_rarity_row_is_fatal_the_same_way():
     assert any("still carries markup" in message for message in fatal)
 
 
+def test_a_stat_line_short_of_a_value_is_malformed():
+    """The invariant the catalog's own reader leans on: every rarity row names
+    one value per label. A row shorter than its labels would draw a label with
+    nothing after it, which is the one shape a stat line must never take."""
+    _, fatal = check({}, descriptions={
+        "A": {"text": "Your Attacks deal more damage to nearby foes.",
+              "stats": {"labels": ["Close-Up Damage:", "Range:"],
+                        "values": {"default": ["80%"]}}},
+    })
+    assert any("a slot with no value" in message for message in fatal)
+
+
+def test_a_stat_line_with_no_shared_row_is_malformed():
+    """A rarity the entry does not name reads the shared row, so an entry
+    without one has nothing to answer an unheld boon with."""
+    _, fatal = check({}, descriptions={
+        "A": {"text": "Your Attacks deal more damage to nearby foes.",
+              "stats": {"labels": ["Close-Up Damage:"], "values": {"Rare": ["100%"]}}},
+    })
+    assert any("a slot with no value" in message for message in fatal)
+
+
+def test_markup_left_in_a_stat_line_is_fatal_like_a_sentence():
+    """A stat line reaches a card the same way the sentence does, and its label
+    is game text too -- so both halves are checked rather than the value alone."""
+    _, label_fatal = check({}, descriptions={
+        "A": {"text": "Fine.", "stats": {"labels": ["{$TooltipData.Boss} Life:"],
+                                         "values": {"default": ["20%"]}}},
+    })
+    _, value_fatal = check({}, descriptions={
+        "A": {"text": "Fine.", "stats": {"labels": ["Life:"],
+                                         "values": {"default": ["{$Keywords.Rare}"]}}},
+    })
+    assert any("still carries markup" in m for m in label_fatal)
+    assert any("still carries markup" in m for m in value_fatal)
+
+
+def test_an_entry_carrying_only_stat_lines_is_well_formed():
+    """The common shape rather than the odd one: 153 of Hades II's 218 god-page
+    sentences carry no number, so their entry has stat lines and no values."""
+    report, fatal = check({}, descriptions={
+        "A": {"text": "Your Attacks deal more damage to nearby foes.",
+              "stats": {"labels": ["Close-Up Damage:"],
+                        "values": {"default": ["80%"], "Rare": ["100%"]}}},
+    })
+    assert fatal == []
+    assert report["descriptionsWithValues"] == 0
+    assert report["descriptionsWithMalformedValues"] == []
+
+
 def test_a_well_formed_entry_passes_and_is_counted():
     report, fatal = check({}, descriptions={
         "A": {"text": "Gain +{0} Armor.", "values": {"default": ["30"], "Rare": ["45"]}},

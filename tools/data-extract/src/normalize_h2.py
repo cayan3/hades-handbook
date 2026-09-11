@@ -945,6 +945,8 @@ descriptions = descriptions_for(
     keyword_bundle,
     Resolver(ALL_DEFS_WITH_ASPECTS, "hades2"),
     {t: rec["rarity"] for t, rec in boons.items()},
+    ALL_DEFS_WITH_ASPECTS,
+    "hades2",
 )
 with open(OUT + "descriptions.json", "w") as f:
     json.dump(descriptions, f, indent=1, sort_keys=True, ensure_ascii=False)

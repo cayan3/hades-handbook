@@ -362,3 +362,114 @@ def test_a_value_the_game_answers_as_markup_is_resolved_before_it_ships():
                            Resolver(RARIFY, "hades2"), {"Keepsake": ["Common", "Rare"]})
     assert out["Keepsake"]["text"] == "You can Rarify her {0} blessings."
     assert out["Keepsake"]["values"] == {"default": ["Common"], "Rare": ["Rare"]}
+
+
+# --- stat lines ------------------------------------------------------------
+# The row the games draw under a description, and where a god boon's number
+# actually is: its sentence usually carries none, and the ones that do do not
+# move with the rarity.
+
+STAT_DEFS = {
+    "Boon": {
+        "RarityLevels": {"Common": {"Multiplier": 1.0}, "Rare": {"Multiplier": 2.0}},
+        "StatLines": ["DamageStat"],
+        "ExtractValues": [{"ExtractAs": "Damage", "Key": "ChangeValue"}],
+        "ChangeValue": {"BaseValue": 40},
+    },
+    "External": {
+        "StatLines": ["DamageStat"],
+        "ExtractValues": [
+            {"ExtractAs": "Damage", "External": True, "BaseType": "ProjectileBase"}
+        ],
+    },
+    "NamedLabel": {
+        "StatLines": ["BossStat"],
+        "ExtractValues": [{"ExtractAs": "Damage", "Key": "ChangeValue"}],
+        "ChangeValue": 40,
+    },
+}
+
+STAT_BUNDLE = {
+    "Boon": {"description": "Your Attacks deal more damage."},
+    "External": {"description": "Your Attacks inflict Blitz."},
+    "NamedLabel": {"description": "In your confrontation, something happens."},
+    "DamageStat": {"displayName": "{!Icons.Bullet}{#PropertyFormat}Damage:",
+                   "description": "{#UpgradeFormat}{$TooltipData.StatDisplay1}"},
+    "BossStat": {"displayName": "{$TooltipData.ExtractData.Nowhere} Life:",
+                 "description": "{#UpgradeFormat}{$TooltipData.StatDisplay1}"},
+}
+
+
+def _stats(ref, rarities, defs=None):
+    from resolve_values import Resolver
+
+    out = descriptions_for([ref], STAT_BUNDLE, KEYWORDS,
+                           Resolver(defs or STAT_DEFS, "hades2"), {ref: rarities},
+                           defs or STAT_DEFS, "hades2")
+    entry = out.get(ref)
+    return entry.get("stats") if isinstance(entry, dict) else None
+
+
+def test_a_stat_line_ships_beside_a_sentence_that_has_no_number_in_it():
+    stats = _stats("Boon", ["Common", "Rare"])
+    assert stats["labels"] == ["Damage:"]
+    assert stats["values"] == {"default": ["40"], "Rare": ["80"]}
+
+
+def test_a_stat_line_is_dropped_rather_than_marked_when_it_cannot_be_read():
+    """A label is a field name, so the value is the whole of what the row says
+    and a marked one reads as a row saying nothing. The opposite call from a
+    sentence, which still carries its claim without the number."""
+    out = descriptions_for(["External"], STAT_BUNDLE, KEYWORDS,
+                           _resolver_for(STAT_DEFS), {"External": []},
+                           STAT_DEFS, "hades2")
+    assert out["External"] == "Your Attacks inflict Blitz."
+    assert _stats("External", []) is None
+
+
+def test_a_label_carrying_a_substitution_nobody_can_answer_drops_the_record():
+    """Four Hades II records write a substitution into the label rather than
+    the value -- the final boss's name, an inflation index, a run-state line."""
+    assert _stats("NamedLabel", []) is None
+
+
+def test_a_hades_one_stat_line_is_split_at_the_column_stop():
+    """Hades I writes the label and the value into the description after the
+    first line break, with a column stop between them, rather than naming a
+    text entry per line the way Hades II does."""
+    from resolve_values import Resolver
+
+    defs = {"Trait": {"TooltipChance": 0.25,
+                      "ExtractValues": [{"ExtractAs": "TooltipChance", "Key": "TooltipChance"}]}}
+    bundle = {"Trait": {"description": "You dodge sometimes. \\n {!Icons.Bullet}"
+                                       "{#PropertyFormat}Dodge Chance: \\Column 380 "
+                                       "{#UpgradeFormat}{$TooltipData.TooltipChance:P}"}}
+    out = descriptions_for(["Trait"], bundle, KEYWORDS, Resolver(defs, "hades1"),
+                           {"Trait": []}, defs, "hades1")
+    assert out["Trait"]["text"] == "You dodge sometimes."
+    assert out["Trait"]["stats"] == {"labels": ["Dodge Chance:"],
+                                     "values": {"default": ["0.25%"]}}
+
+
+def test_a_tail_with_no_column_stop_is_not_a_stat_line():
+    """One Hades I god-page record ends on a bare runtime list of the boons it
+    affects -- no label, no stop. Rendering it as a stat line would print a
+    labelled blank.
+
+    Written with plain prose in the tail rather than that record's own
+    substitution: a substitution is refused a second time over by the label
+    check, so a fixture carrying one passes whether the stop is required or
+    not and says nothing about this rule.
+    """
+    from resolve_values import Resolver
+
+    bundle = {"Trait": {"description": "Your boons improve. \\n Some loose remark."}}
+    out = descriptions_for(["Trait"], bundle, KEYWORDS, Resolver({"Trait": {}}, "hades1"),
+                           {"Trait": []}, {"Trait": {}}, "hades1")
+    assert out["Trait"] == "Your boons improve."
+
+
+def _resolver_for(defs):
+    from resolve_values import Resolver
+
+    return Resolver(defs, "hades2")
