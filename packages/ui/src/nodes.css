@@ -1178,157 +1178,6 @@
 }
 
 
-/* Gated on `hover` rather than on a width: a touch screen has no way to open a
-   list by hovering whatever size it is, and the native select beside this one
-   covers that case. `display: none` rather than a visual trick, so exactly one
-   of the two is in the tab order and in the accessibility tree. */
-.godpicker {
-  position: relative;
-  display: none;
-}
-
-@media (hover: hover) {
-  .godpicker {
-    display: inline-block;
-  }
-}
-
-/* A tab-sized square like the ones beside it, dashed because it adds rather
-   than selects, and a bare `+` at about the size of the symbols it stands among.
-   The word it is called is in the accessible name. */
-.godpicker__open {
-  display: grid;
-  place-items: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  padding: 0.4rem;
-  border: 1px dashed rgb(255 255 255 / 35%);
-  border-radius: 0.35rem;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 1.75rem;
-  line-height: 1;
-  cursor: pointer;
-}
-
-/* An L: beside the control with the first entry level with it, the rest
-   dropping from there. Flush, because a margin is a gap the pointer crosses on
-   its way in and the crossing closes the list. Capped and scrolling because
-   seventeen rows is taller than a laptop viewport. */
-.godpicker__list {
-  position: absolute;
-  top: 0;
-  left: 100%;
-  z-index: 20;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  width: 11rem;
-  max-height: min(80vh, 34rem);
-  padding: 0.35rem;
-  margin: 0;
-  overflow-y: auto;
-  list-style: none;
-  border: 1px solid rgb(255 255 255 / 15%);
-  border-radius: 0.4rem;
-  background: var(--surface, #1b1815);
-  box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 45%);
-}
-
-/*
- * A fade at whichever end has gods past it, so a list that is scrolling says so.
- * Inside the padding rather than over a row: the entries stay legible right up
- * to the edge and only the gap above and below them dims.
- */
-.godpicker__list[data-more="above"],
-.godpicker__list[data-more="both"] {
-  border-top-color: rgb(255 255 255 / 45%);
-}
-
-.godpicker__list[data-more="below"],
-.godpicker__list[data-more="both"] {
-  border-bottom-color: rgb(255 255 255 / 45%);
-}
-
-.godpicker__list[data-more="above"]::before,
-.godpicker__list[data-more="both"]::before,
-.godpicker__list[data-more="below"]::after,
-.godpicker__list[data-more="both"]::after {
-  position: sticky;
-  z-index: 1;
-  display: block;
-  flex: none;
-  margin: -0.35rem -0.35rem 0;
-  font-size: 0.85rem;
-  line-height: 1;
-  text-align: center;
-  opacity: 0.65;
-  pointer-events: none;
-}
-
-.godpicker__list[data-more="above"]::before,
-.godpicker__list[data-more="both"]::before {
-  top: -0.35rem;
-  padding-top: 0.15rem;
-  content: "▲";
-}
-
-.godpicker__list[data-more="below"]::after,
-.godpicker__list[data-more="both"]::after {
-  bottom: -0.35rem;
-  padding-bottom: 0.15rem;
-  margin: 0 -0.35rem -0.35rem;
-  content: "▼";
-}
-
-/* A row rather than a tile, which is what tells it apart from the tab it will
-   become: the symbol at the left and the name beside it, both on one line. */
-.godpicker__god {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  /* The scaled Hades II symbols would otherwise paint over the rows either
-     side of them. */
-  overflow: hidden;
-  width: 100%;
-  padding: 0.3rem 0.4rem;
-  border: 1px solid transparent;
-  border-radius: 0.3rem;
-  background: transparent;
-  color: inherit;
-  font: inherit;
-  font-size: 1rem;
-  text-align: left;
-  cursor: pointer;
-}
-
-.godpicker__god:hover,
-.godpicker__god:focus-visible {
-  border-color: var(--god);
-}
-
-/* A row like the others, so it reads as one more thing to pick rather than as
-   chrome. It has no god, so its outline is the ink rather than a hue. */
-.godpicker__all {
-  --god: #f2ece4;
-
-  /* The symbol's width plus the row's gap, so the words line up with the names
-     above rather than with the pictures. */
-  padding-left: 2.65rem;
-}
-
-.godpicker__art {
-  flex: none;
-  width: 1.75rem;
-  height: 1.75rem;
-  object-fit: contain;
-}
-
-.godpicker__name {
-  line-height: 1.2;
-}
-
 .notice {
   padding: 0.7rem 0.9rem;
   border-radius: 0.5rem;
@@ -3372,7 +3221,7 @@ kbd {
 .loadout__cardclose,
 .cardmenu__open,
 .cardmenu__list button,
-.godpicker__open,
+.adder__open,
 .overview__slots,
 .overview__drop,
 .overview__close,
@@ -3399,8 +3248,8 @@ kbd {
 .cardmenu__open:focus-visible,
 .cardmenu__list button:hover,
 .cardmenu__list button:focus-visible,
-.godpicker__open:hover,
-.godpicker__open:focus-visible,
+.adder__open:hover,
+.adder__open:focus-visible,
 .overview__close:hover,
 .overview__close:focus-visible,
 .overview__drop:hover,

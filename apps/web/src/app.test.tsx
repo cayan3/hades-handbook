@@ -223,12 +223,29 @@ function showGod(name: string): void {
     act(() => tab.click());
     return;
   }
-  const picker = container.querySelector<HTMLSelectElement>(".app__addgod select");
-  if (picker === null) throw new Error(`no tab for ${name} and no picker to add one`);
+  addTab(name);
+}
+
+/**
+ * Puts a tab on the bar through the Adder's search rather than its tree, which
+ * reaches gods and weapons by one path — the tree needs the right branch opened
+ * first and the branches differ per game.
+ */
+function addTab(name: string): void {
+  const opener = container.querySelector<HTMLButtonElement>(".adder__open");
+  if (opener === null) throw new Error(`no tab for ${name} and no adder to add one`);
+  act(() => opener.click());
+  const field = container.querySelector<HTMLInputElement>(".adder__field");
+  if (field === null) throw new Error("the adder opened without a search field");
   act(() => {
-    picker.value = name;
-    picker.dispatchEvent(new Event("change", { bubbles: true }));
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set?.call(field, name);
+    field.dispatchEvent(new Event("input", { bubbles: true }));
   });
+  const row = [...container.querySelectorAll<HTMLButtonElement>(".adder__row")].find(
+    (button) => button.querySelector(".adder__name")?.textContent === name,
+  );
+  if (row === undefined) throw new Error(`the adder's search does not find ${name}`);
+  act(() => row.click());
 }
 
 /**
@@ -1776,7 +1793,7 @@ describe("what the boon list shows", () => {
     // Added for planning, without having met them. The tab that was showing
     // before is the Hub, which is always there — a run that has met nobody
     // carries no god at all now that the Hub holds the bar open.
-    expect(shown()).toEqual(["Hub", "+Add a god"]);
+    expect(shown()).toEqual(["Hub", "+Add to this run"]);
     showGod("Ares");
     expect(shown()).toContain("Ares");
     expect(shown()).not.toContain("Aphrodite");
@@ -1884,9 +1901,13 @@ describe("what the boon list shows", () => {
     expect(texts(".app__godtab")).not.toContain("Aphrodite");
     expect(heldInLoadout(APHRODITE_MELEE)).toBe(true);
 
-    const picker = container.querySelector<HTMLElement>(".godpicker");
-    act(() => picker?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
-    expect(texts(".godpicker__god")).toContain("Aphrodite");
+    act(() => container.querySelector<HTMLButtonElement>(".adder__open")?.click());
+    act(() =>
+      [...container.querySelectorAll<HTMLButtonElement>(".adder__branch")]
+        .find((one) => one.textContent?.includes("Olympians"))
+        ?.click(),
+    );
+    expect(texts(".adder__row[data-kind='god'] .adder__name")).toContain("Aphrodite");
   });
 
   /**
@@ -1983,35 +2004,29 @@ describe("what the boon list shows", () => {
     ]);
   });
 
-  it("puts every god up at once when asked", async () => {
-    await mount();
-    const picker = container.querySelector<HTMLElement>(".godpicker");
-    act(() => picker?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
-    act(() => container.querySelector<HTMLElement>(".godpicker__all")?.click());
-
-    // Every god this game attributes a boon to, and the picker has nothing
-    // left. Counted inside the slots the gods are drawn in, which is also an
-    // assertion that Hub is not one of them — it carries no removal.
-    expect(container.querySelectorAll(".app__godslot .app__godtab").length).toBe(14);
-    expect(container.querySelector(".godpicker")).toBeNull();
-  });
-
   /**
-   * Two controls for the one job, because a hover-opened list is unreachable on
-   * a touch screen and a system picker over a list of pictures is the wrong
-   * control on a laptop. The stylesheet shows whichever the device can work, so
-   * both are here and exactly one of them is ever in the tab order.
+   * One control, and every god behind it. The list used to carry a *Show all*
+   * row that put the whole set up at once; the Adder holds categories and a
+   * search instead, and there is no row that means "all of these".
    */
-  it("offers the unshown gods through a hovered list and through the platform's picker", async () => {
+  it("offers the unshown gods under Olympians, and adding one selects it", async () => {
     await mount();
-    expect(container.querySelector(".app__addgod select")).not.toBeNull();
 
-    const picker = container.querySelector<HTMLElement>(".godpicker");
-    expect(picker).not.toBeNull();
-    act(() => picker?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true })));
+    const opener = container.querySelector<HTMLElement>(".adder__open");
+    expect(opener).not.toBeNull();
+    act(() => opener?.click());
+    act(() =>
+      [...container.querySelectorAll<HTMLButtonElement>(".adder__branch")]
+        .find((one) => one.textContent?.includes("Olympians"))
+        ?.click(),
+    );
 
-    const ares = [...container.querySelectorAll<HTMLElement>(".godpicker__god")].find(
-      (button) => button.textContent === "Ares",
+    // Every god this game attributes a boon to, none of them on the bar yet.
+    expect(container.querySelectorAll(".adder__row[data-kind='god']").length).toBe(14);
+    expect(container.querySelectorAll(".app__godslot .app__godtab").length).toBe(0);
+
+    const ares = [...container.querySelectorAll<HTMLElement>(".adder__row")].find(
+      (button) => button.querySelector(".adder__name")?.textContent === "Ares",
     );
     expect(ares).toBeDefined();
     act(() => ares?.click());
@@ -2152,8 +2167,16 @@ describe("the page-wide keys", () => {
     // Backwards, because the tab just selected is the last one and forwards
     // clamps to where it already is — which is the same test passing for the
     // wrong reason one step further along.
-    const field = container.querySelector<HTMLElement>(".app__addgod select");
+    // The Adder's search box is the field this guard exists for: `[` and `]`
+    // are brackets rather than letters precisely so a search can spell things,
+    // and a bracket typed into it must reach the box rather than the bar.
+    act(() => container.querySelector<HTMLButtonElement>(".adder__open")?.click());
+    const field = container.querySelector<HTMLElement>(".adder__field");
     expect(field).not.toBeNull();
+
+    // Backwards, because the tab just selected is the last one and forwards
+    // clamps to where it already is — which is the same test passing for the
+    // wrong reason one step further along.
     act(() => {
       field?.dispatchEvent(new KeyboardEvent("keydown", { key: "[", bubbles: true }));
     });

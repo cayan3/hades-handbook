@@ -10,7 +10,11 @@ import {
   type Goal,
   GodArt,
   GodPage,
-  GodPicker,
+  Adder,
+  type AddItem,
+  type Entry as AddEntry,
+  pageTraits,
+  weaponTraits,
   GoalsPanel,
   Hub,
   HubGlyph,
@@ -88,6 +92,23 @@ const RULES = {
  * `Assist` is the Companion rather than a boon slot, and `Keepsake` and
  * `Aspect` are the equipped kit, so none of the three is here.
  */
+/*
+ * The nine Hexes. They carry no god, so no page draws them — and ten boons
+ * across nine god pages are gated on holding one, which until the Adder no
+ * gesture anywhere could record.
+ */
+const HEXES: readonly TraitId[] = [
+  "SpellLaserTrait",
+  "SpellLeapTrait",
+  "SpellMeteorTrait",
+  "SpellMoonBeamTrait",
+  "SpellPolymorphTrait",
+  "SpellPotionTrait",
+  "SpellSummonTrait",
+  "SpellTimeSlowTrait",
+  "SpellTransformTrait",
+];
+
 const CORE_SLOTS: Readonly<Record<GameId, readonly string[]>> = {
   hades1: ["Melee", "Secondary", "Ranged", "Rush", "Shout"],
   hades2: ["Melee", "Secondary", "Ranged", "Rush", "Mana", "Spell"],
@@ -161,6 +182,16 @@ type Selection =
   | { readonly kind: "weapon"; readonly weapon: string };
 
 const HUB: Selection = { kind: "hub" };
+
+/* What a record nobody offers says in the column where a boon names its god.
+   Written out because the kinds are lowercase ids. */
+const KIND_WORD: Readonly<Record<string, string | null>> = {
+  duo: "Duo",
+  hex: "Hex",
+  infusion: "Infusion",
+  legendary: "Legendary",
+  none: null,
+};
 
 function sameTab(a: Selection, b: Selection): boolean {
   if (a.kind !== b.kind) return false;
@@ -554,6 +585,70 @@ function Run({
   // is a property of the layer below, and is written down there.
   const cache = useMemo(() => createNodeCache(source), [source]);
   const view = useCallback((trait: TraitId) => cache.viewOf(trait, facts), [cache, facts]);
+
+  /* The Adder's tree, and the set its search may find. */
+  const adderSearchable = useMemo(() => {
+    const reached = new Set<TraitId>();
+    for (const god of tabs) for (const id of pageTraits(source, god)) reached.add(id);
+    for (const weapon of weapons) for (const id of weaponTraits(source, weapon.id)) reached.add(id);
+    for (const id of HEXES) if (source.records[id] !== undefined) reached.add(id);
+    return [...reached];
+  }, [source, tabs, weapons]);
+
+  const adderRecords = useMemo(
+    () =>
+      adderSearchable.map((trait) => {
+        const seen = view(trait);
+        /* Both gods for a Duo — you collect toward one from two directions,
+           so naming only the kind loses the half that says which page it is
+           on. A record nobody offers falls back to its kind, and a hammer to
+           the weapon whose tab draws it. */
+        const record = source.records[trait];
+        const duo = record?.duoGods ?? null;
+        const weapon = record?.weapon == null ? null : (weaponFor(game, record.weapon)?.name ?? record.weapon);
+        const whose =
+          duo !== null && duo.length > 0
+            ? duo.join(" / ")
+            : (seen.god ?? weapon ?? KIND_WORD[seen.kind ?? "none"] ?? null);
+        return {
+          kind: "record" as const,
+          trait,
+          name: seen.name,
+          god: seen.god,
+          whose,
+          iconKey: seen.iconKey,
+          state: seen.state,
+        };
+      }),
+    [adderSearchable, view],
+  );
+
+  /* Every tab is findable too, so "aphro" answers with the god before her
+     boons — going to her page is what that query is usually asking for. */
+  const adderRows: readonly AddItem[] = useMemo(
+    () => [
+      ...tabs.map((god) => ({ kind: "god" as const, god })),
+      ...weapons.map((weapon) => ({
+        kind: "weapon" as const,
+        weapon: weapon.id,
+        name: weapon.name ?? weapon.id,
+      })),
+      ...adderRecords,
+    ],
+    [tabs, weapons, adderRecords],
+  );
+
+  /* Authored as menu option 4 — gods flat, everything else under one Others —
+     and the arrangement prop folds it to whichever of the four is being drawn. */
+  const adderRoot: readonly AddEntry[] = useMemo(() => {
+    const hexes = adderRecords.filter((row) => HEXES.includes(row.trait));
+    const others: AddEntry[] = [];
+    if (hexes.length > 0) others.push({ id: "hexes", label: "Hexes", entries: hexes });
+    return [
+      ...unshown.map((god) => ({ kind: "god" as const, god })),
+      { id: "others", label: "Others", entries: others },
+    ];
+  }, [adderRecords, unshown]);
   // The page's shape and the page's state, derived together because the
   // connectors carry path status and that is a fact about the run. Null is
   // exactly Hub, which draws no graph — keyed on the god's name rather than on
@@ -659,9 +754,9 @@ function Run({
    *
    * `[` and `]` step the whole bar, Hub included: it is a tab, so stepping off
    * the first god has somewhere to go. Bracket keys rather than letters because
-   * the quick-add's search box is coming and every unmodified letter spent here
-   * is one it cannot type — the guard against typing is in the predicate either
-   * way, which is what makes a document-level binding safe at all.
+   * the Adder's search box takes every unmodified letter — the guard against
+   * typing is in the predicate either way, which is what makes a document-level
+   * binding safe at all.
    */
   useEffect(() => {
     const press = (event: globalThis.KeyboardEvent) => {
@@ -959,41 +1054,16 @@ function Run({
                   <span className="visually-hidden">{weapon.name ?? weapon.id}</span>
                 </button>
               ))}
-              {unshown.length === 0 ? null : (
-                /**
-                 * Every god at once is seventeen tabs wrapping over three rows,
-                 * which is a list rather than navigation. So the bar carries the
-                 * gods this run has actually met plus whatever the player added
-                 * for planning, and the rest arrive through here.
-                 *
-                 * Two controls for one job and the stylesheet shows whichever
-                 * the device can work: a hovered list where there is a pointer,
-                 * the platform's select where there is not, one in the tab order.
-                 */
-                <>
-                  <GodPicker
-                    gods={unshown}
-                    onPick={(name) => pickGods([name])}
-                    onPickAll={() => pickGods(unshown)}
-                  />
-                  <label className="app__addgod">
-                    <span className="visually-hidden">Add a god to plan with</span>
-                    <select
-                      value=""
-                      onChange={(event) => pickGods([event.target.value])}
-                    >
-                      <option value="" disabled>
-                        + god
-                      </option>
-                      {unshown.map((name) => (
-                        <option key={name} value={name}>
-                          {name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                </>
-              )}
+              {/* Every god at once is seventeen tabs over three rows, which is
+                  a list rather than navigation. The bar carries what the run has
+                  met plus what the player asked for; the rest arrives here. */}
+              <Adder
+                root={adderRoot}
+                searchable={adderRows}
+                onPickGod={(name) => pickGods([name])}
+                onPickWeapon={(weapon) => pickGods([weapon])}
+                onMark={markOrOpen}
+              />
           </div>
         </nav>
 

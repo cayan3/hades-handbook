@@ -298,7 +298,7 @@ describe("the node stylesheet", () => {
    * laptop viewport, and a list running off the bottom is worse than one that
    * scrolls.
    */
-  it("opens the picker's list beside the control, not under it", () => {
+  it("opens the Adder beside the control, not under it", () => {
     const rule = (selector: string) => {
       const literal = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       return CSS.replace(/\/\*[\s\S]*?\*\//g, "").match(
@@ -306,36 +306,41 @@ describe("the node stylesheet", () => {
       )?.[1] ?? "";
     };
 
-    const list = rule(".godpicker__list");
-    expect(list).toMatch(/left:\s*100%/);
-    expect(list).toMatch(/top:\s*0/);
-    expect(list).toMatch(/flex-direction:\s*column/);
-    // No margin between the two, or the pointer crosses a gap on its way in and
-    // the crossing closes the list.
+    const panel = rule(".adder__panel");
+    expect(panel).toMatch(/left:\s*100%/);
+    expect(panel).toMatch(/flex-direction:\s*column/);
+    // Lifted by its own search header, so the row level with the `+` is the
+    // first option rather than the field.
+    expect(panel).toMatch(/top:\s*calc\(-1 \* var\(--adder-lift/);
+
+    const list = rule(".adder__list");
     expect(list).toMatch(/margin:\s*0/);
     expect(list).toMatch(/overflow-y:\s*auto/);
 
     // A row rather than a tile, which is what tells it apart from the tab it
-    // will become: the symbol at the left and the name beside it.
-    const god = rule(".godpicker__god");
-    expect(god).toMatch(/display:\s*flex/);
-    expect(god).toMatch(/text-align:\s*left/);
+    // will become: the picture at the left and the name beside it.
+    const row = rule(".adder__row,\n.adder__branch");
+    expect(row).toMatch(/display:\s*flex/);
+    expect(row).toMatch(/text-align:\s*left/);
+    // Full width, or the pointer has to find the text to press the row.
+    expect(row).toMatch(/width:\s*100%/);
   });
 
   /**
-   * The picker is drawn only where a pointer can hover, and its half of that
-   * pairing is here — the other half hides the native select in the page's own
-   * stylesheet. Gated on the capability rather than on a width: a touch screen
-   * has no way to open a list by hovering whatever size it is.
+   * On a phone the panel is a sheet along the bottom and the levels stack. It
+   * is the same control either way — there is no second one gated on `hover`,
+   * because a native `select` can hold neither a search field nor a tree, and
+   * a tap opens a level perfectly well.
    */
-  it("draws the god picker only where there is a pointer to hover with", () => {
+  it("gives the Adder a phone form rather than a second control", () => {
     const rules = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
-    expect(rules).toMatch(/\.godpicker\s*\{[^}]*display:\s*none/);
+    expect(rules, "the retired picker is still in the stylesheet").not.toMatch(/\.godpicker/);
 
-    const hoverable = rules.match(/@media \(hover: hover\) \{([\s\S]*?)\n\}/);
-    expect(hoverable?.[1], "no hover query to turn it back on").toMatch(
-      /\.godpicker\s*\{[^}]*display:\s*inline-block/,
+    const touch = rules.match(/@media \(hover: none\) \{([\s\S]*?)\n\}/);
+    expect(touch?.[1], "no touch query at all").toMatch(
+      /\.adder__panel\s*\{[^}]*position:\s*fixed/,
     );
+    expect(touch?.[1]).toMatch(/\.adder__levels\s*\{[^}]*flex-direction:\s*column/);
   });
 
   /**

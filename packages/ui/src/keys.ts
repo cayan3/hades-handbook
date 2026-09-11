@@ -36,9 +36,9 @@ export const SHORTCUTS_KEY = "k";
 export const DETAILS_KEY = "b";
 /**
  * Brackets rather than letters for the two that act on the page rather than on
- * whatever has focus. A search box is coming with the quick-add, and every
- * unmodified letter spent here is one it cannot type — these two are already
- * the convention for stepping through a set.
+ * whatever has focus. The Adder's search box takes every unmodified letter, so a
+ * letter spent here is one it cannot type — and these two are already the
+ * convention for stepping through a set.
  */
 export const PREVIOUS_GOD_KEY = "[";
 export const NEXT_GOD_KEY = "]";
@@ -116,8 +116,8 @@ export function godStep(event: KeyEvent): -1 | 1 | null {
 
 /**
  * Whether the press landed in something the player is typing into, which is the
- * guard every unmodified letter needs: a search box is coming with the quick-add,
- * and a `g` swallowed there would be a search that cannot spell "gain".
+ * guard every unmodified letter needs: the Adder has a search box, and a `g`
+ * swallowed there would be a search that cannot spell "gain".
  */
 export function isTyping(target: unknown): boolean {
   if (!(target instanceof HTMLElement)) return false;
