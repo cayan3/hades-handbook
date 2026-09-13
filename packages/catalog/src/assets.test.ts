@@ -209,7 +209,7 @@ describe("slotIconFor", () => {
 describe("statLinesFor", () => {
   it("gives the games' own label and the number for the rarity asked for", () => {
     expect(statLinesFor("hades2", "AphroditeWeaponBoon", "Common")).toEqual([
-      { label: "Close-Up Damage:", value: "80%" },
+      { label: "Close-Up Damage:", value: "+80%" },
     ]);
     expect(statLinesFor("hades1", "DodgeChanceTrait", "Rare")).toEqual([
       { label: "Dodge Chance:", value: "15%" },
@@ -224,10 +224,10 @@ describe("statLinesFor", () => {
   it("moves with the rarity, which the sentence does not", () => {
     const at = (rarity: Rarity) => statLinesFor("hades2", "AphroditeWeaponBoon", rarity)[0]?.value;
     expect([at("Common"), at("Rare"), at("Epic"), at("Heroic")]).toEqual([
-      "80%",
-      "100%",
-      "120%",
-      "140%",
+      "+80%",
+      "+100%",
+      "+120%",
+      "+140%",
     ]);
     // The sentence is the same one at every one of them.
     const sentence = textFor("hades2", "AphroditeWeaponBoon", "Common");
@@ -238,10 +238,10 @@ describe("statLinesFor", () => {
     // An unheld boon asks with no rarity at all, and a Duo declares one rarity
     // that is not in the four — both land on `default` rather than on nothing.
     expect(statLinesFor("hades2", "AphroditeWeaponBoon")).toEqual([
-      { label: "Close-Up Damage:", value: "80%" },
+      { label: "Close-Up Damage:", value: "+80%" },
     ]);
     expect(statLinesFor("hades2", "AllCloseBoon", "Common")).toEqual([
-      { label: "Damage Resistance:", value: "15%" },
+      { label: "Damage Resistance:", value: "+15%" },
     ]);
   });
 

@@ -620,7 +620,7 @@ def _stat_display(top, values, position, game):
     its text bundle. Better to answer nothing than to answer wrongly.
     """
     if game != "hades2":
-        return None, False
+        return None, False, False
     seen = 0
     for entry in top.get("ExtractValues") or []:
         if not isinstance(entry, dict) or entry.get("SkipAutoExtract"):
@@ -628,8 +628,13 @@ def _stat_display(top, values, position, game):
         seen += 1
         if seen == position:
             band = values.get(entry.get("ExtractAs"))
-            return band, entry.get("Format") in PERCENT_FORMATS
-    return None, False
+            percent = entry.get("Format") in PERCENT_FORMATS
+            # The game picks one of four keys to draw through and two of them
+            # carry a sign: a percent one unless the entry hides it, a plain one
+            # only if it asks. `Daze Chance: +10%` against `Bolt Damage: 50`.
+            signed = (not entry.get("HideSigns")) if percent else bool(entry.get("IncludeSigns"))
+            return band, percent, signed
+    return None, False, False
 
 
 class Resolver:
@@ -656,35 +661,37 @@ class Resolver:
         """The text a substitution resolves to, or None to leave the mark."""
         path, _, suffix = spec.partition(":")
         parts = path.split(".")
-        band, percent = self._band(trait_id, rarity, parts)
+        band, percent, signed = self._band(trait_id, rarity, parts)
         if band is None:
             return None
         if isinstance(band, str):
             # A word rather than a measurement, so the engine's percent sign
             # would be nonsense on it.
             return band
-        return format_band(band) + ("%" if percent or suffix in ("P", "F") else "")
+        text = format_band(band) + ("%" if percent or suffix in ("P", "F") else "")
+        # A negative already reads as one, and a band would come out "+30-60".
+        return "+" + text if signed and band.lo >= 0 and band.lo == band.hi else text
 
     def _band(self, trait_id, rarity, parts):
         top, values, _ = self._state(trait_id, rarity)
         root = parts[0]
         if root == "TooltipData":
             if len(parts) > 2 and parts[1] == "ExtractData":
-                return values.get(parts[2]), False
+                return values.get(parts[2]), False, False
             if len(parts) == 2:
                 stat = STAT_DISPLAY.match(parts[1])
                 if stat:
                     return _stat_display(top, values, int(stat.group(1)), self.game)
             band = _as_band(_walk_path(top, parts[1:]))
             if band is not None:
-                return band, False
+                return band, False, False
             # Hades I merges what it extracts back over the record itself, so a
             # bare name is an extracted value rather than a field.
-            return (values.get(parts[1]) if len(parts) == 2 else None), False
+            return (values.get(parts[1]) if len(parts) == 2 else None), False, False
         if root == "TraitData" and len(parts) > 2:
             # Another record's raw table, which the engine never rarity-scales.
             other = merged_record(self.defs, parts[1])
-            return _as_band(_walk_path(other, parts[2:])), False
+            return _as_band(_walk_path(other, parts[2:])), False, False
         if root == "ConstantsData" and len(parts) == 2 and parts[1] in CONSTANTS:
-            return Band(CONSTANTS[parts[1]]), False
-        return None, False
+            return Band(CONSTANTS[parts[1]]), False, False
+        return None, False, False

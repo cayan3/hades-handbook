@@ -88,7 +88,7 @@ def check_stat_display(low, passes, key, top, mine, wrong, invented, game):
                  if isinstance(p.get(key), dict) and name in p[key]]
         kinds = {p[key].get(STAT_KIND + str(position)) for p in passes
                  if isinstance(p.get(key), dict)}
-        band, percent = _stat_display(top, mine, position, game)
+        band, percent, signed = _stat_display(top, mine, position, game)
         if band is None:
             continue
         if not drawn:
@@ -106,9 +106,17 @@ def check_stat_display(low, passes, key, top, mine, wrong, invented, game):
             if not (abs(band.lo - lo) < 1e-6 and abs(band.hi - hi) < 1e-6):
                 wrong.append((key, name, str(band), "%s..%s" % (lo, hi)))
                 continue
-        drawn_percent = any(k and k.startswith(("Percent", "FlatPercent")) for k in kinds)
+        # Four keys, two axes. FlatPercent is a percent that hides its sign, so
+        # it has to be tested before the Percent prefix it also starts with.
+        drawn_percent = any(k and "Percent" in k for k in kinds)
+        drawn_signed = any(
+            k and (k.startswith("Delta") or (k.startswith("Percent"))) for k in kinds
+        )
         if drawn_percent != percent:
             wrong.append((key, name + " percent", str(percent), str(drawn_percent)))
+            continue
+        if drawn_signed != signed:
+            wrong.append((key, name + " sign", str(signed), str(drawn_signed)))
             continue
         checked += 1
     return checked
@@ -182,7 +190,7 @@ def check(game, workdir):
           "logic would not process" % (game, agree, silent, len(dropped)))
     # A different question from the values: not "is this number right" but
     # "is this the number that line draws".
-    print("    %d StatDisplay slots agree on both the value and the percent sign"
+    print("    %d StatDisplay slots agree on the value, the percent and the sign"
           % stats)
     for key in dropped[:10]:
         print("    NOT PROCESSED %s" % key)

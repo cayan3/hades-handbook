@@ -274,7 +274,7 @@ describe("ActionSheet", () => {
       />,
     );
     expect(container.querySelector(".boonrow__desc")?.textContent).toBe(
-      "Your Attacks deal more damage to nearby foes. Close-Up Damage: 80%",
+      "Your Attacks deal more damage to nearby foes. Close-Up Damage: +80%",
     );
   });
 

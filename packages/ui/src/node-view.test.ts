@@ -279,8 +279,8 @@ describe("deriveNodeDetail", () => {
       const facts = makeFacts({ game: "hades2", held: held([boon, rarity]) });
       return deriveNodeDetail(source, view, facts);
     };
-    expect(at("Common").stats).toEqual([{ label: "Close-Up Damage:", value: "80%" }]);
-    expect(at("Heroic").stats).toEqual([{ label: "Close-Up Damage:", value: "140%" }]);
+    expect(at("Common").stats).toEqual([{ label: "Close-Up Damage:", value: "+80%" }]);
+    expect(at("Heroic").stats).toEqual([{ label: "Close-Up Damage:", value: "+140%" }]);
     // The sentence is the same one at both, which is why the row is needed.
     expect(at("Common").description).toBe(at("Heroic").description);
   });
@@ -291,7 +291,7 @@ describe("deriveNodeDetail", () => {
     const boon = "AphroditeWeaponBoon" as TraitId;
     const unheld = deriveNodeView(source, boon, facts);
     expect(deriveNodeDetail(source, unheld, facts).stats).toEqual([
-      { label: "Close-Up Damage:", value: "80%" },
+      { label: "Close-Up Damage:", value: "+80%" },
     ]);
     // Its row needs a projectile stat the dump does not carry, so it is absent
     // rather than drawn with a mark in it.
