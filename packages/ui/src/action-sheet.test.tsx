@@ -10,7 +10,14 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ActionSheet } from "./action-sheet.js";
 import { OVERRIDDEN_LABEL } from "./messages.js";
-import type { NodeDetail, NodeView } from "./node-view.js";
+import {
+  type NodeDetail,
+  type NodeView,
+  createNodeSource,
+  deriveNodeDetail,
+  deriveNodeView,
+} from "./node-view.js";
+import { makeFacts, stubLookups, stubRules } from "./test-support.js";
 
 declare global {
   var IS_REACT_ACT_ENVIRONMENT: boolean;
@@ -247,6 +254,27 @@ describe("ActionSheet", () => {
     );
     expect(description.querySelector(".boonrow__statlabel")?.textContent).toBe(
       "Close-Up Damage:",
+    );
+  });
+
+  /**
+   * The two tests around this one hand the sheet a detail we wrote, so they go
+   * on passing if the derivation stops producing stats. This one walks the real
+   * chain: shipped catalog, real record, real rarity.
+   */
+  it("draws a stat row derived from the shipped catalog", () => {
+    const source = createNodeSource("hades2", stubRules(), stubLookups());
+    const facts = makeFacts({ game: "hades2" });
+    const node = deriveNodeView(source, "AphroditeWeaponBoon", facts);
+    render(
+      <ActionSheet
+        view={node}
+        detail={deriveNodeDetail(source, node, facts)}
+        onClose={noop}
+      />,
+    );
+    expect(container.querySelector(".boonrow__desc")?.textContent).toBe(
+      "Your Attacks deal more damage to nearby foes. Close-Up Damage: 80%",
     );
   });
 
