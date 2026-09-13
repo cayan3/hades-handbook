@@ -259,6 +259,16 @@ describe("statLinesFor", () => {
     expect(statLinesFor("hades2", "NotARealRef")).toEqual([]);
   });
 
+  // These cards had no number anywhere: the sentence carries none either.
+  it("keeps the line it can read when another on the same record it cannot", () => {
+    expect(statLinesFor("hades1", "AphroditeShoutTrait", "Common")).toEqual([
+      { label: "Max Gauge Bonus:", value: "2500 Damage" },
+    ]);
+    expect(textFor("hades1", "AphroditeShoutTrait")).toBe(
+      "Your Call fires a seeking projectile that inflicts Charm.",
+    );
+  });
+
   it("leaves a sentence readable that gained a stat line and no slot", () => {
     // The common shape: 160 of Hades II's 218 god-page sentences carry no
     // number, so their entry has `stats` and no `values` at all. Reading a

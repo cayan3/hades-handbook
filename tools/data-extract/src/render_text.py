@@ -285,32 +285,27 @@ def _stat_sources(raw, record, bundle, game):
 
 
 def _stat_entry(raw, record, bundle, keywords, resolver, trait_id, rarities, game):
-    """A record's stat lines, or nothing where any of them cannot be answered.
+    """A record's stat lines, minus any whose value we cannot work out.
 
-    All or nothing per record, and the shape of the data makes that cheap rather
-    than a compromise: every Hades II god-page record declares exactly one stat
-    line, and each either resolves at every rarity or at none -- 155 and 54, no
-    record splitting. A line that cannot be answered is dropped rather than
-    marked, because the label is a field name and the value is the whole of what
-    the row says, so a marked one reads as a row that says nothing. That is the
-    opposite call from a description, which still carries its claim without the
-    number.
+    Dropped rather than marked: a label is a field name, so "Blitz Damage: ?"
+    is a row that says nothing. A description is the other way round -- it
+    still reads without its number.
+
+    Per line rather than per record. Hades I's Calls write two lines each, and
+    three of them pair an unreadable first line with a Max Gauge Bonus that
+    resolves fine. A line is still all-or-nothing across the rarities though:
+    `?` at Common and a number at Epic reads as the boon doing nothing there.
     """
     pairs = _stat_sources(raw, record, bundle, game)
-    if not pairs:
-        return None
     keys = list(rarities) or [None]
     labels, rows = [], {key: [] for key in keys}
     for label_raw, value_raw in pairs:
         label = render_name(label_raw, keywords)
         if not label:
-            return None
-        # A label can carry a substitution of its own, and four Hades II records
-        # do -- the final boss's name, an inflation index, a run-state line.
-        # `render_name` leaves those markup, so they are filled here and the
-        # record is dropped where one cannot be, rather than printing a brace
-        # onto a card. The label does not vary by rarity; it is resolved at the
-        # first one and the same text used throughout.
+            continue
+        # A few labels carry a substitution of their own, which render_name
+        # leaves as markup. Fill it or drop the line -- a brace must never
+        # reach a card. Labels don't move with rarity, so the first one does.
         if SUBSTITUTION.search(label):
             filled = []
 
@@ -323,10 +318,13 @@ def _stat_entry(raw, record, bundle, keywords, resolver, trait_id, rarities, gam
 
             label = SUBSTITUTION.sub(label_fill, label)
             if None in filled:
-                return None
+                continue
             label = re.sub(r"\s+", " ", label).strip()
             if not label:
-                return None
+                continue
+        # Buffered until every rarity answers, so a line cannot half-fill the
+        # rows.
+        answered = {}
         for key in keys:
             missing = []
 
@@ -339,9 +337,15 @@ def _stat_entry(raw, record, bundle, keywords, resolver, trait_id, rarities, gam
 
             value = render_description(value_raw, keywords, fill)
             if missing or not value:
-                return None
-            rows[key].append(value)
+                break
+            answered[key] = value
+        if len(answered) != len(keys):
+            continue
+        for key in keys:
+            rows[key].append(answered[key])
         labels.append(label)
+    if not labels:
+        return None
     fallback = "Common" if "Common" in keys else keys[0]
     values = {"default": rows[fallback]}
     for key in keys:

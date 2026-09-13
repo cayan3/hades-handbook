@@ -387,6 +387,16 @@ STAT_DEFS = {
         "ExtractValues": [{"ExtractAs": "Damage", "Key": "ChangeValue"}],
         "ChangeValue": 40,
     },
+    # Two lines, the first unreadable -- the shape of Hades I's Calls.
+    "Partial": {
+        "RarityLevels": {"Common": {"Multiplier": 1.0}, "Rare": {"Multiplier": 2.0}},
+        "StatLines": ["OuterStat", "PartialStat"],
+        "ExtractValues": [
+            {"ExtractAs": "Outer", "External": True, "BaseType": "ProjectileBase"},
+            {"ExtractAs": "Damage", "Key": "ChangeValue"},
+        ],
+        "ChangeValue": {"BaseValue": 40},
+    },
 }
 
 STAT_BUNDLE = {
@@ -397,6 +407,12 @@ STAT_BUNDLE = {
                    "description": "{#UpgradeFormat}{$TooltipData.StatDisplay1}"},
     "BossStat": {"displayName": "{$TooltipData.ExtractData.Nowhere} Life:",
                  "description": "{#UpgradeFormat}{$TooltipData.StatDisplay1}"},
+    "Partial": {"description": "Your Attacks do two things."},
+    "OuterStat": {"displayName": "Blast Damage:",
+                  "description": "{#UpgradeFormat}{$TooltipData.ExtractData.Outer}"},
+    # StatDisplay2: the index counts entries, not the ones that resolved.
+    "PartialStat": {"displayName": "Damage:",
+                    "description": "{#UpgradeFormat}{$TooltipData.StatDisplay2}"},
 }
 
 
@@ -425,6 +441,14 @@ def test_a_stat_line_is_dropped_rather_than_marked_when_it_cannot_be_read():
                            STAT_DEFS, "hades2")
     assert out["External"] == "Your Attacks inflict Blitz."
     assert _stats("External", []) is None
+
+
+def test_a_line_that_cannot_be_read_leaves_the_others_on_the_record():
+    """Hades I's Calls write two lines each, and three of them lost a perfectly
+    good Max Gauge Bonus because the first line was unreadable."""
+    stats = _stats("Partial", ["Common", "Rare"])
+    assert stats["labels"] == ["Damage:"]
+    assert stats["values"] == {"default": ["40"], "Rare": ["80"]}
 
 
 def test_a_label_carrying_a_substitution_nobody_can_answer_drops_the_record():

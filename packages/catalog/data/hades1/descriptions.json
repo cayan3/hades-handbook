@@ -25,7 +25,19 @@
  "AphroditeRetaliateTrait": "After you take damage, damage foes around you and inflict Weak.",
  "AphroditeRushTrait": "Your Dash deals damage where you end up, inflicting Weak.",
  "AphroditeSecondaryTrait": "Your Special deals more damage and inflicts Weak.",
- "AphroditeShoutTrait": "Your Call fires a seeking projectile that inflicts Charm.",
+ "AphroditeShoutTrait": {
+  "stats": {
+   "labels": [
+    "Max Gauge Bonus:"
+   ],
+   "values": {
+    "default": [
+     "2500 Damage"
+    ]
+   }
+  },
+  "text": "Your Call fires a seeking projectile that inflicts Charm."
+ },
  "AphroditeWeakenTrait": "Weak-afflicted foes are also more susceptible to damage.",
  "AphroditeWeaponTrait": "Your Attack deals more damage and inflicts Weak.",
  "AresAoETrait": "Your Blade Rift effects deal damage in a wider area.",
@@ -95,6 +107,16 @@
   }
  },
  "ArtemisShoutTrait": {
+  "stats": {
+   "labels": [
+    "Max Gauge Bonus - Arrows Fired:"
+   ],
+   "values": {
+    "default": [
+     "10"
+    ]
+   }
+  },
   "text": "Your Call fires a seeking arrow with {0} Critical chance.",
   "values": {
    "default": [
@@ -117,7 +139,19 @@
  "AthenaRushTrait": "Your Dash deals damage and can Deflect.",
  "AthenaSecondaryTrait": "Your Special is stronger, and can Deflect.",
  "AthenaShieldTrait": "When you Deflect attacks, it deals more damage.",
- "AthenaShoutTrait": "Your Call briefly makes you Impervious and Deflect all attacks.",
+ "AthenaShoutTrait": {
+  "stats": {
+   "labels": [
+    "Max Gauge Bonus:"
+   ],
+   "values": {
+    "default": [
+     "6x Duration"
+    ]
+   }
+  },
+  "text": "Your Call briefly makes you Impervious and Deflect all attacks."
+ },
  "AthenaWeaponTrait": "Your Attack is stronger, and can Deflect.",
  "AutoRetaliateTrait": {
   "stats": {
