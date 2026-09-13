@@ -245,6 +245,22 @@ for _, id in ipairs(ids) do
 				for k, v in pairs(trait) do
 					if type(v) == "number" then flat[k] = v end
 				end
+				-- What StatDisplayN resolves to, in two halves: NewTotal[i] is
+				-- the number, StatDisplay<i> names the key the text engine
+				-- draws it through (PercentNewTotal<i> and friends). The
+				-- resolver infers both from ExtractValues, so without these
+				-- there is nothing to hold it to.
+				if type(trait.NewTotal) == "table" then
+					for i, v in pairs(trait.NewTotal) do
+						if type(v) == "number" or type(v) == "string" then
+							flat["StatDisplay." .. tostring(i)] = v
+						end
+						local kind = trait["StatDisplay" .. tostring(i)]
+						if type(kind) == "string" then
+							flat["StatDisplayKind." .. tostring(i)] = kind
+						end
+					end
+				end
 				out[id .. "|" .. rarity] = flat
 			else
 				skipped[#skipped + 1] = id .. "|" .. rarity

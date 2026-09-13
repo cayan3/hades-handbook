@@ -320,6 +320,19 @@ def test_a_stat_line_counts_only_the_entries_the_tooltip_lists():
     assert resolver.value("Boon", None, "TooltipData.StatDisplay1") == "9"
 
 
+def test_hades_one_is_not_asked_what_a_stat_display_slot_means():
+    """Hades I fills NewTotal[i] from somewhere else, so the Nth auto-extracted
+    entry is not what it draws. The oracle caught us answering anyway on 192
+    pairs."""
+    defs = {
+        "Boon": {
+            "Listed": 9,
+            "ExtractValues": [{"ExtractAs": "Second", "Key": "Listed"}],
+        }
+    }
+    assert Resolver(defs, "hades1").value("Boon", None, "TooltipData.StatDisplay1") is None
+
+
 # ---------------------------------------------------------------------------
 # The one format that answers a word
 # ---------------------------------------------------------------------------

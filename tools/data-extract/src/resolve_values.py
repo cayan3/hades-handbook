@@ -611,8 +611,16 @@ def _as_band(value):
     return None
 
 
-def _stat_display(top, values, position):
-    """StatDisplayN indirects to the Nth entry the tooltip lists automatically."""
+def _stat_display(top, values, position, game):
+    """StatDisplayN indirects to the Nth entry the tooltip lists automatically.
+
+    Hades II only. Hades I fills NewTotal[i] from the run-accumulated
+    `<name>Total` fields instead, so the Nth auto-extracted entry is not what it
+    draws -- and nothing there asks anyway, `StatDisplay` appearing nowhere in
+    its text bundle. Better to answer nothing than to answer wrongly.
+    """
+    if game != "hades2":
+        return None, False
     seen = 0
     for entry in top.get("ExtractValues") or []:
         if not isinstance(entry, dict) or entry.get("SkipAutoExtract"):
@@ -666,7 +674,7 @@ class Resolver:
             if len(parts) == 2:
                 stat = STAT_DISPLAY.match(parts[1])
                 if stat:
-                    return _stat_display(top, values, int(stat.group(1)))
+                    return _stat_display(top, values, int(stat.group(1)), self.game)
             band = _as_band(_walk_path(top, parts[1:]))
             if band is not None:
                 return band, False

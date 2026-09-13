@@ -30,7 +30,7 @@ TOOL = Path(__file__).resolve().parent
 sys.path.insert(0, str(TOOL / "src"))
 
 from config import raw_dir, scripts_dir  # noqa: E402
-from resolve_values import extracted_for, merged_record  # noqa: E402
+from resolve_values import _stat_display, extracted_for, merged_record  # noqa: E402
 
 GAMES = {"hades1": "h1_TraitData.json", "hades2": "h2_TraitData.json"}
 # Hades I has no such dump and needs none: its logic has no weapon-cost branch.
@@ -68,6 +68,52 @@ def extract_names(node, found):
     return found
 
 
+# The two halves of a StatDisplayN: the number, and the key it draws through.
+STAT_VALUE = "StatDisplay."
+STAT_KIND = "StatDisplayKind."
+
+
+def check_stat_display(low, passes, key, top, mine, wrong, invented, game):
+    """Diff the StatDisplayN indirection itself, not just where it lands.
+
+    Most of a Hades II stat line reads its number through one of these, and
+    diffing by extract name misses an off-by-one entirely -- the wrong number is
+    still a number we checked, so it agrees. Same for the percent sign, which
+    the resolver decides from a hand-copy of the game's format table.
+    """
+    checked = 0
+    for name in sorted(n for n in low[key] if n.startswith(STAT_VALUE)):
+        position = int(name[len(STAT_VALUE):])
+        drawn = [p[key][name] for p in passes
+                 if isinstance(p.get(key), dict) and name in p[key]]
+        kinds = {p[key].get(STAT_KIND + str(position)) for p in passes
+                 if isinstance(p.get(key), dict)}
+        band, percent = _stat_display(top, mine, position, game)
+        if band is None:
+            continue
+        if not drawn:
+            invented.append((key, name, str(band)))
+            continue
+        # A word compares by equality, as in the value pass below. A word
+        # against a number is a disagreement, not a crash -- that is what
+        # landing on the wrong entry looks like.
+        if isinstance(band, str) or any(isinstance(drew, str) for drew in drawn):
+            if not all(drew == band for drew in drawn):
+                wrong.append((key, name, repr(band), repr(sorted(set(map(str, drawn))))))
+                continue
+        else:
+            lo, hi = min(drawn), max(drawn)
+            if not (abs(band.lo - lo) < 1e-6 and abs(band.hi - hi) < 1e-6):
+                wrong.append((key, name, str(band), "%s..%s" % (lo, hi)))
+                continue
+        drawn_percent = any(k and k.startswith(("Percent", "FlatPercent")) for k in kinds)
+        if drawn_percent != percent:
+            wrong.append((key, name + " percent", str(percent), str(drawn_percent)))
+            continue
+        checked += 1
+    return checked
+
+
 def check(game, workdir):
     defs = json.load(open(raw_dir() + GAMES[game], encoding="utf-8"))
     # The weapon table, where a spell's Magick cost is: the resolver reads it
@@ -84,7 +130,7 @@ def check(game, workdir):
               for a in ("min", "max") for b in ("min", "max")]
     low = passes[0]
 
-    agree = silent = 0
+    agree = silent = stats = 0
     wrong, invented = [], []
     for key in sorted(low):
         if not isinstance(low.get(key), dict):
@@ -99,7 +145,8 @@ def check(game, workdir):
         levels = record.get("RarityLevels")
         if rarity is not None and not (isinstance(levels, dict) and rarity in levels):
             continue
-        _, mine, _ = extracted_for(defs, trait_id, rarity, game, weapons)
+        top, mine, _ = extracted_for(defs, trait_id, rarity, game, weapons)
+        stats += check_stat_display(low, passes, key, top, mine, wrong, invented, game)
         for name in sorted(extract_names(record, set())):
             drawn = [p[key][PREFIX[game] + name] for p in passes
                      if isinstance(p.get(key), dict) and PREFIX[game] + name in p[key]]
@@ -133,6 +180,10 @@ def check(game, workdir):
     dropped = low.get("__skipped__") or []
     print("%s: %d agree, %d the resolver leaves to the mark, %d the game's own "
           "logic would not process" % (game, agree, silent, len(dropped)))
+    # A different question from the values: not "is this number right" but
+    # "is this the number that line draws".
+    print("    %d StatDisplay slots agree on both the value and the percent sign"
+          % stats)
     for key in dropped[:10]:
         print("    NOT PROCESSED %s" % key)
     for key, name, mine_text, theirs_text in wrong[:20]:
