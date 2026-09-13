@@ -28,6 +28,16 @@ describe.each(GAMES)("overlay for %s", (game) => {
     expect(dangling).toEqual([]);
   });
 
+  it("names only traits the extraction still has in its alternatives", () => {
+    // A rename on either side leaves an entry that stops applying in silence.
+    const dangling = Object.entries(overlay).flatMap(([id, entry]) =>
+      Object.entries(entry.alsoSatisfiedBy ?? {}).flatMap(([clause, also]) =>
+        [clause, ...also].filter((t) => !(t in traits)).map((t) => `${id} -> ${t}`),
+      ),
+    );
+    expect(dangling).toEqual([]);
+  });
+
   it("names only gods the extraction still has", () => {
     const dangling = Object.entries(overlay)
       .filter(([, entry]) => entry.god !== undefined && !(entry.god in gods))

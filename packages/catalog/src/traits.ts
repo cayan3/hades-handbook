@@ -1,3 +1,4 @@
+import type { Requirement } from "@repo/core";
 import { type GameKey, dataFor } from "./data.js";
 import { overlayFor } from "./overlay.js";
 import { perGame } from "./per-game.js";
@@ -76,10 +77,36 @@ function merge(game: GameKey): {
         [...new Set([...(record.aspectConflicts ?? []), ...entry.aspectConflicts])].sort(),
       );
     }
+    if (entry.alsoSatisfiedBy !== undefined && record.prereq != null) {
+      patch.prereq = widen(record.prereq, entry.alsoSatisfiedBy);
+    }
     merged[id] =
       Object.keys(patch).length === 0 ? record : Object.freeze({ ...record, ...patch });
   }
   return { records: Object.freeze(merged), refused: Object.freeze(refused.sort()) };
+}
+
+/**
+ * Rewrites each `hasTrait` the overlay names into an `anyOf` over it and its
+ * alternatives, leaving the rest of the requirement the extraction's.
+ */
+function widen(node: Requirement, extra: Readonly<Record<string, readonly string[]>>): Requirement {
+  switch (node.kind) {
+    case "hasTrait": {
+      const also = extra[node.trait];
+      if (also === undefined || also.length === 0) return node;
+      return Object.freeze({
+        kind: "anyOf",
+        min: 1,
+        of: [node, ...also.map((trait) => Object.freeze({ kind: "hasTrait", trait }) as Requirement)],
+      });
+    }
+    case "all":
+    case "anyOf":
+      return Object.freeze({ ...node, of: node.of.map((child) => widen(child, extra)) });
+    default:
+      return node;
+  }
 }
 
 const merged = perGame(merge);

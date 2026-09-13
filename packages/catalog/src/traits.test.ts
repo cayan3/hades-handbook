@@ -117,6 +117,46 @@ describe("records this catalog will not hand over", () => {
     }
   });
 
+  // The reported bug: holding Trippy Flare, the card still asked for Trippy Shot.
+  it("lets a Cast twin satisfy a requirement that names only the other", () => {
+    const prereq = traitsFor("hades1")["LightningCloudTrait"]!.prereq;
+    expect(prereq).toEqual({
+      kind: "all",
+      of: [
+        {
+          kind: "anyOf",
+          min: 1,
+          of: [
+            { kind: "hasTrait", trait: "ZeusWeaponTrait" },
+            { kind: "hasTrait", trait: "ZeusSecondaryTrait" },
+            { kind: "hasTrait", trait: "ZeusRushTrait" },
+            { kind: "hasTrait", trait: "ZeusShoutTrait" },
+          ],
+        },
+        {
+          kind: "anyOf",
+          min: 1,
+          of: [
+            { kind: "hasTrait", trait: "DionysusRangedTrait" },
+            { kind: "hasTrait", trait: "ShieldLoadAmmo_DionysusRangedTrait" },
+          ],
+        },
+      ],
+    });
+  });
+
+  /**
+   * Why the widening is per record and not a blanket equivalence: Blown Kiss
+   * refuses Aspect of Beowulf, which is the only thing that grants its Flare,
+   * so the pairing cannot happen. Four more read the same way.
+   */
+  it("leaves a requirement alone where the game refuses the boon on that aspect", () => {
+    expect(traitsFor("hades1")["AphroditeRangedBonusTrait"]!.prereq).toEqual({
+      kind: "hasTrait",
+      trait: "AphroditeRangedTrait",
+    });
+  });
+
   it("hands over a prerequisite the evaluator can always walk", () => {
     // The property the refusal exists for, asserted over both shipped games
     // rather than over the two ids that motivated it -- a patch adding a third
